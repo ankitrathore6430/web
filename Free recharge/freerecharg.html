@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BharatPay - Free 5G Unlimited Recharge</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --accent: #6366f1;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --bg-dark: #0f172a;
+            --card-bg: rgba(255, 255, 255, 0.08);
+        }
+
+        body {
+            font-family: 'Poppins', sans-serif;
+            background: radial-gradient(circle at 0% 0%, #1e1b4b 0%, #0f172a 100%);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            overflow-x: hidden; 
+            padding-bottom: 80px; 
+        }
+
+        .ad-slot {
+            width: 100%;
+            margin: 15px 0;
+            min-height: 50px;
+            background: rgba(255,255,255,0.05);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            border-radius: 8px;
+            text-align: center;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .sticky-ad {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 60px;
+            background: rgba(0,0,0,0.95);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border-top: 2px solid var(--accent);
+        }
+
+        #live-notif {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            background: rgba(255, 255, 255, 0.95);
+            color: #1e293b;
+            padding: 10px;
+            font-size: 12px;
+            font-weight: 600;
+            text-align: center;
+            z-index: 1000;
+            display: none;
+            border-bottom: 3px solid var(--success);
+        }
+
+        .container {
+            background: var(--card-bg);
+            backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 25px;
+            width: 88%;
+            max-width: 380px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            text-align: center;
+            z-index: 10;
+        }
+
+        .logo { font-size: 28px; font-weight: 800; margin-bottom: 2px; color: #fff; }
+        .logo span { color: var(--accent); }
+        .sub-text { color: #94a3b8; font-size: 12px; margin-bottom: 15px; }
+
+        .form-group { text-align: left; margin-bottom: 15px; }
+        label { font-size: 11px; font-weight: 600; color: #cbd5e1; margin-bottom: 4px; display: block; }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            background: rgba(15, 23, 42, 0.6);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            color: #fff;
+            font-size: 15px;
+            box-sizing: border-box;
+        }
+
+        .btn-premium {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #6366f1, #4338ca);
+            border: none;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: 600;
+            font-size: 16px;
+            cursor: pointer;
+            box-shadow: 0 5px 15px rgba(67, 56, 202, 0.3);
+        }
+
+        .timer-display {
+            font-size: 40px;
+            font-weight: 800;
+            color: var(--accent);
+            margin: 15px 0;
+            background: rgba(0,0,0,0.2);
+            padding: 8px;
+            border-radius: 12px;
+        }
+
+        .warning-text {
+            color: var(--warning);
+            font-weight: 600;
+            font-size: 13px;
+            background: rgba(245, 158, 11, 0.1);
+            padding: 8px;
+            border-radius: 8px;
+            margin: 10px 0;
+            border-left: 3px solid var(--warning);
+        }
+
+        .loader-ring {
+            display: inline-block;
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255,255,255,0.1);
+            border-radius: 50%;
+            border-top-color: var(--accent);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        .progress-container { background: rgba(255,255,255,0.1); border-radius: 10px; height: 10px; margin: 15px 0; }
+        .progress-fill { background: var(--success); height: 100%; border-radius: 10px; width: 0%; transition: 0.5s; }
+        
+        .whatsapp-btn {
+            background: #25D366;
+            color: #fff;
+            padding: 14px;
+            border-radius: 10px;
+            text-decoration: none;
+            display: block;
+            font-weight: bold;
+            margin-top: 10px;
+        }
+
+        #step-2, #step-3, #step-extra, #loading, #step-processing { display: none; }
+    </style>
+</head>
+<body>
+
+<div id="live-notif"></div>
+
+<div class="ad-slot" style="max-width: 380px;">
+    <script type="text/javascript">
+        atOptions = { 'key' : '6223d7284c5937b38be2c2e25e51422a', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
+    </script>
+    <script type="text/javascript" src="https://www.highperformanceformat.com/6223d7284c5937b38be2c2e25e51422a/invoke.js"></script>
+</div>
+
+<div class="container">
+    <div id="step-1">
+        <div class="logo">Bharat<span>Pay</span></div>
+        <p class="sub-text">Special 5G Unlimited Free Offer 🚀</p>
+        <div class="form-group">
+            <label>Mobile Number</label>
+            <input type="tel" id="mobile" placeholder="Enter 10 digit number" maxlength="10">
+        </div>
+        <div class="form-group">
+            <label>SIM Operator</label>
+            <select id="operator" onchange="loadPlans()">
+                <option value="">Select Operator</option>
+                <option value="Jio">Reliance Jio</option>
+                <option value="Airtel">Bharti Airtel</option>
+                <option value="Vi">Vi (Vodafone Idea)</option>
+                <option value="BSNL">BSNL Mobile</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Choose Plan</label>
+            <select id="plans">
+                <option value="">Select Operator First</option>
+            </select>
+        </div>
+        <button class="btn-premium" onclick="validate()">Recharge Now</button>
+        <div class="ad-slot">
+            <script async="async" data-cfasync="false" src="https://pl28561226.effectivegatecpm.com/0ecaada44f40188a7fe2a2866d8e9fa7/invoke.js"></script>
+            <div id="container-0ecaada44f40188a7fe2a2866d8e9fa7"></div>
+        </div>
+    </div>
+
+    <div id="loading">
+        <div class="loader-ring"></div>
+        <p style="margin-top:15px; font-weight:600;" id="load-txt">Connecting...</p>
+        <div class="ad-slot">
+            <script type="text/javascript">
+                atOptions = { 'key' : '6223d7284c5937b38be2c2e25e51422a', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
+            </script>
+            <script type="text/javascript" src="https://www.highperformanceformat.com/6223d7284c5937b38be2c2e25e51422a/invoke.js"></script>
+        </div>
+    </div>
+
+    <div id="step-2">
+        <h3>Verify Account</h3>
+        <p style="font-size: 12px; color: #94a3b8;">Share to 5 friends/groups to unlock.</p>
+        <div class="progress-container"><div class="progress-fill" id="bar"></div></div>
+        <p style="font-size:14px;">Shared: <span id="count">0</span>/5</p>
+
+        <div class="ad-slot">
+            <script type="text/javascript">
+                atOptions = { 'key' : '6223d7284c5937b38be2c2e25e51422a', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
+            </script>
+            <script type="text/javascript" src="https://www.highperformanceformat.com/6223d7284c5937b38be2c2e25e51422a/invoke.js"></script>
+        </div>
+
+        <a href="javascript:void(0)" class="whatsapp-btn" onclick="share()">Share on WhatsApp</a>
+
+        <div class="ad-slot" style="min-height: 250px;">
+            <script type="text/javascript">
+                atOptions = { 'key' : '405523628e3ae8ecd64b611775de0d40', 'format' : 'iframe', 'height' : 250, 'width' : 300, 'params' : {} };
+            </script>
+            <script type="text/javascript" src="https://www.highperformanceformat.com/405523628e3ae8ecd64b611775de0d40/invoke.js"></script>
+        </div>
+    </div>
+
+    <div id="step-processing">
+        <h3 id="proc-title">System Processing...</h3>
+        <div class="loader-ring"></div>
+        <div class="warning-text" id="proc-msg" style="margin-top: 15px;">Checking sharing status...</div>
+        <div class="ad-slot" style="min-height: 250px;">
+            <script type="text/javascript">
+                atOptions = { 'key' : '405523628e3ae8ecd64b611775de0d40', 'format' : 'iframe', 'height' : 250, 'width' : 300, 'params' : {} };
+            </script>
+            <script type="text/javascript" src="https://www.highperformanceformat.com/405523628e3ae8ecd64b611775de0d40/invoke.js"></script>
+        </div>
+    </div>
+
+    <div id="step-extra">
+        <h3 id="extra-title" style="font-size:18px;">Finalizing...</h3>
+        <div class="warning-text">
+            ⚠️ <b>Don't close or refresh!</b><br>
+            कृपया इस पेज को बंद न करें।
+        </div>
+        <div class="timer-display" id="wait-timer">03:00</div>
+        <div class="ad-slot" style="min-height: 250px;">
+            <script type="text/javascript">
+                atOptions = { 'key' : '405523628e3ae8ecd64b611775de0d40', 'format' : 'iframe', 'height' : 250, 'width' : 300, 'params' : {} };
+            </script>
+            <script type="text/javascript" src="https://www.highperformanceformat.com/405523628e3ae8ecd64b611775de0d40/invoke.js"></script>
+        </div>
+        <button id="final-btn" class="btn-premium" style="display: none; background: var(--success);" onclick="goFinal()">Confirm Now</button>
+    </div>
+
+    <div id="step-3">
+        <h2 style="color: var(--success);">Success!</h2>
+        
+        <div class="ad-slot">
+            
+            <h4>Recharge Complete Karne ke liye <br> App Download Kare </br> </h4>
+            
+        </div>
+        
+        <p style="font-size: 13px;">Request submitted successfully!</p>
+        <div style="background: rgba(255,255,255,0.05); padding: 12px; border-radius: 10px; text-align: left; font-size:13px;">
+            <b>Number:</b> <span id="res-num" style="color: var(--accent);"></span><br>
+            <b>Status:</b> <span style="color: #f59e0b;">Pending (24h)</span>
+        </div>
+        
+        <div class="ad-slot">
+            
+         <style>
+  .premium-btn {
+    display: inline-block;
+    padding: 15px 100px;
+    font-family: 'Poppins', sans-serif; /* Modern font */
+    font-size: 17px;
+    font-weight: 600;
+    color: #ffffff !important;
+    text-decoration: none;
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%); /* Indigo to Purple Gradient */
+    border-radius: 12px; /* Smooth rounded corners */
+    box-shadow: 0 10px 20px -5px rgba(99, 102, 241, 0.5);
+    transition: all 0.3s ease;
+    border: none;
+    cursor: pointer;
+    text-align: center;
+  }
+
+  /* Hover Effect: Mouse le jane par button thoda uthega */
+  .premium-btn:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 30px -5px rgba(168, 85, 247, 0.6);
+    filter: brightness(1.1);
+  }
+
+  /* Click Effect */
+  .premium-btn:active {
+    transform: translateY(-1px);
+  }
+</style>
+
+<a href="APNA_LINK_YAHAN_DALO" class="premium-btn">
+   Download Now
+</a> 
+            
+        </div>
+    </div>
+</div>
+
+<div class="sticky-ad">
+    <script type="text/javascript">
+        atOptions = { 'key' : '6223d7284c5937b38be2c2e25e51422a', 'format' : 'iframe', 'height' : 50, 'width' : 320, 'params' : {} };
+    </script>
+    <script type="text/javascript" src="https://www.highperformanceformat.com/6223d7284c5937b38be2c2e25e51422a/invoke.js"></script>
+</div>
+
+<script src="https://pl28563576.effectivegatecpm.com/63/b3/e2/63b3e2e59e12e88dee2442ade04a3c5a.js"></script>
+
+<script>
+    const allData = {
+        "Jio": ["₹299 - 2GB/Day", "₹349 - 5G Unlimited", "₹666 - 84 Days", "₹2999 - 1 Year"],
+        "Airtel": ["₹299 - 1.5GB/Day", "₹839 - 5G Unlimited", "₹3359 - Annual"],
+        "Vi": ["₹299 - 1.5GB/Day", "₹719 - 84 Days"],
+        "BSNL": ["₹107 - 35 Days", "₹797 - 365 Days"]
+    };
+
+    const successSound = new Audio('https://assets.mixkit.co/active_storage/sfx/2869/2869-preview.mp3');
+    const warningSound = new Audio('https://www.soundjay.com/buttons/sounds/button-10.mp3');
+
+    function loadPlans() {
+        const op = document.getElementById('operator').value;
+        const ps = document.getElementById('plans');
+        ps.innerHTML = '<option value="">Choose a Plan</option>';
+        if(allData[op]) allData[op].forEach(p => ps.innerHTML += `<option value="${p}">${p}</option>`);
+    }
+
+    function validate() {
+        const num = document.getElementById('mobile').value;
+        const op = document.getElementById('operator').value;
+        const pl = document.getElementById('plans').value;
+        if(num.length !== 10 || isNaN(num) || !op || !pl) {
+            warningSound.play();
+            return alert("Sahi Details bhariye!");
+        }
+        successSound.play(); 
+        document.getElementById('step-1').style.display = 'none';
+        document.getElementById('loading').style.display = 'block';
+        const loadTxt = document.getElementById('load-txt');
+        loadTxt.innerText = "Connecting to server...";
+        setTimeout(() => { loadTxt.innerText = "Verifying mobile number..."; }, 3000);
+        setTimeout(() => { loadTxt.innerText = "Processing your recharge..."; }, 7000);
+        setTimeout(() => {
+            document.getElementById('loading').style.display = 'none';
+            document.getElementById('step-2').style.display = 'block';
+        }, 10000); 
+    }
+
+    let c = 0;
+    function share() {
+          const shareText = "🚀*BharatPay ki taraf se*\n*sabhi ko mil raha hai*\n*₹719 wala 5G Unlimited Recharge*\n*bilkul FREE!* 👉 bit.ly/BharatPay_Free_Recharge";
+
+        
+
+        window.open("whatsapp://send?text=" + encodeURIComponent(shareText));
+        if(c < 5) {
+            c++;
+            document.getElementById('count').innerText = c;
+            document.getElementById('bar').style.width = (c * 20) + "%";
+        }
+        if(c >= 5) {
+            setTimeout(() => {
+                document.getElementById('step-2').style.display = 'none';
+                showProcessingSteps(); 
+            }, 1000);
+        }
+    }
+
+    function showProcessingSteps() {
+        const procDiv = document.getElementById('step-processing');
+        const procMsg = document.getElementById('proc-msg');
+        procDiv.style.display = 'block';
+        const steps = ["Verifying WhatsApp referrals...", "Checking network congestion...", "Allocating 5G bandwidth...", "Finalizing transaction ID..."];
+        let currentStep = 0;
+        const stepInterval = setInterval(() => {
+            if (currentStep < steps.length) {
+                procMsg.innerText = steps[currentStep];
+                currentStep++;
+            } else {
+                clearInterval(stepInterval);
+                procDiv.style.display = 'none';
+                startExtraSteps(); 
+            }
+        }, 3000); 
+    }
+
+    function startExtraSteps() {
+        document.getElementById('step-extra').style.display = 'block';
+        let timeLeft = 5; // Changed to 3 minutes (180s)
+        const timerInterval = setInterval(() => {
+            let mins = Math.floor(timeLeft / 60);
+            let secs = timeLeft % 60;
+            document.getElementById('wait-timer').innerText = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+            if(timeLeft <= 0) {
+                clearInterval(timerInterval);
+                document.getElementById('final-btn').style.display = 'block';
+            }
+            timeLeft--;
+        }, 1000);
+    }
+
+    let clickCount = 0; // To track clicks on final button
+    function goFinal() {
+        if (clickCount === 0) {
+            // First click: Open the direct ad link
+            window.open("https://www.effectivegatecpm.com/yg0zkpvz?key=582f845bc959c0b3fccbabd5b118fabb", "_blank");
+            clickCount++;
+        } else {
+            // Second click: Show success screen and referral link
+            document.getElementById('step-extra').style.display = 'none';
+            document.getElementById('step-3').style.display = 'block';
+            document.getElementById('res-num').innerText = document.getElementById('mobile').value;
+            setTimeout(() => { window.open("YOUR_REFERRAL_LINK_HERE", "_blank"); }, 1000);
+        }
+    }
+
+    function updateLiveFeed() {
+        const toast = document.getElementById('live-notif');
+        if(toast) {
+            toast.innerHTML = `⭐ User 98***${Math.floor(Math.random()*900+100)} successfully recharged!`;
+            toast.style.display = 'block';
+            setTimeout(() => { toast.style.display = 'none'; }, 3000);
+        }
+    }
+    setInterval(updateLiveFeed, 8000);
+    updateLiveFeed();
+</script>
+
+</body>
+</html>
