@@ -8,8 +8,8 @@
   OneSignalDeferred.push(async function(OneSignal) {
     await OneSignal.init({
       appId: "22eedfde-2b60-47cb-8915-d6a6210da896",
-      // YE DO LINES ERROR KHATAM KAR DENGI
-      serviceWorkerParam: { scope: "/web/" }, 
+      // Sabse safe setting GitHub Pages ke liye
+      serviceWorkerParam: { scope: "./" }, 
       serviceWorkerPath: "OneSignalSDKWorker.js",
     });
   });
