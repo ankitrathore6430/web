@@ -6,12 +6,24 @@
 <script>
   window.OneSignalDeferred = window.OneSignalDeferred || [];
   OneSignalDeferred.push(async function(OneSignal) {
+    // Debugging on karein (Sirf testing ke liye)
+    OneSignal.debug.setLogLevel('trace');
+
     await OneSignal.init({
       appId: "22eedfde-2b60-47cb-8915-d6a6210da896",
-      // GitHub Pages sub-folder fix
       serviceWorkerParam: { scope: "/web/" }, 
       serviceWorkerPath: "OneSignalSDKWorker.js",
+      welcomeNotification: {
+        disable: false // Welcome message on rakhne ke liye
+      }
     });
+
+    // GitHub Pages forceful registration
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('/web/OneSignalSDKWorker.js', { scope: '/web/' })
+        .then(() => console.log("Worker Registered Successfully"))
+        .catch((err) => console.log("Worker Failed:", err));
+    }
   });
 </script>
 
