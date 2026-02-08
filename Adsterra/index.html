@@ -21,78 +21,83 @@
 </head>
 <body class="bg-black">
 
-<nav id="navbar" class="fixed top-0 left-0 w-full z-[1000] transition-all duration-300 py-4 px-6 md:px-12 flex justify-between items-center bg-black/60 backdrop-blur-xl border-b border-white/10">
-    
-    <div class="flex items-center gap-2">
-        <div class="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(245,158,11,0.5)]">
-            <i class="fas fa-bolt text-black text-xl"></i>
-        </div>
-        <span class="text-xl font-black tracking-tighter uppercase italic">Adsterra <span class="text-amber-500">Gold</span></span>
-    </div>
-
-    <div class="hidden md:flex items-center gap-8">
-        <a href="#how-it-works" class="text-sm font-bold hover:text-amber-500 transition uppercase tracking-widest">Strategy</a>
-        <a href="#platforms" class="text-sm font-bold hover:text-amber-500 transition uppercase tracking-widest">Platforms</a>
-        <a href="https://wa.me/919310712068" target="_blank" class="bg-amber-500 text-black px-6 py-2 rounded-full font-black text-xs uppercase hover:scale-105 transition-all shadow-lg">
-            Join Now
-        </a>
-    </div>
-
-    <button id="menu-btn" class="md:hidden text-2xl text-amber-500 focus:outline-none">
-        <i class="fas fa-bars"></i>
+<nav id="navbar" class="fixed top-0 left-0 w-full z-[1000] py-4 px-6 flex justify-between items-center bg-black/50 backdrop-blur-lg">
+    <button id="menu-toggle" class="flex items-center gap-3 hover:bg-white/10 px-4 py-2 rounded-lg transition-all group">
+        <span class="text-sm font-bold uppercase tracking-[2px] text-gray-300 group-hover:text-white">Menu</span>
     </button>
 
-    <div id="mobile-menu" class="fixed inset-0 bg-black/95 z-[1001] flex flex-col items-center justify-center gap-8 transition-all duration-500 transform translate-x-full">
-        <button id="close-btn" class="absolute top-6 right-6 text-3xl text-amber-500">
-            <i class="fas fa-times"></i>
-        </button>
-        
-        <a href="#how-it-works" class="mobile-link text-2xl font-black uppercase italic hover:text-amber-500">Strategy</a>
-        <a href="#platforms" class="mobile-link text-2xl font-black uppercase italic hover:text-amber-500">Platforms</a>
-        <a href="https://wa.me/919310712068" class="mobile-link text-2xl font-black uppercase italic text-amber-500">Contact Help</a>
-        
-        <div class="mt-10 flex gap-6 text-2xl">
-            <a href="#" class="text-white hover:text-amber-500"><i class="fab fa-telegram"></i></a>
-            <a href="#" class="text-white hover:text-amber-500"><i class="fab fa-whatsapp"></i></a>
-        </div>
+    <div class="flex items-center gap-2">
+        <span class="text-sm font-black italic uppercase tracking-tighter">Adsterra <span class="text-amber-500">Gold</span></span>
     </div>
 </nav>
+
+<div id="side-panel" class="fixed inset-y-0 left-0 w-[280px] bg-[#121212] z-[1001] transform -translate-x-full transition-transform duration-300 ease-in-out border-r border-white/10 shadow-2xl">
+    <div class="p-6 flex flex-col h-full">
+        <div class="flex justify-between items-center mb-10">
+            <span class="text-xs font-bold text-amber-500 tracking-[3px] uppercase">Navigation</span>
+            <button id="close-panel" class="text-gray-400 hover:text-white text-xl">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+
+        <div class="flex flex-col gap-2">
+            <a href="#how-it-works" class="panel-link flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-all text-gray-300 hover:text-white font-medium">
+                <i class="fas fa-rocket text-amber-500 w-5"></i> Strategy
+            </a>
+            <a href="#platforms" class="panel-link flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-all text-gray-300 hover:text-white font-medium">
+                <i class="fas fa-layer-group text-amber-500 w-5"></i> Platforms
+            </a>
+            <a href="https://wa.me/919310712068" class="panel-link flex items-center gap-4 p-3 rounded-xl hover:bg-white/5 transition-all text-gray-300 hover:text-white font-medium border-t border-white/5 mt-4 pt-6">
+                <i class="fas fa-headset text-amber-500 w-5"></i> Get Help
+            </a>
+        </div>
+
+        <div class="mt-auto pt-6 border-t border-white/5">
+            <div class="flex items-center gap-3 p-2">
+                <div class="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center font-bold text-black text-xs">AR</div>
+                <div class="flex flex-col">
+                    <span class="text-xs font-bold">Ankit Rathore</span>
+                    <span class="text-[10px] text-gray-500">Pro Member</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div id="backdrop" class="fixed inset-0 bg-black/60 z-[1000] hidden backdrop-blur-sm transition-opacity opacity-0"></div>
 
 <div class="h-20"></div>
 
 <script>
-    const menuBtn = document.getElementById('menu-btn');
-    const closeBtn = document.getElementById('close-btn');
-    const mobileMenu = document.getElementById('mobile-menu');
-    const mobileLinks = document.querySelectorAll('.mobile-link');
+    const menuToggle = document.getElementById('menu-toggle');
+    const closePanel = document.getElementById('close-panel');
+    const sidePanel = document.getElementById('side-panel');
+    const backdrop = document.getElementById('backdrop');
+    const panelLinks = document.querySelectorAll('.panel-link');
 
-    // Open Menu
-    menuBtn.addEventListener('click', () => {
-        mobileMenu.classList.remove('translate-x-full');
-    });
+    function openMenu() {
+        sidePanel.classList.remove('-translate-x-full');
+        backdrop.classList.remove('hidden');
+        setTimeout(() => backdrop.classList.add('opacity-100'), 10);
+        document.body.style.overflow = 'hidden'; // Scroll band
+    }
 
-    // Close Menu
-    closeBtn.addEventListener('click', () => {
-        mobileMenu.classList.add('translate-x-full');
-    });
+    function closeMenu() {
+        sidePanel.classList.add('-translate-x-full');
+        backdrop.classList.remove('opacity-100');
+        setTimeout(() => {
+            backdrop.classList.add('hidden');
+            document.body.style.overflow = 'auto'; // Scroll shuru
+        }, 300);
+    }
 
-    // Close Menu when a link is clicked
-    mobileLinks.forEach(link => {
-        link.addEventListener('click', () => {
-            mobileMenu.classList.add('translate-x-full');
-        });
-    });
+    menuToggle.addEventListener('click', openMenu);
+    closePanel.addEventListener('click', closeMenu);
+    backdrop.addEventListener('click', closeMenu);
 
-    // Navbar Scroll Effect
-    window.addEventListener('scroll', () => {
-        const nav = document.getElementById('navbar');
-        if (window.scrollY > 50) {
-            nav.classList.add('bg-black', 'py-3');
-            nav.classList.remove('bg-black/60', 'py-4');
-        } else {
-            nav.classList.remove('bg-black', 'py-3');
-            nav.classList.add('bg-black/60', 'py-4');
-        }
+    // Link click karne par menu band ho jaye
+    panelLinks.forEach(link => {
+        link.addEventListener('click', closeMenu);
     });
 </script>
 
