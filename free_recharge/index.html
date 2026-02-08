@@ -8,6 +8,10 @@
   OneSignalDeferred.push(async function(OneSignal) {
     await OneSignal.init({
       appId: "16ee6309-5dd4-4c7b-81f0-7d023390ba12",
+      // File ka sahi path (kyunki ye /web/ folder mein hai)
+      serviceWorkerPath: 'web/OneSignalSDKWorker.js',
+      // Jahan notification active chahiye (aapka main page)
+      serviceWorkerParam: { scope: '/web/free_recharge/' }
     });
   });
 </script>
