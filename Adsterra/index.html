@@ -21,46 +21,77 @@
 </head>
 <body class="bg-black">
 
-<nav id="navbar" class="fixed top-0 left-0 w-full z-[1000] transition-all duration-300 py-4 px-6 md:px-12 flex justify-between items-center bg-black/40 backdrop-blur-md border-b border-white/5">
+<nav id="navbar" class="fixed top-0 left-0 w-full z-[1000] transition-all duration-300 py-4 px-6 md:px-12 flex justify-between items-center bg-black/60 backdrop-blur-xl border-b border-white/10">
     
     <div class="flex items-center gap-2">
-        <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(245,158,11,0.4)]">
+        <div class="w-10 h-10 bg-amber-500 rounded-lg flex items-center justify-center shadow-[0_0_15px_rgba(245,158,11,0.5)]">
             <i class="fas fa-bolt text-black text-xl"></i>
         </div>
-        <div class="flex flex-col leading-none">
-            <span class="text-lg font-black tracking-tighter uppercase italic">Adsterra <span class="text-amber-500">Gold</span></span>
-            <span class="text-[10px] text-gray-400 font-bold tracking-[3px] uppercase">Strategy 2026</span>
-        </div>
+        <span class="text-xl font-black tracking-tighter uppercase italic">Adsterra <span class="text-amber-500">Gold</span></span>
     </div>
 
-    <div class="hidden md:flex items-center gap-10">
-        <a href="#how-it-works" class="text-xs font-bold hover:text-amber-500 transition-all uppercase tracking-widest border-b-2 border-transparent hover:border-amber-500 pb-1">How it Works</a>
-        <a href="#platforms" class="text-xs font-bold hover:text-amber-500 transition-all uppercase tracking-widest border-b-2 border-transparent hover:border-amber-500 pb-1">Platforms</a>
-        <a href="#payment-proof" class="text-xs font-bold hover:text-amber-500 transition-all uppercase tracking-widest border-b-2 border-transparent hover:border-amber-500 pb-1">Earnings</a>
-    </div>
-
-    <div class="flex items-center gap-4">
-        <a href="https://wa.me/919310712068" target="_blank" class="hidden sm:block bg-white/10 hover:bg-white/20 text-white px-5 py-2 rounded-full font-bold text-xs uppercase transition-all border border-white/10">
-            Help?
-        </a>
-        <a href="https://publishers.adsterra.com/referral/YmD16M7y9V" class="bg-amber-500 hover:bg-amber-400 text-black px-6 py-2.5 rounded-full font-black text-xs uppercase tracking-tighter hover:scale-105 transition-all shadow-[0_5px_15px_rgba(245,158,11,0.3)]">
+    <div class="hidden md:flex items-center gap-8">
+        <a href="#how-it-works" class="text-sm font-bold hover:text-amber-500 transition uppercase tracking-widest">Strategy</a>
+        <a href="#platforms" class="text-sm font-bold hover:text-amber-500 transition uppercase tracking-widest">Platforms</a>
+        <a href="https://wa.me/919310712068" target="_blank" class="bg-amber-500 text-black px-6 py-2 rounded-full font-black text-xs uppercase hover:scale-105 transition-all shadow-lg">
             Join Now
         </a>
     </div>
+
+    <button id="menu-btn" class="md:hidden text-2xl text-amber-500 focus:outline-none">
+        <i class="fas fa-bars"></i>
+    </button>
+
+    <div id="mobile-menu" class="fixed inset-0 bg-black/95 z-[1001] flex flex-col items-center justify-center gap-8 transition-all duration-500 transform translate-x-full">
+        <button id="close-btn" class="absolute top-6 right-6 text-3xl text-amber-500">
+            <i class="fas fa-times"></i>
+        </button>
+        
+        <a href="#how-it-works" class="mobile-link text-2xl font-black uppercase italic hover:text-amber-500">Strategy</a>
+        <a href="#platforms" class="mobile-link text-2xl font-black uppercase italic hover:text-amber-500">Platforms</a>
+        <a href="https://wa.me/919310712068" class="mobile-link text-2xl font-black uppercase italic text-amber-500">Contact Help</a>
+        
+        <div class="mt-10 flex gap-6 text-2xl">
+            <a href="#" class="text-white hover:text-amber-500"><i class="fab fa-telegram"></i></a>
+            <a href="#" class="text-white hover:text-amber-500"><i class="fab fa-whatsapp"></i></a>
+        </div>
+    </div>
 </nav>
 
-<div class="h-24"></div>
+<div class="h-20"></div>
 
 <script>
-    // Scroll Effect Script
+    const menuBtn = document.getElementById('menu-btn');
+    const closeBtn = document.getElementById('close-btn');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const mobileLinks = document.querySelectorAll('.mobile-link');
+
+    // Open Menu
+    menuBtn.addEventListener('click', () => {
+        mobileMenu.classList.remove('translate-x-full');
+    });
+
+    // Close Menu
+    closeBtn.addEventListener('click', () => {
+        mobileMenu.classList.add('translate-x-full');
+    });
+
+    // Close Menu when a link is clicked
+    mobileLinks.forEach(link => {
+        link.addEventListener('click', () => {
+            mobileMenu.classList.add('translate-x-full');
+        });
+    });
+
+    // Navbar Scroll Effect
     window.addEventListener('scroll', () => {
         const nav = document.getElementById('navbar');
-        if (window.scrollY > 40) {
-            nav.classList.add('bg-black/90', 'py-3', 'shadow-2xl');
-            nav.classList.remove('bg-black/40', 'py-4');
+        if (window.scrollY > 50) {
+            nav.classList.add('bg-black', 'py-3');
+            nav.classList.remove('bg-black/60', 'py-4');
         } else {
-            nav.classList.remove('bg-black/90', 'py-3', 'shadow-2xl');
-            nav.classList.add('bg-black/40', 'py-4');
+            nav.classList.remove('bg-black', 'py-3');
+            nav.classList.add('bg-black/60', 'py-4');
         }
     });
 </script>
