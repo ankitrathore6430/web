@@ -21,6 +21,52 @@
 </head>
 <body class="bg-black">
 
+<nav id="navbar" class="fixed top-0 left-0 w-full z-[1000] transition-all duration-300 py-4 px-6 md:px-12 flex justify-between items-center bg-black/40 backdrop-blur-md border-b border-white/5">
+    
+    <div class="flex items-center gap-2">
+        <div class="w-10 h-10 bg-amber-500 rounded-xl flex items-center justify-center shadow-[0_0_20px_rgba(245,158,11,0.4)]">
+            <i class="fas fa-bolt text-black text-xl"></i>
+        </div>
+        <div class="flex flex-col leading-none">
+            <span class="text-lg font-black tracking-tighter uppercase italic">Adsterra <span class="text-amber-500">Gold</span></span>
+            <span class="text-[10px] text-gray-400 font-bold tracking-[3px] uppercase">Strategy 2026</span>
+        </div>
+    </div>
+
+    <div class="hidden md:flex items-center gap-10">
+        <a href="#how-it-works" class="text-xs font-bold hover:text-amber-500 transition-all uppercase tracking-widest border-b-2 border-transparent hover:border-amber-500 pb-1">How it Works</a>
+        <a href="#platforms" class="text-xs font-bold hover:text-amber-500 transition-all uppercase tracking-widest border-b-2 border-transparent hover:border-amber-500 pb-1">Platforms</a>
+        <a href="#payment-proof" class="text-xs font-bold hover:text-amber-500 transition-all uppercase tracking-widest border-b-2 border-transparent hover:border-amber-500 pb-1">Earnings</a>
+    </div>
+
+    <div class="flex items-center gap-4">
+        <a href="https://wa.me/919310712068" target="_blank" class="hidden sm:block bg-white/10 hover:bg-white/20 text-white px-5 py-2 rounded-full font-bold text-xs uppercase transition-all border border-white/10">
+            Help?
+        </a>
+        <a href="https://publishers.adsterra.com/referral/YmD16M7y9V" class="bg-amber-500 hover:bg-amber-400 text-black px-6 py-2.5 rounded-full font-black text-xs uppercase tracking-tighter hover:scale-105 transition-all shadow-[0_5px_15px_rgba(245,158,11,0.3)]">
+            Join Now
+        </a>
+    </div>
+</nav>
+
+<div class="h-24"></div>
+
+<script>
+    // Scroll Effect Script
+    window.addEventListener('scroll', () => {
+        const nav = document.getElementById('navbar');
+        if (window.scrollY > 40) {
+            nav.classList.add('bg-black/90', 'py-3', 'shadow-2xl');
+            nav.classList.remove('bg-black/40', 'py-4');
+        } else {
+            nav.classList.remove('bg-black/90', 'py-3', 'shadow-2xl');
+            nav.classList.add('bg-black/40', 'py-4');
+        }
+    });
+</script>
+
+
+
     <header class="relative pt-10 pb-20 px-6 hero-glow overflow-hidden">
         <div class="max-w-7xl mx-auto relative z-10">
             <div class="hero-card p-8 md:p-20 text-center">
