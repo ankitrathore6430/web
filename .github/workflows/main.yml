@@ -1,20 +1,12 @@
-name: Dynamic View Bot
+name: Dynamic View Bot with Screenshot
 
 on:
   workflow_dispatch:
     inputs:
-      bot_on:
-        description: 'Bot chalana hai? (true/false)'
-        required: true
-        default: 'true'
       site_url:
-        description: 'Website link daalein'
+        description: 'URL Link'
         required: true
-        default: 'https://apni-link-yahan.com'
-      tabs:
-        description: 'Kitne tabs kholne hain (Max 10-15 recommended)'
-        required: true
-        default: '5'
+        default: 'https://bit.ly/example'
 
 jobs:
   run-bot:
@@ -33,7 +25,14 @@ jobs:
 
       - name: Start Automation
         env:
-          BOT_ENABLED: ${{ github.event.inputs.bot_on }}
           TARGET_URL: ${{ github.event.inputs.site_url }}
-          TAB_COUNT: ${{ github.event.inputs.tabs }}
+          BOT_ENABLED: 'true'
+          TAB_COUNT: '1'
         run: node bot.js
+
+      - name: Upload Screenshot
+        if: always() # Script cancel hone par bhi screenshot save hoga
+        uses: actions/upload-artifact@v4
+        with:
+          name: site-screenshot
+          path: ./*.png
