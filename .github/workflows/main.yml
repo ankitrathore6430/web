@@ -1,38 +1,46 @@
-name: Dynamic View Bot with Screenshot
+name: Ultimate Multi-Tab Bot
 
 on:
   workflow_dispatch:
     inputs:
-      site_url:
-        description: 'URL Link'
+      bot_on:
+        description: 'Bot ON/OFF (true/false)'
         required: true
-        default: 'https://bit.ly/example'
+        default: 'true'
+      site_url:
+        description: 'URL to visit (Direct or Shortlink)'
+        required: true
+        default: 'https://example.com'
+      tabs:
+        description: 'Number of tabs to open'
+        required: true
+        default: '5'
 
 jobs:
   run-bot:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v3
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
-      - name: Setup Node
-        uses: actions/setup-node@v3
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
         with:
-          node-version: '18'
+          node-version: '20'
 
       - name: Install Puppeteer
         run: npm install puppeteer
 
-      - name: Start Automation
+      - name: Execute Bot
         env:
+          BOT_ENABLED: ${{ github.event.inputs.bot_on }}
           TARGET_URL: ${{ github.event.inputs.site_url }}
-          BOT_ENABLED: 'true'
-          TAB_COUNT: '1'
+          TAB_COUNT: ${{ github.event.inputs.tabs }}
         run: node bot.js
 
-      - name: Upload Screenshot
-        if: always() # Script cancel hone par bhi screenshot save hoga
+      - name: Upload Tab Screenshots
+        if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: site-screenshot
-          path: ./*.png
+          name: all-tabs-screenshots
+          path: screenshots/*.png
