@@ -1,0 +1,39 @@
+name: Dynamic View Bot
+
+on:
+  workflow_dispatch:
+    inputs:
+      bot_on:
+        description: 'Bot chalana hai? (true/false)'
+        required: true
+        default: 'true'
+      site_url:
+        description: 'Website link daalein'
+        required: true
+        default: 'https://apni-link-yahan.com'
+      tabs:
+        description: 'Kitne tabs kholne hain (Max 10-15 recommended)'
+        required: true
+        default: '5'
+
+jobs:
+  run-bot:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Install Puppeteer
+        run: npm install puppeteer
+
+      - name: Start Automation
+        env:
+          BOT_ENABLED: ${{ github.event.inputs.bot_on }}
+          TARGET_URL: ${{ github.event.inputs.site_url }}
+          TAB_COUNT: ${{ github.event.inputs.tabs }}
+        run: node bot.js
