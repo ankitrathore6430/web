@@ -1,41 +1,40 @@
 const puppeteer = require('puppeteer');
 
-// GitHub Actions se inputs lena (ya default values use karna)
-const BOT_ENABLED = process.env.BOT_ENABLED === 'true';      
-const TARGET_URL = process.env.TARGET_URL || 'https://google.com'; 
-const TAB_COUNT = parseInt(process.env.TAB_COUNT) || 1;
-
 async function run() {
-    if (!BOT_ENABLED) {
-        console.log("Bot abhi OFF hai. GitHub Actions se ON karein.");
-        return;
-    }
-
     const browser = await puppeteer.launch({
         headless: "new",
         args: ['--no-sandbox', '--disable-setuid-sandbox', '--disable-dev-shm-usage']
     });
 
-    console.log(`Target: ${TARGET_URL}`);
-    console.log(`${TAB_COUNT} tabs khule rahenge jab tak workflow cancel nahi hota.`);
-    
-    const tasks = [];
+    const page = await browser.newPage();
+    await page.setViewport({ width: 1280, height: 720 }); // Standard size
+    await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36');
 
-    for (let i = 0; i < TAB_COUNT; i++) {
-        tasks.push((async () => {
-            const page = await browser.newPage();
-            try {
-                await page.goto(TARGET_URL, { waitUntil: 'networkidle2', timeout: 0 });
-                console.log(`[Tab ${i + 1}] Active.`);
-                // Infinite wait
-                await new Promise(() => {}); 
-            } catch (e) {
-                console.log(`[Tab ${i + 1}] Error: ${e.message}`);
-            }
-        })());
+    try {
+        console.log(`Opening URL: ${process.env.TARGET_URL}`);
+        await page.goto(process.env.TARGET_URL, { 
+            waitUntil: 'networkidle2', 
+            timeout: 60000 
+        });
+
+        // Redirect hone ke liye thoda extra wait
+        console.log("Waiting for redirect and loading...");
+        await new Promise(r => setTimeout(r, 10000)); 
+
+        // Screenshot lena
+        await page.screenshot({ path: 'web_view.png', fullPage: true });
+        console.log("Screenshot saved as web_view.png");
+
+        // Tabs ko khula rakhne ke liye (agar tumne cancel nahi kiya)
+        await new Promise(() => {}); 
+
+    } catch (e) {
+        console.log("Error:", e.message);
+        // Error hone par bhi screenshot lelo taaki pata chale kya dikh raha hai
+        await page.screenshot({ path: 'error_view.png' });
+    } finally {
+        await browser.close();
     }
-
-    await Promise.all(tasks);
 }
 
 run();
