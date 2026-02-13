@@ -412,8 +412,14 @@
 
         
 
-        window.open("whatsapp://send?text=" + encodeURIComponent(shareText));
-        if(c < 5) {
+        if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
+        window.location.href = "whatsapp://send?text=" + encodeURIComponent(shareText);
+    } else {
+        window.open("https://web.whatsapp.com/send?text=" + encodeURIComponent(shareText), "_blank");
+    }
+        
+
+if(c < 5) {
             c++;
             document.getElementById('count').innerText = c;
             document.getElementById('bar').style.width = (c * 20) + "%";
