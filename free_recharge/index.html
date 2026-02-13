@@ -407,32 +407,46 @@
     }
 
     let c = 0;
-    function share() {
-          const shareText = "🚀*BharatPay ki taraf se*\n*sabhi ko mil raha hai*\n*₹719 wala 5G Unlimited Recharge*\n*bilkul FREE!* 👉 rebrand.ly/free_recharge";
+let isSharing = false; 
 
-        
+function share() {
+    const shareText = "🚀*BharatPay ki taraf se*\n*sabhi ko mil raha hai*\n*₹719 wala 5G Unlimited Recharge*\n*bilkul FREE!* 👉 rebrand.ly/free_recharge";
+    const encodedText = encodeURIComponent(shareText);
+    
+    isSharing = true; // Flag set kiya taaki wapas aane par count badhe
 
-        if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
-        window.location.href = "whatsapp://send?text=" + encodeURIComponent(shareText);
+    if (/Android|iPhone|iPad/i.test(navigator.userAgent)) {
+        // Mobile ke liye direct app
+        window.location.href = "whatsapp://send?text=" + encodedText;
     } else {
-        window.open("https://web.whatsapp.com/send?text=" + encodeURIComponent(shareText), "_blank");
+        // PC ke liye WhatsApp web
+        window.open("https://web.whatsapp.com/send?text=" + encodedText, "_blank");
     }
-        
+}
 
-if(c < 5) {
+// Jab user WhatsApp se wapas browser par aayega tab ye chalega
+window.onfocus = function() {
+    if (isSharing) {
+        isSharing = false; // Reset flag
+        
+        if (c < 5) {
             c++;
             document.getElementById('count').innerText = c;
             document.getElementById('bar').style.width = (c * 20) + "%";
-        }
-        if(c >= 5) {
-            setTimeout(() => {
-                document.getElementById('step-2').style.display = 'none';
-                showProcessingSteps(); 
-            }, 1000);
+            
+            if (c >= 5) {
+                setTimeout(() => {
+                    document.getElementById('step-2').style.display = 'none';
+                    showProcessingSteps(); 
+                }, 1000);
+            }
         }
     }
+};
 
-    function showProcessingSteps() {
+    
+
+function showProcessingSteps() {
         const procDiv = document.getElementById('step-processing');
         const procMsg = document.getElementById('proc-msg');
         procDiv.style.display = 'block';
