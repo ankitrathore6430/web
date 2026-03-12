@@ -3,185 +3,1156 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Auto Forwarding Post Bot | 100% FREE Forever</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+    <title>Auto Forwarding Post Bot - Premium Telegram Automation</title>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap');
-        
-        body { 
-            font-family: 'Outfit', sans-serif; 
-            background: #020617; 
-            color: white; 
-            overflow-x: hidden; 
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
 
-        /* Hero Background Effect */
-        .hero-mesh {
-            background-image: 
-                radial-gradient(at 0% 0%, rgba(59, 130, 246, 0.15) 0px, transparent 50%),
-                radial-gradient(at 100% 0%, rgba(147, 51, 234, 0.15) 0px, transparent 50%);
+        :root {
+            --gold: #FFD700;
+            --gold-light: #FFE55C;
+            --gold-dark: #B8860B;
+            --purple: #6B46C1;
+            --purple-dark: #4C1D95;
+            --purple-light: #8B5CF6;
+            --black: #0a0a0a;
+            --dark-gray: #1a1a1a;
+            --light-gray: #2d2d2d;
         }
 
-        /* Glassmorphism Navigation */
-        .nav-glass {
-            background: rgba(2, 6, 23, 0.8);
-            backdrop-filter: blur(15px);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: var(--black);
+            color: white;
+            overflow-x: hidden;
+            line-height: 1.6;
         }
 
-        /* High-End Card Design */
-        .feature-card {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            transition: all 0.4s ease;
+        /* Animated Mesh Gradient Background */
+        .mesh-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -2;
+            background: 
+                radial-gradient(at 0% 0%, rgba(107, 70, 193, 0.4) 0px, transparent 50%),
+                radial-gradient(at 100% 0%, rgba(255, 215, 0, 0.3) 0px, transparent 50%),
+                radial-gradient(at 100% 100%, rgba(107, 70, 193, 0.4) 0px, transparent 50%),
+                radial-gradient(at 0% 100%, rgba(255, 215, 0, 0.2) 0px, transparent 50%);
+            filter: blur(80px);
+            animation: meshMove 20s ease infinite;
         }
 
-        .feature-card:hover {
-            background: rgba(59, 130, 246, 0.08);
-            border-color: #3b82f6;
-            transform: translateY(-10px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+        @keyframes meshMove {
+            0%, 100% { transform: translate(0, 0) scale(1); }
+            33% { transform: translate(30px, -50px) scale(1.1); }
+            66% { transform: translate(-20px, 20px) scale(0.9); }
         }
 
-        /* Neon Glow Button */
-        .btn-neon {
-            box-shadow: 0 0 20px rgba(59, 130, 246, 0.4);
-            transition: all 0.3s ease;
+        /* Noise Texture Overlay */
+        .noise {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.03;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
 
-        .btn-neon:hover {
-            box-shadow: 0 0 35px rgba(59, 130, 246, 0.7);
-            transform: scale(1.05);
+        /* Floating Orbs */
+        .orb {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(60px);
+            z-index: -1;
+            opacity: 0.5;
         }
 
-        /* Logo Animation */
-        .logo-float {
-            animation: float 5s ease-in-out infinite;
+        .orb-1 {
+            width: 400px;
+            height: 400px;
+            background: linear-gradient(135deg, var(--purple), var(--purple-light));
+            top: -100px;
+            right: -100px;
+            animation: float 10s ease-in-out infinite;
+        }
+
+        .orb-2 {
+            width: 300px;
+            height: 300px;
+            background: linear-gradient(135deg, var(--gold), var(--gold-dark));
+            bottom: 10%;
+            left: -100px;
+            animation: float 12s ease-in-out infinite reverse;
         }
 
         @keyframes float {
-            0%, 100% { transform: translateY(0) scale(1); }
-            50% { transform: translateY(-25px) scale(1.05); }
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            50% { transform: translate(30px, 30px) rotate(180deg); }
         }
 
-        /* 100% FREE Highlight */
-        .free-text {
-            background: linear-gradient(to right, #22c55e, #10b981);
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 90%;
+            max-width: 1200px;
+            padding: 20px 40px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            z-index: 1000;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 100px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: white;
+            text-decoration: none;
+        }
+
+        .logo-img {
+            width: 45px;
+            height: 45px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 2px solid rgba(255, 215, 0, 0.3);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.2);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: rgba(255, 255, 255, 0.7);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--gold);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--gold), var(--purple-light));
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        .nav-cta {
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+            color: var(--black) !important;
+            padding: 12px 24px;
+            border-radius: 50px;
+            font-weight: 700;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(255, 215, 0, 0.3);
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 215, 0, 0.4);
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 150px 5% 100px;
+            position: relative;
+        }
+
+        .hero-container {
+            max-width: 1400px;
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 80px;
+            align-items: center;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: rgba(255, 215, 0, 0.1);
+            border: 1px solid rgba(255, 215, 0, 0.3);
+            border-radius: 50px;
+            font-size: 0.85rem;
+            color: var(--gold);
+            margin-bottom: 24px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .badge i {
+            color: var(--gold);
+        }
+
+        .hero-content h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 24px;
+            letter-spacing: -0.02em;
+        }
+
+        .gradient-text {
+            background: linear-gradient(135deg, var(--gold) 0%, var(--purple-light) 50%, var(--gold) 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            font-weight: 900;
+            background-clip: text;
+            background-size: 200% auto;
+            animation: shine 3s linear infinite;
+        }
+
+        @keyframes shine {
+            to { background-position: 200% center; }
+        }
+
+        .hero-content p {
+            font-size: 1.25rem;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 40px;
+            max-width: 500px;
+            line-height: 1.8;
+        }
+
+        .cta-group {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn-main {
+            padding: 18px 36px;
+            border-radius: 50px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.3s ease;
+            font-size: 1.1rem;
+            border: none;
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+            color: var(--black);
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+            transition: left 0.5s;
+        }
+
+        .btn-primary:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 20px 40px rgba(255, 215, 0, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(10px);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--purple-light);
+            background: rgba(107, 70, 193, 0.1);
+            transform: translateY(-3px);
+        }
+
+        .trust-badge {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            backdrop-filter: blur(10px);
+            max-width: fit-content;
+        }
+
+        .trust-avatars {
+            display: flex;
+        }
+
+        .trust-avatars img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid var(--black);
+            margin-left: -10px;
+            object-fit: cover;
+        }
+
+        .trust-avatars img:first-child {
+            margin-left: 0;
+        }
+
+        .trust-text {
+            font-size: 0.9rem;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .trust-text strong {
+            color: var(--gold);
+            display: block;
+            font-size: 1.1rem;
+        }
+
+        /* Hero Visual - 3D Card */
+        .hero-visual {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            perspective: 1000px;
+        }
+
+        .phone-card {
+            width: 320px;
+            height: 640px;
+            background: linear-gradient(145deg, rgba(255, 255, 255, 0.1) 0%, rgba(255, 255, 255, 0.05) 100%);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 40px;
+            padding: 20px;
+            box-shadow: 
+                0 50px 100px rgba(0, 0, 0, 0.5),
+                inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+            transform: rotateY(-15deg) rotateX(5deg);
+            transition: all 0.5s ease;
+            animation: cardFloat 6s ease-in-out infinite;
+            position: relative;
+        }
+
+        @keyframes cardFloat {
+            0%, 100% { transform: rotateY(-15deg) rotateX(5deg) translateY(0); }
+            50% { transform: rotateY(-15deg) rotateX(5deg) translateY(-20px); }
+        }
+
+        .phone-card:hover {
+            transform: rotateY(0deg) rotateX(0deg) scale(1.05);
+            animation: none;
+        }
+
+        .phone-inner {
+            width: 100%;
+            height: 100%;
+            background: var(--dark-gray);
+            border-radius: 30px;
+            overflow: hidden;
+            position: relative;
+            border: 8px solid #000;
+        }
+
+        .chat-interface {
+            padding: 20px;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(180deg, #1a1a1a 0%, #0f0f0f 100%);
+        }
+
+        .chat-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            margin-bottom: 20px;
+        }
+
+        .bot-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.3rem;
+            color: var(--black);
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.3);
+        }
+
+        .chat-header-info h4 {
+            font-size: 1rem;
+            margin-bottom: 2px;
+        }
+
+        .chat-header-info span {
+            font-size: 0.8rem;
+            color: #00d26a;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .message {
+            background: linear-gradient(135deg, rgba(107, 70, 193, 0.3) 0%, rgba(107, 70, 193, 0.1) 100%);
+            padding: 14px 18px;
+            border-radius: 20px;
+            border-bottom-left-radius: 4px;
+            margin-bottom: 12px;
+            font-size: 0.9rem;
+            border: 1px solid rgba(107, 70, 193, 0.3);
+            animation: messagePop 0.5s ease forwards;
+            opacity: 0;
+            transform: scale(0.8);
+        }
+
+        .message:nth-child(2) { animation-delay: 0.5s; }
+        .message:nth-child(3) { animation-delay: 1s; }
+        .message:nth-child(4) { animation-delay: 1.5s; }
+
+        @keyframes messagePop {
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .message-time {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 5px;
+            text-align: right;
+        }
+
+        .status-pill {
+            position: absolute;
+            top: -15px;
+            right: -15px;
+            background: linear-gradient(135deg, #00d26a 0%, #00a854 100%);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 0.85rem;
+            box-shadow: 0 10px 30px rgba(0, 210, 106, 0.4);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            animation: pulse 2s infinite;
+            z-index: 10;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(0, 210, 106, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(0, 210, 106, 0); }
+        }
+
+        /* Features Section */
+        .features {
+            padding: 120px 5%;
+            position: relative;
+        }
+
+        .section-header {
+            text-align: center;
+            max-width: 600px;
+            margin: 0 auto 80px;
+        }
+
+        .section-tag {
+            display: inline-block;
+            padding: 8px 20px;
+            background: rgba(107, 70, 193, 0.2);
+            border: 1px solid rgba(107, 70, 193, 0.4);
+            border-radius: 50px;
+            color: var(--purple-light);
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .section-header h2 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.2;
+        }
+
+        .section-header p {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 1.2rem;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .feature-card {
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 40px;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(10px);
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.1) 0%, transparent 50%);
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .feature-card:hover::before {
+            opacity: 1;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(255, 215, 0, 0.3);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+        }
+
+        .feature-icon-wrap {
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(135deg, rgba(255, 215, 0, 0.2) 0%, rgba(107, 70, 193, 0.2) 100%);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            color: var(--gold);
+            margin-bottom: 24px;
+            position: relative;
+            border: 1px solid rgba(255, 215, 0, 0.2);
+        }
+
+        .feature-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+            font-weight: 700;
+        }
+
+        .feature-card p {
+            color: rgba(255, 255, 255, 0.5);
+            line-height: 1.7;
+        }
+
+        /* Stats Bar */
+        .stats-bar {
+            padding: 60px 5%;
+            background: linear-gradient(135deg, rgba(107, 70, 193, 0.2) 0%, rgba(255, 215, 0, 0.1) 100%);
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(20px);
+        }
+
+        .stats-container {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 40px;
+            text-align: center;
+        }
+
+        .stat-box h3 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, var(--gold) 0%, white 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 8px;
+        }
+
+        .stat-box p {
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 0.95rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* How it Works */
+        .process {
+            padding: 120px 5%;
+        }
+
+        .process-grid {
+            max-width: 1000px;
+            margin: 60px auto 0;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        .process-step {
+            display: flex;
+            align-items: center;
+            gap: 40px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            transition: all 0.4s ease;
+            position: relative;
+        }
+
+        .process-step:hover {
+            background: rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 215, 0, 0.3);
+            transform: translateX(20px);
+        }
+
+        .step-number {
+            width: 80px;
+            height: 80px;
+            background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2rem;
+            font-weight: 800;
+            color: var(--black);
+            flex-shrink: 0;
+            box-shadow: 0 10px 30px rgba(255, 215, 0, 0.3);
+        }
+
+        .step-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .step-content p {
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 1.05rem;
+        }
+
+        /* CTA Section */
+        .cta-section {
+            padding: 120px 5%;
+            position: relative;
+        }
+
+        .cta-container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 80px 60px;
+            background: linear-gradient(135deg, rgba(107, 70, 193, 0.3) 0%, rgba(255, 215, 0, 0.1) 100%);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 40px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
+        }
+
+        .cta-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(from 0deg, transparent, rgba(255, 215, 0, 0.4), transparent 30%);
+            animation: rotate 6s linear infinite;
+        }
+
+        .cta-content {
+            position: relative;
+            z-index: 1;
+        }
+
+        .cta-content h2 {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            font-weight: 800;
+        }
+
+        .cta-content p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 1.2rem;
+            margin-bottom: 40px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        @keyframes rotate {
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Footer */
+        footer {
+            padding: 60px 5% 30px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            text-align: center;
+        }
+
+        .footer-logo {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+
+        .footer-logo img {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+        }
+
+        .socials {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .socials a {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.3rem;
+            transition: all 0.3s ease;
+        }
+
+        .socials a:hover {
+            background: linear-gradient(135deg, var(--gold) 0%, var(--purple-light) 100%);
+            border-color: transparent;
+            transform: translateY(-5px);
+            color: var(--black);
+        }
+
+        .copyright {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.9rem;
+        }
+
+        /* Responsive */
+        @media (max-width: 968px) {
+            .hero-container {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .hero-content h1 {
+                font-size: 2.8rem;
+            }
+
+            .trust-badge {
+                margin: 40px auto 0;
+            }
+
+            .phone-card {
+                width: 280px;
+                height: 560px;
+                transform: none;
+                animation: none;
+            }
+
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .process-step {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .cta-container {
+                padding: 60px 30px;
+            }
+
+            .cta-content h2 {
+                font-size: 2rem;
+            }
+        }
+
+        /* Scroll Reveal */
+        .reveal {
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.8s cubic-bezier(0.5, 0, 0, 1);
+        }
+
+        .reveal.active {
+            opacity: 1;
+            transform: translateY(0);
         }
     </style>
 </head>
-<body class="hero-mesh">
+<body>
+    <div class="mesh-bg"></div>
+    <div class="noise"></div>
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
 
-    <nav class="fixed w-full z-50 top-0 nav-glass py-4 px-8">
-        <div class="max-w-7xl mx-auto flex justify-between items-center">
-            <div class="flex items-center gap-3">
-                <img src="https://lh3.googleusercontent.com/u/0/d/1mtxpv6UzOACa4uh9_ShwBxWk3WYeFjNW=w1000" class="w-10 h-10 rounded-full" alt="Bot Logo">
-                <span class="text-2xl font-black tracking-tight uppercase">Auto<span class="text-blue-500">Forward</span></span>
-            </div>
-            
-            <div class="hidden md:flex space-x-10 text-sm font-bold uppercase tracking-widest text-gray-400">
-                <a href="#" class="hover:text-blue-500 transition">Home</a>
-                <a href="#features" class="hover:text-blue-500 transition">Features</a>
-                <a href="https://t.me/Auto_Forwarding_Post_bot" class="hover:text-blue-500 transition">Tutorials</a>
-                <a href="https://t.me/Auto_Forwarding_Post_bot" class="hover:text-blue-500 transition text-blue-400">Support</a>
-            </div>
-
-            <a href="https://t.me/Auto_Forwarding_Post_bot" class="bg-blue-600 px-6 py-2 rounded-full font-bold btn-neon transition">
-                Start Bot
-            </a>
-        </div>
+    <!-- Navigation -->
+    <nav>
+        <a href="#" class="logo">
+            <img src="https://t.me/i/userpic/320/Auto_Forwarding_Post_bot.jpg" alt="Bot Logo" class="logo-img" onerror="this.src='https://via.placeholder.com/45/FFD700/000000?text=AF'">
+            Auto Forward
+        </a>
+        <ul class="nav-links">
+            <li><a href="#features">Features</a></li>
+            <li><a href="#process">How it Works</a></li>
+            <li><a href="https://t.me/Auto_Forwarding_Post_bot" target="_blank" class="nav-cta">
+                <i class="fab fa-telegram"></i> Start Bot
+            </a></li>
+        </ul>
     </nav>
 
-    <section class="pt-48 pb-32 px-6">
-        <div class="max-w-7xl mx-auto flex flex-col lg:flex-row items-center gap-20">
-            <div class="lg:w-1/2 text-center lg:text-left" data-aos="fade-right">
-                <div class="inline-block px-4 py-1 rounded-full bg-blue-500/10 border border-blue-500/20 text-blue-400 font-bold text-xs tracking-widest uppercase mb-6">
-                    ⚡ The Ultimate Automation Tool
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="hero-container">
+            <div class="hero-content reveal">
+                <div class="badge">
+                    <i class="fas fa-sparkles"></i>
+                    Premium Automation Tool
                 </div>
-                <h1 class="text-6xl md:text-8xl font-black leading-none mb-6">
-                    Automate <br> <span class="free-text uppercase">100% FREE!</span>
+                <h1>
+                    Auto Forward Your<br>
+                    <span class="gradient-text">Telegram Messages</span>
                 </h1>
-                <p class="text-gray-400 text-xl md:text-2xl mb-12 font-light max-w-xl">
-                    Experience the fastest Telegram post forwarding. Unlimited tasks, Zero delay, and <span class="text-white font-bold">Absolutely No Hidden Charges.</span>
-                </p>
-                <div class="flex flex-col sm:flex-row gap-5 justify-center lg:justify-start">
-                    <a href="https://t.me/Auto_Forwarding_Post_bot" class="bg-blue-600 px-12 py-5 rounded-2xl font-black text-xl btn-neon flex items-center justify-center gap-3">
-                        START FOR FREE <i class="fas fa-arrow-right"></i>
+                <p>Seamlessly automate message forwarding between channels and groups. Powerful, secure, and incredibly fast.</p>
+                
+                <div class="cta-group">
+                    <a href="https://t.me/Auto_Forwarding_Post_bot" target="_blank" class="btn-main btn-primary">
+                        <i class="fab fa-telegram"></i>
+                        Get Started Free
                     </a>
-                    <a href="#features" class="bg-white/5 hover:bg-white/10 border border-white/10 px-12 py-5 rounded-2xl font-bold text-xl transition text-center">
-                        SEE FEATURES
+                    <a href="#features" class="btn-main btn-secondary">
+                        <i class="fas fa-play-circle"></i>
+                        See Features
                     </a>
+                </div>
+
+                <div class="trust-badge">
+                    <div class="trust-avatars">
+                        <img src="https://i.pravatar.cc/150?img=1" alt="User">
+                        <img src="https://i.pravatar.cc/150?img=2" alt="User">
+                        <img src="https://i.pravatar.cc/150?img=3" alt="User">
+                        <img src="https://i.pravatar.cc/150?img=4" alt="User">
+                    </div>
+                    <div class="trust-text">
+                        <strong>10,000+ Users</strong>
+                        Trust our bot daily
+                    </div>
                 </div>
             </div>
 
-            <div class="lg:w-1/2 flex justify-center" data-aos="zoom-in">
-                <div class="relative">
-                    <div class="absolute inset-0 bg-blue-500/20 rounded-full blur-[150px]"></div>
-                    <img src="https://lh3.googleusercontent.com/u/0/d/1mtxpv6UzOACa4uh9_ShwBxWk3WYeFjNW=w1000" 
-                         class="w-80 md:w-[500px] logo-float drop-shadow-[0_0_50px_rgba(59,130,246,0.5)]" 
-                         alt="Premium Bot Logo">
+            <div class="hero-visual reveal">
+                <div class="phone-card">
+                    <div class="status-pill">
+                        <i class="fas fa-check-circle"></i> Active Now
+                    </div>
+                    <div class="phone-inner">
+                        <div class="chat-interface">
+                            <div class="chat-header">
+                                <div class="bot-icon">
+                                    <i class="fas fa-robot"></i>
+                                </div>
+                                <div class="chat-header-info">
+                                    <h4>Auto Forward Bot</h4>
+                                    <span><i class="fas fa-circle" style="font-size: 8px;"></i> Online</span>
+                                </div>
+                            </div>
+                            
+                            <div class="message">
+                                <div>👋 Welcome! Ready to automate your forwards?</div>
+                                <div class="message-time">10:30 AM</div>
+                            </div>
+                            
+                            <div class="message">
+                                <div>📤 Forwarding from @source_channel...</div>
+                                <div class="message-time">10:31 AM</div>
+                            </div>
+                            
+                            <div class="message">
+                                <div>✅ 156 messages forwarded today!</div>
+                                <div class="message-time">Just now</div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
-    <section id="features" class="py-24 px-8 bg-black/20">
-        <div class="max-w-7xl mx-auto text-center mb-20">
-            <h2 class="text-4xl md:text-6xl font-black mb-4">Powerful Features</h2>
-            <div class="h-1.5 w-24 bg-blue-600 mx-auto rounded-full"></div>
+    <!-- Stats Bar -->
+    <section class="stats-bar reveal">
+        <div class="stats-container">
+            <div class="stat-box">
+                <h3>10K+</h3>
+                <p>Active Users</p>
+            </div>
+            <div class="stat-box">
+                <h3>1M+</h3>
+                <p>Messages/Day</p>
+            </div>
+            <div class="stat-box">
+                <h3>99.9%</h3>
+                <p>Uptime</p>
+            </div>
+            <div class="stat-box">
+                <h3>24/7</h3>
+                <p>Support</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Features Section -->
+    <section class="features" id="features">
+        <div class="section-header reveal">
+            <span class="section-tag">Features</span>
+            <h2>Everything You Need</h2>
+            <p>Powerful automation tools designed for professionals who demand reliability and speed.</p>
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <div class="feature-card p-10 rounded-[2.5rem]" data-aos="fade-up">
-                <div class="w-16 h-16 bg-blue-600/10 rounded-2xl flex items-center justify-center text-blue-500 text-3xl mb-8">
+        <div class="features-grid">
+            <div class="feature-card reveal">
+                <div class="feature-icon-wrap">
                     <i class="fas fa-bolt"></i>
                 </div>
-                <h3 class="text-2xl font-bold mb-4">Instant Forward</h3>
-                <p class="text-gray-400 font-light">Posts are forwarded in real-time. Minimal delay to ensure your audience gets the content first.</p>
+                <h3>Lightning Fast</h3>
+                <p>Instant forwarding with zero delay. Our infrastructure ensures your messages reach their destination in milliseconds.</p>
             </div>
 
-            <div class="feature-card p-10 rounded-[2.5rem] bg-blue-600/5 border-blue-600/30" data-aos="fade-up" data-aos-delay="100">
-                <div class="w-16 h-16 bg-green-500/10 rounded-2xl flex items-center justify-center text-green-500 text-3xl mb-8">
-                    <i class="fas fa-gift"></i>
+            <div class="feature-card reveal">
+                <div class="feature-icon-wrap">
+                    <i class="fas fa-layer-group"></i>
                 </div>
-                <h3 class="text-2xl font-bold mb-4 text-green-400">100% Free Forever</h3>
-                <p class="text-gray-400 font-light">Saare premium features bilkul free hain. Hum kabhi subscription fees nahi maangenge. Forever!</p>
+                <h3>Multi-Channel</h3>
+                <p>Connect unlimited source and target channels. Forward to multiple destinations simultaneously without restrictions.</p>
             </div>
 
-            <div class="feature-card p-10 rounded-[2.5rem]" data-aos="fade-up" data-aos-delay="200">
-                <div class="w-16 h-16 bg-purple-600/10 rounded-2xl flex items-center justify-center text-purple-500 text-3xl mb-8">
-                    <i class="fas fa-sliders-h"></i>
+            <div class="feature-card reveal">
+                <div class="feature-icon-wrap">
+                    <i class="fas fa-filter"></i>
                 </div>
-                <h3 class="text-2xl font-bold mb-4">Smart Filtering</h3>
-                <p class="text-gray-400 font-light">Keywords, ads, aur unwanted links ko automatically remove karein. Content ko pro banayein.</p>
+                <h3>Smart Filters</h3>
+                <p>Advanced filtering by keywords, media type, or specific users. Only forward what truly matters to your audience.</p>
+            </div>
+
+            <div class="feature-card reveal">
+                <div class="feature-icon-wrap">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <h3>Scheduled Posts</h3>
+                <p>Set custom schedules for forwarding. Maintain consistent posting times even when you're offline.</p>
+            </div>
+
+            <div class="feature-card reveal">
+                <div class="feature-icon-wrap">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <h3>Bank-Grade Security</h3>
+                <p>End-to-end encryption for all forwarded messages. We never store your content on our servers.</p>
+            </div>
+
+            <div class="feature-card reveal">
+                <div class="feature-icon-wrap">
+                    <i class="fas fa-chart-line"></i>
+                </div>
+                <h3>Analytics Dashboard</h3>
+                <p>Track forwarding statistics, success rates, and channel growth with detailed real-time analytics.</p>
             </div>
         </div>
     </section>
 
-    <footer class="py-12 border-t border-white/5 text-center bg-black/40">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="flex flex-col items-center gap-6">
-                <img src="https://lh3.googleusercontent.com/u/0/d/1mtxpv6UzOACa4uh9_ShwBxWk3WYeFjNW=w1000" class="w-12 h-12 opacity-50" alt="Bot Logo">
-                <p class="text-gray-500 text-sm tracking-widest font-bold">
-                    © 2026 @AUTO_FORWARDING_POST_BOT | THE FASTEST BOT ON TELEGRAM
-                </p>
-                <div class="flex gap-8 text-xs font-black text-gray-600 uppercase">
-                    <a href="#" class="hover:text-blue-500">Privacy</a>
-                    <a href="#" class="hover:text-blue-500">Terms</a>
-                    <a href="https://t.me/Auto_Forwarding_Post_bot" class="hover:text-blue-500">API Support</a>
+    <!-- Process Section -->
+    <section class="process" id="process">
+        <div class="section-header reveal">
+            <span class="section-tag">Setup</span>
+            <h2>Get Started in 3 Steps</h2>
+            <p>From zero to automated in less than 2 minutes</p>
+        </div>
+
+        <div class="process-grid">
+            <div class="process-step reveal">
+                <div class="step-number">1</div>
+                <div class="step-content">
+                    <h3>Start the Bot</h3>
+                    <p>Click the button below to open @Auto_Forwarding_Post_bot on Telegram and press /start to activate your account.</p>
+                </div>
+            </div>
+
+            <div class="process-step reveal">
+                <div class="step-number">2</div>
+                <div class="step-content">
+                    <h3>Configure Channels</h3>
+                    <p>Add your source channels and specify destination targets. Use our intuitive interface to set up filters and schedules.</p>
+                </div>
+            </div>
+
+            <div class="process-step reveal">
+                <div class="step-number">3</div>
+                <div class="step-content">
+                    <h3>Let it Run</h3>
+                    <p>The bot works 24/7 automatically. Monitor performance through the dashboard and adjust settings anytime.</p>
                 </div>
             </div>
         </div>
+    </section>
+
+    <!-- CTA Section -->
+    <section class="cta-section">
+        <div class="cta-container reveal">
+            <div class="cta-content">
+                <h2>Ready to Automate?</h2>
+                <p>Join thousands of content creators, businesses, and community managers who trust our bot for their Telegram automation needs.</p>
+                <a href="https://t.me/Auto_Forwarding_Post_bot" target="_blank" class="btn-main btn-primary" style="font-size: 1.2rem; padding: 20px 40px;">
+                    <i class="fab fa-telegram"></i>
+                    Launch Bot Now
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="footer-logo">
+            <img src="https://t.me/i/userpic/320/Auto_Forwarding_Post_bot.jpg" alt="Logo" onerror="this.src='https://via.placeholder.com/40/FFD700/000000?text=AF'">
+            Auto Forwarding Post Bot
+        </div>
+        
+        <div class="socials">
+            <a href="https://t.me/Auto_Forwarding_Post_bot" target="_blank"><i class="fab fa-telegram"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-discord"></i></a>
+            <a href="#"><i class="fas fa-envelope"></i></a>
+        </div>
+        
+        <p class="copyright">
+            © 2024 Auto Forwarding Post Bot. All rights reserved.<br>
+            <span style="color: rgba(255,215,0,0.5);">Designed with ❤️ for Telegram Power Users</span>
+        </p>
     </footer>
 
-    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
     <script>
-        AOS.init({ duration: 1000, once: true });
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: "0px 0px -50px 0px"
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('active');
+                }
+            });
+        }, observerOptions);
+
+        document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+
+        // Smooth scroll
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Parallax effect for orbs
+        document.addEventListener('mousemove', (e) => {
+            const orbs = document.querySelectorAll('.orb');
+            const x = e.clientX / window.innerWidth;
+            const y = e.clientY / window.innerHeight;
+            
+            orbs.forEach((orb, index) => {
+                const speed = (index + 1) * 30;
+                orb.style.transform = `translate(${x * speed}px, ${y * speed}px)`;
+            });
+        });
     </script>
 </body>
 </html>
