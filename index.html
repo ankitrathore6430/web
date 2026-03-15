@@ -149,5 +149,121 @@
     }, 7000);
 </script>
 
+
+
+<style>
+    .audio-pop {
+        position: fixed;
+        bottom: 25px;
+        right: 20px;
+        background: #ffffff;
+        padding: 10px 18px;
+        border-radius: 50px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        border: 2px solid #25D366;
+        z-index: 10000;
+        cursor: pointer;
+        transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+    .audio-pop:active { transform: scale(0.9); }
+    
+    .play-circle {
+        background: #25D366;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 16px;
+        box-shadow: 0 4px 8px rgba(37,211,102,0.3);
+    }
+
+    .pop-info { text-align: left; }
+    .pop-info b { display: block; font-size: 12px; color: #1b5e20; line-height: 1.2; }
+    .pop-info span { font-size: 10px; color: #666; }
+
+    /* Visualizer Wave Animation */
+    .wave-container {
+        display: flex;
+        align-items: flex-end;
+        gap: 2px;
+        height: 18px;
+    }
+    .wave-bar {
+        width: 3px;
+        background: #25D366;
+        border-radius: 10px;
+        height: 4px;
+    }
+    .playing .wave-bar { animation: wave-move 0.6s ease-in-out infinite alternate; }
+    
+    @keyframes wave-move {
+        0% { height: 4px; }
+        100% { height: 18px; }
+    }
+</style>
+
+<audio id="myAudio" loop>
+  <source src="https://modest-indigo-qlletpmla1.edgeone.app/Register_Karke_Kamao_.mp3" type="audio/mpeg">
+</audio>
+
+<div class="audio-pop" onclick="toggleAudio()" id="playerWrapper">
+    <div class="play-circle" id="playIcon">▶</div>
+    <div class="pop-info">
+        <b>ऑफर सुनें</b>
+        <span id="audioStatus">Tap to Play</span>
+    </div>
+    <div class="wave-container" id="visualizer">
+        <div class="wave-bar" style="animation-delay: 0.1s"></div>
+        <div class="wave-bar" style="animation-delay: 0.3s"></div>
+        <div class="wave-bar" style="animation-delay: 0.2s"></div>
+        <div class="wave-bar" style="animation-delay: 0.4s"></div>
+    </div>
+</div>
+
+<script>
+    const audio = document.getElementById("myAudio");
+    const playIcon = document.getElementById("playIcon");
+    const audioStatus = document.getElementById("audioStatus");
+    const visualizer = document.getElementById("visualizer");
+    let interactionStarted = false;
+
+    function toggleAudio() {
+        if (audio.paused) {
+            audio.play();
+            playIcon.innerText = "⏸";
+            audioStatus.innerText = "Playing Now";
+            visualizer.classList.add("playing");
+        } else {
+            audio.pause();
+            playIcon.innerText = "▶";
+            audioStatus.innerText = "Paused";
+            visualizer.classList.remove("playing");
+        }
+    }
+
+    // Auto-trigger when user touches the screen anywhere
+    function firstInteraction() {
+        if (!interactionStarted) {
+            audio.play().then(() => {
+                playIcon.innerText = "⏸";
+                audioStatus.innerText = "Playing Now";
+                visualizer.classList.add("playing");
+            }).catch(e => console.log("Waiting for user tap"));
+            interactionStarted = true;
+        }
+    }
+
+    document.body.addEventListener('click', firstInteraction, { once: true });
+    document.body.addEventListener('touchstart', firstInteraction, { once: true });
+</script>
+
+
+
 </body>
 </html>
