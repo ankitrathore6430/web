@@ -2,6 +2,7 @@ import threading
 import time
 import smtplib
 import base64
+import socket
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
@@ -31,13 +32,18 @@ def send_worker(accounts, leads, subject_template, html_body, attachment_data=No
         final_body = html_body.replace("{name}", lead_name)
 
         try:
-            # Port 587 (TLS) for better Cloud Compatibility
-            server = smtplib.SMTP('smtp.gmail.com', 587)
-            server.starttls()
+            # Fixing Network Unreachable by forcing IPv4 and adding timeout
+            remote_host = "smtp.gmail.com"
+            port = 587
+            
+            server = smtplib.SMTP(remote_host, port, timeout=30)
+            server.set_debuglevel(1)
+            server.ehlo()
+            server.starttls() # Secure connection
             server.login(sender['email'].strip(), sender['pw'].strip())
             
             msg = MIMEMultipart()
-            msg['From'] = f"Loan Services <{sender['email']}>"
+            msg['From'] = f"Services <{sender['email']}>"
             msg['To'] = lead_email
             msg['Subject'] = subject
             msg.attach(MIMEText(final_body, 'html'))
@@ -54,59 +60,62 @@ def send_worker(accounts, leads, subject_template, html_body, attachment_data=No
             
             state["logs"].insert(0, f"✅ Sent: {lead_email} (via {sender['email']})")
             acc_index = (acc_index + 1) % len(accounts)
-            time.sleep(60)
+            time.sleep(60) # Anti-Spam Gap
             
         except Exception as e:
-            state["logs"].insert(0, f"❌ Error: {str(e)}")
-            time.sleep(5)
+            state["logs"].insert(0, f"❌ Connection Error on {sender['email']}: {str(e)}")
+            acc_index = (acc_index + 1) % len(accounts)
+            time.sleep(10)
 
     state["is_running"] = False
     state["logs"].insert(0, "🏁 Campaign Finished.")
 
-# --- Professional UI with Database Storage ---
+# --- UI with LocalStorage Database ---
 HTML_UI = """
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Pro Mailer Studio v2</title>
+    <title>SaaS Mailer Studio</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
     <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
     <style>
-        body { background: #f8f9fa; font-family: 'Inter', sans-serif; }
-        .card { border: none; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+        body { background: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .card { border: none; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
         #editor { height: 250px; background: white; }
-        .log-box { height: 200px; overflow-y: auto; background: #111; color: #0f0; padding: 15px; font-family: monospace; border-radius: 8px; font-size: 12px; }
-        .acc-item { display: flex; justify-content: space-between; background: #e9ecef; padding: 5px 10px; margin-bottom: 5px; border-radius: 5px; font-size: 13px; }
+        .log-box { height: 250px; overflow-y: auto; background: #1a1a1b; color: #00ff00; padding: 15px; font-family: monospace; border-radius: 8px; font-size: 12px; border: 1px solid #333; }
+        .acc-item { display: flex; justify-content: space-between; background: #ffffff; padding: 8px 12px; margin-bottom: 8px; border-radius: 6px; border: 1px solid #ddd; align-items: center; }
+        .btn-delete { color: #dc3545; cursor: pointer; font-weight: bold; }
     </style>
 </head>
 <body class="p-4">
     <div class="container-fluid">
-        <h3 class="text-center mb-4 text-primary fw-bold">🚀 Advanced Email Marketing Studio</h3>
+        <h3 class="text-center mb-4 text-dark fw-bold">🚀 Enterprise Email Studio</h3>
         
         <div class="row g-4">
             <div class="col-lg-4">
                 <div class="card p-3 mb-3">
-                    <h6 class="fw-bold">📧 Manage Sender Accounts</h6>
-                    <div class="input-group mb-2">
-                        <input type="email" id="acc_email" class="form-control" placeholder="Gmail Address">
-                        <input type="password" id="acc_pw" class="form-control" placeholder="App Password">
-                        <button onclick="addAccount()" class="btn btn-primary">+</button>
+                    <h6 class="fw-bold mb-3">🛡️ Saved Sender Accounts</h6>
+                    <div class="mb-3">
+                        <input type="email" id="acc_email" class="form-control mb-2" placeholder="Gmail Address">
+                        <input type="password" id="acc_pw" class="form-control mb-2" placeholder="16-Digit App Password">
+                        <button onclick="addAccount()" class="btn btn-dark w-100">Add & Save Account</button>
                     </div>
-                    <div id="accList" class="mt-2"></div>
+                    <div id="accList" style="max-height: 200px; overflow-y: auto;"></div>
                 </div>
 
                 <div class="card p-3">
-                    <h6 class="fw-bold">👥 Target Leads (Email List)</h6>
-                    <ul class="nav nav-tabs mb-2">
-                        <li class="nav-item"><a class="nav-link active py-1" data-bs-toggle="tab" href="#pasteTab">Paste</a></li>
-                        <li class="nav-item"><a class="nav-link py-1" data-bs-toggle="tab" href="#uploadTab">Upload</a></li>
+                    <h6 class="fw-bold mb-3">👥 Lead Management</h6>
+                    <ul class="nav nav-pills mb-3" id="pills-tab">
+                        <li class="nav-item w-50"><button class="nav-link active w-100" data-bs-toggle="pill" data-bs-target="#p-paste">Paste List</button></li>
+                        <li class="nav-item w-50"><button class="nav-link w-100" data-bs-toggle="pill" data-bs-target="#p-file">Upload CSV</button></li>
                     </ul>
                     <div class="tab-content">
-                        <div id="pasteTab" class="tab-pane fade show active">
-                            <textarea id="leadsPaste" class="form-control" rows="5" placeholder="email:name (one per line)"></textarea>
+                        <div class="tab-pane fade show active" id="p-paste">
+                            <textarea id="leadsPaste" class="form-control" rows="6" placeholder="email:name (One per line)"></textarea>
                         </div>
-                        <div id="uploadTab" class="tab-pane fade">
+                        <div class="tab-pane fade" id="p-file">
                             <input type="file" id="csvFile" class="form-control" accept=".csv">
+                            <p class="small text-muted mt-2">Format: Column A (Email), Column B (Name)</p>
                         </div>
                     </div>
                 </div>
@@ -114,21 +123,21 @@ HTML_UI = """
 
             <div class="col-lg-8">
                 <div class="card p-3 mb-3">
-                    <h6 class="fw-bold">✉️ Compose Campaign</h6>
-                    <input type="text" id="subject" class="form-control mb-2" placeholder="Subject (Use {name} for personalization)">
+                    <h6 class="fw-bold mb-3">✉️ Campaign Designer</h6>
+                    <input type="text" id="subject" class="form-control mb-3" placeholder="Subject (Use {name} for personalization)">
                     <div id="editor"></div>
-                    <div class="mt-3">
-                        <label class="small fw-bold">Attach Media (Optional):</label>
+                    <div class="mt-3 d-flex align-items-center gap-3">
+                        <label class="fw-bold small">Attachment:</label>
                         <input type="file" id="mediaFile" class="form-control form-control-sm w-50">
                     </div>
                 </div>
                 
-                <div class="d-flex gap-2 mb-3">
-                    <button onclick="launch()" id="launchBtn" class="btn btn-success flex-grow-1 fw-bold py-2">START CAMPAIGN</button>
-                    <button onclick="stop()" class="btn btn-danger px-4">STOP</button>
+                <div class="row g-2 mb-3">
+                    <div class="col-9"><button onclick="launch()" id="launchBtn" class="btn btn-primary w-100 fw-bold py-2">START CAMPAIGN</button></div>
+                    <div class="col-3"><button onclick="stop()" class="btn btn-outline-danger w-100 fw-bold py-2">STOP</button></div>
                 </div>
 
-                <div class="log-box" id="logs">Waiting for action...</div>
+                <div id="logs" class="log-box">Ready to launch...</div>
             </div>
         </div>
     </div>
@@ -137,18 +146,18 @@ HTML_UI = """
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        var quill = new Quill('#editor', { theme: 'snow', modules: { toolbar: [['bold', 'italic'], ['link', 'image']] } });
-        let savedAccounts = JSON.parse(localStorage.getItem('mailer_accs') || '[]');
+        var quill = new Quill('#editor', { theme: 'snow', modules: { toolbar: [['bold', 'italic', 'underline'], ['link', 'image', { 'list': 'ordered'}, { 'list': 'bullet' }]] } });
+        let savedAccounts = JSON.parse(localStorage.getItem('pro_mailer_accs') || '[]');
 
         function updateAccUI() {
             const list = document.getElementById('accList');
             list.innerHTML = savedAccounts.map((a, i) => `
                 <div class="acc-item">
-                    <span>${a.email}</span>
-                    <button onclick="deleteAccount(${i})" class="btn btn-sm text-danger p-0">✖</button>
+                    <span><b>${i+1}.</b> ${a.email}</span>
+                    <span onclick="deleteAccount(${i})" class="btn-delete">DELETE</span>
                 </div>
             `).join('');
-            localStorage.setItem('mailer_accs', JSON.stringify(savedAccounts));
+            localStorage.setItem('pro_mailer_accs', JSON.stringify(savedAccounts));
         }
 
         function addAccount() {
@@ -174,8 +183,13 @@ HTML_UI = """
                 leads = pasteData.split('\\n').map(l => ({email: l.split(':')[0], name: l.split(':')[1] || 'Customer'}));
             } else if (fileInput) {
                 const text = await fileInput.text();
-                leads = text.split('\\n').slice(1).map(l => ({email: l.split(',')[0], name: l.split(',')[1] || 'Customer'}));
+                leads = text.split('\\n').slice(1).map(l => {
+                    const parts = l.split(',');
+                    return {email: parts[0], name: parts[1] || 'Customer'};
+                }).filter(l => l.email);
             }
+
+            if(savedAccounts.length === 0 || leads.length === 0) { alert("Add accounts and leads first!"); return; }
 
             const media = document.getElementById('mediaFile').files[0];
             let attachment = null;
@@ -194,40 +208,15 @@ HTML_UI = """
             };
 
             fetch('/start', {method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify(payload)});
-            document.getElementById('launchBtn').innerText = "Campaign Running...";
+            document.getElementById('launchBtn').innerText = "RUNNING...";
+            document.getElementById('launchBtn').className = "btn btn-warning w-100 fw-bold py-2";
         }
 
-        function stop() { fetch('/stop', {method: 'POST'}); location.reload(); }
+        function stop() { fetch('/stop', {method: 'POST'}).then(() => location.reload()); }
 
         setInterval(() => {
             fetch('/logs').then(r => r.json()).then(d => { document.getElementById('logs').innerHTML = d.join('<br>'); });
-        }, 3000);
+        }, 2000);
     </script>
 </body>
 </html>
-"""
-
-@app.route('/')
-def index(): return render_template_string(HTML_UI)
-
-@app.route('/start', methods=['POST'])
-def start_campaign():
-    import base64
-    data = request.json
-    state["is_running"] = True
-    attach = None
-    if data.get('attachment'):
-        attach = {'name': data['attachment']['name'], 'content': base64.b64decode(data['attachment']['content'])}
-    threading.Thread(target=send_worker, args=(data['accounts'], data['leads'], data['subject'], data['body'], attach)).start()
-    return jsonify({"status": "ok"})
-
-@app.route('/stop', methods=['POST'])
-def stop_campaign():
-    state["stop"] = True
-    return jsonify({"status": "ok"})
-
-@app.route('/logs')
-def get_logs(): return jsonify(state["logs"][:40])
-
-if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
