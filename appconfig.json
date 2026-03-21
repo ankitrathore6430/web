@@ -1,11 +1,8 @@
 {
-  "appId": "com.yourname.yourapp", 
-  "appName": "Mera Desi App",
+  "appId": "com.apka.app",
+  "appName": "Mera Offline App",
   "versionName": "1.0.0",
   "versionCode": 1,
-  "appIcon": "https://ankitrathore6430.github.io/web/1693562463658.jpg", 
-  "offlineMode": true,
-  "permissions": [
-    "INTERNET"
-  ]
+  "appIconUrl": "https://ankitrathore6430.github.io/web/1693562463658.jpg",
+  "author": "Apka Naam"
 }
