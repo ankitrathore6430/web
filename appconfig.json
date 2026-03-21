@@ -1,0 +1,11 @@
+{
+  "appId": "com.yourname.yourapp", 
+  "appName": "Mera Desi App",
+  "versionName": "1.0.0",
+  "versionCode": 1,
+  "appIcon": "icon.png", 
+  "offlineMode": true,
+  "permissions": [
+    "INTERNET"
+  ]
+}
