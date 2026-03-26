@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Solar Energy - Refer & Earn</title>
+    <title>Solar Energy - Premium Refer & Earn</title>
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -101,11 +101,10 @@
         .btn:hover:not(:disabled) { transform: translateY(-2px); }
         .btn:disabled { background: #d1d5db; cursor: not-allowed; box-shadow: none; color: #6b7280; }
         
-        /* ===== CARDS (Premium Glassmorphism & Shadows) ===== */
+        /* ===== CARDS & POSTS ===== */
         .card { background: #ffffff; padding: 25px; border-radius: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.04); margin-bottom: 20px; position: relative; overflow: hidden; }
         .card-title { font-size: 20px; color: #1f2937; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; font-weight: 700; }
         
-        /* ===== PLAN POST STYLE ===== */
         .plan-post { border: 1px solid #f3f4f6; border-radius: 16px; padding: 20px; background: #fff; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
         .plan-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #f3f4f6; padding-bottom: 10px;}
         .plan-name { font-size: 18px; font-weight: 800; color: #1e3c72; display: flex; align-items: center; gap: 5px; }
@@ -137,8 +136,6 @@
         .stat-card { background: #fff; padding: 20px; border-radius: 16px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .stat-number { font-size: 26px; font-weight: 900; color: #2a5298; margin-bottom: 5px; }
         .stat-label { font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; }
-        
-        /* Auto UPI Banner */
         .upi-banner { background: #fff; border: 2px dashed #11998e; border-radius: 15px; padding: 20px; text-align: center; margin-bottom: 20px; }
     </style>
 </head>
@@ -194,7 +191,7 @@
         </div>
     </div>
 
-    <!-- ===== LOGIN PAGE (Unchanged Logic) ===== -->
+    <!-- ===== LOGIN PAGE ===== -->
     <div id="login" class="page">
         <div class="container" style="max-width: 450px;">
             <div class="card" style="margin-top: 20px;">
@@ -224,7 +221,7 @@
                     <button class="btn btn-outline btn-block" onclick="showLoginOtp()">📱 Login with OTP</button>
                 </div>
                 
-                <!-- Login with OTP (Unchanged) -->
+                <!-- Login with OTP -->
                 <div id="loginOtpSection" class="hidden">
                     <form id="loginOtpForm">
                         <div class="form-group">
@@ -236,7 +233,7 @@
                     </form>
                 </div>
                 
-                <!-- Verify OTP -->
+                <!-- Verify Login OTP -->
                 <div id="verifyLoginOtpSection" class="hidden">
                     <div class="text-center mb-20"><p>OTP sent to <strong id="displayLoginPhone"></strong></p></div>
                     <form id="verifyLoginOtpForm">
@@ -260,7 +257,7 @@
         </div>
     </div>
 
-    <!-- ===== REGISTER PAGE (Unchanged Logic) ===== -->
+    <!-- ===== REGISTER PAGE ===== -->
     <div id="register" class="page">
         <div class="container" style="max-width: 450px;">
             <div class="card" style="margin-top: 20px;">
@@ -305,7 +302,7 @@
         </div>
     </div>
 
-    <!-- ===== DASHBOARD / HOME PAGE (Premium View with Plans) ===== -->
+    <!-- ===== DASHBOARD / HOME PAGE ===== -->
     <div id="dashboard" class="page">
         <div style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 30px 20px 60px 20px; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px;">
             <h2 style="font-weight: 800; font-size: 24px;">Hi, <span id="dashName">User</span> 👋</h2>
@@ -330,17 +327,12 @@
                 </div>
             </div>
             
-            <!-- Trending Plans right on Home Page -->
             <div class="card">
                 <h2 class="card-title">🔥 Trending Investment Plans</h2>
                 <p style="color: #64748b; font-size: 13px; margin-bottom: 20px;">Purchase plans to get high daily returns!</p>
-                
-                <div id="homePlansList">
-                    <!-- Dynamic plans rendered as Posts -->
-                </div>
+                <div id="homePlansList"></div>
             </div>
             
-            <!-- Active Plans -->
             <div class="card">
                 <h2 class="card-title">🏦 My Active Plans</h2>
                 <div id="dashPlansList"><div class="text-center" style="color: #9ca3af; padding: 20px;">No active plans.</div></div>
@@ -348,7 +340,7 @@
         </div>
     </div>
 
-    <!-- ===== WALLET PAGE (Smart Auto-Redirect UPI) ===== -->
+    <!-- ===== WALLET PAGE ===== -->
     <div id="wallet" class="page">
         <div class="container">
             <div class="card text-center" style="background: #1e3c72; color: white;">
@@ -356,7 +348,6 @@
                 <h1 id="walletBalance" style="font-size: 48px; margin: 10px 0;">₹0</h1>
             </div>
             
-            <!-- Add Money flow -->
             <div class="card" id="addMoneyAmountSection">
                 <h2 class="card-title">💳 Add Money to Wallet</h2>
                 <form id="addMoneyAmountForm">
@@ -368,14 +359,12 @@
                 </form>
             </div>
             
-            <!-- Verify Auto UPI Payment -->
             <div class="card hidden" id="upiPaymentSection">
                 <h2 class="card-title">⏱️ Verify Your Payment</h2>
                 <div class="upi-banner">
                     <p style="color: #11998e; font-weight: bold; font-size: 18px; margin-bottom: 10px;">Amount: <span id="upiDisplayAmount">₹0</span></p>
                     <p style="font-size: 13px; color: #4b5563;">You were redirected to your UPI App. Complete the payment there, copy the 12-digit UTR/Ref No. and paste it below.</p>
                 </div>
-                
                 <form id="depositSubmitForm">
                     <div class="form-group">
                         <label>📝 Enter 12-Digit UTR / Ref Number *</label>
@@ -386,7 +375,6 @@
                 </form>
             </div>
             
-            <!-- Withdraw (Unchanged Logic, UI modernized) -->
             <div class="card">
                 <h2 class="card-title">💸 Withdraw Request</h2>
                 <form id="withdrawForm">
@@ -428,7 +416,7 @@
         </div>
     </div>
 
-    <!-- ===== SUPPORT PAGE (NEW) ===== -->
+    <!-- ===== SUPPORT PAGE ===== -->
     <div id="support" class="page">
         <div class="container">
             <div class="card">
@@ -453,18 +441,17 @@
         </div>
     </div>
 
-
     <script>
-        // 🔥 GITHUB API CONFIGURATION (Fill these details) 🔥
-        // CAUTION: Public repo me PAT rakhna safe nahi hai. Ek private repo banaye aur fine-grained token banaye.
+        // 🔥 GITHUB DATABASE CONFIGURATION 🔥
+        // Replace with your actual GitHub details
         const GITHUB_CONFIG = {
-            token: "YOUR_GITHUB_PERSONAL_ACCESS_TOKEN", // Eg: ghp_xxxxxxxxxxxxxxxxxx
-            owner: "YOUR_GITHUB_USERNAME", // Eg: ramesh123
-            repo: "YOUR_GITHUB_REPO_NAME", // Eg: solar-database
+            token: "YOUR_GITHUB_PERSONAL_ACCESS_TOKEN", 
+            owner: "YOUR_GITHUB_USERNAME", 
+            repo: "YOUR_GITHUB_REPO_NAME", 
             path: "data.json"
         };
 
-        // Firebase Auth Config (Unchanged)
+        // 🔥 FIREBASE CONFIGURATION 🔥
         const firebaseConfig = {
             apiKey: "AIzaSyA3pH_dnb6_--wRoDSuoj-TAudsmJ7D4R0",
             authDomain: "solor-energy.firebaseapp.com",
@@ -476,12 +463,10 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         
-        // Globals
         let currentUser = null;
         let confirmationResult = null;
         let tempUserData = {};
         let pendingDepositAmount = 0;
-        let githubFileSha = null;
 
         const plans =[
             { id: 'nano', name: 'Nano Energy', price: 100, daily: 20, days: 30, total: 600 },
@@ -490,84 +475,83 @@
             { id: 'pro', name: 'Pro Solar', price: 1000, daily: 350, days: 30, total: 10500 }
         ];
 
-        // ===== GITHUB DB SYNC CLASS =====
-        class GitHubDB {
-            static async fetchDB() {
+        // ==========================================
+        // 🚀 REAL-TIME GITHUB SERVER ENGINE
+        // ==========================================
+        class ServerDB {
+            static async get() {
                 try {
-                    const res = await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`, {
-                        headers: { 'Authorization': `token ${GITHUB_CONFIG.token}` }
+                    const res = await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}?t=${Date.now()}`, {
+                        headers: { 'Authorization': `token ${GITHUB_CONFIG.token}` },
+                        cache: "no-store" 
                     });
-                    if (res.status === 404) {
-                        return { solarUsers: [], pendingDeposits: [], pendingWithdrawals: [], tickets:[] };
-                    }
+                    if (res.status === 404) return { db: { solarUsers: [], pendingDeposits: [], pendingWithdrawals:[], tickets:[] }, sha: null };
+                    
                     const data = await res.json();
-                    githubFileSha = data.sha;
-                    // Decode base64 utf-8
                     const jsonStr = decodeURIComponent(escape(atob(data.content)));
-                    return JSON.parse(jsonStr);
+                    return { db: JSON.parse(jsonStr), sha: data.sha };
                 } catch (err) {
-                    console.error("GitHub Fetch Error", err);
-                    // Fallback to local
-                    return {
-                        solarUsers: JSON.parse(localStorage.getItem('solarUsers')||'[]'),
-                        pendingDeposits: JSON.parse(localStorage.getItem('pendingDeposits')||'[]'),
-                        pendingWithdrawals: JSON.parse(localStorage.getItem('pendingWithdrawals')||'[]'),
-                        tickets: JSON.parse(localStorage.getItem('solarTickets')||'[]')
-                    };
+                    console.error("Server Fetch Error:", err);
+                    return null;
                 }
             }
 
-            static async pushDB() {
-                try {
-                    const stateObj = {
-                        solarUsers: JSON.parse(localStorage.getItem('solarUsers')||'[]'),
-                        pendingDeposits: JSON.parse(localStorage.getItem('pendingDeposits')||'[]'),
-                        pendingWithdrawals: JSON.parse(localStorage.getItem('pendingWithdrawals')||'[]'),
-                        tickets: JSON.parse(localStorage.getItem('solarTickets')||'[]')
-                    };
-                    const content = btoa(unescape(encodeURIComponent(JSON.stringify(stateObj, null, 2))));
-                    const body = { message: "Auto Sync App Data", content: content };
-                    if (githubFileSha) body.sha = githubFileSha;
+            static async runTransaction(mutationFn) {
+                const data = await this.get();
+                if (!data) return false;
+                
+                let { db, sha } = data;
+                
+                if(!db.solarUsers) db.solarUsers =[];
+                if(!db.pendingDeposits) db.pendingDeposits =[];
+                if(!db.pendingWithdrawals) db.pendingWithdrawals =[];
+                if(!db.tickets) db.tickets =[];
 
+                await mutationFn(db);
+
+                const content = btoa(unescape(encodeURIComponent(JSON.stringify(db, null, 2))));
+                const body = { message: "Live App Transaction", content: content };
+                if (sha) body.sha = sha;
+
+                try {
                     const res = await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`, {
                         method: 'PUT',
                         headers: { 'Authorization': `token ${GITHUB_CONFIG.token}`, 'Content-Type': 'application/json' },
                         body: JSON.stringify(body)
                     });
-                    const data = await res.json();
-                    if(data.content) githubFileSha = data.content.sha;
-                } catch(e) { console.error("Push Error", e); }
-            }
-
-            static async syncLocalFromGitHub() {
-                const db = await this.fetchDB();
-                localStorage.setItem('solarUsers', JSON.stringify(db.solarUsers));
-                localStorage.setItem('pendingDeposits', JSON.stringify(db.pendingDeposits));
-                localStorage.setItem('pendingWithdrawals', JSON.stringify(db.pendingWithdrawals));
-                localStorage.setItem('solarTickets', JSON.stringify(db.tickets ||[]));
+                    return res.ok;
+                } catch(e) {
+                    console.error("Save Error:", e);
+                    return false;
+                }
             }
         }
 
-        // ===== BOOT & NAVIGATION =====
+        // ==========================================
+        // BOOT SYSTEM
+        // ==========================================
         window.onload = async function() {
-            // First fetch latest DB from GitHub silently to prevent local tampering
-            if(GITHUB_CONFIG.token !== "YOUR_GITHUB_PERSONAL_ACCESS_TOKEN"){
-                await GitHubDB.syncLocalFromGitHub();
-            }
-
             const savedUser = localStorage.getItem('currentUser');
             if (savedUser) {
-                // Refresh currentUser from DB
-                const users = JSON.parse(localStorage.getItem('solarUsers') || '[]');
-                const found = users.find(u => u.id === JSON.parse(savedUser).id);
-                if(found) {
-                    currentUser = found;
-                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    showPage('dashboard');
-                } else { showPage('landing'); }
-            } else {
-                showPage('landing');
+                const localUser = JSON.parse(savedUser);
+                const data = await ServerDB.get();
+                if(data && data.db) {
+                    const liveUser = data.db.solarUsers.find(u => u.id === localUser.id);
+                    if(liveUser) {
+                        currentUser = liveUser;
+                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                        showPage('dashboard');
+                        return;
+                    }
+                }
             }
+            
+            // Check for referral URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const refCode = urlParams.get('ref');
+            if (refCode) document.getElementById('regReferral').value = refCode;
+            
+            showPage('landing');
         };
 
         function showPage(pageName) {
@@ -601,25 +585,160 @@
             setTimeout(()=>el.style.display='none', 4000);
         }
 
-        // ===== LOGIN & AUTH (FIREBASE - NO CHANGES IN LOGIC) =====
-        // Login Password
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
+        // ==========================================
+        // LOGIN & AUTHENTICATION
+        // ==========================================
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const phone = document.getElementById('loginPhone').value;
             const pass = document.getElementById('loginPassword').value;
-            const users = JSON.parse(localStorage.getItem('solarUsers')||'[]');
-            const user = users.find(u => u.phone === phone && u.password === pass);
-            if(user) {
-                currentUser = user; localStorage.setItem('currentUser', JSON.stringify(user));
-                showPage('dashboard');
-            } else { showMessage('loginMessage', 'Invalid phone or password', 'error'); }
+            const btn = document.getElementById('loginBtn');
+            
+            btn.innerHTML = '🔄 Verifying on Server...'; btn.disabled = true;
+
+            const data = await ServerDB.get();
+            if(data) {
+                const user = data.db.solarUsers.find(u => u.phone === phone && u.password === pass);
+                if(user) {
+                    if (user.status === 'blocked') {
+                        showMessage('loginMessage', '❌ Account blocked by Admin!', 'error');
+                    } else {
+                        currentUser = user; 
+                        localStorage.setItem('currentUser', JSON.stringify(user));
+                        showPage('dashboard');
+                    }
+                } else { 
+                    showMessage('loginMessage', '❌ Invalid phone or password', 'error'); 
+                }
+            } else {
+                showMessage('loginMessage', '❌ Server Error', 'error');
+            }
+            btn.innerHTML = '🔐 Login'; btn.disabled = false;
         });
 
-        // Toggle Login Methods
         function showLoginOtp() { document.getElementById('loginPasswordSection').classList.add('hidden'); document.getElementById('loginOtpSection').classList.remove('hidden'); }
         function showLoginPassword() { document.getElementById('loginOtpSection').classList.add('hidden'); document.getElementById('verifyLoginOtpSection').classList.add('hidden'); document.getElementById('loginPasswordSection').classList.remove('hidden'); }
 
-        // OTP Auth logic
+        document.getElementById('loginOtpForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const phone = document.getElementById('loginOtpPhone').value;
+            const btn = document.getElementById('sendLoginOtpBtn');
+            
+            btn.innerHTML = '🔄 Checking...'; btn.disabled = true;
+
+            const data = await ServerDB.get();
+            if(!data || !data.db.solarUsers.find(u => u.phone === phone)) {
+                showMessage('loginMessage', '❌ Number not registered!', 'error');
+                btn.innerHTML = '📲 Send OTP'; btn.disabled = false; return;
+            }
+
+            try {
+                const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sendLoginOtpBtn', { size: 'invisible' });
+                confirmationResult = await auth.signInWithPhoneNumber('+91' + phone, recaptchaVerifier);
+                document.getElementById('displayLoginPhone').textContent = phone;
+                document.getElementById('loginOtpSection').classList.add('hidden');
+                document.getElementById('verifyLoginOtpSection').classList.remove('hidden');
+                setupOtpInputs('otp-digit-login', 'fullLoginOtp');
+            } catch (error) { showMessage('loginMessage', '❌ ' + error.message, 'error'); }
+            
+            btn.innerHTML = '📲 Send OTP'; btn.disabled = false;
+        });
+
+        document.getElementById('verifyLoginOtpForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const otp = document.getElementById('fullLoginOtp').value;
+            const btn = e.target.querySelector('button');
+            btn.innerHTML = "🔄 Verifying...";
+            try {
+                await confirmationResult.confirm(otp);
+                const phone = document.getElementById('loginOtpPhone').value;
+                const data = await ServerDB.get();
+                const user = data.db.solarUsers.find(u => u.phone === phone);
+                if (user) {
+                    currentUser = user;
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    showPage('dashboard');
+                }
+            } catch (error) { showMessage('loginMessage', '❌ Invalid OTP!', 'error'); }
+            btn.innerHTML = "✅ Verify & Login";
+        });
+
+        // Register
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            tempUserData = {
+                name: document.getElementById('regName').value.trim(),
+                phone: document.getElementById('regPhone').value.trim(),
+                password: document.getElementById('regPassword').value,
+                referral: document.getElementById('regReferral').value.trim()
+            };
+            const confirmPass = document.getElementById('regConfirmPassword').value;
+
+            if (tempUserData.password !== confirmPass) return showMessage('registerMessage', '❌ Passwords do not match', 'error');
+
+            const btn = document.getElementById('sendRegOtpBtn');
+            btn.innerHTML = '🔄 Checking...'; btn.disabled = true;
+
+            const data = await ServerDB.get();
+            if (data && data.db.solarUsers.find(u => u.phone === tempUserData.phone)) {
+                showMessage('registerMessage', '❌ Number already registered! Please login.', 'error');
+                btn.innerHTML = '📲 Send OTP'; btn.disabled = false; return;
+            }
+
+            try {
+                const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sendRegOtpBtn', { size: 'invisible' });
+                confirmationResult = await auth.signInWithPhoneNumber('+91' + tempUserData.phone, recaptchaVerifier);
+                document.getElementById('displayRegPhone').textContent = tempUserData.phone;
+                document.getElementById('registerStep1').classList.add('hidden');
+                document.getElementById('registerStep2').classList.remove('hidden');
+                setupOtpInputs('otp-digit-reg', 'fullRegOtp');
+            } catch (error) { showMessage('registerMessage', '❌ ' + error.message, 'error'); }
+            
+            btn.innerHTML = '📲 Send OTP'; btn.disabled = false;
+        });
+
+        document.getElementById('verifyRegForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const otp = document.getElementById('fullRegOtp').value;
+            const btn = e.target.querySelector('button');
+            btn.innerHTML = "🔄 Creating Account..."; btn.disabled = true;
+
+            try {
+                await confirmationResult.confirm(otp);
+                
+                const userId = 'SOLAR' + Date.now();
+                const myCode = tempUserData.name.substring(0,3).toUpperCase() + Math.floor(Math.random()*1000);
+                
+                const newUser = {
+                    id: userId, name: tempUserData.name, phone: tempUserData.phone, password: tempUserData.password,
+                    referralCode: myCode, referredBy: tempUserData.referral || 'ADMIN', joinDate: new Date().toISOString(),
+                    wallet: { mainBalance: tempUserData.referral ? 15 : 0, totalWithdrawn: 0 }, 
+                    referrals: { count: 0, list:[], earnings: 0 },
+                    activePlans:[], status: 'active'
+                };
+
+                await ServerDB.runTransaction(async (db) => {
+                    db.solarUsers.push(newUser);
+                    if(tempUserData.referral) {
+                        let refUser = db.solarUsers.find(u => u.referralCode === tempUserData.referral);
+                        if(refUser) {
+                            refUser.wallet.mainBalance += 15;
+                            refUser.referrals.count += 1;
+                            refUser.referrals.earnings += 15;
+                            refUser.referrals.list.push(userId);
+                        }
+                    }
+                });
+
+                currentUser = newUser;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                showPage('dashboard');
+            } catch (error) {
+                showMessage('registerMessage', '❌ Invalid OTP!', 'error');
+                btn.innerHTML = "✅ Create Account"; btn.disabled = false;
+            }
+        });
+
         function setupOtpInputs(cls, hiddenId) {
             document.querySelectorAll('.'+cls).forEach((inp, idx) => {
                 inp.addEventListener('input', (e) => {
@@ -629,106 +748,9 @@
             });
         }
 
-        // Support Form
-        document.getElementById('supportForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const subj = document.getElementById('supportSubject').value;
-            const msg = document.getElementById('supportMessage').value;
-            const tix = JSON.parse(localStorage.getItem('solarTickets')||'[]');
-            tix.push({
-                id: 'TKT'+Date.now(), userId: currentUser.id, phone: currentUser.phone,
-                subject: subj, message: msg, status: 'Open', date: new Date().toISOString()
-            });
-            localStorage.setItem('solarTickets', JSON.stringify(tix));
-            await GitHubDB.pushDB(); // Sync to github
-            alert('✅ Ticket Submitted successfully!');
-            e.target.reset(); loadSupport();
-        });
-
-        function loadSupport() {
-            const tix = JSON.parse(localStorage.getItem('solarTickets')||'[]');
-            const mytix = tix.filter(t => t.userId === currentUser.id).reverse();
-            const box = document.getElementById('myTicketsList');
-            if(mytix.length>0) {
-                box.innerHTML = '';
-                mytix.forEach(t => {
-                    box.innerHTML += `<div style="padding:15px; border:1px solid #eee; border-radius:10px; margin-bottom:10px;">
-                        <div style="display:flex; justify-content:space-between;"><strong>${t.subject}</strong> <span style="color:${t.status==='Resolved'?'green':'orange'}">${t.status}</span></div>
-                        <p style="font-size:13px; color:#666; margin-top:5px;">${t.message}</p>
-                    </div>`;
-                });
-            }
-        }
-
-        // ===== SMART UPI PAYMENT (AUTO-REDIRECT) =====
-        document.getElementById('addMoneyAmountForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const amount = document.getElementById('depositAmount').value;
-            if (amount < 100) return alert('Min ₹100 required');
-            pendingDepositAmount = amount;
-            
-            // MAGIC: UPI Deep Link Auto Redirect
-            // Mobile device check logic can be added, but simple location.href works best for deep links
-            const upiId = "6395503566@upi";
-            const upiUrl = `upi://pay?pa=${upiId}&pn=SolarEnergy&am=${amount}&cu=INR`;
-            
-            // Hide amount, show Verify section immediately
-            document.getElementById('addMoneyAmountSection').classList.add('hidden');
-            document.getElementById('upiPaymentSection').classList.remove('hidden');
-            document.getElementById('upiDisplayAmount').textContent = '₹' + amount;
-            
-            // Open the app!
-            window.location.href = upiUrl;
-        });
-
-        document.getElementById('depositSubmitForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const txn = document.getElementById('transactionId').value.trim();
-            if(!txn || txn.length < 10) return alert("Please enter valid UTR!");
-            
-            const dep = {
-                id: 'DEP'+Date.now(), userId: currentUser.id, userPhone: currentUser.phone,
-                amount: parseInt(pendingDepositAmount), transactionId: txn, status: 'pending', requestedAt: new Date().toISOString()
-            };
-            const pendingDeposits = JSON.parse(localStorage.getItem('pendingDeposits')||'[]');
-            pendingDeposits.push(dep);
-            localStorage.setItem('pendingDeposits', JSON.stringify(pendingDeposits));
-            
-            await GitHubDB.pushDB(); // Sync database
-            alert("✅ Verify request sent! Admin will approve soon.");
-            showPage('wallet');
-        });
-
-        function backToAmount() {
-            document.getElementById('upiPaymentSection').classList.add('hidden');
-            document.getElementById('addMoneyAmountSection').classList.remove('hidden');
-        }
-
-        // Withdraw
-        document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const amt = parseInt(document.getElementById('withdrawAmount').value);
-            const met = document.getElementById('withdrawMethod').value;
-            if(amt < 200) return alert("Min ₹200");
-            if(currentUser.wallet.mainBalance < amt) return alert("Low balance");
-            
-            const req = { id: 'WID'+Date.now(), userId: currentUser.id, amount: amt, method: met, status: 'pending', requestedAt: new Date().toISOString()};
-            const wids = JSON.parse(localStorage.getItem('pendingWithdrawals')||'[]');
-            wids.push(req); localStorage.setItem('pendingWithdrawals', JSON.stringify(wids));
-            
-            // Update user balance locally
-            const users = JSON.parse(localStorage.getItem('solarUsers'));
-            const idx = users.findIndex(u => u.id === currentUser.id);
-            users[idx].wallet.mainBalance -= amt;
-            localStorage.setItem('solarUsers', JSON.stringify(users));
-            currentUser = users[idx]; localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            
-            await GitHubDB.pushDB();
-            alert("Withdraw request sent!"); loadWallet();
-        });
-
-
-        // ===== RENDER HOME PAGE PLANS AS POSTS =====
+        // ==========================================
+        // DASHBOARD & DAILY CLAIMS
+        // ==========================================
         function loadDashboard() {
             document.getElementById('navBalance').textContent = currentUser.wallet.mainBalance;
             document.getElementById('dashName').textContent = currentUser.name.split(' ')[0];
@@ -736,7 +758,6 @@
             document.getElementById('dashEarnings').textContent = '₹' + (currentUser.referrals.earnings + currentUser.wallet.mainBalance);
             document.getElementById('dashRefers').textContent = currentUser.referrals.count;
             
-            // Home Plans Post style
             const plansBox = document.getElementById('homePlansList');
             plansBox.innerHTML = '';
             plans.forEach(plan => {
@@ -755,108 +776,269 @@
                 </div>`;
             });
 
-            // Process daily claims automatically
-            processClaims();
+            const actBox = document.getElementById('dashPlansList');
+            if(currentUser.activePlans.length > 0) {
+                actBox.innerHTML = '';
+                currentUser.activePlans.forEach(p => {
+                    actBox.innerHTML += `<div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">
+                        <div><strong>${p.planName}</strong><br><small>Daily: ₹${p.dailyReturn}</small></div>
+                        <div style="text-align:right; color:#11998e; font-weight:bold;">Active</div>
+                    </div>`;
+                });
+            } else {
+                actBox.innerHTML = '<div class="text-center" style="color: #9ca3af; padding: 20px;">No active plans.</div>';
+            }
+
+            processClaims(); 
         }
 
+        async function processClaims() {
+            const todayStr = new Date().toDateString();
+            let needsUpdate = currentUser.activePlans.some(p => 
+                p.status === 'active' && 
+                new Date() < new Date(p.expiryDate) && 
+                (!p.lastClaimed || new Date(p.lastClaimed).toDateString() !== todayStr)
+            );
+
+            if (needsUpdate) {
+                await ServerDB.runTransaction(async (db) => {
+                    let u = db.solarUsers.find(x => x.id === currentUser.id);
+                    if(u) {
+                        u.activePlans.forEach(p => {
+                            if(p.status === 'active' && new Date() < new Date(p.expiryDate)) {
+                                if(!p.lastClaimed || new Date(p.lastClaimed).toDateString() !== todayStr) {
+                                    u.wallet.mainBalance += p.dailyReturn;
+                                    p.lastClaimed = new Date().toISOString();
+                                }
+                            }
+                        });
+                        currentUser = u;
+                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    }
+                });
+                document.getElementById('dashBalance').textContent = '₹' + currentUser.wallet.mainBalance;
+                document.getElementById('navBalance').textContent = currentUser.wallet.mainBalance;
+            }
+        }
+
+        // ==========================================
+        // PLAN PURCHASE
+        // ==========================================
         async function buyPlan(pid) {
             const plan = plans.find(p=>p.id===pid);
             if(currentUser.wallet.mainBalance < plan.price) {
-                alert("Low Balance! Please add money.");
+                alert("Low Balance! Please add money from Wallet.");
                 showPage('wallet'); return;
             }
             if(!confirm(`Confirm buy ${plan.name} for ₹${plan.price}?`)) return;
 
-            const users = JSON.parse(localStorage.getItem('solarUsers'));
-            const uIdx = users.findIndex(u=>u.id===currentUser.id);
-            users[uIdx].wallet.mainBalance -= plan.price;
-            users[uIdx].activePlans.push({
-                planId: plan.id, planName: plan.name, amount: plan.price, dailyReturn: plan.daily,
-                expiryDate: new Date(Date.now() + plan.days*86400000).toISOString(), lastClaimed: null, status: 'active'
-            });
-            localStorage.setItem('solarUsers', JSON.stringify(users));
-            currentUser = users[uIdx]; localStorage.setItem('currentUser', JSON.stringify(currentUser));
-            
-            await GitHubDB.pushDB(); // Save to cloud
-            alert("Plan Activated!"); loadDashboard();
-        }
+            const btn = event.target;
+            btn.innerHTML = "🔄 Processing..."; btn.disabled = true;
 
-        async function processClaims() {
-            let updated = false;
-            const users = JSON.parse(localStorage.getItem('solarUsers'));
-            const u = users.find(x=>x.id===currentUser.id);
-            const todayStr = new Date().toDateString();
-
-            u.activePlans.forEach(p => {
-                if(p.status==='active' && new Date() < new Date(p.expiryDate)) {
-                    if(!p.lastClaimed || new Date(p.lastClaimed).toDateString() !== todayStr) {
-                        u.wallet.mainBalance += p.dailyReturn;
-                        p.lastClaimed = new Date().toISOString();
-                        updated = true;
+            const success = await ServerDB.runTransaction(async (db) => {
+                let u = db.solarUsers.find(x => x.id === currentUser.id);
+                if (u.wallet.mainBalance >= plan.price) {
+                    u.wallet.mainBalance -= plan.price;
+                    u.activePlans.push({
+                        planId: plan.id, planName: plan.name, amount: plan.price, dailyReturn: plan.daily,
+                        expiryDate: new Date(Date.now() + plan.days*86400000).toISOString(), lastClaimed: null, status: 'active'
+                    });
+                    
+                    if (u.referredBy && u.referredBy !== 'ADMIN') {
+                        let referrer = db.solarUsers.find(r => r.referralCode === u.referredBy);
+                        if(referrer) {
+                            let comm = Math.floor(plan.price * 0.2);
+                            referrer.wallet.mainBalance += comm;
+                            referrer.referrals.earnings += comm;
+                        }
                     }
+                    currentUser = u; 
+                    localStorage.setItem('currentUser', JSON.stringify(u));
+                } else {
+                    alert("Server Error: Insufficient Balance.");
                 }
             });
-            if(updated) {
-                localStorage.setItem('solarUsers', JSON.stringify(users));
-                currentUser = u; localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                document.getElementById('dashBalance').textContent = '₹'+u.wallet.mainBalance;
-                document.getElementById('navBalance').textContent = u.wallet.mainBalance;
-                GitHubDB.pushDB(); // Fire and forget async
+
+            if(success) { alert("✅ Plan Activated Successfully!"); loadDashboard(); }
+            btn.innerHTML = "💎 Buy Now"; btn.disabled = false;
+        }
+
+        // ==========================================
+        // WALLET, DEPOSIT & WITHDRAW
+        // ==========================================
+        async function loadWallet() {
+            document.getElementById('walletBalance').textContent = '₹' + currentUser.wallet.mainBalance;
+            
+            const data = await ServerDB.get();
+            if(!data) return;
+            
+            const wids = data.db.pendingWithdrawals.filter(x => x.userId === currentUser.id);
+            const deps = data.db.pendingDeposits.filter(x => x.userId === currentUser.id);
+            
+            const list = document.getElementById('walletTransactions'); list.innerHTML='';
+            const allTx =[...deps, ...wids].sort((a,b)=>new Date(b.requestedAt)-new Date(a.requestedAt));
+            
+            if(allTx.length > 0) {
+                allTx.forEach(tx => {
+                    const isDep = tx.id.startsWith('DEP');
+                    list.innerHTML += `
+                    <div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">
+                        <div><strong>${isDep?'Deposit':'Withdrawal'}</strong><br><small>${new Date(tx.requestedAt).toLocaleDateString()}</small></div>
+                        <div style="text-align:right">
+                            <strong style="color:${isDep?'#11998e':'#ef4444'}">${isDep?'+':'-'}₹${tx.amount}</strong><br>
+                            <span style="font-size:11px; background:${tx.status==='pending'?'orange':(tx.status==='approved'?'green':'red')}; color:white; padding:2px 6px; border-radius:10px;">${tx.status.toUpperCase()}</span>
+                        </div>
+                    </div>`;
+                });
+            } else {
+                list.innerHTML = '<div class="text-center" style="color:#9ca3af;">No history</div>';
             }
         }
 
-        function loadWallet() {
-            document.getElementById('walletBalance').textContent = '₹' + currentUser.wallet.mainBalance;
-            const wids = JSON.parse(localStorage.getItem('pendingWithdrawals')||'[]').filter(x=>x.userId===currentUser.id);
-            const deps = JSON.parse(localStorage.getItem('pendingDeposits')||'[]').filter(x=>x.userId===currentUser.id);
+        document.getElementById('addMoneyAmountForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const amount = document.getElementById('depositAmount').value;
+            if (amount < 100) return alert('Min ₹100 required');
+            pendingDepositAmount = amount;
             
-            const list = document.getElementById('walletTransactions'); list.innerHTML='';
-            [...deps, ...wids].sort((a,b)=>new Date(b.requestedAt)-new Date(a.requestedAt)).forEach(tx => {
-                const isDep = tx.id.startsWith('DEP');
-                list.innerHTML += `
-                <div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">
-                    <div><strong>${isDep?'Deposit':'Withdrawal'}</strong><br><small>${new Date(tx.requestedAt).toLocaleDateString()}</small></div>
-                    <div style="text-align:right">
-                        <strong style="color:${isDep?'#11998e':'#ef4444'}">${isDep?'+':'-'}₹${tx.amount}</strong><br>
-                        <span style="font-size:11px; background:${tx.status==='pending'?'orange':(tx.status==='approved'?'green':'red')}; color:white; padding:2px 6px; border-radius:10px;">${tx.status}</span>
-                    </div>
-                </div>`;
+            const upiId = "6395503566@upi";
+            const upiUrl = `upi://pay?pa=${upiId}&pn=SolarEnergy&am=${amount}&cu=INR`;
+            
+            document.getElementById('addMoneyAmountSection').classList.add('hidden');
+            document.getElementById('upiPaymentSection').classList.remove('hidden');
+            document.getElementById('upiDisplayAmount').textContent = '₹' + amount;
+            
+            window.location.href = upiUrl; 
+        });
+
+        document.getElementById('depositSubmitForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const txn = document.getElementById('transactionId').value.trim();
+            if(!txn || txn.length < 10) return alert("Please enter valid 12-digit UTR!");
+            
+            const btn = e.target.querySelector('button');
+            btn.innerHTML = "🔄 Sending Request..."; btn.disabled = true;
+
+            const dep = {
+                id: 'DEP'+Date.now(), userId: currentUser.id, userPhone: currentUser.phone,
+                amount: parseInt(pendingDepositAmount), transactionId: txn, status: 'pending', requestedAt: new Date().toISOString()
+            };
+
+            await ServerDB.runTransaction(async (db) => {
+                db.pendingDeposits.push(dep);
             });
+
+            alert("✅ Deposit request sent to Admin!");
+            document.getElementById('depositSubmitForm').reset();
+            btn.innerHTML = "✅ Submit for Verification"; btn.disabled = false;
+            backToAmount();
+            showPage('wallet');
+        });
+
+        function backToAmount() {
+            document.getElementById('upiPaymentSection').classList.add('hidden');
+            document.getElementById('addMoneyAmountSection').classList.remove('hidden');
         }
 
-        function loadReferral() {
+        document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const amt = parseInt(document.getElementById('withdrawAmount').value);
+            const met = document.getElementById('withdrawMethod').value;
+            if(amt < 200) return alert("Min ₹200 withdrawal allowed");
+            if(currentUser.wallet.mainBalance < amt) return alert("Insufficient balance");
+            
+            const btn = e.target.querySelector('button');
+            btn.innerHTML = "🔄 Processing..."; btn.disabled = true;
+
+            const req = { id: 'WID'+Date.now(), userId: currentUser.id, amount: amt, method: met, status: 'pending', requestedAt: new Date().toISOString()};
+            
+            const success = await ServerDB.runTransaction(async (db) => {
+                let u = db.solarUsers.find(x => x.id === currentUser.id);
+                if(u.wallet.mainBalance >= amt) {
+                    u.wallet.mainBalance -= amt;
+                    u.wallet.totalWithdrawn += amt;
+                    db.pendingWithdrawals.push(req);
+                    currentUser = u; localStorage.setItem('currentUser', JSON.stringify(u));
+                } else {
+                    alert("Server error: Low Balance.");
+                }
+            });
+
+            if(success) { alert("✅ Withdrawal request submitted!"); document.getElementById('withdrawForm').reset(); loadWallet(); }
+            btn.innerHTML = "Submit Withdrawal"; btn.disabled = false;
+        });
+
+        // ==========================================
+        // REFERRAL & SUPPORT
+        // ==========================================
+        async function loadReferral() {
             const link = window.location.origin + window.location.pathname + '?ref=' + currentUser.referralCode;
             document.getElementById('referralLinkDisplay').textContent = link;
-            // List logic stays same
+            
+            const data = await ServerDB.get();
+            if(!data) return;
+            const actUsers = data.db.solarUsers.filter(u => currentUser.referrals.list.includes(u.id));
+            
+            const rbox = document.getElementById('referralsList');
+            if(actUsers.length > 0) {
+                rbox.innerHTML = '';
+                actUsers.forEach(u => {
+                    rbox.innerHTML += `<div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">
+                        <div><strong>${u.name}</strong><br><small>Joined ${new Date(u.joinDate).toLocaleDateString()}</small></div>
+                        <div style="color:#11998e; font-weight:bold;">₹15</div>
+                    </div>`;
+                });
+            } else {
+                rbox.innerHTML = '<div class="text-center" style="color: #9ca3af;">No referrals yet</div>';
+            }
         }
 
         function copyReferralLink() {
             navigator.clipboard.writeText(document.getElementById('referralLinkDisplay').textContent);
-            alert("Copied!");
+            alert("✅ Link Copied!");
         }
 
-        function logout() { localStorage.removeItem('currentUser'); location.reload(); }
-
-        // Core Registration with DB push hook
-        document.getElementById('verifyRegForm').addEventListener('submit', async (e) => {
+        document.getElementById('supportForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            // Assuming OTP verification success...
-            const userId = 'SOLAR' + Date.now();
-            const myCode = tempUserData.name.substring(0,3).toUpperCase() + Math.floor(Math.random()*1000);
-            const newUser = {
-                id: userId, name: tempUserData.name, phone: tempUserData.phone, password: tempUserData.password,
-                referralCode: myCode, joinDate: new Date().toISOString(),
-                wallet: { mainBalance: 0, totalWithdrawn: 0 }, referrals: { count: 0, list: [], earnings: 0 },
-                activePlans:[], status: 'active'
-            };
-            const users = JSON.parse(localStorage.getItem('solarUsers')||'[]');
-            users.push(newUser); localStorage.setItem('solarUsers', JSON.stringify(users));
-            currentUser = newUser; localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            const subj = document.getElementById('supportSubject').value;
+            const msg = document.getElementById('supportMessage').value;
             
-            await GitHubDB.pushDB(); // Save to DB
-            showPage('dashboard');
+            const btn = e.target.querySelector('button');
+            btn.innerHTML = "🔄 Submitting..."; btn.disabled = true;
+
+            await ServerDB.runTransaction(async (db) => {
+                db.tickets.push({
+                    id: 'TKT'+Date.now(), userId: currentUser.id, phone: currentUser.phone,
+                    subject: subj, message: msg, status: 'Open', date: new Date().toISOString()
+                });
+            });
+
+            alert('✅ Ticket Submitted successfully!');
+            e.target.reset(); btn.innerHTML = "🚀 Submit Ticket"; btn.disabled = false; loadSupport();
         });
 
+        async function loadSupport() {
+            const data = await ServerDB.get();
+            if(!data) return;
+            const mytix = data.db.tickets.filter(t => t.userId === currentUser.id).reverse();
+            const box = document.getElementById('myTicketsList');
+            if(mytix.length > 0) {
+                box.innerHTML = '';
+                mytix.forEach(t => {
+                    box.innerHTML += `<div style="padding:15px; border:1px solid #eee; border-radius:10px; margin-bottom:10px;">
+                        <div style="display:flex; justify-content:space-between;"><strong>${t.subject}</strong> <span style="font-size:12px; font-weight:bold; color:${t.status==='Resolved'?'green':'orange'}">${t.status}</span></div>
+                        <p style="font-size:13px; color:#666; margin-top:5px;">${t.message}</p>
+                    </div>`;
+                });
+            } else { 
+                box.innerHTML = '<div class="text-center" style="color:#9ca3af;">No tickets</div>'; 
+            }
+        }
+
+        function logout() { 
+            localStorage.removeItem('currentUser'); 
+            location.reload(); 
+        }
     </script>
 </body>
 </html>
