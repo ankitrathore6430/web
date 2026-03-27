@@ -368,11 +368,12 @@
 
     <script>
         // 🔥 GITHUB DATABASE CONFIGURATION 🔥
-        const getSecret = () => {
-            const p1 = 'Z2hwXzNVcD'; const p2 = 'YyTWZzUmJk'; const p3 = 'UUJtdk5pcT'; const p4 = 'FrakpGT3ZJQ3hBRDBNWjg2bw==';
-            return atob(p1 + p2 + p3 + p4); 
+        const GITHUB_CONFIG = {
+            token: "ghp_यहाँ_अपना_नया_टोकन_सीधा_डालें", // Base64 हटाकर सीधा टोकन डालें (सिर्फ टेस्ट के लिए)
+            owner: "ankitrathore6430", 
+            repo: "web", 
+            path: "data.json"
         };
-        const GITHUB_CONFIG = { token: getSecret(), owner: "ankitrathore6430", repo: "web", path: "data.json" };
 
         // 🔥 FIREBASE CONFIGURATION (For OTP Only) 🔥
         const firebaseConfig = {
