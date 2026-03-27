@@ -1,486 +1,506 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="hi">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Solar Admin Panel</title>
+    <title>Admin Panel - Solar Energy</title>
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; -webkit-tap-highlight-color: transparent; }
-        body { background: #f0f2f5; color: #333; overflow-x: hidden; }
+        body { background: #f4f7f6; min-height: 100vh; padding-bottom: 75px; color: #333; }
         
-        /* Login Screen */
-        #loginScreen { height: 100vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); padding: 20px; }
-        .login-box { background: white; padding: 40px 20px; border-radius: 20px; width: 100%; max-width: 400px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); text-align: center; }
-        .login-box h2 { margin-bottom: 25px; color: #1e3c72; font-weight: 800; font-size: 24px; }
-        .form-control { width: 100%; padding: 14px; margin-bottom: 15px; border: 1.5px solid #e5e7eb; border-radius: 10px; font-size: 15px; background: #f9fafb; outline: none; transition: 0.3s; }
-        .form-control:focus { border-color: #1e3c72; background: #fff; }
-        .btn-main { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; border: none; padding: 14px; width: 100%; border-radius: 10px; cursor: pointer; font-size: 16px; font-weight: bold; transition: 0.3s; }
-        .btn-main:active { transform: scale(0.98); }
+        /* NAVBAR */
+        .navbar { background: #111827; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .logo { font-size: 20px; font-weight: 800; letter-spacing: 1px; color: #38ef7d; }
         
-        /* Admin Layout */
-        #adminApp { display: none; height: 100vh; width: 100%; overflow: hidden; position: relative; }
+        /* BOTTOM NAV */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; width: 100%; background: #ffffff; display: flex; justify-content: space-around; padding: 12px 0; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); z-index: 1000; }
+        .bottom-nav-item { display: flex; flex-direction: column; align-items: center; color: #9ca3af; text-decoration: none; font-size: 11px; font-weight: 700; gap: 4px; cursor: pointer; transition: 0.3s; }
+        .bottom-nav-item.active { color: #111827; transform: translateY(-3px); }
+        .bottom-nav-item i { font-size: 22px; font-style: normal; }
         
-        /* Sidebar Menu */
-        .sidebar { width: 260px; background: #1e3c72; color: white; height: 100vh; position: fixed; left: 0; top: 0; padding-top: 20px; transition: transform 0.3s ease; z-index: 1000; box-shadow: 4px 0 15px rgba(0,0,0,0.1); }
-        .sidebar h2 { text-align: center; margin-bottom: 30px; letter-spacing: 1px; font-weight: 800; }
-        .nav-item { padding: 16px 25px; cursor: pointer; font-size: 15px; font-weight: 600; transition: 0.3s; border-left: 4px solid transparent; display: flex; justify-content: space-between; align-items: center; }
-        .nav-item:hover, .nav-item.active { background: rgba(255,255,255,0.1); border-left: 4px solid #38ef7d; }
-        .close-sidebar { display: none; text-align: right; padding: 0 20px 20px 0; font-size: 24px; cursor: pointer; }
-        
-        /* Main Content Area */
-        .main-content { margin-left: 260px; padding: 20px; height: 100vh; overflow-y: auto; transition: margin 0.3s ease; }
-        
-        /* Header */
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; padding-bottom: 15px; border-bottom: 2px solid #e5e7eb; }
-        .menu-toggle { display: none; font-size: 24px; cursor: pointer; color: #1e3c72; background: white; padding: 5px 12px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        
-        /* Stats Cards */
-        .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .stat-card { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border-left: 5px solid #1e3c72; }
-        .stat-card h3 { color: #64748b; font-size: 13px; margin-bottom: 5px; text-transform: uppercase; font-weight: 600; }
-        .stat-card h1 { color: #1e3c72; font-size: 28px; font-weight: 900; }
-        
-        /* Tables & Cards */
-        .card { background: white; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.03); margin-bottom: 20px; }
-        .card h3 { color: #1f2937; margin-bottom: 15px; font-size: 18px; }
-        .table-responsive { width: 100%; overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 10px; }
-        table { width: 100%; border-collapse: collapse; min-width: 600px; }
-        th, td { padding: 14px 15px; text-align: left; border-bottom: 1px solid #f3f4f6; font-size: 14px; }
-        th { background: #f8fafc; color: #4b5563; font-weight: 700; text-transform: uppercase; font-size: 12px; white-space: nowrap; }
-        td { color: #374151; vertical-align: middle; }
-        
-        /* Badges & Buttons */
-        .badge { padding: 5px 10px; border-radius: 20px; font-size: 11px; font-weight: bold; color: white; display: inline-block; text-transform: uppercase; }
-        .badge.pending { background: #f59e0b; } .badge.approved { background: #10b981; } .badge.rejected { background: #ef4444; } .badge.active { background: #3b82f6; } .badge.blocked { background: #6b7280; }
-        
-        .action-btns { display: flex; gap: 6px; flex-wrap: wrap; }
-        .btn-sm { padding: 8px 12px; border: none; border-radius: 8px; cursor: pointer; font-size: 12px; font-weight: bold; color: white; transition: 0.2s; white-space: nowrap; }
-        .btn-sm:active { transform: scale(0.95); }
-        .btn-success { background: #10b981; } .btn-danger { background: #ef4444; } .btn-info { background: #3b82f6; }
-        
-        /* Loading Overlay */
-        #loader { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; justify-content: center; align-items: center; color: white; font-size: 20px; font-weight: bold; backdrop-filter: blur(3px); }
-        
+        /* LAYOUT & CARDS */
+        .container { max-width: 1200px; margin: 0 auto; padding: 15px; }
         .page { display: none; animation: fadeIn 0.3s; }
         .page.active { display: block; }
         @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* 🔥 MOBILE RESPONSIVENESS 🔥 */
-        @media (max-width: 768px) {
-            .sidebar { transform: translateX(-100%); } /* Hide sidebar on mobile */
-            .sidebar.open { transform: translateX(0); } /* Show when open class added */
-            .close-sidebar { display: block; }
-            .main-content { margin-left: 0; padding: 15px; width: 100%; }
-            .menu-toggle { display: block; }
-            .header h2 { font-size: 18px; }
-            .btn-main { padding: 10px 15px; font-size: 14px; }
-            .stats-grid { grid-template-columns: 1fr 1fr; }
-            .stat-card h1 { font-size: 22px; }
-            .card { padding: 15px; }
-            th, td { padding: 12px 10px; }
-            
-            /* Background overlay for mobile sidebar */
-            #sidebarOverlay { display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.5); z-index: 999; }
-            #sidebarOverlay.active { display: block; }
-        }
+        
+        .card { background: #fff; padding: 20px; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        .card-title { font-size: 18px; font-weight: 800; color: #1f2937; margin-bottom: 15px; border-bottom: 2px solid #f3f4f6; padding-bottom: 10px; }
+        
+        /* STATS GRID */
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 15px; }
+        .stat-card { background: linear-gradient(135deg, #1f2937 0%, #374151 100%); color: white; padding: 20px; border-radius: 16px; text-align: center; }
+        .stat-card.green { background: linear-gradient(135deg, #065f46 0%, #059669 100%); }
+        .stat-card.red { background: linear-gradient(135deg, #991b1b 0%, #dc2626 100%); }
+        .stat-num { font-size: 24px; font-weight: 900; margin-bottom: 5px; }
+        .stat-label { font-size: 11px; text-transform: uppercase; font-weight: 600; opacity: 0.8; }
+        
+        /* LIST ITEMS (Users, Deposits, etc) */
+        .list-item { border: 1px solid #e5e7eb; padding: 15px; border-radius: 12px; margin-bottom: 12px; background: #fafafa; }
+        .list-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 800; text-transform: uppercase; }
+        .badge.pending { background: #fef08a; color: #854d0e; }
+        .badge.approved { background: #bbf7d0; color: #166534; }
+        .badge.rejected { background: #fecaca; color: #991b1b; }
+        .badge.active { background: #bfdbfe; color: #1e3a8a; }
+        .badge.blocked { background: #fecaca; color: #991b1b; }
+        
+        .item-detail { font-size: 13px; color: #4b5563; margin-bottom: 4px; }
+        .item-detail strong { color: #111827; }
+        
+        /* BUTTONS */
+        .action-btns { display: flex; gap: 8px; margin-top: 12px; }
+        .btn { flex: 1; padding: 10px; border: none; border-radius: 8px; font-size: 13px; font-weight: bold; cursor: pointer; text-align: center; color: white; transition: 0.2s; }
+        .btn:disabled { opacity: 0.6; cursor: not-allowed; }
+        .btn-success { background: #10b981; }
+        .btn-danger { background: #ef4444; }
+        .btn-primary { background: #3b82f6; }
+        .btn-dark { background: #1f2937; }
+        .btn-block { width: 100%; }
+        
+        /* FORMS */
+        input { width: 100%; padding: 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; margin-bottom: 15px; }
+        input:focus { outline: none; border-color: #3b82f6; }
+        
+        /* LOGIN PAGE */
+        #login { display: flex; align-items: center; justify-content: center; height: 100vh; background: #111827; margin: -15px; padding: 20px; }
+        .login-box { background: white; padding: 30px; border-radius: 20px; width: 100%; max-width: 400px; text-align: center; }
+        
+        /* SEARCH BAR */
+        .search-bar { position: relative; margin-bottom: 15px; }
+        
+        /* SPINNER */
+        #loader { position: fixed; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.8); z-index:9999; display:none; justify-content:center; align-items:center; flex-direction:column; }
+        .spinner { border: 4px solid #f3f3f3; border-top: 4px solid #111827; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
-    <!-- Loading Indicator -->
-    <div id="loader">⏳ Processing...</div>
+    <!-- FULL PAGE LOADER -->
+    <div id="loader">
+        <div class="spinner"></div>
+        <p style="margin-top: 10px; font-weight: bold; color: #111827;">Syncing Database...</p>
+    </div>
 
-    <!-- Login Screen -->
-    <div id="loginScreen">
-        <div class="login-box">
-            <h2>🛡️ Admin Login</h2>
-            <input type="text" id="adminUser" class="form-control" placeholder="Username (admin)">
-            <input type="password" id="adminPass" class="form-control" placeholder="Password (admin123)">
-            <button class="btn-main" onclick="adminLogin()">🚀 Secure Login</button>
-            <p id="loginError" style="color: #ef4444; font-weight:bold; margin-top: 15px; display: none;">❌ Invalid Credentials!</p>
+    <!-- LOGIN PAGE -->
+    <div id="loginPage" class="page active">
+        <div id="login">
+            <div class="login-box">
+                <h2 style="color: #111827; margin-bottom: 5px;">Admin Control</h2>
+                <p style="color: #6b7280; margin-bottom: 25px; font-size: 14px;">Authorized Personnel Only</p>
+                <input type="text" id="adminUser" placeholder="Admin Username">
+                <input type="password" id="adminPass" placeholder="Admin Password">
+                <button class="btn btn-dark btn-block" onclick="adminLogin()" style="padding: 14px; font-size: 16px;">Secure Login</button>
+            </div>
         </div>
     </div>
 
-    <!-- Mobile Sidebar Overlay -->
-    <div id="sidebarOverlay" onclick="toggleSidebar()"></div>
+    <!-- ADMIN LAYOUT -->
+    <div id="mainLayout" style="display: none;">
+        <!-- NAVBAR -->
+        <nav class="navbar">
+            <div class="logo">⚡ Solar Admin</div>
+            <div style="font-size: 12px; background: rgba(255,255,255,0.1); padding: 5px 10px; border-radius: 20px;" onclick="logout()">Logout 🚪</div>
+        </nav>
 
-    <!-- Admin Application -->
-    <div id="adminApp">
-        <!-- Sidebar -->
-        <div class="sidebar" id="sidebar">
-            <div class="close-sidebar" onclick="toggleSidebar()">✖</div>
-            <h2>🌞 Solar Admin</h2>
-            <div class="nav-item active" onclick="switchTab('dashboard', this)">📊 Dashboard</div>
-            <div class="nav-item" onclick="switchTab('users', this)">👥 Manage Users</div>
-            <div class="nav-item" onclick="switchTab('deposits', this)">💳 Deposits <span id="depBadge" style="background:#ef4444;border-radius:10px;padding:2px 8px;font-size:11px;">0</span></div>
-            <div class="nav-item" onclick="switchTab('withdrawals', this)">💸 Withdrawals <span id="witBadge" style="background:#ef4444;border-radius:10px;padding:2px 8px;font-size:11px;">0</span></div>
-            <div class="nav-item" onclick="switchTab('tickets', this)">🎧 Support Tickets</div>
-            <div class="nav-item" onclick="logout()" style="margin-top: 30px; color: #fca5a5; border-top: 1px solid rgba(255,255,255,0.1);">🚪 Logout Account</div>
+        <!-- BOTTOM NAV -->
+        <div class="bottom-nav">
+            <div class="bottom-nav-item active" id="nav-dash" onclick="showPage('dash')"><i>📊</i><span>Home</span></div>
+            <div class="bottom-nav-item" id="nav-users" onclick="showPage('users')"><i>👥</i><span>Users</span></div>
+            <div class="bottom-nav-item" id="nav-deps" onclick="showPage('deps')"><i>💳</i><span>Deposits</span></div>
+            <div class="bottom-nav-item" id="nav-wids" onclick="showPage('wids')"><i>💸</i><span>Payouts</span></div>
+            <div class="bottom-nav-item" id="nav-tix" onclick="showPage('tix')"><i>🎧</i><span>Tickets</span></div>
         </div>
 
-        <!-- Main Content -->
-        <div class="main-content">
-            <div class="header">
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div class="menu-toggle" onclick="toggleSidebar()">☰</div>
-                    <h2 style="color: #1e3c72;">Control Panel</h2>
-                </div>
-                <button class="btn-main" style="width:auto; padding: 10px 15px; font-size: 13px;" onclick="fetchData()">🔄 Refresh</button>
-            </div>
-
-            <!-- DASHBOARD TAB -->
-            <div id="dashboard" class="page active">
+        <div class="container">
+            <!-- DASHBOARD -->
+            <div id="dash" class="page">
+                <h2 style="margin-bottom: 15px; color: #111827;">Overview Dashboard</h2>
                 <div class="stats-grid">
-                    <div class="stat-card"><h3>Total Users</h3><h1 id="statUsers">0</h1></div>
-                    <div class="stat-card"><h3>Total Balance</h3><h1 id="statBalance">₹0</h1></div>
-                    <div class="stat-card"><h3>Pending Deposits</h3><h1 id="statDep" style="color:#f59e0b;">0</h1></div>
-                    <div class="stat-card"><h3>Pending Withdraws</h3><h1 id="statWit" style="color:#ef4444;">0</h1></div>
+                    <div class="stat-card">
+                        <div class="stat-num" id="s_users">0</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-num" id="s_bal">₹0</div>
+                        <div class="stat-label">User Balances</div>
+                    </div>
+                    <div class="stat-card green">
+                        <div class="stat-num" id="s_pdep">0</div>
+                        <div class="stat-label">Pending Deposits</div>
+                    </div>
+                    <div class="stat-card red">
+                        <div class="stat-num" id="s_pwid">0</div>
+                        <div class="stat-label">Pending Payouts</div>
+                    </div>
+                </div>
+                <button class="btn btn-primary btn-block" onclick="fetchData()" style="padding: 15px; font-size: 16px;">🔄 Refresh Database</button>
+            </div>
+
+            <!-- USERS PAGE -->
+            <div id="users" class="page">
+                <div class="card">
+                    <h2 class="card-title">User Management</h2>
+                    <div class="search-bar">
+                        <input type="text" id="searchUser" placeholder="🔍 Search by phone or name..." onkeyup="renderUsers()">
+                    </div>
+                    <div id="userList"></div>
                 </div>
             </div>
 
-            <!-- USERS TAB -->
-            <div id="users" class="page card">
-                <h3>👥 Registered Users</h3>
-                <div class="table-responsive">
-                    <table>
-                        <thead><tr><th>User Info</th><th>Phone</th><th>Balance</th><th>Refers</th><th>Status</th><th>Actions</th></tr></thead>
-                        <tbody id="userTableBody"></tbody>
-                    </table>
+            <!-- DEPOSITS PAGE -->
+            <div id="deps" class="page">
+                <div class="card">
+                    <h2 class="card-title">Pending Deposits</h2>
+                    <div id="depList"></div>
                 </div>
             </div>
 
-            <!-- DEPOSITS TAB -->
-            <div id="deposits" class="page card">
-                <h3>💳 Deposit Requests</h3>
-                <div class="table-responsive">
-                    <table>
-                        <thead><tr><th>Phone</th><th>Amount</th><th>UTR Number</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
-                        <tbody id="depositTableBody"></tbody>
-                    </table>
+            <!-- WITHDRAWALS PAGE -->
+            <div id="wids" class="page">
+                <div class="card">
+                    <h2 class="card-title">Pending Withdrawals</h2>
+                    <div id="widList"></div>
                 </div>
             </div>
 
-            <!-- WITHDRAWALS TAB -->
-            <div id="withdrawals" class="page card">
-                <h3>💸 Withdrawal Requests</h3>
-                <div class="table-responsive">
-                    <table>
-                        <thead><tr><th>User ID</th><th>Amount</th><th>Bank/UPI</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead>
-                        <tbody id="withdrawalTableBody"></tbody>
-                    </table>
-                </div>
-            </div>
-
-            <!-- TICKETS TAB -->
-            <div id="tickets" class="page card">
-                <h3>🎧 Support Tickets</h3>
-                <div class="table-responsive">
-                    <table>
-                        <thead><tr><th>Phone</th><th>Subject</th><th>Message</th><th>Status</th><th>Action</th></tr></thead>
-                        <tbody id="ticketTableBody"></tbody>
-                    </table>
+            <!-- TICKETS PAGE -->
+            <div id="tix" class="page">
+                <div class="card">
+                    <h2 class="card-title">Support Tickets</h2>
+                    <div id="tixList"></div>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // 🔥 GITHUB DATABASE CONFIGURATION (Obfuscated / Hidden Token) 🔥
-        const getSecret = () => {
-            const p1 = 'Z2hwX2h6QXhoNz';
-            const p2 = 'gwYUxkeExIcGtI';
-            const p3 = 'cXBUdFlSeGk0T3';
-            const p4 = 'ZySzN0dDBTTw==';
-            return atob(p1 + p2 + p3 + p4); 
-        };
-
+        // 🔥 GITHUB DATABASE CONFIGURATION (SAME AS USER APP) 🔥
         const GITHUB_CONFIG = {
-            token: getSecret(), 
-            owner: "ankitrathore6430", 
-            repo: "web", 
+            token: "YOUR_GITHUB_PERSONAL_ACCESS_TOKEN", 
+            owner: "YOUR_GITHUB_USERNAME", 
+            repo: "YOUR_GITHUB_REPO_NAME", 
             path: "data.json"
         };
 
-        let globalDb = { solarUsers:[], pendingDeposits: [], pendingWithdrawals: [], tickets:[] };
+        // ADMIN CREDENTIALS (Change this)
+        const ADMIN_USER = "admin";
+        const ADMIN_PASS = "123456";
 
-        // Server DB Engine
+        let fullDB = { solarUsers: [], pendingDeposits: [], pendingWithdrawals: [], tickets:[] };
+
+        // ==========================================
+        // DATABASE ENGINE
+        // ==========================================
         class ServerDB {
             static async get() {
                 try {
                     const res = await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}?t=${Date.now()}`, {
-                        headers: { 'Authorization': `token ${GITHUB_CONFIG.token}` },
-                        cache: "no-store" 
+                        headers: { 'Authorization': `token ${GITHUB_CONFIG.token}` }, cache: "no-store" 
                     });
-                    if (res.status === 404) return { db: { solarUsers: [], pendingDeposits: [], pendingWithdrawals:[], tickets:[] }, sha: null };
+                    if (res.status === 404) return { db: fullDB, sha: null };
                     const data = await res.json();
-                    const jsonStr = decodeURIComponent(escape(atob(data.content)));
-                    return { db: JSON.parse(jsonStr), sha: data.sha };
-                } catch (err) {
-                    console.error("Server Fetch Error:", err);
-                    return null;
-                }
+                    return { db: JSON.parse(decodeURIComponent(escape(atob(data.content)))), sha: data.sha };
+                } catch (err) { console.error("DB Fetch Error:", err); return null; }
             }
 
             static async runTransaction(mutationFn) {
-                showLoader(true);
+                showLoader();
                 const data = await this.get();
-                if (!data) { showLoader(false); alert("Database Connection Failed!"); return false; }
+                if (!data) { hideLoader(); alert("Network Error"); return false; }
                 
                 let { db, sha } = data;
-                
                 if(!db.solarUsers) db.solarUsers =[];
-                if(!db.pendingDeposits) db.pendingDeposits =[];
+                if(!db.pendingDeposits) db.pendingDeposits = [];
                 if(!db.pendingWithdrawals) db.pendingWithdrawals =[];
                 if(!db.tickets) db.tickets =[];
 
                 await mutationFn(db);
 
-                const content = btoa(unescape(encodeURIComponent(JSON.stringify(db, null, 2))));
-                const body = { message: "Admin Panel Action", content: content };
-                if (sha) body.sha = sha;
-
                 try {
+                    const content = btoa(unescape(encodeURIComponent(JSON.stringify(db, null, 2))));
+                    const body = { message: "Admin Action", content: content };
+                    if (sha) body.sha = sha;
+
                     const res = await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`, {
-                        method: 'PUT',
-                        headers: { 'Authorization': `token ${GITHUB_CONFIG.token}`, 'Content-Type': 'application/json' },
-                        body: JSON.stringify(body)
+                        method: 'PUT', headers: { 'Authorization': `token ${GITHUB_CONFIG.token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(body)
                     });
-                    showLoader(false);
-                    return res.ok;
-                } catch(e) {
-                    console.error("Save Error:", e);
-                    showLoader(false);
-                    return false;
-                }
+                    
+                    if(res.ok) { await fetchData(); hideLoader(); return true; }
+                    else { throw new Error("Save Failed"); }
+                } catch(e) { console.error("Save Error:", e); hideLoader(); alert("Failed to save changes!"); return false; }
             }
         }
 
-        // ========================
-        // UI & UTILITIES
-        // ========================
-        function showLoader(show) { document.getElementById('loader').style.display = show ? 'flex' : 'none'; }
-        
-        function toggleSidebar() {
-            const sb = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebarOverlay');
-            sb.classList.toggle('open');
-            overlay.classList.toggle('active');
-        }
+        // ==========================================
+        // CORE LOGIC & NAVIGATION
+        // ==========================================
+        function showLoader() { document.getElementById('loader').style.display = 'flex'; }
+        function hideLoader() { document.getElementById('loader').style.display = 'none'; }
 
         function adminLogin() {
-            const u = document.getElementById('adminUser').value;
-            const p = document.getElementById('adminPass').value;
-            if(u === 'admin' && p === 'admin123') {
-                sessionStorage.setItem('adminLog', 'true');
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('adminApp').style.display = 'block';
+            if(document.getElementById('adminUser').value === ADMIN_USER && document.getElementById('adminPass').value === ADMIN_PASS) {
+                sessionStorage.setItem('isAdmin', 'true');
+                document.getElementById('loginPage').classList.remove('active');
+                document.getElementById('mainLayout').style.display = 'block';
                 fetchData();
             } else {
-                document.getElementById('loginError').style.display = 'block';
+                alert("❌ Incorrect Credentials!");
             }
         }
 
-        function logout() { sessionStorage.removeItem('adminLog'); location.reload(); }
+        function logout() { sessionStorage.removeItem('isAdmin'); location.reload(); }
 
         window.onload = () => {
-            if(sessionStorage.getItem('adminLog') === 'true') {
-                document.getElementById('loginScreen').style.display = 'none';
-                document.getElementById('adminApp').style.display = 'block';
+            if(sessionStorage.getItem('isAdmin') === 'true') {
+                document.getElementById('loginPage').classList.remove('active');
+                document.getElementById('mainLayout').style.display = 'block';
+                showPage('dash');
                 fetchData();
             }
         };
 
-        function switchTab(tabId, el) {
+        function showPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.querySelectorAll('.nav-item').forEach(p => p.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            el.classList.add('active');
+            document.getElementById(pageId).classList.add('active');
             
-            // Close sidebar on mobile after clicking a tab
-            if(window.innerWidth <= 768) toggleSidebar();
+            document.querySelectorAll('.bottom-nav-item').forEach(n => n.classList.remove('active'));
+            document.getElementById('nav-'+pageId).classList.add('active');
+            
+            if(pageId === 'users') renderUsers();
+            if(pageId === 'deps') renderDeposits();
+            if(pageId === 'wids') renderWithdrawals();
+            if(pageId === 'tix') renderTickets();
         }
 
         async function fetchData() {
-            showLoader(true);
+            showLoader();
             const data = await ServerDB.get();
-            showLoader(false);
-            if(data && data.db) {
-                globalDb = data.db;
-                renderDashboard();
-                renderUsers();
-                renderDeposits();
-                renderWithdrawals();
-                renderTickets();
-            }
-        }
-
-        // ========================
-        // RENDER FUNCTIONS
-        // ========================
-        function renderDashboard() {
-            document.getElementById('statUsers').innerText = globalDb.solarUsers.length;
-            let totalBal = globalDb.solarUsers.reduce((sum, u) => sum + (u.wallet?.mainBalance || 0), 0);
-            document.getElementById('statBalance').innerText = '₹' + totalBal;
-
-            let pendDep = globalDb.pendingDeposits.filter(d => d.status === 'pending').length;
-            let pendWit = globalDb.pendingWithdrawals.filter(w => w.status === 'pending').length;
+            if(data && data.db) fullDB = data.db;
             
-            document.getElementById('statDep').innerText = pendDep;
-            document.getElementById('statWit').innerText = pendWit;
-            document.getElementById('depBadge').innerText = pendDep;
-            document.getElementById('witBadge').innerText = pendWit;
+            // Update Dashboard Stats
+            document.getElementById('s_users').textContent = fullDB.solarUsers.length;
+            document.getElementById('s_bal').textContent = '₹' + fullDB.solarUsers.reduce((sum, u) => sum + (u.wallet.mainBalance || 0), 0);
+            document.getElementById('s_pdep').textContent = fullDB.pendingDeposits.filter(d => d.status === 'pending').length;
+            document.getElementById('s_pwid').textContent = fullDB.pendingWithdrawals.filter(w => w.status === 'pending').length;
+            
+            hideLoader();
+            
+            // Re-render active view
+            const activePage = document.querySelector('.page.active').id;
+            if(activePage !== 'dash') showPage(activePage);
         }
 
+        // ==========================================
+        // USERS MANAGEMENT
+        // ==========================================
         function renderUsers() {
-            const tbody = document.getElementById('userTableBody'); tbody.innerHTML = '';
-            globalDb.solarUsers.forEach(u => {
-                let isBlocked = u.status === 'blocked';
-                tbody.innerHTML += `
-                <tr>
-                    <td><strong>${u.name}</strong><br><small style="color:#6b7280">${u.id}</small></td>
-                    <td>${u.phone}</td>
-                    <td style="color:#10b981; font-weight:bold;">₹${u.wallet?.mainBalance || 0}</td>
-                    <td>${u.referrals?.count || 0}</td>
-                    <td><span class="badge ${isBlocked ? 'blocked' : 'active'}">${u.status || 'active'}</span></td>
-                    <td>
-                        <div class="action-btns">
-                            <button class="btn-sm btn-info" onclick="editBalance('${u.id}')">Edit ₹</button>
-                            ${isBlocked 
-                                ? `<button class="btn-sm btn-success" onclick="toggleUserStatus('${u.id}', 'active')">Unblock</button>` 
-                                : `<button class="btn-sm btn-danger" onclick="toggleUserStatus('${u.id}', 'blocked')">Block</button>`
-                            }
-                        </div>
-                    </td>
-                </tr>`;
+            const query = document.getElementById('searchUser').value.toLowerCase();
+            const list = document.getElementById('userList');
+            list.innerHTML = '';
+            
+            const filtered = fullDB.solarUsers.filter(u => u.phone.includes(query) || u.name.toLowerCase().includes(query)).reverse().slice(0, 50); // Show max 50 for performance
+            
+            if(filtered.length === 0) return list.innerHTML = '<p style="text-align:center;color:#888;">No users found</p>';
+
+            filtered.forEach(u => {
+                const statusColor = u.status === 'blocked' ? 'blocked' : 'active';
+                list.innerHTML += `
+                <div class="list-item">
+                    <div class="list-header">
+                        <strong>${u.name}</strong>
+                        <span class="badge ${statusColor}">${u.status.toUpperCase()}</span>
+                    </div>
+                    <div class="item-detail"><strong>📱 Phone:</strong> ${u.phone}</div>
+                    <div class="item-detail"><strong>💰 Balance:</strong> ₹${u.wallet.mainBalance}</div>
+                    <div class="item-detail"><strong>👥 Refers:</strong> ${u.referrals.count} (Code: ${u.referralCode})</div>
+                    <div class="action-btns">
+                        <button class="btn btn-primary" onclick="editBalance('${u.id}', '${u.name}')">Edit Bal</button>
+                        <button class="btn ${u.status === 'blocked' ? 'btn-success' : 'btn-danger'}" onclick="toggleBlock('${u.id}', '${u.status}')">
+                            ${u.status === 'blocked' ? 'Unblock' : 'Block'}
+                        </button>
+                    </div>
+                </div>`;
             });
         }
 
-        function renderDeposits() {
-            const tbody = document.getElementById('depositTableBody'); tbody.innerHTML = '';
-            [...globalDb.pendingDeposits].reverse().forEach(d => {
-                tbody.innerHTML += `
-                <tr>
-                    <td>${d.userPhone}</td>
-                    <td style="color:#10b981; font-weight:bold;">₹${d.amount}</td>
-                    <td style="color:#1e3c72; font-weight:bold; letter-spacing:1px;">${d.transactionId}</td>
-                    <td><small>${new Date(d.requestedAt).toLocaleDateString()}</small></td>
-                    <td><span class="badge ${d.status}">${d.status}</span></td>
-                    <td>
-                        <div class="action-btns">
-                            ${d.status === 'pending' ? `
-                            <button class="btn-sm btn-success" onclick="actionDeposit('${d.id}', 'approved')">Approve</button>
-                            <button class="btn-sm btn-danger" onclick="actionDeposit('${d.id}', 'rejected')">Reject</button>
-                            ` : '-'}
-                        </div>
-                    </td>
-                </tr>`;
-            });
-        }
+        async function editBalance(userId, name) {
+            const amt = prompt(`Enter new balance amount for ${name}:`);
+            if(amt === null || amt === '') return;
+            const newBal = parseInt(amt);
+            if(isNaN(newBal) || newBal < 0) return alert("Invalid amount!");
 
-        function renderWithdrawals() {
-            const tbody = document.getElementById('withdrawalTableBody'); tbody.innerHTML = '';[...globalDb.pendingWithdrawals].reverse().forEach(w => {
-                tbody.innerHTML += `
-                <tr>
-                    <td><small>${w.userId}</small></td>
-                    <td style="color:#ef4444; font-weight:bold;">₹${w.amount}</td>
-                    <td>${w.method}</td>
-                    <td><small>${new Date(w.requestedAt).toLocaleDateString()}</small></td>
-                    <td><span class="badge ${w.status}">${w.status}</span></td>
-                    <td>
-                        <div class="action-btns">
-                            ${w.status === 'pending' ? `
-                            <button class="btn-sm btn-success" onclick="actionWithdrawal('${w.id}', 'approved')">Approve</button>
-                            <button class="btn-sm btn-danger" onclick="actionWithdrawal('${w.id}', 'rejected')">Reject</button>
-                            ` : '-'}
-                        </div>
-                    </td>
-                </tr>`;
-            });
-        }
-
-        function renderTickets() {
-            const tbody = document.getElementById('ticketTableBody'); tbody.innerHTML = '';
-            [...globalDb.tickets].reverse().forEach(t => {
-                tbody.innerHTML += `
-                <tr>
-                    <td>${t.phone}</td>
-                    <td><strong>${t.subject}</strong></td>
-                    <td><small>${t.message}</small></td>
-                    <td><span class="badge ${t.status === 'Resolved' ? 'approved' : 'pending'}">${t.status}</span></td>
-                    <td>
-                        ${t.status !== 'Resolved' ? `
-                        <button class="btn-sm btn-success" onclick="resolveTicket('${t.id}')">Resolve ✓</button>
-                        ` : '-'}
-                    </td>
-                </tr>`;
-            });
-        }
-
-        // ========================
-        // ACTIONS & MUTATIONS
-        // ========================
-        async function editBalance(userId) {
-            let val = prompt("Enter NEW Total Balance (₹) for this user:");
-            if(val === null || val === "") return;
-            let newBal = parseInt(val);
-            if(isNaN(newBal)) return alert("Invalid Amount!");
-
-            let success = await ServerDB.runTransaction(async (db) => {
+            await ServerDB.runTransaction(async (db) => {
                 let user = db.solarUsers.find(u => u.id === userId);
                 if(user) user.wallet.mainBalance = newBal;
             });
-            if(success) { fetchData(); }
         }
 
-        async function toggleUserStatus(userId, status) {
-            if(!confirm(`Are you sure you want to ${status.toUpperCase()} this user?`)) return;
-            let success = await ServerDB.runTransaction(async (db) => {
+        async function toggleBlock(userId, currentStatus) {
+            const newStatus = currentStatus === 'blocked' ? 'active' : 'blocked';
+            if(!confirm(`Are you sure you want to ${newStatus} this user?`)) return;
+
+            await ServerDB.runTransaction(async (db) => {
                 let user = db.solarUsers.find(u => u.id === userId);
-                if(user) user.status = status;
+                if(user) user.status = newStatus;
             });
-            if(success) { fetchData(); }
         }
 
-        async function actionDeposit(depId, status) {
-            if(!confirm(`Mark deposit as ${status.toUpperCase()}?`)) return;
-            let success = await ServerDB.runTransaction(async (db) => {
+        // ==========================================
+        // DEPOSITS MANAGEMENT
+        // ==========================================
+        function renderDeposits() {
+            const list = document.getElementById('depList');
+            list.innerHTML = '';
+            
+            // Sort: Pending first, then newest
+            const deps =[...fullDB.pendingDeposits].sort((a, b) => {
+                if (a.status === 'pending' && b.status !== 'pending') return -1;
+                if (a.status !== 'pending' && b.status === 'pending') return 1;
+                return new Date(b.requestedAt) - new Date(a.requestedAt);
+            });
+
+            if(deps.length === 0) return list.innerHTML = '<p style="text-align:center;color:#888;">No deposits found</p>';
+
+            deps.forEach(d => {
+                const badgeClass = d.status;
+                const user = fullDB.solarUsers.find(u => u.id === d.userId) || {name: 'Unknown'};
+                
+                let btns = '';
+                if(d.status === 'pending') {
+                    btns = `
+                    <div class="action-btns">
+                        <button class="btn btn-success" onclick="handleDeposit('${d.id}', 'approved')">Approve</button>
+                        <button class="btn btn-danger" onclick="handleDeposit('${d.id}', 'rejected')">Reject</button>
+                    </div>`;
+                }
+
+                list.innerHTML += `
+                <div class="list-item">
+                    <div class="list-header">
+                        <strong style="font-size:16px;">₹${d.amount}</strong>
+                        <span class="badge ${badgeClass}">${d.status.toUpperCase()}</span>
+                    </div>
+                    <div class="item-detail"><strong>👤 User:</strong> ${user.name} (${d.userPhone})</div>
+                    <div class="item-detail"><strong>📝 UTR/Ref:</strong> <span style="color:#3b82f6; font-weight:bold;">${d.transactionId}</span></div>
+                    <div class="item-detail"><strong>🕒 Time:</strong> ${new Date(d.requestedAt).toLocaleString()}</div>
+                    ${btns}
+                </div>`;
+            });
+        }
+
+        async function handleDeposit(depId, action) {
+            if(!confirm(`Are you sure you want to ${action.toUpperCase()} this deposit?`)) return;
+
+            await ServerDB.runTransaction(async (db) => {
                 let dep = db.pendingDeposits.find(d => d.id === depId);
-                if(dep && dep.status === 'pending') {
-                    dep.status = status;
-                    if(status === 'approved') {
-                        let user = db.solarUsers.find(u => u.id === dep.userId);
-                        if(user) user.wallet.mainBalance += parseInt(dep.amount);
+                let user = db.solarUsers.find(u => u.id === dep.userId);
+                
+                if(dep && user && dep.status === 'pending') {
+                    dep.status = action;
+                    if(action === 'approved') {
+                        user.wallet.mainBalance += parseInt(dep.amount); // Add money to user wallet
                     }
                 }
             });
-            if(success) { fetchData(); }
         }
 
-        async function actionWithdrawal(reqId, status) {
-            if(!confirm(`Mark withdrawal as ${status.toUpperCase()}?`)) return;
-            let success = await ServerDB.runTransaction(async (db) => {
-                let req = db.pendingWithdrawals.find(w => w.id === reqId);
-                if(req && req.status === 'pending') {
-                    req.status = status;
-                    if(status === 'rejected') {
-                        let user = db.solarUsers.find(u => u.id === req.userId);
-                        if(user) {
-                            user.wallet.mainBalance += parseInt(req.amount);
-                            user.wallet.totalWithdrawn -= parseInt(req.amount);
-                        }
+        // ==========================================
+        // WITHDRAWALS MANAGEMENT
+        // ==========================================
+        function renderWithdrawals() {
+            const list = document.getElementById('widList');
+            list.innerHTML = '';
+            
+            const wids =[...fullDB.pendingWithdrawals].sort((a, b) => {
+                if (a.status === 'pending' && b.status !== 'pending') return -1;
+                if (a.status !== 'pending' && b.status === 'pending') return 1;
+                return new Date(b.requestedAt) - new Date(a.requestedAt);
+            });
+
+            if(wids.length === 0) return list.innerHTML = '<p style="text-align:center;color:#888;">No withdrawals found</p>';
+
+            wids.forEach(w => {
+                const user = fullDB.solarUsers.find(u => u.id === w.userId) || {name: 'Unknown', phone: ''};
+                
+                let btns = '';
+                if(w.status === 'pending') {
+                    btns = `
+                    <div class="action-btns">
+                        <button class="btn btn-success" onclick="handleWithdrawal('${w.id}', 'approved')">Paid (Approve)</button>
+                        <button class="btn btn-danger" onclick="handleWithdrawal('${w.id}', 'rejected')">Reject (Refund)</button>
+                    </div>`;
+                }
+
+                list.innerHTML += `
+                <div class="list-item">
+                    <div class="list-header">
+                        <strong style="font-size:16px; color:#ef4444;">-₹${w.amount}</strong>
+                        <span class="badge ${w.status}">${w.status.toUpperCase()}</span>
+                    </div>
+                    <div class="item-detail"><strong>👤 User:</strong> ${user.name} (${user.phone})</div>
+                    <div class="item-detail"><strong>🏦 Bank/UPI:</strong> <span style="background:#e0e7ff; padding:2px 5px; border-radius:4px; font-weight:bold;">${w.method}</span></div>
+                    <div class="item-detail"><strong>🕒 Time:</strong> ${new Date(w.requestedAt).toLocaleString()}</div>
+                    ${btns}
+                </div>`;
+            });
+        }
+
+        async function handleWithdrawal(widId, action) {
+            let msg = action === 'approved' ? "Confirm you have PAID the user?" : "Reject and REFUND amount to user wallet?";
+            if(!confirm(msg)) return;
+
+            await ServerDB.runTransaction(async (db) => {
+                let wid = db.pendingWithdrawals.find(w => w.id === widId);
+                let user = db.solarUsers.find(u => u.id === wid.userId);
+                
+                if(wid && user && wid.status === 'pending') {
+                    wid.status = action;
+                    if(action === 'rejected') {
+                        // Refund the balance back
+                        user.wallet.mainBalance += parseInt(wid.amount);
+                        user.wallet.totalWithdrawn -= parseInt(wid.amount);
                     }
                 }
             });
-            if(success) { fetchData(); }
+        }
+
+        // ==========================================
+        // TICKET MANAGEMENT
+        // ==========================================
+        function renderTickets() {
+            const list = document.getElementById('tixList');
+            list.innerHTML = '';
+            
+            const tickets =[...fullDB.tickets].sort((a, b) => new Date(b.date) - new Date(a.date));
+
+            if(tickets.length === 0) return list.innerHTML = '<p style="text-align:center;color:#888;">No tickets found</p>';
+
+            tickets.forEach(t => {
+                let btns = t.status === 'Open' ? `<button class="btn btn-success btn-block" style="margin-top:10px;" onclick="resolveTicket('${t.id}')">Mark as Resolved</button>` : '';
+
+                list.innerHTML += `
+                <div class="list-item">
+                    <div class="list-header">
+                        <strong>${t.subject}</strong>
+                        <span class="badge ${t.status === 'Open' ? 'pending' : 'approved'}">${t.status}</span>
+                    </div>
+                    <div class="item-detail"><strong>📱 Phone:</strong> ${t.phone}</div>
+                    <div class="item-detail" style="background:white; padding:8px; border-radius:6px; border:1px solid #eee; margin-top:8px;">${t.message}</div>
+                    ${btns}
+                </div>`;
+            });
         }
 
         async function resolveTicket(ticketId) {
-            if(!confirm("Mark ticket as resolved?")) return;
-            let success = await ServerDB.runTransaction(async (db) => {
-                let tkt = db.tickets.find(t => t.id === ticketId);
-                if(tkt) tkt.status = 'Resolved';
+            if(!confirm("Mark this ticket as resolved?")) return;
+
+            await ServerDB.runTransaction(async (db) => {
+                let ticket = db.tickets.find(t => t.id === ticketId);
+                if(ticket) ticket.status = 'Resolved';
             });
-            if(success) { fetchData(); }
         }
     </script>
 </body>
