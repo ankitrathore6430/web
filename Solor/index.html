@@ -21,7 +21,7 @@
         body {
             background: #f0f2f5;
             min-height: 100vh;
-            padding-bottom: 70px; /* For bottom nav */
+            padding-bottom: 70px;
         }
         
         /* ===== NAVBAR ===== */
@@ -43,7 +43,7 @@
         .logo { font-size: 22px; font-weight: 800; cursor: pointer; letter-spacing: 1px;}
         .balance-pill { background: rgba(255,255,255,0.2); padding: 6px 15px; border-radius: 20px; font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 5px; backdrop-filter: blur(5px);}
         
-        /* ===== BOTTOM NAV (PREMIUM) ===== */
+        /* ===== BOTTOM NAV ===== */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -59,21 +59,9 @@
             border-top-right-radius: 25px;
         }
         .bottom-nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            color: #888;
-            text-decoration: none;
-            font-size: 12px;
-            font-weight: 600;
-            gap: 4px;
-            cursor: pointer;
-            transition: 0.3s;
+            display: flex; flex-direction: column; align-items: center; color: #888; font-size: 12px; font-weight: 600; gap: 4px; cursor: pointer; transition: 0.3s;
         }
-        .bottom-nav-item.active {
-            color: #2a5298;
-            transform: translateY(-3px);
-        }
+        .bottom-nav-item.active { color: #2a5298; transform: translateY(-3px); }
         .bottom-nav-item i { font-size: 20px; font-style: normal; }
         
         /* ===== CONTAINER ===== */
@@ -89,10 +77,7 @@
         }
         
         /* ===== BUTTONS ===== */
-        .btn {
-            padding: 14px 24px; border: none; border-radius: 12px; font-size: 15px; font-weight: bold;
-            cursor: pointer; transition: all 0.3s; display: inline-block; text-align: center;
-        }
+        .btn { padding: 14px 24px; border: none; border-radius: 12px; font-size: 15px; font-weight: bold; cursor: pointer; transition: all 0.3s; display: inline-block; text-align: center; }
         .btn-primary { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; box-shadow: 0 4px 15px rgba(42,82,152,0.3); }
         .btn-success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; box-shadow: 0 4px 15px rgba(56,239,125,0.3); }
         .btn-warning { background: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%); color: white; box-shadow: 0 4px 15px rgba(242,153,74,0.3); }
@@ -101,26 +86,36 @@
         .btn:hover:not(:disabled) { transform: translateY(-2px); }
         .btn:disabled { background: #d1d5db; cursor: not-allowed; box-shadow: none; color: #6b7280; }
         
-        /* ===== CARDS & POSTS ===== */
+        /* ===== ATTRACTIVE PLANS UI ===== */
         .card { background: #ffffff; padding: 25px; border-radius: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.04); margin-bottom: 20px; position: relative; overflow: hidden; }
         .card-title { font-size: 20px; color: #1f2937; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; font-weight: 700; }
         
-        .plan-post { border: 1px solid #f3f4f6; border-radius: 16px; padding: 20px; background: #fff; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
-        .plan-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #f3f4f6; padding-bottom: 10px;}
-        .plan-name { font-size: 18px; font-weight: 800; color: #1e3c72; display: flex; align-items: center; gap: 5px; }
-        .plan-price { font-size: 22px; font-weight: 900; color: #11998e; }
-        .plan-details { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-        .plan-detail-box { background: #f8fafc; padding: 10px; border-radius: 10px; text-align: center; }
-        .plan-detail-label { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; }
-        .plan-detail-val { font-size: 15px; font-weight: 800; color: #334155; }
+        .plan-post { border-radius: 20px; padding: 25px; margin-bottom: 20px; position: relative; overflow: hidden; transition: transform 0.3s; border: 1px solid rgba(0,0,0,0.05); }
+        .plan-post:hover { transform: translateY(-5px); }
+        
+        /* Plan Variations */
+        .plan-free { background: linear-gradient(135deg, #ffffff 0%, #f0fdf4 100%); border: 2px solid #22c55e; box-shadow: 0 10px 20px rgba(34, 197, 94, 0.15); }
+        .plan-standard { background: #ffffff; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+        .plan-popular { background: linear-gradient(135deg, #fffcf0 0%, #fff7e6 100%); border: 2px solid #f59e0b; box-shadow: 0 10px 20px rgba(245, 158, 11, 0.15); }
+        
+        /* Plan Badge */
+        .plan-badge { position: absolute; top: 15px; right: -30px; background: #22c55e; color: white; padding: 5px 30px; font-size: 11px; font-weight: bold; transform: rotate(45deg); text-transform: uppercase; letter-spacing: 1px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        .plan-badge.hot { background: #ef4444; }
+        
+        .plan-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px dashed rgba(0,0,0,0.1); padding-bottom: 15px;}
+        .plan-name { font-size: 20px; font-weight: 900; color: #1e3c72; }
+        .plan-price { font-size: 26px; font-weight: 900; color: #11998e; text-shadow: 1px 1px 0px rgba(0,0,0,0.05); }
+        
+        .plan-details { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px; }
+        .plan-detail-box { background: rgba(0,0,0,0.03); padding: 12px; border-radius: 12px; text-align: center; border: 1px solid rgba(0,0,0,0.02); }
+        .plan-detail-label { font-size: 11px; color: #64748b; font-weight: 700; text-transform: uppercase; margin-bottom: 3px; }
+        .plan-detail-val { font-size: 18px; font-weight: 900; color: #334155; }
         
         /* ===== FORMS & OTP ===== */
         .form-group { margin-bottom: 15px; }
         label { display: block; margin-bottom: 6px; color: #4b5563; font-weight: 600; font-size: 13px; }
         input, select, textarea { width: 100%; padding: 14px; border: 1.5px solid #e5e7eb; border-radius: 12px; font-size: 15px; background: #f9fafb; transition: 0.3s; }
         input:focus, select:focus, textarea:focus { outline: none; border-color: #2a5298; background: #fff; box-shadow: 0 0 0 4px rgba(42,82,152,0.1); }
-        .phone-input { display: flex; gap: 10px; }
-        .phone-input select { width: 80px; }
         
         .otp-inputs { display: flex; gap: 8px; justify-content: center; margin: 20px 0; }
         .otp-inputs input { width: 50px; height: 55px; text-align: center; font-size: 22px; font-weight: bold; padding: 0; }
@@ -128,44 +123,41 @@
         .message { padding: 12px 15px; border-radius: 10px; margin-bottom: 15px; display: none; font-size: 14px; font-weight: 600; }
         .message.success { background: #dcfce7; color: #166534; display: block; border-left: 4px solid #22c55e; }
         .message.error { background: #fee2e2; color: #991b1b; display: block; border-left: 4px solid #ef4444; }
-        .message.info { background: #e0f2fe; color: #075985; display: block; border-left: 4px solid #0ea5e9; }
         
-        /* UTILS */
+        /* UTILS & LOADER */
         .text-center { text-align: center; } .mt-20 { margin-top: 20px; } .mb-20 { margin-bottom: 20px; } .hidden { display: none !important; }
         .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px; }
         .stat-card { background: #fff; padding: 20px; border-radius: 16px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
         .stat-number { font-size: 26px; font-weight: 900; color: #2a5298; margin-bottom: 5px; }
         .stat-label { font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; }
-        .upi-banner { background: #fff; border: 2px dashed #11998e; border-radius: 15px; padding: 20px; text-align: center; margin-bottom: 20px; }
+        
+        /* Full Screen Loader */
+        #mainLoader { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; justify-content: center; align-items: center; flex-direction: column; }
+        .spinner { border: 4px solid rgba(0, 0, 0, 0.1); width: 40px; height: 40px; border-radius: 50%; border-left-color: #2a5298; animation: spin 1s linear infinite; margin-bottom: 10px; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body>
 
+    <!-- ===== FULL SCREEN LOADER ===== -->
+    <div id="mainLoader">
+        <div class="spinner"></div>
+        <h3 style="color:#1e3c72;">Loading Secure Data...</h3>
+    </div>
+
     <!-- ===== TOP NAVBAR ===== -->
     <nav class="navbar" id="navbar" style="display: none;">
         <div class="logo">🌞 SolarEnergy</div>
-        <div class="balance-pill">
-            💳 ₹<span id="navBalance">0</span>
-        </div>
+        <div class="balance-pill">💳 ₹<span id="navBalance">0</span></div>
     </nav>
 
     <!-- ===== BOTTOM NAVIGATION ===== -->
     <div class="bottom-nav" id="bottomNav" style="display: none;">
-        <div class="bottom-nav-item active" id="bnav-dashboard" onclick="showPage('dashboard')">
-            <i>🏠</i><span>Home</span>
-        </div>
-        <div class="bottom-nav-item" id="bnav-referral" onclick="showPage('referral')">
-            <i>👥</i><span>Refer</span>
-        </div>
-        <div class="bottom-nav-item" id="bnav-wallet" onclick="showPage('wallet')">
-            <i>💰</i><span>Wallet</span>
-        </div>
-        <div class="bottom-nav-item" id="bnav-support" onclick="showPage('support')">
-            <i>🎧</i><span>Support</span>
-        </div>
-        <div class="bottom-nav-item" onclick="logout()">
-            <i>🚪</i><span>Logout</span>
-        </div>
+        <div class="bottom-nav-item active" id="bnav-dashboard" onclick="showPage('dashboard')"><i>🏠</i><span>Home</span></div>
+        <div class="bottom-nav-item" id="bnav-referral" onclick="showPage('referral')"><i>👥</i><span>Refer</span></div>
+        <div class="bottom-nav-item" id="bnav-wallet" onclick="showPage('wallet')"><i>💰</i><span>Wallet</span></div>
+        <div class="bottom-nav-item" id="bnav-support" onclick="showPage('support')"><i>🎧</i><span>Support</span></div>
+        <div class="bottom-nav-item" onclick="logout()"><i>🚪</i><span>Logout</span></div>
     </div>
 
     <!-- ===== LANDING PAGE ===== -->
@@ -195,39 +187,23 @@
     <div id="login" class="page">
         <div class="container" style="max-width: 450px;">
             <div class="card" style="margin-top: 20px;">
-                <div class="text-center mb-20">
-                    <h2 style="color: #1e3c72; font-weight: 800;">Welcome Back!</h2>
-                    <p style="color: #64748b;">Secure Login to Solar Energy</p>
-                </div>
+                <div class="text-center mb-20"><h2 style="color: #1e3c72; font-weight: 800;">Welcome Back!</h2><p style="color: #64748b;">Secure Login</p></div>
                 <div id="loginMessage" class="message"></div>
                 
                 <div id="loginPasswordSection">
                     <form id="loginForm">
-                        <div class="form-group">
-                            <label>📱 Phone Number</label>
-                            <input type="tel" id="loginPhone" placeholder="Enter 10-digit number" maxlength="10" required>
-                        </div>
-                        <div class="form-group">
-                            <label>🔒 Password</label>
-                            <input type="password" id="loginPassword" placeholder="Enter your password" required>
-                        </div>
+                        <div class="form-group"><label>📱 Phone Number</label><input type="tel" id="loginPhone" placeholder="Enter 10-digit number" maxlength="10" required></div>
+                        <div class="form-group"><label>🔒 Password</label><input type="password" id="loginPassword" placeholder="Enter your password" required></div>
                         <button type="submit" class="btn btn-primary btn-block" id="loginBtn">🔐 Login</button>
                     </form>
-                    
-                    <div style="text-align: center; margin: 25px 0; position: relative;">
-                        <span style="background: white; padding: 0 15px; color: #9ca3af; position: relative; z-index: 1;">OR</span>
-                        <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: #e5e7eb;"></div>
-                    </div>
+                    <div style="text-align: center; margin: 25px 0; position: relative;"><span style="background: white; padding: 0 15px; color: #9ca3af; position: relative; z-index: 1;">OR</span><div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: #e5e7eb;"></div></div>
                     <button class="btn btn-outline btn-block" onclick="showLoginOtp()">📱 Login with OTP</button>
                 </div>
                 
                 <!-- Login with OTP -->
                 <div id="loginOtpSection" class="hidden">
                     <form id="loginOtpForm">
-                        <div class="form-group">
-                            <label>📱 Phone Number</label>
-                            <input type="tel" id="loginOtpPhone" placeholder="Enter 10-digit number" maxlength="10" required>
-                        </div>
+                        <div class="form-group"><label>📱 Phone Number</label><input type="tel" id="loginOtpPhone" placeholder="Enter 10-digit number" maxlength="10" required></div>
                         <button type="submit" class="btn btn-primary btn-block" id="sendLoginOtpBtn">📲 Send OTP</button>
                         <button type="button" class="btn btn-outline btn-block mt-20" onclick="showLoginPassword()">← Back to Password</button>
                     </form>
@@ -238,58 +214,34 @@
                     <div class="text-center mb-20"><p>OTP sent to <strong id="displayLoginPhone"></strong></p></div>
                     <form id="verifyLoginOtpForm">
                         <div class="otp-inputs">
-                            <input type="text" maxlength="1" class="otp-digit-login" data-index="0">
-                            <input type="text" maxlength="1" class="otp-digit-login" data-index="1">
-                            <input type="text" maxlength="1" class="otp-digit-login" data-index="2">
-                            <input type="text" maxlength="1" class="otp-digit-login" data-index="3">
-                            <input type="text" maxlength="1" class="otp-digit-login" data-index="4">
-                            <input type="text" maxlength="1" class="otp-digit-login" data-index="5">
+                            <input type="text" maxlength="1" class="otp-digit-login" data-index="0"><input type="text" maxlength="1" class="otp-digit-login" data-index="1">
+                            <input type="text" maxlength="1" class="otp-digit-login" data-index="2"><input type="text" maxlength="1" class="otp-digit-login" data-index="3">
+                            <input type="text" maxlength="1" class="otp-digit-login" data-index="4"><input type="text" maxlength="1" class="otp-digit-login" data-index="5">
                         </div>
                         <input type="hidden" id="fullLoginOtp">
                         <button type="submit" class="btn btn-success btn-block">✅ Verify & Login</button>
                     </form>
                 </div>
                 
-                <div class="text-center mt-20" style="padding-top: 15px; border-top: 1px solid #eee;">
-                    Don't have an account? <a href="#" onclick="showPage('register')" style="color: #2a5298; font-weight: bold;">Register</a>
-                </div>
+                <div class="text-center mt-20" style="padding-top: 15px; border-top: 1px solid #eee;">Don't have an account? <a href="#" onclick="showPage('register')" style="color: #2a5298; font-weight: bold;">Register</a></div>
             </div>
         </div>
     </div>
 
-    <!-- ===== REGISTER PAGE (FIXED PLACEHOLDERS) ===== -->
+    <!-- ===== REGISTER PAGE ===== -->
     <div id="register" class="page">
         <div class="container" style="max-width: 450px;">
             <div class="card" style="margin-top: 20px;">
-                <div class="text-center mb-20">
-                    <h2 style="color: #1e3c72; font-weight: 800;">Create Account</h2>
-                    <p style="color: #64748b;">Start your earning journey</p>
-                </div>
+                <div class="text-center mb-20"><h2 style="color: #1e3c72; font-weight: 800;">Create Account</h2><p style="color: #64748b;">Start your earning journey</p></div>
                 <div id="registerMessage" class="message"></div>
-                <div id="referralBanner" class="message info hidden">🎉 Invited! Get ₹15 bonus!</div>
                 
                 <div id="registerStep1">
                     <form id="registerForm">
-                        <div class="form-group">
-                            <label>👤 Full Name</label>
-                            <input type="text" id="regName" placeholder="Enter your full name" required>
-                        </div>
-                        <div class="form-group">
-                            <label>📱 Phone Number</label>
-                            <input type="tel" id="regPhone" placeholder="Enter 10-digit mobile number" maxlength="10" required>
-                        </div>
-                        <div class="form-group">
-                            <label>🔒 Password</label>
-                            <input type="password" id="regPassword" placeholder="Create a secure password" required minlength="6">
-                        </div>
-                        <div class="form-group">
-                            <label>✅ Confirm Password</label>
-                            <input type="password" id="regConfirmPassword" placeholder="Enter password again" required>
-                        </div>
-                        <div class="form-group">
-                            <label>🔗 Referral Code (Optional)</label>
-                            <input type="text" id="regReferral" placeholder="Enter Invite Code (If any)">
-                        </div>
+                        <div class="form-group"><label>👤 Full Name</label><input type="text" id="regName" placeholder="Enter full name" required></div>
+                        <div class="form-group"><label>📱 Phone Number</label><input type="tel" id="regPhone" placeholder="10-digit mobile" maxlength="10" required></div>
+                        <div class="form-group"><label>🔒 Password</label><input type="password" id="regPassword" placeholder="Create password" required minlength="6"></div>
+                        <div class="form-group"><label>✅ Confirm Password</label><input type="password" id="regConfirmPassword" placeholder="Enter password again" required></div>
+                        <div class="form-group"><label>🔗 Referral Code (Optional)</label><input type="text" id="regReferral" placeholder="Invite Code (If any)"></div>
                         <button type="submit" class="btn btn-success btn-block" id="sendRegOtpBtn">📲 Send OTP</button>
                     </form>
                 </div>
@@ -298,21 +250,16 @@
                     <div class="text-center mb-20"><p>OTP sent to <strong id="displayRegPhone"></strong></p></div>
                     <form id="verifyRegForm">
                         <div class="otp-inputs">
-                            <input type="text" maxlength="1" class="otp-digit-reg" data-index="0">
-                            <input type="text" maxlength="1" class="otp-digit-reg" data-index="1">
-                            <input type="text" maxlength="1" class="otp-digit-reg" data-index="2">
-                            <input type="text" maxlength="1" class="otp-digit-reg" data-index="3">
-                            <input type="text" maxlength="1" class="otp-digit-reg" data-index="4">
-                            <input type="text" maxlength="1" class="otp-digit-reg" data-index="5">
+                            <input type="text" maxlength="1" class="otp-digit-reg" data-index="0"><input type="text" maxlength="1" class="otp-digit-reg" data-index="1">
+                            <input type="text" maxlength="1" class="otp-digit-reg" data-index="2"><input type="text" maxlength="1" class="otp-digit-reg" data-index="3">
+                            <input type="text" maxlength="1" class="otp-digit-reg" data-index="4"><input type="text" maxlength="1" class="otp-digit-reg" data-index="5">
                         </div>
                         <input type="hidden" id="fullRegOtp">
                         <button type="submit" class="btn btn-success btn-block">✅ Create Account</button>
                     </form>
                 </div>
                 
-                <div class="text-center mt-20" style="padding-top: 15px; border-top: 1px solid #eee;">
-                    Already user? <a href="#" onclick="showPage('login')" style="color: #2a5298; font-weight: bold;">Login</a>
-                </div>
+                <div class="text-center mt-20" style="padding-top: 15px; border-top: 1px solid #eee;">Already a user? <a href="#" onclick="showPage('login')" style="color: #2a5298; font-weight: bold;">Login here</a></div>
             </div>
         </div>
     </div>
@@ -323,28 +270,21 @@
             <h2 style="font-weight: 800; font-size: 24px;">Hi, <span id="dashName">User</span> 👋</h2>
             <p style="opacity: 0.8; margin-top: 5px;">Ready to earn today?</p>
             
-            <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px; border-radius: 20px; margin-top: 25px; text-align: center;">
+            <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px; border-radius: 20px; margin-top: 25px; text-align: center; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
                 <p style="font-size: 14px; opacity: 0.9;">Total Balance</p>
-                <h1 id="dashBalance" style="font-size: 42px; font-weight: 900; margin: 5px 0;">₹0</h1>
-                <button class="btn btn-success" style="padding: 10px 30px; border-radius: 25px; font-size: 14px;" onclick="showPage('wallet')">➕ Add / Withdraw</button>
+                <h1 id="dashBalance" style="font-size: 44px; font-weight: 900; margin: 5px 0;">₹0</h1>
+                <button class="btn btn-success" style="padding: 10px 30px; border-radius: 25px; font-size: 14px; margin-top: 10px;" onclick="showPage('wallet')">➕ Add / Withdraw</button>
             </div>
         </div>
         
         <div class="container" style="margin-top: -30px;">
             <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number" id="dashEarnings">₹0</div>
-                    <div class="stat-label">Total Earned</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="dashRefers">0</div>
-                    <div class="stat-label">Total Refers</div>
-                </div>
+                <div class="stat-card"><div class="stat-number" id="dashEarnings">₹0</div><div class="stat-label">Total Earned</div></div>
+                <div class="stat-card"><div class="stat-number" id="dashRefers">0</div><div class="stat-label">Total Refers</div></div>
             </div>
             
-            <div class="card">
-                <h2 class="card-title">🔥 Trending Investment Plans</h2>
-                <p style="color: #64748b; font-size: 13px; margin-bottom: 20px;">Purchase plans to get high daily returns!</p>
+            <div class="card" style="background: transparent; box-shadow: none; padding: 0;">
+                <h2 class="card-title" style="margin-left: 10px;">🔥 Trending Investment Plans</h2>
                 <div id="homePlansList"></div>
             </div>
             
@@ -355,64 +295,47 @@
         </div>
     </div>
 
-    <!-- ===== WALLET PAGE ===== -->
+    <!-- ===== WALLET, REFERRAL, SUPPORT HTML (unchanged logic, only visual polish) ===== -->
+    <!-- (Same HTML structure as before for Wallet, Referral, Support) -->
+    <!-- Just pasting exact sections from earlier to keep it fully functional -->
+
     <div id="wallet" class="page">
         <div class="container">
             <div class="card text-center" style="background: #1e3c72; color: white;">
                 <p style="opacity: 0.8;">Available Balance</p>
                 <h1 id="walletBalance" style="font-size: 48px; margin: 10px 0;">₹0</h1>
             </div>
-            
             <div class="card" id="addMoneyAmountSection">
                 <h2 class="card-title">💳 Add Money to Wallet</h2>
                 <form id="addMoneyAmountForm">
-                    <div class="form-group">
-                        <label>Enter Amount (₹)</label>
-                        <input type="number" id="depositAmount" min="100" placeholder="Minimum ₹100" required>
-                    </div>
+                    <div class="form-group"><label>Enter Amount (₹)</label><input type="number" id="depositAmount" min="100" placeholder="Minimum ₹100" required></div>
                     <button type="submit" class="btn btn-success btn-block">🚀 Pay via UPI App</button>
                 </form>
             </div>
-            
             <div class="card hidden" id="upiPaymentSection">
                 <h2 class="card-title">⏱️ Verify Your Payment</h2>
-                <div class="upi-banner">
+                <div style="background: #fff; border: 2px dashed #11998e; border-radius: 15px; padding: 20px; text-align: center; margin-bottom: 20px;">
                     <p style="color: #11998e; font-weight: bold; font-size: 18px; margin-bottom: 10px;">Amount: <span id="upiDisplayAmount">₹0</span></p>
-                    <p style="font-size: 13px; color: #4b5563;">You were redirected to your UPI App. Complete the payment there, copy the 12-digit UTR/Ref No. and paste it below.</p>
+                    <p style="font-size: 13px; color: #4b5563;">Complete the payment in your UPI app, copy the 12-digit UTR/Ref No. and paste below.</p>
                 </div>
                 <form id="depositSubmitForm">
-                    <div class="form-group">
-                        <label>📝 Enter 12-Digit UTR / Ref Number *</label>
-                        <input type="text" id="transactionId" placeholder="e.g. 312345678901" required maxlength="20">
-                    </div>
+                    <div class="form-group"><label>📝 Enter 12-Digit UTR / Ref Number *</label><input type="text" id="transactionId" placeholder="e.g. 312345678901" required maxlength="20"></div>
                     <button type="submit" class="btn btn-primary btn-block">✅ Submit for Verification</button>
-                    <button type="button" class="btn btn-outline btn-block mt-20" onclick="backToAmount()">← Change Amount</button>
+                    <button type="button" class="btn btn-outline btn-block mt-20" onclick="document.getElementById('upiPaymentSection').classList.add('hidden'); document.getElementById('addMoneyAmountSection').classList.remove('hidden');">← Change Amount</button>
                 </form>
             </div>
-            
             <div class="card">
                 <h2 class="card-title">💸 Withdraw Request</h2>
                 <form id="withdrawForm">
-                    <div class="form-group">
-                        <label>Amount (₹) - Min ₹200</label>
-                        <input type="number" id="withdrawAmount" min="200" required placeholder="Minimum ₹200">
-                    </div>
-                    <div class="form-group">
-                        <label>UPI ID or Bank Account Details</label>
-                        <input type="text" id="withdrawMethod" required placeholder="name@ybl or Bank A/c details">
-                    </div>
+                    <div class="form-group"><label>Amount (₹) - Min ₹200</label><input type="number" id="withdrawAmount" min="200" required placeholder="Minimum ₹200"></div>
+                    <div class="form-group"><label>UPI ID or Bank Account Details</label><input type="text" id="withdrawMethod" required placeholder="name@ybl or Bank A/c details"></div>
                     <button type="submit" class="btn btn-warning btn-block">Submit Withdrawal</button>
                 </form>
             </div>
-            
-            <div class="card">
-                <h2 class="card-title">📝 History</h2>
-                <div id="walletTransactions"><div class="text-center" style="color:#9ca3af;">No history</div></div>
-            </div>
+            <div class="card"><h2 class="card-title">📝 History</h2><div id="walletTransactions"><div class="text-center" style="color:#9ca3af;">No history</div></div></div>
         </div>
     </div>
 
-    <!-- ===== REFERRAL PAGE ===== -->
     <div id="referral" class="page">
         <div class="container">
             <div class="card text-center" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white;">
@@ -422,65 +345,40 @@
             <div class="card">
                 <h2 class="card-title">🔗 Share Link</h2>
                 <div style="background: #f3f4f6; padding: 15px; border-radius: 12px; margin-bottom: 15px; word-break: break-all; font-weight: bold; color: #2a5298;" id="referralLinkDisplay"></div>
-                <button class="btn btn-primary btn-block" onclick="copyReferralLink()">📋 Copy Invite Link</button>
+                <button class="btn btn-primary btn-block" onclick="navigator.clipboard.writeText(document.getElementById('referralLinkDisplay').textContent); alert('✅ Link Copied!');">📋 Copy Invite Link</button>
             </div>
-            <div class="card">
-                <h2 class="card-title">👥 My Team</h2>
-                <div id="referralsList"><div class="text-center" style="color: #9ca3af;">No referrals yet</div></div>
-            </div>
+            <div class="card"><h2 class="card-title">👥 My Team</h2><div id="referralsList"><div class="text-center" style="color: #9ca3af;">No referrals yet</div></div></div>
         </div>
     </div>
 
-    <!-- ===== SUPPORT PAGE ===== -->
     <div id="support" class="page">
         <div class="container">
             <div class="card">
                 <h2 class="card-title">🎧 Help & Support</h2>
                 <p style="color: #64748b; margin-bottom: 20px;">Facing issues? Send a ticket to Admin.</p>
                 <form id="supportForm">
-                    <div class="form-group">
-                        <label>Issue Subject</label>
-                        <input type="text" id="supportSubject" required placeholder="e.g. Deposit not added">
-                    </div>
-                    <div class="form-group">
-                        <label>Describe your problem</label>
-                        <textarea id="supportMessage" rows="4" required placeholder="Explain in detail..."></textarea>
-                    </div>
+                    <div class="form-group"><label>Issue Subject</label><input type="text" id="supportSubject" required placeholder="e.g. Deposit not added"></div>
+                    <div class="form-group"><label>Describe your problem</label><textarea id="supportMessage" rows="4" required placeholder="Explain in detail..."></textarea></div>
                     <button type="submit" class="btn btn-primary btn-block">🚀 Submit Ticket</button>
                 </form>
             </div>
-            <div class="card">
-                <h2 class="card-title">📝 My Tickets</h2>
-                <div id="myTicketsList"><div class="text-center" style="color: #9ca3af;">No tickets</div></div>
-            </div>
+            <div class="card"><h2 class="card-title">📝 My Tickets</h2><div id="myTicketsList"><div class="text-center" style="color: #9ca3af;">No tickets</div></div></div>
         </div>
     </div>
 
     <script>
-        // 🔥 GITHUB DATABASE CONFIGURATION (Obfuscated / Hidden Token) 🔥
+        // 🔥 GITHUB DATABASE CONFIGURATION 🔥
         const getSecret = () => {
-            const p1 = 'Z2hwX2h6QXhoNz';
-            const p2 = 'gwYUxkeExIcGtI';
-            const p3 = 'cXBUdFlSeGk0T3';
-            const p4 = 'ZySzN0dDBTTw==';
+            const p1 = 'Z2hwX2h6QXhoNz'; const p2 = 'gwYUxkeExIcGtI'; const p3 = 'cXBUdFlSeGk0T3'; const p4 = 'ZySzN0dDBTTw==';
             return atob(p1 + p2 + p3 + p4); 
         };
+        const GITHUB_CONFIG = { token: getSecret(), owner: "ankitrathore6430", repo: "web", path: "data.json" };
 
-        const GITHUB_CONFIG = {
-            token: getSecret(), 
-            owner: "ankitrathore6430", 
-            repo: "web", 
-            path: "data.json"
-        };
-
-        // 🔥 FIREBASE CONFIGURATION 🔥
+        // 🔥 FIREBASE CONFIGURATION (For OTP Only) 🔥
         const firebaseConfig = {
-            apiKey: "AIzaSyA3pH_dnb6_--wRoDSuoj-TAudsmJ7D4R0",
-            authDomain: "solor-energy.firebaseapp.com",
-            projectId: "solor-energy",
-            storageBucket: "solor-energy.firebasestorage.app",
-            messagingSenderId: "772737546715",
-            appId: "1:772737546715:web:3736545b464523bdc04ffe"
+            apiKey: "AIzaSyA3pH_dnb6_--wRoDSuoj-TAudsmJ7D4R0", authDomain: "solor-energy.firebaseapp.com",
+            projectId: "solor-energy", storageBucket: "solor-energy.firebasestorage.app",
+            messagingSenderId: "772737546715", appId: "1:772737546715:web:3736545b464523bdc04ffe"
         };
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
@@ -490,91 +388,92 @@
         let tempUserData = {};
         let pendingDepositAmount = 0;
 
-        // 🔥 ADDED FREE PLAN IN LIST 🔥
+        // 🔥 PLANS LIST 🔥
         const plans =[
-            { id: 'free', name: '🎁 Daily Free Income', price: 0, daily: 10, days: 30, total: 300 },
-            { id: 'nano', name: 'Nano Energy', price: 100, daily: 20, days: 30, total: 600 },
-            { id: 'micro', name: 'Micro Power', price: 200, daily: 45, days: 30, total: 1350 },
+            { id: 'free', name: '🎁 Daily Free Income', price: 0, daily: 10, days: 30, total: 300, popular: false },
+            { id: 'nano', name: 'Nano Energy', price: 100, daily: 20, days: 30, total: 600, popular: false },
+            { id: 'micro', name: 'Micro Power', price: 200, daily: 45, days: 30, total: 1350, popular: false },
             { id: 'mini', name: 'Mini Solar', price: 500, daily: 150, days: 30, total: 4500, popular: true },
-            { id: 'pro', name: 'Pro Solar', price: 1000, daily: 350, days: 30, total: 10500 }
+            { id: 'pro', name: 'Pro Solar', price: 1000, daily: 350, days: 30, total: 10500, popular: false }
         ];
 
         // ==========================================
-        // 🚀 REAL-TIME GITHUB SERVER ENGINE
+        // 🚀 SERVER DB ENGINE (With Error Handling)
         // ==========================================
         class ServerDB {
             static async get() {
                 try {
                     const res = await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}?t=${Date.now()}`, {
-                        headers: { 'Authorization': `token ${GITHUB_CONFIG.token}` },
-                        cache: "no-store" 
+                        headers: { 'Authorization': `token ${GITHUB_CONFIG.token}` }, cache: "no-store" 
                     });
                     if (res.status === 404) return { db: { solarUsers: [], pendingDeposits: [], pendingWithdrawals:[], tickets:[] }, sha: null };
-                    
                     const data = await res.json();
-                    const jsonStr = decodeURIComponent(escape(atob(data.content)));
-                    return { db: JSON.parse(jsonStr), sha: data.sha };
-                } catch (err) {
-                    console.error("Server Fetch Error:", err);
-                    return null;
-                }
+                    return { db: JSON.parse(decodeURIComponent(escape(atob(data.content)))), sha: data.sha };
+                } catch (err) { console.error("Fetch Error:", err); return null; }
             }
 
             static async runTransaction(mutationFn) {
                 const data = await this.get();
-                if (!data) return false;
-                
+                if (!data) { alert("❌ Server Connection Failed! Check Network/Token."); return false; }
                 let { db, sha } = data;
                 
-                if(!db.solarUsers) db.solarUsers =[];
-                if(!db.pendingDeposits) db.pendingDeposits =[];
-                if(!db.pendingWithdrawals) db.pendingWithdrawals =[];
-                if(!db.tickets) db.tickets =[];
+                if(!db.solarUsers) db.solarUsers =[]; if(!db.pendingDeposits) db.pendingDeposits =[];
+                if(!db.pendingWithdrawals) db.pendingWithdrawals =[]; if(!db.tickets) db.tickets =[];
 
-                await mutationFn(db);
-
-                const content = btoa(unescape(encodeURIComponent(JSON.stringify(db, null, 2))));
-                const body = { message: "Live App Transaction", content: content };
-                if (sha) body.sha = sha;
+                let mutationResult = await mutationFn(db);
+                if(mutationResult === false) return false; // If explicitly failed in logic
 
                 try {
+                    const content = btoa(unescape(encodeURIComponent(JSON.stringify(db, null, 2))));
+                    const body = { message: "App Update", content: content };
+                    if (sha) body.sha = sha;
+
                     const res = await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`, {
-                        method: 'PUT',
-                        headers: { 'Authorization': `token ${GITHUB_CONFIG.token}`, 'Content-Type': 'application/json' },
+                        method: 'PUT', headers: { 'Authorization': `token ${GITHUB_CONFIG.token}`, 'Content-Type': 'application/json' },
                         body: JSON.stringify(body)
                     });
-                    return res.ok;
-                } catch(e) {
-                    console.error("Save Error:", e);
-                    return false;
-                }
+                    
+                    if (!res.ok) { alert("❌ Database Error! Code: " + res.status); return false; }
+                    return true;
+                } catch(e) { alert("❌ Network Error while saving!"); return false; }
             }
         }
 
         // ==========================================
-        // BOOT SYSTEM
+        // BOOT SYSTEM & AUTO LOGIN (Data Sync)
         // ==========================================
         window.onload = async function() {
+            document.getElementById('mainLoader').style.display = 'flex';
             const savedUser = localStorage.getItem('currentUser');
+            
             if (savedUser) {
                 const localUser = JSON.parse(savedUser);
-                const data = await ServerDB.get();
+                const data = await ServerDB.get(); // Live sync from server on boot
                 if(data && data.db) {
                     const liveUser = data.db.solarUsers.find(u => u.id === localUser.id);
                     if(liveUser) {
-                        currentUser = liveUser;
-                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                        showPage('dashboard');
-                        return;
+                        if (liveUser.status === 'blocked') {
+                            alert("❌ Your account is blocked by Admin.");
+                            localStorage.removeItem('currentUser');
+                        } else {
+                            currentUser = liveUser;
+                            localStorage.setItem('currentUser', JSON.stringify(currentUser)); // Sync Local
+                            showPage('dashboard');
+                            document.getElementById('mainLoader').style.display = 'none';
+                            return;
+                        }
+                    } else {
+                        localStorage.removeItem('currentUser'); // User deleted from DB
                     }
                 }
             }
             
-            // Check for referral URL parameter
+            // Check Ref Code
             const urlParams = new URLSearchParams(window.location.search);
             const refCode = urlParams.get('ref');
             if (refCode) document.getElementById('regReferral').value = refCode;
             
+            document.getElementById('mainLoader').style.display = 'none';
             showPage('landing');
         };
 
@@ -582,14 +481,14 @@
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageName).classList.add('active');
             
-            const nav = document.getElementById('navbar');
-            const bottom = document.getElementById('bottomNav');
-            
+            const nav = document.getElementById('navbar'); const bottom = document.getElementById('bottomNav');
             if (['landing', 'login', 'register'].includes(pageName)) {
                 nav.style.display = 'none'; bottom.style.display = 'none';
             } else {
                 nav.style.display = 'flex'; bottom.style.display = 'flex';
-                updateNavActive(pageName);
+                document.querySelectorAll('.bottom-nav-item').forEach(i => i.classList.remove('active'));
+                if(document.getElementById('bnav-'+pageName)) document.getElementById('bnav-'+pageName).classList.add('active');
+                
                 if(pageName === 'dashboard') loadDashboard();
                 if(pageName === 'wallet') loadWallet();
                 if(pageName === 'referral') loadReferral();
@@ -598,61 +497,45 @@
             window.scrollTo(0,0);
         }
 
-        function updateNavActive(page) {
-            document.querySelectorAll('.bottom-nav-item').forEach(i => i.classList.remove('active'));
-            const id = 'bnav-' + page;
-            if(document.getElementById(id)) document.getElementById(id).classList.add('active');
-        }
-
         function showMessage(elId, txt, type) {
             const el = document.getElementById(elId); el.textContent = txt; el.className = 'message '+type;
             setTimeout(()=>el.style.display='none', 4000);
         }
 
         // ==========================================
-        // LOGIN & AUTHENTICATION
+        // LOGIN & REGISTRATION LOGIC
         // ==========================================
+        
+        // 1. Password Login
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const phone = document.getElementById('loginPhone').value;
-            const pass = document.getElementById('loginPassword').value;
-            const btn = document.getElementById('loginBtn');
-            
-            btn.innerHTML = '🔄 Verifying on Server...'; btn.disabled = true;
+            const phone = document.getElementById('loginPhone').value; const pass = document.getElementById('loginPassword').value;
+            const btn = document.getElementById('loginBtn'); btn.innerHTML = '🔄 Verifying...'; btn.disabled = true;
 
             const data = await ServerDB.get();
-            if(data) {
-                const user = data.db.solarUsers.find(u => u.phone === phone && u.password === pass);
+            if(data && data.db) {
+                const user = data.db.solarUsers.find(u => u.phone === phone);
                 if(user) {
-                    if (user.status === 'blocked') {
-                        showMessage('loginMessage', '❌ Account blocked by Admin!', 'error');
-                    } else {
-                        currentUser = user; 
-                        localStorage.setItem('currentUser', JSON.stringify(user));
-                        showPage('dashboard');
-                    }
-                } else { 
-                    showMessage('loginMessage', '❌ Invalid phone or password', 'error'); 
-                }
-            } else {
-                showMessage('loginMessage', '❌ Server Error', 'error');
-            }
+                    if(user.password === pass) {
+                        if(user.status === 'blocked') showMessage('loginMessage', '❌ Account blocked by Admin!', 'error');
+                        else { currentUser = user; localStorage.setItem('currentUser', JSON.stringify(user)); showPage('dashboard'); }
+                    } else showMessage('loginMessage', '❌ Incorrect Password!', 'error');
+                } else showMessage('loginMessage', '❌ Number not registered! Please Register first.', 'error');
+            } else showMessage('loginMessage', '❌ Server Error', 'error');
             btn.innerHTML = '🔐 Login'; btn.disabled = false;
         });
 
+        // 2. OTP Login Request
         function showLoginOtp() { document.getElementById('loginPasswordSection').classList.add('hidden'); document.getElementById('loginOtpSection').classList.remove('hidden'); }
         function showLoginPassword() { document.getElementById('loginOtpSection').classList.add('hidden'); document.getElementById('verifyLoginOtpSection').classList.add('hidden'); document.getElementById('loginPasswordSection').classList.remove('hidden'); }
 
         document.getElementById('loginOtpForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const phone = document.getElementById('loginOtpPhone').value;
-            const btn = document.getElementById('sendLoginOtpBtn');
-            
-            btn.innerHTML = '🔄 Checking...'; btn.disabled = true;
+            e.preventDefault(); const phone = document.getElementById('loginOtpPhone').value;
+            const btn = document.getElementById('sendLoginOtpBtn'); btn.innerHTML = '🔄 Checking DB...'; btn.disabled = true;
 
             const data = await ServerDB.get();
             if(!data || !data.db.solarUsers.find(u => u.phone === phone)) {
-                showMessage('loginMessage', '❌ Number not registered!', 'error');
+                showMessage('loginMessage', '❌ Number not registered! Please Register.', 'error');
                 btn.innerHTML = '📲 Send OTP'; btn.disabled = false; return;
             }
 
@@ -664,48 +547,37 @@
                 document.getElementById('verifyLoginOtpSection').classList.remove('hidden');
                 setupOtpInputs('otp-digit-login', 'fullLoginOtp');
             } catch (error) { showMessage('loginMessage', '❌ ' + error.message, 'error'); }
-            
             btn.innerHTML = '📲 Send OTP'; btn.disabled = false;
         });
 
         document.getElementById('verifyLoginOtpForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const otp = document.getElementById('fullLoginOtp').value;
-            const btn = e.target.querySelector('button');
-            btn.innerHTML = "🔄 Verifying...";
+            e.preventDefault(); const otp = document.getElementById('fullLoginOtp').value;
+            const btn = e.target.querySelector('button'); btn.innerHTML = "🔄 Verifying..."; btn.disabled = true;
             try {
                 await confirmationResult.confirm(otp);
                 const phone = document.getElementById('loginOtpPhone').value;
                 const data = await ServerDB.get();
                 const user = data.db.solarUsers.find(u => u.phone === phone);
-                if (user) {
-                    currentUser = user;
-                    localStorage.setItem('currentUser', JSON.stringify(user));
-                    showPage('dashboard');
-                }
+                if (user) { currentUser = user; localStorage.setItem('currentUser', JSON.stringify(user)); showPage('dashboard'); }
             } catch (error) { showMessage('loginMessage', '❌ Invalid OTP!', 'error'); }
-            btn.innerHTML = "✅ Verify & Login";
+            btn.innerHTML = "✅ Verify & Login"; btn.disabled = false;
         });
 
-        // Register
+        // 3. Registration Request
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             tempUserData = {
-                name: document.getElementById('regName').value.trim(),
-                phone: document.getElementById('regPhone').value.trim(),
-                password: document.getElementById('regPassword').value,
-                referral: document.getElementById('regReferral').value.trim()
+                name: document.getElementById('regName').value.trim(), phone: document.getElementById('regPhone').value.trim(),
+                password: document.getElementById('regPassword').value, referral: document.getElementById('regReferral').value.trim()
             };
-            const confirmPass = document.getElementById('regConfirmPassword').value;
+            if (tempUserData.password !== document.getElementById('regConfirmPassword').value) return showMessage('registerMessage', '❌ Passwords do not match', 'error');
 
-            if (tempUserData.password !== confirmPass) return showMessage('registerMessage', '❌ Passwords do not match', 'error');
+            const btn = document.getElementById('sendRegOtpBtn'); btn.innerHTML = '🔄 Checking DB...'; btn.disabled = true;
 
-            const btn = document.getElementById('sendRegOtpBtn');
-            btn.innerHTML = '🔄 Checking...'; btn.disabled = true;
-
+            // Pre-check if User already exists
             const data = await ServerDB.get();
             if (data && data.db.solarUsers.find(u => u.phone === tempUserData.phone)) {
-                showMessage('registerMessage', '❌ Number already registered! Please login.', 'error');
+                showMessage('registerMessage', '❌ Number already registered! Please Go to Login page.', 'error');
                 btn.innerHTML = '📲 Send OTP'; btn.disabled = false; return;
             }
 
@@ -717,50 +589,40 @@
                 document.getElementById('registerStep2').classList.remove('hidden');
                 setupOtpInputs('otp-digit-reg', 'fullRegOtp');
             } catch (error) { showMessage('registerMessage', '❌ ' + error.message, 'error'); }
-            
             btn.innerHTML = '📲 Send OTP'; btn.disabled = false;
         });
 
         document.getElementById('verifyRegForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const otp = document.getElementById('fullRegOtp').value;
-            const btn = e.target.querySelector('button');
-            btn.innerHTML = "🔄 Creating Account..."; btn.disabled = true;
+            e.preventDefault(); const otp = document.getElementById('fullRegOtp').value;
+            const btn = e.target.querySelector('button'); btn.innerHTML = "🔄 Creating Account..."; btn.disabled = true;
 
             try {
                 await confirmationResult.confirm(otp);
-                
                 const userId = 'SOLAR' + Date.now();
                 const myCode = tempUserData.name.substring(0,3).toUpperCase() + Math.floor(Math.random()*1000);
                 
-                const newUser = {
+                let newUser = {
                     id: userId, name: tempUserData.name, phone: tempUserData.phone, password: tempUserData.password,
                     referralCode: myCode, referredBy: tempUserData.referral || 'ADMIN', joinDate: new Date().toISOString(),
                     wallet: { mainBalance: tempUserData.referral ? 15 : 0, totalWithdrawn: 0 }, 
-                    referrals: { count: 0, list:[], earnings: 0 },
-                    activePlans:[], status: 'active'
+                    referrals: { count: 0, list:[], earnings: 0 }, activePlans:[], status: 'active'
                 };
 
-                await ServerDB.runTransaction(async (db) => {
+                const success = await ServerDB.runTransaction(async (db) => {
                     db.solarUsers.push(newUser);
                     if(tempUserData.referral) {
                         let refUser = db.solarUsers.find(u => u.referralCode === tempUserData.referral);
-                        if(refUser) {
-                            refUser.wallet.mainBalance += 15;
-                            refUser.referrals.count += 1;
-                            refUser.referrals.earnings += 15;
-                            refUser.referrals.list.push(userId);
-                        }
+                        if(refUser) { refUser.wallet.mainBalance += 15; refUser.referrals.count += 1; refUser.referrals.earnings += 15; refUser.referrals.list.push(userId); }
                     }
+                    return true;
                 });
 
-                currentUser = newUser;
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                showPage('dashboard');
-            } catch (error) {
-                showMessage('registerMessage', '❌ Invalid OTP!', 'error');
-                btn.innerHTML = "✅ Create Account"; btn.disabled = false;
-            }
+                if(success) {
+                    currentUser = newUser; localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    showPage('dashboard');
+                } else { showMessage('registerMessage', '❌ Failed to save account on Database!', 'error'); }
+            } catch (error) { showMessage('registerMessage', '❌ Invalid OTP!', 'error'); }
+            btn.innerHTML = "✅ Create Account"; btn.disabled = false;
         });
 
         function setupOtpInputs(cls, hiddenId) {
@@ -784,19 +646,24 @@
             
             const plansBox = document.getElementById('homePlansList');
             plansBox.innerHTML = '';
+            
             plans.forEach(plan => {
+                let bgClass = plan.price === 0 ? 'plan-free' : (plan.popular ? 'plan-popular' : 'plan-standard');
+                let badge = plan.price === 0 ? '<div class="plan-badge">🎁 Free</div>' : (plan.popular ? '<div class="plan-badge hot">🔥 Hot</div>' : '');
+                
                 plansBox.innerHTML += `
-                <div class="plan-post">
+                <div class="plan-post ${bgClass}">
+                    ${badge}
                     <div class="plan-header">
                         <div class="plan-name">⚡ ${plan.name}</div>
-                        <div class="plan-price">${plan.price === 0 ? '<span style="color:#2a5298">FREE</span>' : '₹'+plan.price}</div>
+                        <div class="plan-price">${plan.price === 0 ? 'FREE' : '₹'+plan.price}</div>
                     </div>
                     <div class="plan-details">
-                        <div class="plan-detail-box"><div class="plan-detail-label">Daily Return</div><div class="plan-detail-val" style="color:#11998e">₹${plan.daily}</div></div>
-                        <div class="plan-detail-box"><div class="plan-detail-label">Total Return</div><div class="plan-detail-val" style="color:#1e3c72">₹${plan.total}</div></div>
-                        <div class="plan-detail-box"><div class="plan-detail-label">Validity</div><div class="plan-detail-val">${plan.days} Days</div></div>
+                        <div class="plan-detail-box"><div class="plan-detail-label">Daily Income</div><div class="plan-detail-val" style="color:#11998e">₹${plan.daily}</div></div>
+                        <div class="plan-detail-box"><div class="plan-detail-label">Total Income</div><div class="plan-detail-val" style="color:#1e3c72">₹${plan.total}</div></div>
+                        <div class="plan-detail-box" style="grid-column: span 2;"><div class="plan-detail-label">Plan Validity</div><div class="plan-detail-val">${plan.days} Days</div></div>
                     </div>
-                    <button class="btn btn-primary btn-block" onclick="buyPlan('${plan.id}')">💎 ${plan.price === 0 ? 'Activate Free' : 'Buy Now'}</button>
+                    <button class="btn btn-primary btn-block" style="${plan.price===0 ? 'background: #22c55e;' : ''}" onclick="buyPlan('${plan.id}')">💎 ${plan.price === 0 ? 'Activate Free Plan' : 'Buy Now'}</button>
                 </div>`;
             });
 
@@ -804,13 +671,13 @@
             if(currentUser.activePlans.length > 0) {
                 actBox.innerHTML = '';
                 currentUser.activePlans.forEach(p => {
-                    actBox.innerHTML += `<div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">
-                        <div><strong>${p.planName}</strong><br><small>Daily Income: ₹${p.dailyReturn}</small></div>
-                        <div style="text-align:right; color:#11998e; font-weight:bold;">Active ✓</div>
+                    actBox.innerHTML += `<div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
+                        <div><strong style="font-size:16px;">${p.planName}</strong><br><small style="color:#64748b; font-weight:600;">Daily Income: <span style="color:#2a5298">₹${p.dailyReturn}</span></small></div>
+                        <div style="text-align:right; color:#11998e; font-weight:900; background:#dcfce7; padding:5px 10px; border-radius:10px; font-size:12px;">Active ✓</div>
                     </div>`;
                 });
             } else {
-                actBox.innerHTML = '<div class="text-center" style="color: #9ca3af; padding: 20px;">No active plans.</div>';
+                actBox.innerHTML = '<div class="text-center" style="color: #9ca3af; padding: 20px;">No active plans. Purchase one to earn!</div>';
             }
 
             processClaims(); 
@@ -819,9 +686,7 @@
         async function processClaims() {
             const todayStr = new Date().toDateString();
             let needsUpdate = currentUser.activePlans.some(p => 
-                p.status === 'active' && 
-                new Date() < new Date(p.expiryDate) && 
-                (!p.lastClaimed || new Date(p.lastClaimed).toDateString() !== todayStr)
+                p.status === 'active' && new Date() < new Date(p.expiryDate) && (!p.lastClaimed || new Date(p.lastClaimed).toDateString() !== todayStr)
             );
 
             if (needsUpdate) {
@@ -836,9 +701,9 @@
                                 }
                             }
                         });
-                        currentUser = u;
-                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                        currentUser = u; localStorage.setItem('currentUser', JSON.stringify(currentUser));
                     }
+                    return true;
                 });
                 document.getElementById('dashBalance').textContent = '₹' + currentUser.wallet.mainBalance;
                 document.getElementById('navBalance').textContent = currentUser.wallet.mainBalance;
@@ -846,242 +711,152 @@
         }
 
         // ==========================================
-        // PLAN PURCHASE
+        // 100% FIXED PLAN PURCHASE & FREE PLAN LOGIC
         // ==========================================
         async function buyPlan(pid) {
             const plan = plans.find(p=>p.id===pid);
 
-            // Free plan validation (Only 1 time)
+            // Free Plan Check (Local)
             if(plan.price === 0 && currentUser.activePlans.some(p => p.planId === plan.id)) {
-                alert("❌ You have already activated the Free Plan!");
-                return;
+                return alert("❌ You have already activated the Free Plan! (Allowed only 1 time)");
             }
 
             if(currentUser.wallet.mainBalance < plan.price) {
-                alert("Low Balance! Please add money from Wallet.");
-                showPage('wallet'); return;
+                alert("❌ Low Balance! Please add money from Wallet."); showPage('wallet'); return;
             }
-            if(!confirm(`Confirm ${plan.price === 0 ? 'activation of Free Plan' : 'buy '+plan.name+' for ₹'+plan.price}?`)) return;
+            if(!confirm(`Confirm ${plan.price === 0 ? 'Activation of Free Plan' : 'Purchase of '+plan.name+' for ₹'+plan.price}?`)) return;
 
-            const btn = event.target;
-            const oldText = btn.innerHTML;
+            const btn = event.target; const oldText = btn.innerHTML;
             btn.innerHTML = "🔄 Processing..."; btn.disabled = true;
 
             const success = await ServerDB.runTransaction(async (db) => {
                 let u = db.solarUsers.find(x => x.id === currentUser.id);
-                if (u.wallet.mainBalance >= plan.price) {
-                    
-                    // Double check for Free Plan duplicate inside transaction
-                    if(plan.price === 0 && u.activePlans.some(p => p.planId === plan.id)) return false;
+                if (!u) return false;
 
+                // Extra safety check in DB
+                if(plan.price === 0 && u.activePlans.some(p => p.planId === plan.id)) return false;
+
+                if (u.wallet.mainBalance >= plan.price) {
                     u.wallet.mainBalance -= plan.price;
                     u.activePlans.push({
                         planId: plan.id, planName: plan.name, amount: plan.price, dailyReturn: plan.daily,
                         expiryDate: new Date(Date.now() + plan.days*86400000).toISOString(), lastClaimed: null, status: 'active'
                     });
                     
-                    // Give commission only if plan has price
                     if (plan.price > 0 && u.referredBy && u.referredBy !== 'ADMIN') {
                         let referrer = db.solarUsers.find(r => r.referralCode === u.referredBy);
                         if(referrer) {
                             let comm = Math.floor(plan.price * 0.2);
-                            referrer.wallet.mainBalance += comm;
-                            referrer.referrals.earnings += comm;
+                            referrer.wallet.mainBalance += comm; referrer.referrals.earnings += comm;
                         }
                     }
-                    currentUser = u; 
-                    localStorage.setItem('currentUser', JSON.stringify(u));
                     return true;
-                } else {
-                    return false;
                 }
+                return false;
             });
 
             if(success) { 
+                // Immediate refresh local user from server DB
+                const data = await ServerDB.get();
+                if(data && data.db) {
+                    const u = data.db.solarUsers.find(x => x.id === currentUser.id);
+                    if(u) { currentUser = u; localStorage.setItem('currentUser', JSON.stringify(currentUser)); }
+                }
                 alert("✅ Plan Activated Successfully!"); 
                 loadDashboard(); 
-            } else {
-                alert("❌ Server Error: Plan already claimed or Low Balance.");
-            }
+            } else { alert("❌ Server Error: Already claimed or Low Balance."); }
+            
             btn.innerHTML = oldText; btn.disabled = false;
         }
 
         // ==========================================
-        // WALLET, DEPOSIT & WITHDRAW
+        // OTHER ACTIONS (Wallet, Support)
         // ==========================================
-        async function loadWallet() {
-            document.getElementById('walletBalance').textContent = '₹' + currentUser.wallet.mainBalance;
-            
-            const data = await ServerDB.get();
-            if(!data) return;
-            
-            const wids = data.db.pendingWithdrawals.filter(x => x.userId === currentUser.id);
-            const deps = data.db.pendingDeposits.filter(x => x.userId === currentUser.id);
-            
-            const list = document.getElementById('walletTransactions'); list.innerHTML='';
-            const allTx =[...deps, ...wids].sort((a,b)=>new Date(b.requestedAt)-new Date(a.requestedAt));
-            
-            if(allTx.length > 0) {
-                allTx.forEach(tx => {
-                    const isDep = tx.id.startsWith('DEP');
-                    list.innerHTML += `
-                    <div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">
-                        <div><strong>${isDep?'Deposit':'Withdrawal'}</strong><br><small>${new Date(tx.requestedAt).toLocaleDateString()}</small></div>
-                        <div style="text-align:right">
-                            <strong style="color:${isDep?'#11998e':'#ef4444'}">${isDep?'+':'-'}₹${tx.amount}</strong><br>
-                            <span style="font-size:11px; background:${tx.status==='pending'?'orange':(tx.status==='approved'?'green':'red')}; color:white; padding:2px 6px; border-radius:10px;">${tx.status.toUpperCase()}</span>
-                        </div>
-                    </div>`;
-                });
-            } else {
-                list.innerHTML = '<div class="text-center" style="color:#9ca3af;">No history</div>';
-            }
-        }
-
-        document.getElementById('addMoneyAmountForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const amount = document.getElementById('depositAmount').value;
-            if (amount < 100) return alert('Min ₹100 required');
-            pendingDepositAmount = amount;
-            
-            const upiId = "6395503566@upi";
-            const upiUrl = `upi://pay?pa=${upiId}&pn=SolarEnergy&am=${amount}&cu=INR`;
-            
-            document.getElementById('addMoneyAmountSection').classList.add('hidden');
-            document.getElementById('upiPaymentSection').classList.remove('hidden');
-            document.getElementById('upiDisplayAmount').textContent = '₹' + amount;
-            
-            window.location.href = upiUrl; 
-        });
-
+        // Deposit Submit
         document.getElementById('depositSubmitForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const txn = document.getElementById('transactionId').value.trim();
             if(!txn || txn.length < 10) return alert("Please enter valid 12-digit UTR!");
             
-            const btn = e.target.querySelector('button');
-            btn.innerHTML = "🔄 Sending Request..."; btn.disabled = true;
+            const btn = e.target.querySelector('button'); btn.innerHTML = "🔄 Sending Request..."; btn.disabled = true;
 
-            const dep = {
-                id: 'DEP'+Date.now(), userId: currentUser.id, userPhone: currentUser.phone,
-                amount: parseInt(pendingDepositAmount), transactionId: txn, status: 'pending', requestedAt: new Date().toISOString()
-            };
+            const dep = { id: 'DEP'+Date.now(), userId: currentUser.id, userPhone: currentUser.phone, amount: parseInt(pendingDepositAmount), transactionId: txn, status: 'pending', requestedAt: new Date().toISOString() };
 
-            await ServerDB.runTransaction(async (db) => {
-                db.pendingDeposits.push(dep);
-            });
-
-            alert("✅ Deposit request sent to Admin!");
-            document.getElementById('depositSubmitForm').reset();
+            const success = await ServerDB.runTransaction(async (db) => { db.pendingDeposits.push(dep); return true; });
+            if(success) { alert("✅ Deposit request sent to Admin!"); document.getElementById('depositSubmitForm').reset(); document.getElementById('upiPaymentSection').classList.add('hidden'); document.getElementById('addMoneyAmountSection').classList.remove('hidden'); showPage('wallet'); }
             btn.innerHTML = "✅ Submit for Verification"; btn.disabled = false;
-            backToAmount();
-            showPage('wallet');
         });
 
-        function backToAmount() {
-            document.getElementById('upiPaymentSection').classList.add('hidden');
-            document.getElementById('addMoneyAmountSection').classList.remove('hidden');
-        }
-
+        // Withdraw Submit
         document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const amt = parseInt(document.getElementById('withdrawAmount').value);
-            const met = document.getElementById('withdrawMethod').value;
-            if(amt < 200) return alert("Min ₹200 withdrawal allowed");
-            if(currentUser.wallet.mainBalance < amt) return alert("Insufficient balance");
+            e.preventDefault(); const amt = parseInt(document.getElementById('withdrawAmount').value); const met = document.getElementById('withdrawMethod').value;
+            if(amt < 200) return alert("Min ₹200 withdrawal allowed"); if(currentUser.wallet.mainBalance < amt) return alert("Insufficient balance");
             
-            const btn = e.target.querySelector('button');
-            btn.innerHTML = "🔄 Processing..."; btn.disabled = true;
-
+            const btn = e.target.querySelector('button'); btn.innerHTML = "🔄 Processing..."; btn.disabled = true;
             const req = { id: 'WID'+Date.now(), userId: currentUser.id, amount: amt, method: met, status: 'pending', requestedAt: new Date().toISOString()};
             
             const success = await ServerDB.runTransaction(async (db) => {
                 let u = db.solarUsers.find(x => x.id === currentUser.id);
-                if(u.wallet.mainBalance >= amt) {
-                    u.wallet.mainBalance -= amt;
-                    u.wallet.totalWithdrawn += amt;
-                    db.pendingWithdrawals.push(req);
-                    currentUser = u; localStorage.setItem('currentUser', JSON.stringify(u));
-                } else {
-                    alert("Server error: Low Balance.");
-                }
+                if(u.wallet.mainBalance >= amt) { u.wallet.mainBalance -= amt; u.wallet.totalWithdrawn += amt; db.pendingWithdrawals.push(req); return true; }
+                return false;
             });
 
-            if(success) { alert("✅ Withdrawal request submitted!"); document.getElementById('withdrawForm').reset(); loadWallet(); }
+            if(success) { 
+                const data = await ServerDB.get(); const u = data.db.solarUsers.find(x => x.id === currentUser.id); currentUser = u; localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                alert("✅ Withdrawal request submitted!"); document.getElementById('withdrawForm').reset(); loadWallet(); 
+            } else { alert("❌ Failed to Submit!"); }
             btn.innerHTML = "Submit Withdrawal"; btn.disabled = false;
         });
 
-        // ==========================================
-        // REFERRAL & SUPPORT
-        // ==========================================
+        // Support Submit
+        document.getElementById('supportForm').addEventListener('submit', async (e) => {
+            e.preventDefault(); const subj = document.getElementById('supportSubject').value; const msg = document.getElementById('supportMessage').value;
+            const btn = e.target.querySelector('button'); btn.innerHTML = "🔄 Submitting..."; btn.disabled = true;
+
+            const success = await ServerDB.runTransaction(async (db) => {
+                db.tickets.push({ id: 'TKT'+Date.now(), userId: currentUser.id, phone: currentUser.phone, subject: subj, message: msg, status: 'Open', date: new Date().toISOString() });
+                return true;
+            });
+
+            if(success){ alert('✅ Ticket Submitted successfully!'); e.target.reset(); loadSupport(); }
+            btn.innerHTML = "🚀 Submit Ticket"; btn.disabled = false; 
+        });
+
+        // Load History
+        async function loadWallet() {
+            document.getElementById('walletBalance').textContent = '₹' + currentUser.wallet.mainBalance;
+            const data = await ServerDB.get(); if(!data) return;
+            const wids = data.db.pendingWithdrawals.filter(x => x.userId === currentUser.id); const deps = data.db.pendingDeposits.filter(x => x.userId === currentUser.id);
+            const list = document.getElementById('walletTransactions'); list.innerHTML='';
+            const allTx =[...deps, ...wids].sort((a,b)=>new Date(b.requestedAt)-new Date(a.requestedAt));
+            if(allTx.length > 0) {
+                allTx.forEach(tx => { const isDep = tx.id.startsWith('DEP');
+                    list.innerHTML += `<div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;"><div><strong>${isDep?'Deposit':'Withdrawal'}</strong><br><small>${new Date(tx.requestedAt).toLocaleDateString()}</small></div><div style="text-align:right"><strong style="color:${isDep?'#11998e':'#ef4444'}">${isDep?'+':'-'}₹${tx.amount}</strong><br><span style="font-size:11px; background:${tx.status==='pending'?'#f59e0b':(tx.status==='approved'?'#22c55e':'#ef4444')}; color:white; padding:2px 8px; border-radius:10px; font-weight:bold;">${tx.status.toUpperCase()}</span></div></div>`;
+                });
+            } else { list.innerHTML = '<div class="text-center" style="color:#9ca3af;">No history</div>'; }
+        }
+
         async function loadReferral() {
-            const link = window.location.origin + window.location.pathname + '?ref=' + currentUser.referralCode;
-            document.getElementById('referralLinkDisplay').textContent = link;
-            
-            const data = await ServerDB.get();
-            if(!data) return;
+            const link = window.location.origin + window.location.pathname + '?ref=' + currentUser.referralCode; document.getElementById('referralLinkDisplay').textContent = link;
+            const data = await ServerDB.get(); if(!data) return;
             const actUsers = data.db.solarUsers.filter(u => currentUser.referrals.list.includes(u.id));
-            
             const rbox = document.getElementById('referralsList');
             if(actUsers.length > 0) {
                 rbox.innerHTML = '';
-                actUsers.forEach(u => {
-                    rbox.innerHTML += `<div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">
-                        <div><strong>${u.name}</strong><br><small>Joined ${new Date(u.joinDate).toLocaleDateString()}</small></div>
-                        <div style="color:#11998e; font-weight:bold;">₹15</div>
-                    </div>`;
-                });
-            } else {
-                rbox.innerHTML = '<div class="text-center" style="color: #9ca3af;">No referrals yet</div>';
-            }
+                actUsers.forEach(u => { rbox.innerHTML += `<div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;"><div><strong>${u.name}</strong><br><small>Joined ${new Date(u.joinDate).toLocaleDateString()}</small></div><div style="color:#11998e; font-weight:bold;">₹15 Earned</div></div>`; });
+            } else { rbox.innerHTML = '<div class="text-center" style="color: #9ca3af;">No referrals yet</div>'; }
         }
-
-        function copyReferralLink() {
-            navigator.clipboard.writeText(document.getElementById('referralLinkDisplay').textContent);
-            alert("✅ Link Copied!");
-        }
-
-        document.getElementById('supportForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const subj = document.getElementById('supportSubject').value;
-            const msg = document.getElementById('supportMessage').value;
-            
-            const btn = e.target.querySelector('button');
-            btn.innerHTML = "🔄 Submitting..."; btn.disabled = true;
-
-            await ServerDB.runTransaction(async (db) => {
-                db.tickets.push({
-                    id: 'TKT'+Date.now(), userId: currentUser.id, phone: currentUser.phone,
-                    subject: subj, message: msg, status: 'Open', date: new Date().toISOString()
-                });
-            });
-
-            alert('✅ Ticket Submitted successfully!');
-            e.target.reset(); btn.innerHTML = "🚀 Submit Ticket"; btn.disabled = false; loadSupport();
-        });
 
         async function loadSupport() {
-            const data = await ServerDB.get();
-            if(!data) return;
-            const mytix = data.db.tickets.filter(t => t.userId === currentUser.id).reverse();
-            const box = document.getElementById('myTicketsList');
+            const data = await ServerDB.get(); if(!data) return;
+            const mytix = data.db.tickets.filter(t => t.userId === currentUser.id).reverse(); const box = document.getElementById('myTicketsList');
             if(mytix.length > 0) {
                 box.innerHTML = '';
-                mytix.forEach(t => {
-                    box.innerHTML += `<div style="padding:15px; border:1px solid #eee; border-radius:10px; margin-bottom:10px;">
-                        <div style="display:flex; justify-content:space-between;"><strong>${t.subject}</strong> <span style="font-size:12px; font-weight:bold; color:${t.status==='Resolved'?'green':'orange'}">${t.status}</span></div>
-                        <p style="font-size:13px; color:#666; margin-top:5px;">${t.message}</p>
-                    </div>`;
-                });
-            } else { 
-                box.innerHTML = '<div class="text-center" style="color:#9ca3af;">No tickets</div>'; 
-            }
+                mytix.forEach(t => { box.innerHTML += `<div style="padding:15px; border:1px solid #eee; border-radius:10px; margin-bottom:10px;"><div style="display:flex; justify-content:space-between;"><strong>${t.subject}</strong> <span style="font-size:12px; font-weight:bold; color:${t.status==='Resolved'?'green':'#f59e0b'}">${t.status}</span></div><p style="font-size:13px; color:#666; margin-top:5px;">${t.message}</p></div>`; });
+            } else { box.innerHTML = '<div class="text-center" style="color:#9ca3af;">No tickets</div>'; }
         }
 
-        function logout() { 
-            localStorage.removeItem('currentUser'); 
-            location.reload(); 
-        }
+        function logout() { localStorage.removeItem('currentUser'); location.reload(); }
     </script>
 </body>
 </html>
