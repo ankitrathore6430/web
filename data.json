@@ -92,5 +92,30 @@
       "adminReply": null,
       "createdAt": "2026-03-26T18:27:48.002Z"
     }
-  ]
+  ],
+  "solarUsers": {
+    "ankitrathore6430@gmail.com": {
+      "id": "SOLAR1774612774771",
+      "name": "Ankit Rathore",
+      "email": "ankitrathore6430@gmail.com",
+      "phone": "6395503566",
+      "referralCode": "ANK7243",
+      "referredBy": "ADMIN",
+      "joinDate": "2026-03-27T11:59:34.771Z",
+      "wallet": {
+        "mainBalance": 0,
+        "totalWithdrawn": 0
+      },
+      "referrals": {
+        "count": 0,
+        "list": [],
+        "earnings": 0
+      },
+      "activePlans": [],
+      "status": "active"
+    }
+  },
+  "pendingDeposits": [],
+  "pendingWithdrawals": [],
+  "tickets": []
 }
