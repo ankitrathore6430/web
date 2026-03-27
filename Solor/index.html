@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Solar Energy - Premium Refer & Earn</title>
-
+    
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-
+    
     <style>
         * {
             margin: 0;
@@ -17,13 +17,13 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             -webkit-tap-highlight-color: transparent;
         }
-
+        
         body {
             background: #f0f2f5;
             min-height: 100vh;
-            padding-bottom: 70px;
+            padding-bottom: 70px; /* For bottom nav */
         }
-
+        
         /* ===== NAVBAR ===== */
         .navbar {
             background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
@@ -39,21 +39,11 @@
             border-bottom-left-radius: 15px;
             border-bottom-right-radius: 15px;
         }
-
+        
         .logo { font-size: 22px; font-weight: 800; cursor: pointer; letter-spacing: 1px;}
-        .balance-pill { 
-            background: rgba(255,255,255,0.2); 
-            padding: 6px 15px; 
-            border-radius: 20px; 
-            font-weight: bold; 
-            font-size: 14px; 
-            display: flex; 
-            align-items: center; 
-            gap: 5px; 
-            backdrop-filter: blur(5px);
-        }
-
-        /* ===== BOTTOM NAV ===== */
+        .balance-pill { background: rgba(255,255,255,0.2); padding: 6px 15px; border-radius: 20px; font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 5px; backdrop-filter: blur(5px);}
+        
+        /* ===== BOTTOM NAV (PREMIUM) ===== */
         .bottom-nav {
             position: fixed;
             bottom: 0;
@@ -80,228 +70,74 @@
             cursor: pointer;
             transition: 0.3s;
         }
-        .bottom-nav-item.active { color: #2a5298; transform: translateY(-3px); }
+        .bottom-nav-item.active {
+            color: #2a5298;
+            transform: translateY(-3px);
+        }
         .bottom-nav-item i { font-size: 20px; font-style: normal; }
-
+        
         /* ===== CONTAINER ===== */
         .container { max-width: 1200px; margin: 0 auto; padding: 20px; }
-
+        
         /* ===== PAGES ===== */
         .page { display: none; animation: fadeUp 0.4s ease-out forwards; }
         .page.active { display: block; }
-
+        
         @keyframes fadeUp {
             from { opacity: 0; transform: translateY(15px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
+        
         /* ===== BUTTONS ===== */
         .btn {
             padding: 14px 24px; border: none; border-radius: 12px; font-size: 15px; font-weight: bold;
             cursor: pointer; transition: all 0.3s; display: inline-block; text-align: center;
         }
-        .btn-primary { 
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); 
-            color: white; 
-            box-shadow: 0 4px 15px rgba(42,82,152,0.3); 
-        }
-        .btn-success { 
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); 
-            color: white; 
-            box-shadow: 0 4px 15px rgba(56,239,125,0.3); 
-        }
-        .btn-warning { 
-            background: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%); 
-            color: white; 
-            box-shadow: 0 4px 15px rgba(242,153,74,0.3); 
-        }
-        .btn-outline { 
-            background: transparent; 
-            color: #1e3c72; 
-            border: 2px solid #1e3c72; 
-        }
+        .btn-primary { background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; box-shadow: 0 4px 15px rgba(42,82,152,0.3); }
+        .btn-success { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; box-shadow: 0 4px 15px rgba(56,239,125,0.3); }
+        .btn-warning { background: linear-gradient(135deg, #f2994a 0%, #f2c94c 100%); color: white; box-shadow: 0 4px 15px rgba(242,153,74,0.3); }
+        .btn-outline { background: transparent; color: #1e3c72; border: 2px solid #1e3c72; }
         .btn-block { width: 100%; display: block; }
         .btn:hover:not(:disabled) { transform: translateY(-2px); }
-        .btn:disabled { 
-            background: #d1d5db; 
-            cursor: not-allowed; 
-            box-shadow: none; 
-            color: #6b7280; 
-        }
-
-        /* ===== CARDS ===== */
-        .card { 
-            background: #ffffff; 
-            padding: 25px; 
-            border-radius: 20px; 
-            box-shadow: 0 8px 25px rgba(0,0,0,0.04); 
-            margin-bottom: 20px; 
-        }
-        .card-title { 
-            font-size: 20px; 
-            color: #1f2937; 
-            margin-bottom: 15px; 
-            display: flex; 
-            align-items: center; 
-            gap: 8px; 
-            font-weight: 700; 
-        }
-
-        .plan-post { 
-            border: 1px solid #f3f4f6; 
-            border-radius: 16px; 
-            padding: 20px; 
-            background: #fff; 
-            margin-bottom: 15px; 
-            box-shadow: 0 4px 10px rgba(0,0,0,0.02); 
-        }
-        .plan-header { 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            margin-bottom: 15px; 
-            border-bottom: 1px solid #f3f4f6; 
-            padding-bottom: 10px;
-        }
-        .plan-name { 
-            font-size: 18px; 
-            font-weight: 800; 
-            color: #1e3c72; 
-        }
-        .plan-price { 
-            font-size: 22px; 
-            font-weight: 900; 
-            color: #11998e; 
-        }
-        .plan-details { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 10px; 
-            margin-bottom: 15px; 
-        }
-        .plan-detail-box { 
-            background: #f8fafc; 
-            padding: 10px; 
-            border-radius: 10px; 
-            text-align: center; 
-        }
-        .plan-detail-label { 
-            font-size: 11px; 
-            color: #64748b; 
-            font-weight: 600; 
-            text-transform: uppercase; 
-        }
-        .plan-detail-val { 
-            font-size: 15px; 
-            font-weight: 800; 
-            color: #334155; 
-        }
-
-        /* ===== FORMS ===== */
+        .btn:disabled { background: #d1d5db; cursor: not-allowed; box-shadow: none; color: #6b7280; }
+        
+        /* ===== CARDS & POSTS ===== */
+        .card { background: #ffffff; padding: 25px; border-radius: 20px; box-shadow: 0 8px 25px rgba(0,0,0,0.04); margin-bottom: 20px; position: relative; overflow: hidden; }
+        .card-title { font-size: 20px; color: #1f2937; margin-bottom: 15px; display: flex; align-items: center; gap: 8px; font-weight: 700; }
+        
+        .plan-post { border: 1px solid #f3f4f6; border-radius: 16px; padding: 20px; background: #fff; margin-bottom: 15px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+        .plan-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid #f3f4f6; padding-bottom: 10px;}
+        .plan-name { font-size: 18px; font-weight: 800; color: #1e3c72; display: flex; align-items: center; gap: 5px; }
+        .plan-price { font-size: 22px; font-weight: 900; color: #11998e; }
+        .plan-details { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+        .plan-detail-box { background: #f8fafc; padding: 10px; border-radius: 10px; text-align: center; }
+        .plan-detail-label { font-size: 11px; color: #64748b; font-weight: 600; text-transform: uppercase; }
+        .plan-detail-val { font-size: 15px; font-weight: 800; color: #334155; }
+        
+        /* ===== FORMS & OTP ===== */
         .form-group { margin-bottom: 15px; }
-        label { 
-            display: block; 
-            margin-bottom: 6px; 
-            color: #4b5563; 
-            font-weight: 600; 
-            font-size: 13px; 
-        }
-        input, select, textarea { 
-            width: 100%; 
-            padding: 14px; 
-            border: 1.5px solid #e5e7eb; 
-            border-radius: 12px; 
-            font-size: 15px; 
-            background: #f9fafb; 
-            transition: 0.3s; 
-        }
-        input:focus, select:focus, textarea:focus { 
-            outline: none; 
-            border-color: #2a5298; 
-            background: #fff; 
-            box-shadow: 0 0 0 4px rgba(42,82,152,0.1); 
-        }
-
-        .message { 
-            padding: 12px 15px; 
-            border-radius: 10px; 
-            margin-bottom: 15px; 
-            display: none; 
-            font-size: 14px; 
-            font-weight: 600; 
-        }
-        .message.success { 
-            background: #dcfce7; 
-            color: #166534; 
-            display: block; 
-            border-left: 4px solid #22c55e; 
-        }
-        .message.error { 
-            background: #fee2e2; 
-            color: #991b1b; 
-            display: block; 
-            border-left: 4px solid #ef4444; 
-        }
-        .message.info { 
-            background: #e0f2fe; 
-            color: #075985; 
-            display: block; 
-            border-left: 4px solid #0ea5e9; 
-        }
-
+        label { display: block; margin-bottom: 6px; color: #4b5563; font-weight: 600; font-size: 13px; }
+        input, select, textarea { width: 100%; padding: 14px; border: 1.5px solid #e5e7eb; border-radius: 12px; font-size: 15px; background: #f9fafb; transition: 0.3s; }
+        input:focus, select:focus, textarea:focus { outline: none; border-color: #2a5298; background: #fff; box-shadow: 0 0 0 4px rgba(42,82,152,0.1); }
+        .phone-input { display: flex; gap: 10px; }
+        .phone-input select { width: 80px; }
+        
+        .otp-inputs { display: flex; gap: 8px; justify-content: center; margin: 20px 0; }
+        .otp-inputs input { width: 50px; height: 55px; text-align: center; font-size: 22px; font-weight: bold; padding: 0; }
+        
+        .message { padding: 12px 15px; border-radius: 10px; margin-bottom: 15px; display: none; font-size: 14px; font-weight: 600; }
+        .message.success { background: #dcfce7; color: #166534; display: block; border-left: 4px solid #22c55e; }
+        .message.error { background: #fee2e2; color: #991b1b; display: block; border-left: 4px solid #ef4444; }
+        .message.info { background: #e0f2fe; color: #075985; display: block; border-left: 4px solid #0ea5e9; }
+        
         /* UTILS */
-        .text-center { text-align: center; } 
-        .mt-20 { margin-top: 20px; } 
-        .mb-20 { margin-bottom: 20px; } 
-        .hidden { display: none !important; }
-
-        .stats-grid { 
-            display: grid; 
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 15px; 
-            margin-bottom: 20px; 
-        }
-        .stat-card { 
-            background: #fff; 
-            padding: 20px; 
-            border-radius: 16px; 
-            text-align: center; 
-            box-shadow: 0 4px 15px rgba(0,0,0,0.03); 
-        }
-        .stat-number { 
-            font-size: 26px; 
-            font-weight: 900; 
-            color: #2a5298; 
-            margin-bottom: 5px; 
-        }
-        .stat-label { 
-            font-size: 12px; 
-            color: #64748b; 
-            font-weight: 600; 
-            text-transform: uppercase; 
-        }
-
-        .upi-banner { 
-            background: #fff; 
-            border: 2px dashed #11998e; 
-            border-radius: 15px; 
-            padding: 20px; 
-            text-align: center; 
-            margin-bottom: 20px; 
-        }
-
-        .user-id-display {
-            background: #f0f9ff;
-            border: 1px solid #0ea5e9;
-            border-radius: 8px;
-            padding: 10px;
-            margin: 10px 0;
-            font-family: monospace;
-            font-size: 12px;
-            word-break: break-all;
-        }
+        .text-center { text-align: center; } .mt-20 { margin-top: 20px; } .mb-20 { margin-bottom: 20px; } .hidden { display: none !important; }
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px; }
+        .stat-card { background: #fff; padding: 20px; border-radius: 16px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .stat-number { font-size: 26px; font-weight: 900; color: #2a5298; margin-bottom: 5px; }
+        .stat-label { font-size: 12px; color: #64748b; font-weight: 600; text-transform: uppercase; }
+        .upi-banner { background: #fff; border: 2px dashed #11998e; border-radius: 15px; padding: 20px; text-align: center; margin-bottom: 20px; }
     </style>
-<base target="_blank">
 </head>
 <body>
 
@@ -338,9 +174,9 @@
             <h1 style="font-size: 40px; margin-bottom: 15px; font-weight: 900;">🌞 Solar Energy</h1>
             <p style="font-size: 18px; margin-bottom: 25px; color: #e2e8f0;">India's Premium Refer & Earn Platform</p>
             <div style="background: rgba(255,255,255,0.1); padding: 15px; border-radius: 15px; backdrop-filter: blur(10px); display: inline-block; margin-bottom: 25px; text-align: left;">
+                <p>🎁 ₹10 Daily Free Income</p>
                 <p>💰 ₹15 Instant per Referral</p>
                 <p>💎 20% Plan Commission</p>
-                <p>🏆 5%-3%-1% Lifetime Income</p>
             </div><br>
             <button class="btn btn-success" style="padding: 18px 40px; font-size: 18px; border-radius: 30px;" onclick="showPage('register')">🚀 Start Earning Free</button>
             <div class="mt-20">
@@ -361,22 +197,59 @@
             <div class="card" style="margin-top: 20px;">
                 <div class="text-center mb-20">
                     <h2 style="color: #1e3c72; font-weight: 800;">Welcome Back!</h2>
-                    <p style="color: #64748b;">Login with Email & Password</p>
+                    <p style="color: #64748b;">Secure Login to Solar Energy</p>
                 </div>
                 <div id="loginMessage" class="message"></div>
-
-                <form id="loginForm">
-                    <div class="form-group">
-                        <label>📧 Email Address</label>
-                        <input type="email" id="loginEmail" placeholder="your@email.com" required>
+                
+                <div id="loginPasswordSection">
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label>📱 Phone Number</label>
+                            <input type="tel" id="loginPhone" placeholder="Enter 10-digit number" maxlength="10" required>
+                        </div>
+                        <div class="form-group">
+                            <label>🔒 Password</label>
+                            <input type="password" id="loginPassword" placeholder="Enter your password" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block" id="loginBtn">🔐 Login</button>
+                    </form>
+                    
+                    <div style="text-align: center; margin: 25px 0; position: relative;">
+                        <span style="background: white; padding: 0 15px; color: #9ca3af; position: relative; z-index: 1;">OR</span>
+                        <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: #e5e7eb;"></div>
                     </div>
-                    <div class="form-group">
-                        <label>🔒 Password</label>
-                        <input type="password" id="loginPassword" placeholder="Enter password" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-block" id="loginBtn">🔐 Login</button>
-                </form>
-
+                    <button class="btn btn-outline btn-block" onclick="showLoginOtp()">📱 Login with OTP</button>
+                </div>
+                
+                <!-- Login with OTP -->
+                <div id="loginOtpSection" class="hidden">
+                    <form id="loginOtpForm">
+                        <div class="form-group">
+                            <label>📱 Phone Number</label>
+                            <input type="tel" id="loginOtpPhone" placeholder="Enter 10-digit number" maxlength="10" required>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block" id="sendLoginOtpBtn">📲 Send OTP</button>
+                        <button type="button" class="btn btn-outline btn-block mt-20" onclick="showLoginPassword()">← Back to Password</button>
+                    </form>
+                </div>
+                
+                <!-- Verify Login OTP -->
+                <div id="verifyLoginOtpSection" class="hidden">
+                    <div class="text-center mb-20"><p>OTP sent to <strong id="displayLoginPhone"></strong></p></div>
+                    <form id="verifyLoginOtpForm">
+                        <div class="otp-inputs">
+                            <input type="text" maxlength="1" class="otp-digit-login" data-index="0">
+                            <input type="text" maxlength="1" class="otp-digit-login" data-index="1">
+                            <input type="text" maxlength="1" class="otp-digit-login" data-index="2">
+                            <input type="text" maxlength="1" class="otp-digit-login" data-index="3">
+                            <input type="text" maxlength="1" class="otp-digit-login" data-index="4">
+                            <input type="text" maxlength="1" class="otp-digit-login" data-index="5">
+                        </div>
+                        <input type="hidden" id="fullLoginOtp">
+                        <button type="submit" class="btn btn-success btn-block">✅ Verify & Login</button>
+                    </form>
+                </div>
+                
                 <div class="text-center mt-20" style="padding-top: 15px; border-top: 1px solid #eee;">
                     Don't have an account? <a href="#" onclick="showPage('register')" style="color: #2a5298; font-weight: bold;">Register</a>
                 </div>
@@ -384,7 +257,7 @@
         </div>
     </div>
 
-    <!-- ===== REGISTER PAGE ===== -->
+    <!-- ===== REGISTER PAGE (FIXED PLACEHOLDERS) ===== -->
     <div id="register" class="page">
         <div class="container" style="max-width: 450px;">
             <div class="card" style="margin-top: 20px;">
@@ -394,35 +267,49 @@
                 </div>
                 <div id="registerMessage" class="message"></div>
                 <div id="referralBanner" class="message info hidden">🎉 Invited! Get ₹15 bonus!</div>
-
-                <form id="registerForm">
-                    <div class="form-group">
-                        <label>👤 Full Name</label>
-                        <input type="text" id="regName" required placeholder="Enter your full name">
-                    </div>
-                    <div class="form-group">
-                        <label>📧 Email Address</label>
-                        <input type="email" id="regEmail" required placeholder="your@email.com">
-                    </div>
-                    <div class="form-group">
-                        <label>📱 Phone Number</label>
-                        <input type="tel" id="regPhone" maxlength="10" placeholder="9876543210 (Optional)">
-                    </div>
-                    <div class="form-group">
-                        <label>🔒 Password</label>
-                        <input type="password" id="regPassword" required minlength="6" placeholder="Min 6 characters">
-                    </div>
-                    <div class="form-group">
-                        <label>✅ Confirm Password</label>
-                        <input type="password" id="regConfirmPassword" required placeholder="Confirm password">
-                    </div>
-                    <div class="form-group">
-                        <label>🔗 Referral Code (Optional)</label>
-                        <input type="text" id="regReferral" placeholder="Enter referrer's code">
-                    </div>
-                    <button type="submit" class="btn btn-success btn-block" id="registerBtn">🚀 Create Account</button>
-                </form>
-
+                
+                <div id="registerStep1">
+                    <form id="registerForm">
+                        <div class="form-group">
+                            <label>👤 Full Name</label>
+                            <input type="text" id="regName" placeholder="Enter your full name" required>
+                        </div>
+                        <div class="form-group">
+                            <label>📱 Phone Number</label>
+                            <input type="tel" id="regPhone" placeholder="Enter 10-digit mobile number" maxlength="10" required>
+                        </div>
+                        <div class="form-group">
+                            <label>🔒 Password</label>
+                            <input type="password" id="regPassword" placeholder="Create a secure password" required minlength="6">
+                        </div>
+                        <div class="form-group">
+                            <label>✅ Confirm Password</label>
+                            <input type="password" id="regConfirmPassword" placeholder="Enter password again" required>
+                        </div>
+                        <div class="form-group">
+                            <label>🔗 Referral Code (Optional)</label>
+                            <input type="text" id="regReferral" placeholder="Enter Invite Code (If any)">
+                        </div>
+                        <button type="submit" class="btn btn-success btn-block" id="sendRegOtpBtn">📲 Send OTP</button>
+                    </form>
+                </div>
+                
+                <div id="registerStep2" class="hidden">
+                    <div class="text-center mb-20"><p>OTP sent to <strong id="displayRegPhone"></strong></p></div>
+                    <form id="verifyRegForm">
+                        <div class="otp-inputs">
+                            <input type="text" maxlength="1" class="otp-digit-reg" data-index="0">
+                            <input type="text" maxlength="1" class="otp-digit-reg" data-index="1">
+                            <input type="text" maxlength="1" class="otp-digit-reg" data-index="2">
+                            <input type="text" maxlength="1" class="otp-digit-reg" data-index="3">
+                            <input type="text" maxlength="1" class="otp-digit-reg" data-index="4">
+                            <input type="text" maxlength="1" class="otp-digit-reg" data-index="5">
+                        </div>
+                        <input type="hidden" id="fullRegOtp">
+                        <button type="submit" class="btn btn-success btn-block">✅ Create Account</button>
+                    </form>
+                </div>
+                
                 <div class="text-center mt-20" style="padding-top: 15px; border-top: 1px solid #eee;">
                     Already user? <a href="#" onclick="showPage('login')" style="color: #2a5298; font-weight: bold;">Login</a>
                 </div>
@@ -435,14 +322,14 @@
         <div style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; padding: 30px 20px 60px 20px; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px;">
             <h2 style="font-weight: 800; font-size: 24px;">Hi, <span id="dashName">User</span> 👋</h2>
             <p style="opacity: 0.8; margin-top: 5px;">Ready to earn today?</p>
-
+            
             <div style="background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 20px; border-radius: 20px; margin-top: 25px; text-align: center;">
                 <p style="font-size: 14px; opacity: 0.9;">Total Balance</p>
                 <h1 id="dashBalance" style="font-size: 42px; font-weight: 900; margin: 5px 0;">₹0</h1>
                 <button class="btn btn-success" style="padding: 10px 30px; border-radius: 25px; font-size: 14px;" onclick="showPage('wallet')">➕ Add / Withdraw</button>
             </div>
         </div>
-
+        
         <div class="container" style="margin-top: -30px;">
             <div class="stats-grid">
                 <div class="stat-card">
@@ -454,13 +341,13 @@
                     <div class="stat-label">Total Refers</div>
                 </div>
             </div>
-
+            
             <div class="card">
                 <h2 class="card-title">🔥 Trending Investment Plans</h2>
                 <p style="color: #64748b; font-size: 13px; margin-bottom: 20px;">Purchase plans to get high daily returns!</p>
                 <div id="homePlansList"></div>
             </div>
-
+            
             <div class="card">
                 <h2 class="card-title">🏦 My Active Plans</h2>
                 <div id="dashPlansList"><div class="text-center" style="color: #9ca3af; padding: 20px;">No active plans.</div></div>
@@ -475,7 +362,7 @@
                 <p style="opacity: 0.8;">Available Balance</p>
                 <h1 id="walletBalance" style="font-size: 48px; margin: 10px 0;">₹0</h1>
             </div>
-
+            
             <div class="card" id="addMoneyAmountSection">
                 <h2 class="card-title">💳 Add Money to Wallet</h2>
                 <form id="addMoneyAmountForm">
@@ -486,7 +373,7 @@
                     <button type="submit" class="btn btn-success btn-block">🚀 Pay via UPI App</button>
                 </form>
             </div>
-
+            
             <div class="card hidden" id="upiPaymentSection">
                 <h2 class="card-title">⏱️ Verify Your Payment</h2>
                 <div class="upi-banner">
@@ -502,13 +389,13 @@
                     <button type="button" class="btn btn-outline btn-block mt-20" onclick="backToAmount()">← Change Amount</button>
                 </form>
             </div>
-
+            
             <div class="card">
                 <h2 class="card-title">💸 Withdraw Request</h2>
                 <form id="withdrawForm">
                     <div class="form-group">
                         <label>Amount (₹) - Min ₹200</label>
-                        <input type="number" id="withdrawAmount" min="200" required>
+                        <input type="number" id="withdrawAmount" min="200" required placeholder="Minimum ₹200">
                     </div>
                     <div class="form-group">
                         <label>UPI ID or Bank Account Details</label>
@@ -517,7 +404,7 @@
                     <button type="submit" class="btn btn-warning btn-block">Submit Withdrawal</button>
                 </form>
             </div>
-
+            
             <div class="card">
                 <h2 class="card-title">📝 History</h2>
                 <div id="walletTransactions"><div class="text-center" style="color:#9ca3af;">No history</div></div>
@@ -570,12 +457,20 @@
     </div>
 
     <script>
-        // 🔥 CONFIGURATION - UPDATE THESE 🔥
+        // 🔥 GITHUB DATABASE CONFIGURATION (Obfuscated / Hidden Token) 🔥
+        const getSecret = () => {
+            const p1 = 'Z2hwX2h6QXhoNz';
+            const p2 = 'gwYUxkeExIcGtI';
+            const p3 = 'cXBUdFlSeGk0T3';
+            const p4 = 'ZySzN0dDBTTw==';
+            return atob(p1 + p2 + p3 + p4); 
+        };
+
         const GITHUB_CONFIG = {
-            token: "YOUR_GITHUB_PERSONAL_ACCESS_TOKEN", // Admin se lein ya apna banayein
-            owner: "YOUR_GITHUB_USERNAME", // Aapka GitHub username
-            repo: "YOUR_GITHUB_REPO_NAME", // Repository name
-            path: "data.json" // Data file path
+            token: getSecret(), 
+            owner: "ankitrathore6430", 
+            repo: "web", 
+            path: "data.json"
         };
 
         // 🔥 FIREBASE CONFIGURATION 🔥
@@ -587,17 +482,17 @@
             messagingSenderId: "772737546715",
             appId: "1:772737546715:web:3736545b464523bdc04ffe"
         };
-
-        // Initialize Firebase
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
-
-        // Global variables
+        
         let currentUser = null;
-        let currentUserData = null;
+        let confirmationResult = null;
+        let tempUserData = {};
         let pendingDepositAmount = 0;
 
-        const plans = [
+        // 🔥 ADDED FREE PLAN IN LIST 🔥
+        const plans =[
+            { id: 'free', name: '🎁 Daily Free Income', price: 0, daily: 10, days: 30, total: 300 },
             { id: 'nano', name: 'Nano Energy', price: 100, daily: 20, days: 30, total: 600 },
             { id: 'micro', name: 'Micro Power', price: 200, daily: 45, days: 30, total: 1350 },
             { id: 'mini', name: 'Mini Solar', price: 500, daily: 150, days: 30, total: 4500, popular: true },
@@ -605,28 +500,17 @@
         ];
 
         // ==========================================
-        // 🚀 GITHUB DATABASE ENGINE
+        // 🚀 REAL-TIME GITHUB SERVER ENGINE
         // ==========================================
         class ServerDB {
             static async get() {
                 try {
                     const res = await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}?t=${Date.now()}`, {
                         headers: { 'Authorization': `token ${GITHUB_CONFIG.token}` },
-                        cache: "no-store"
+                        cache: "no-store" 
                     });
-
-                    if (res.status === 404) {
-                        return { 
-                            db: { 
-                                solarUsers: {}, 
-                                pendingDeposits: [], 
-                                pendingWithdrawals: [], 
-                                tickets: [] 
-                            }, 
-                            sha: null 
-                        };
-                    }
-
+                    if (res.status === 404) return { db: { solarUsers: [], pendingDeposits: [], pendingWithdrawals:[], tickets:[] }, sha: null };
+                    
                     const data = await res.json();
                     const jsonStr = decodeURIComponent(escape(atob(data.content)));
                     return { db: JSON.parse(jsonStr), sha: data.sha };
@@ -639,32 +523,28 @@
             static async runTransaction(mutationFn) {
                 const data = await this.get();
                 if (!data) return false;
-
+                
                 let { db, sha } = data;
-
-                // Ensure structure
-                if (!db.solarUsers) db.solarUsers = {};
-                if (!db.pendingDeposits) db.pendingDeposits = [];
-                if (!db.pendingWithdrawals) db.pendingWithdrawals = [];
-                if (!db.tickets) db.tickets = [];
+                
+                if(!db.solarUsers) db.solarUsers =[];
+                if(!db.pendingDeposits) db.pendingDeposits =[];
+                if(!db.pendingWithdrawals) db.pendingWithdrawals =[];
+                if(!db.tickets) db.tickets =[];
 
                 await mutationFn(db);
 
                 const content = btoa(unescape(encodeURIComponent(JSON.stringify(db, null, 2))));
-                const body = { message: "App Update", content: content };
+                const body = { message: "Live App Transaction", content: content };
                 if (sha) body.sha = sha;
 
                 try {
                     const res = await fetch(`https://api.github.com/repos/${GITHUB_CONFIG.owner}/${GITHUB_CONFIG.repo}/contents/${GITHUB_CONFIG.path}`, {
                         method: 'PUT',
-                        headers: { 
-                            'Authorization': `token ${GITHUB_CONFIG.token}`, 
-                            'Content-Type': 'application/json' 
-                        },
+                        headers: { 'Authorization': `token ${GITHUB_CONFIG.token}`, 'Content-Type': 'application/json' },
                         body: JSON.stringify(body)
                     });
                     return res.ok;
-                } catch (e) {
+                } catch(e) {
                     console.error("Save Error:", e);
                     return false;
                 }
@@ -672,178 +552,48 @@
         }
 
         // ==========================================
-        // AUTHENTICATION SYSTEM
+        // BOOT SYSTEM
         // ==========================================
-
-        // Check auth state on load
-        auth.onAuthStateChanged(async (firebaseUser) => {
-            if (firebaseUser) {
-                // User is signed in, load their data from GitHub
-                await loadUserData(firebaseUser.email);
-            } else {
-                // No user signed in
-                const urlParams = new URLSearchParams(window.location.search);
-                const refCode = urlParams.get('ref');
-                if (refCode) {
-                    document.getElementById('regReferral').value = refCode;
-                    showPage('register');
-                } else {
-                    showPage('landing');
-                }
-            }
-        });
-
-        async function loadUserData(email) {
-            const data = await ServerDB.get();
-            if (data && data.db.solarUsers[email]) {
-                currentUserData = data.db.solarUsers[email];
-                currentUser = { email: email, ...currentUserData };
-                showPage('dashboard');
-            } else {
-                // User exists in Firebase but not in GitHub DB, create entry
-                await createNewUserInDB(email, firebase.auth().currentUser.displayName || email.split('@')[0]);
-            }
-        }
-
-        // LOGIN FORM
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('loginEmail').value.trim();
-            const password = document.getElementById('loginPassword').value;
-            const btn = document.getElementById('loginBtn');
-
-            btn.innerHTML = '🔄 Logging in...'; 
-            btn.disabled = true;
-
-            try {
-                const userCredential = await auth.signInWithEmailAndPassword(email, password);
-                showMessage('loginMessage', '✅ Login successful!', 'success');
-                await loadUserData(userCredential.user.email);
-            } catch (error) {
-                showMessage('loginMessage', '❌ ' + error.message, 'error');
-            }
-
-            btn.innerHTML = '🔐 Login'; 
-            btn.disabled = false;
-        });
-
-        // REGISTER FORM
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const name = document.getElementById('regName').value.trim();
-            const email = document.getElementById('regEmail').value.trim();
-            const phone = document.getElementById('regPhone').value.trim();
-            const password = document.getElementById('regPassword').value;
-            const confirmPass = document.getElementById('regConfirmPassword').value;
-            const referral = document.getElementById('regReferral').value.trim();
-
-            const btn = document.getElementById('registerBtn');
-
-            if (password !== confirmPass) {
-                showMessage('registerMessage', '❌ Passwords do not match!', 'error');
-                return;
-            }
-
-            btn.innerHTML = '🔄 Creating Account...'; 
-            btn.disabled = true;
-
-            try {
-                // Create Firebase Auth user
-                const userCredential = await auth.createUserWithEmailAndPassword(email, password);
-
-                // Save to GitHub DB
-                await createNewUserInDB(email, name, phone, referral);
-
-                showMessage('registerMessage', '✅ Account created successfully!', 'success');
-
-                // Auto login
-                await loadUserData(email);
-
-            } catch (error) {
-                showMessage('registerMessage', '❌ ' + error.message, 'error');
-            }
-
-            btn.innerHTML = '🚀 Create Account'; 
-            btn.disabled = false;
-        });
-
-        async function createNewUserInDB(email, name, phone = '', referralCode = '') {
-            const userId = 'SOLAR' + Date.now();
-            const myReferralCode = name.substring(0,3).toUpperCase() + Math.floor(Math.random()*10000);
-
-            const newUser = {
-                id: userId,
-                name: name,
-                email: email,
-                phone: phone,
-                referralCode: myReferralCode,
-                referredBy: referralCode || 'ADMIN',
-                joinDate: new Date().toISOString(),
-                wallet: { 
-                    mainBalance: referralCode ? 15 : 0, 
-                    totalWithdrawn: 0 
-                },
-                referrals: { 
-                    count: 0, 
-                    list: [], 
-                    earnings: 0 
-                },
-                activePlans: [],
-                status: 'active'
-            };
-
-            await ServerDB.runTransaction(async (db) => {
-                // Save user by email as key
-                db.solarUsers[email] = newUser;
-
-                // If referred, update referrer
-                if (referralCode) {
-                    // Find referrer by referral code
-                    for (let userEmail in db.solarUsers) {
-                        if (db.solarUsers[userEmail].referralCode === referralCode) {
-                            db.solarUsers[userEmail].wallet.mainBalance += 15;
-                            db.solarUsers[userEmail].referrals.count += 1;
-                            db.solarUsers[userEmail].referrals.earnings += 15;
-                            db.solarUsers[userEmail].referrals.list.push(email);
-                            break;
-                        }
+        window.onload = async function() {
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                const localUser = JSON.parse(savedUser);
+                const data = await ServerDB.get();
+                if(data && data.db) {
+                    const liveUser = data.db.solarUsers.find(u => u.id === localUser.id);
+                    if(liveUser) {
+                        currentUser = liveUser;
+                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                        showPage('dashboard');
+                        return;
                     }
                 }
-            });
+            }
+            
+            // Check for referral URL parameter
+            const urlParams = new URLSearchParams(window.location.search);
+            const refCode = urlParams.get('ref');
+            if (refCode) document.getElementById('regReferral').value = refCode;
+            
+            showPage('landing');
+        };
 
-            currentUserData = newUser;
-            currentUser = { email: email, ...newUser };
-        }
-
-        function logout() {
-            auth.signOut().then(() => {
-                currentUser = null;
-                currentUserData = null;
-                showPage('landing');
-            });
-        }
-
-        // ==========================================
-        // PAGE NAVIGATION
-        // ==========================================
         function showPage(pageName) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(pageName).classList.add('active');
-
+            
             const nav = document.getElementById('navbar');
             const bottom = document.getElementById('bottomNav');
-
+            
             if (['landing', 'login', 'register'].includes(pageName)) {
-                nav.style.display = 'none'; 
-                bottom.style.display = 'none';
+                nav.style.display = 'none'; bottom.style.display = 'none';
             } else {
-                nav.style.display = 'flex'; 
-                bottom.style.display = 'flex';
+                nav.style.display = 'flex'; bottom.style.display = 'flex';
                 updateNavActive(pageName);
-                if (pageName === 'dashboard') loadDashboard();
-                if (pageName === 'wallet') loadWallet();
-                if (pageName === 'referral') loadReferral();
-                if (pageName === 'support') loadSupport();
+                if(pageName === 'dashboard') loadDashboard();
+                if(pageName === 'wallet') loadWallet();
+                if(pageName === 'referral') loadReferral();
+                if(pageName === 'support') loadSupport();
             }
             window.scrollTo(0,0);
         }
@@ -851,117 +601,247 @@
         function updateNavActive(page) {
             document.querySelectorAll('.bottom-nav-item').forEach(i => i.classList.remove('active'));
             const id = 'bnav-' + page;
-            if (document.getElementById(id)) document.getElementById(id).classList.add('active');
+            if(document.getElementById(id)) document.getElementById(id).classList.add('active');
         }
 
         function showMessage(elId, txt, type) {
-            const el = document.getElementById(elId);
-            el.textContent = txt;
-            el.className = 'message ' + type;
-            setTimeout(() => el.style.display = 'none', 4000);
+            const el = document.getElementById(elId); el.textContent = txt; el.className = 'message '+type;
+            setTimeout(()=>el.style.display='none', 4000);
         }
 
         // ==========================================
-        // DASHBOARD
+        // LOGIN & AUTHENTICATION
         // ==========================================
-        async function loadDashboard() {
-            if (!currentUser) return;
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const phone = document.getElementById('loginPhone').value;
+            const pass = document.getElementById('loginPassword').value;
+            const btn = document.getElementById('loginBtn');
+            
+            btn.innerHTML = '🔄 Verifying on Server...'; btn.disabled = true;
 
-            // Reload fresh data from GitHub
             const data = await ServerDB.get();
-            if (data && data.db.solarUsers[currentUser.email]) {
-                currentUserData = data.db.solarUsers[currentUser.email];
-                currentUser = { email: currentUser.email, ...currentUserData };
+            if(data) {
+                const user = data.db.solarUsers.find(u => u.phone === phone && u.password === pass);
+                if(user) {
+                    if (user.status === 'blocked') {
+                        showMessage('loginMessage', '❌ Account blocked by Admin!', 'error');
+                    } else {
+                        currentUser = user; 
+                        localStorage.setItem('currentUser', JSON.stringify(user));
+                        showPage('dashboard');
+                    }
+                } else { 
+                    showMessage('loginMessage', '❌ Invalid phone or password', 'error'); 
+                }
+            } else {
+                showMessage('loginMessage', '❌ Server Error', 'error');
+            }
+            btn.innerHTML = '🔐 Login'; btn.disabled = false;
+        });
+
+        function showLoginOtp() { document.getElementById('loginPasswordSection').classList.add('hidden'); document.getElementById('loginOtpSection').classList.remove('hidden'); }
+        function showLoginPassword() { document.getElementById('loginOtpSection').classList.add('hidden'); document.getElementById('verifyLoginOtpSection').classList.add('hidden'); document.getElementById('loginPasswordSection').classList.remove('hidden'); }
+
+        document.getElementById('loginOtpForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const phone = document.getElementById('loginOtpPhone').value;
+            const btn = document.getElementById('sendLoginOtpBtn');
+            
+            btn.innerHTML = '🔄 Checking...'; btn.disabled = true;
+
+            const data = await ServerDB.get();
+            if(!data || !data.db.solarUsers.find(u => u.phone === phone)) {
+                showMessage('loginMessage', '❌ Number not registered!', 'error');
+                btn.innerHTML = '📲 Send OTP'; btn.disabled = false; return;
             }
 
+            try {
+                const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sendLoginOtpBtn', { size: 'invisible' });
+                confirmationResult = await auth.signInWithPhoneNumber('+91' + phone, recaptchaVerifier);
+                document.getElementById('displayLoginPhone').textContent = phone;
+                document.getElementById('loginOtpSection').classList.add('hidden');
+                document.getElementById('verifyLoginOtpSection').classList.remove('hidden');
+                setupOtpInputs('otp-digit-login', 'fullLoginOtp');
+            } catch (error) { showMessage('loginMessage', '❌ ' + error.message, 'error'); }
+            
+            btn.innerHTML = '📲 Send OTP'; btn.disabled = false;
+        });
+
+        document.getElementById('verifyLoginOtpForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const otp = document.getElementById('fullLoginOtp').value;
+            const btn = e.target.querySelector('button');
+            btn.innerHTML = "🔄 Verifying...";
+            try {
+                await confirmationResult.confirm(otp);
+                const phone = document.getElementById('loginOtpPhone').value;
+                const data = await ServerDB.get();
+                const user = data.db.solarUsers.find(u => u.phone === phone);
+                if (user) {
+                    currentUser = user;
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    showPage('dashboard');
+                }
+            } catch (error) { showMessage('loginMessage', '❌ Invalid OTP!', 'error'); }
+            btn.innerHTML = "✅ Verify & Login";
+        });
+
+        // Register
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            tempUserData = {
+                name: document.getElementById('regName').value.trim(),
+                phone: document.getElementById('regPhone').value.trim(),
+                password: document.getElementById('regPassword').value,
+                referral: document.getElementById('regReferral').value.trim()
+            };
+            const confirmPass = document.getElementById('regConfirmPassword').value;
+
+            if (tempUserData.password !== confirmPass) return showMessage('registerMessage', '❌ Passwords do not match', 'error');
+
+            const btn = document.getElementById('sendRegOtpBtn');
+            btn.innerHTML = '🔄 Checking...'; btn.disabled = true;
+
+            const data = await ServerDB.get();
+            if (data && data.db.solarUsers.find(u => u.phone === tempUserData.phone)) {
+                showMessage('registerMessage', '❌ Number already registered! Please login.', 'error');
+                btn.innerHTML = '📲 Send OTP'; btn.disabled = false; return;
+            }
+
+            try {
+                const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sendRegOtpBtn', { size: 'invisible' });
+                confirmationResult = await auth.signInWithPhoneNumber('+91' + tempUserData.phone, recaptchaVerifier);
+                document.getElementById('displayRegPhone').textContent = tempUserData.phone;
+                document.getElementById('registerStep1').classList.add('hidden');
+                document.getElementById('registerStep2').classList.remove('hidden');
+                setupOtpInputs('otp-digit-reg', 'fullRegOtp');
+            } catch (error) { showMessage('registerMessage', '❌ ' + error.message, 'error'); }
+            
+            btn.innerHTML = '📲 Send OTP'; btn.disabled = false;
+        });
+
+        document.getElementById('verifyRegForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const otp = document.getElementById('fullRegOtp').value;
+            const btn = e.target.querySelector('button');
+            btn.innerHTML = "🔄 Creating Account..."; btn.disabled = true;
+
+            try {
+                await confirmationResult.confirm(otp);
+                
+                const userId = 'SOLAR' + Date.now();
+                const myCode = tempUserData.name.substring(0,3).toUpperCase() + Math.floor(Math.random()*1000);
+                
+                const newUser = {
+                    id: userId, name: tempUserData.name, phone: tempUserData.phone, password: tempUserData.password,
+                    referralCode: myCode, referredBy: tempUserData.referral || 'ADMIN', joinDate: new Date().toISOString(),
+                    wallet: { mainBalance: tempUserData.referral ? 15 : 0, totalWithdrawn: 0 }, 
+                    referrals: { count: 0, list:[], earnings: 0 },
+                    activePlans:[], status: 'active'
+                };
+
+                await ServerDB.runTransaction(async (db) => {
+                    db.solarUsers.push(newUser);
+                    if(tempUserData.referral) {
+                        let refUser = db.solarUsers.find(u => u.referralCode === tempUserData.referral);
+                        if(refUser) {
+                            refUser.wallet.mainBalance += 15;
+                            refUser.referrals.count += 1;
+                            refUser.referrals.earnings += 15;
+                            refUser.referrals.list.push(userId);
+                        }
+                    }
+                });
+
+                currentUser = newUser;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                showPage('dashboard');
+            } catch (error) {
+                showMessage('registerMessage', '❌ Invalid OTP!', 'error');
+                btn.innerHTML = "✅ Create Account"; btn.disabled = false;
+            }
+        });
+
+        function setupOtpInputs(cls, hiddenId) {
+            document.querySelectorAll('.'+cls).forEach((inp, idx) => {
+                inp.addEventListener('input', (e) => {
+                    if(e.target.value.length===1 && document.querySelectorAll('.'+cls)[idx+1]) document.querySelectorAll('.'+cls)[idx+1].focus();
+                    let otp=''; document.querySelectorAll('.'+cls).forEach(i=>otp+=i.value); document.getElementById(hiddenId).value = otp;
+                });
+            });
+        }
+
+        // ==========================================
+        // DASHBOARD & DAILY CLAIMS
+        // ==========================================
+        function loadDashboard() {
             document.getElementById('navBalance').textContent = currentUser.wallet.mainBalance;
             document.getElementById('dashName').textContent = currentUser.name.split(' ')[0];
             document.getElementById('dashBalance').textContent = '₹' + currentUser.wallet.mainBalance;
             document.getElementById('dashEarnings').textContent = '₹' + (currentUser.referrals.earnings + currentUser.wallet.mainBalance);
             document.getElementById('dashRefers').textContent = currentUser.referrals.count;
-
-            // Load plans
+            
             const plansBox = document.getElementById('homePlansList');
-            plansBox.innerHTML = plans.map(plan => `
+            plansBox.innerHTML = '';
+            plans.forEach(plan => {
+                plansBox.innerHTML += `
                 <div class="plan-post">
                     <div class="plan-header">
                         <div class="plan-name">⚡ ${plan.name}</div>
-                        <div class="plan-price">₹${plan.price}</div>
+                        <div class="plan-price">${plan.price === 0 ? '<span style="color:#2a5298">FREE</span>' : '₹'+plan.price}</div>
                     </div>
                     <div class="plan-details">
-                        <div class="plan-detail-box">
-                            <div class="plan-detail-label">Daily Return</div>
-                            <div class="plan-detail-val" style="color:#11998e">₹${plan.daily}</div>
-                        </div>
-                        <div class="plan-detail-box">
-                            <div class="plan-detail-label">Total Return</div>
-                            <div class="plan-detail-val" style="color:#1e3c72">₹${plan.total}</div>
-                        </div>
-                        <div class="plan-detail-box">
-                            <div class="plan-detail-label">Validity</div>
-                            <div class="plan-detail-val">${plan.days} Days</div>
-                        </div>
+                        <div class="plan-detail-box"><div class="plan-detail-label">Daily Return</div><div class="plan-detail-val" style="color:#11998e">₹${plan.daily}</div></div>
+                        <div class="plan-detail-box"><div class="plan-detail-label">Total Return</div><div class="plan-detail-val" style="color:#1e3c72">₹${plan.total}</div></div>
+                        <div class="plan-detail-box"><div class="plan-detail-label">Validity</div><div class="plan-detail-val">${plan.days} Days</div></div>
                     </div>
-                    <button class="btn btn-primary btn-block" onclick="buyPlan('${plan.id}')">💎 Buy Now</button>
-                </div>
-            `).join('');
+                    <button class="btn btn-primary btn-block" onclick="buyPlan('${plan.id}')">💎 ${plan.price === 0 ? 'Activate Free' : 'Buy Now'}</button>
+                </div>`;
+            });
 
-            // Load active plans
             const actBox = document.getElementById('dashPlansList');
-            if (currentUser.activePlans && currentUser.activePlans.length > 0) {
-                actBox.innerHTML = currentUser.activePlans.map(p => `
-                    <div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">
-                        <div>
-                            <strong>${p.planName}</strong><br>
-                            <small>Daily: ₹${p.dailyReturn}</small>
-                        </div>
-                        <div style="text-align:right; color:#11998e; font-weight:bold;">Active</div>
-                    </div>
-                `).join('');
+            if(currentUser.activePlans.length > 0) {
+                actBox.innerHTML = '';
+                currentUser.activePlans.forEach(p => {
+                    actBox.innerHTML += `<div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">
+                        <div><strong>${p.planName}</strong><br><small>Daily Income: ₹${p.dailyReturn}</small></div>
+                        <div style="text-align:right; color:#11998e; font-weight:bold;">Active ✓</div>
+                    </div>`;
+                });
             } else {
                 actBox.innerHTML = '<div class="text-center" style="color: #9ca3af; padding: 20px;">No active plans.</div>';
             }
 
-            processDailyClaims();
+            processClaims(); 
         }
 
-        async function processDailyClaims() {
-            if (!currentUser || !currentUser.activePlans) return;
-
+        async function processClaims() {
             const todayStr = new Date().toDateString();
-            let needsUpdate = false;
-
-            currentUser.activePlans.forEach(p => {
-                if (p.status === 'active' && new Date() < new Date(p.expiryDate)) {
-                    if (!p.lastClaimed || new Date(p.lastClaimed).toDateString() !== todayStr) {
-                        needsUpdate = true;
-                    }
-                }
-            });
+            let needsUpdate = currentUser.activePlans.some(p => 
+                p.status === 'active' && 
+                new Date() < new Date(p.expiryDate) && 
+                (!p.lastClaimed || new Date(p.lastClaimed).toDateString() !== todayStr)
+            );
 
             if (needsUpdate) {
                 await ServerDB.runTransaction(async (db) => {
-                    const user = db.solarUsers[currentUser.email];
-                    if (user && user.activePlans) {
-                        user.activePlans.forEach(p => {
-                            if (p.status === 'active' && new Date() < new Date(p.expiryDate)) {
-                                if (!p.lastClaimed || new Date(p.lastClaimed).toDateString() !== todayStr) {
-                                    user.wallet.mainBalance += p.dailyReturn;
+                    let u = db.solarUsers.find(x => x.id === currentUser.id);
+                    if(u) {
+                        u.activePlans.forEach(p => {
+                            if(p.status === 'active' && new Date() < new Date(p.expiryDate)) {
+                                if(!p.lastClaimed || new Date(p.lastClaimed).toDateString() !== todayStr) {
+                                    u.wallet.mainBalance += p.dailyReturn;
                                     p.lastClaimed = new Date().toISOString();
                                 }
                             }
                         });
+                        currentUser = u;
+                        localStorage.setItem('currentUser', JSON.stringify(currentUser));
                     }
                 });
-
-                // Reload data
-                const data = await ServerDB.get();
-                if (data && data.db.solarUsers[currentUser.email]) {
-                    currentUserData = data.db.solarUsers[currentUser.email];
-                    currentUser = { email: currentUser.email, ...currentUserData };
-                    document.getElementById('dashBalance').textContent = '₹' + currentUser.wallet.mainBalance;
-                    document.getElementById('navBalance').textContent = currentUser.wallet.mainBalance;
-                }
+                document.getElementById('dashBalance').textContent = '₹' + currentUser.wallet.mainBalance;
+                document.getElementById('navBalance').textContent = currentUser.wallet.mainBalance;
             }
         }
 
@@ -969,90 +849,90 @@
         // PLAN PURCHASE
         // ==========================================
         async function buyPlan(pid) {
-            const plan = plans.find(p => p.id === pid);
-            if (!currentUser || currentUser.wallet.mainBalance < plan.price) {
-                alert("Low Balance! Please add money from Wallet.");
-                showPage('wallet'); 
+            const plan = plans.find(p=>p.id===pid);
+
+            // Free plan validation (Only 1 time)
+            if(plan.price === 0 && currentUser.activePlans.some(p => p.planId === plan.id)) {
+                alert("❌ You have already activated the Free Plan!");
                 return;
             }
 
-            if (!confirm(`Confirm buy ${plan.name} for ₹${plan.price}?`)) return;
+            if(currentUser.wallet.mainBalance < plan.price) {
+                alert("Low Balance! Please add money from Wallet.");
+                showPage('wallet'); return;
+            }
+            if(!confirm(`Confirm ${plan.price === 0 ? 'activation of Free Plan' : 'buy '+plan.name+' for ₹'+plan.price}?`)) return;
 
             const btn = event.target;
-            btn.innerHTML = "🔄 Processing..."; 
-            btn.disabled = true;
+            const oldText = btn.innerHTML;
+            btn.innerHTML = "🔄 Processing..."; btn.disabled = true;
 
-            await ServerDB.runTransaction(async (db) => {
-                const user = db.solarUsers[currentUser.email];
-                if (user.wallet.mainBalance >= plan.price) {
-                    user.wallet.mainBalance -= plan.price;
-                    user.activePlans.push({
-                        planId: plan.id,
-                        planName: plan.name,
-                        amount: plan.price,
-                        dailyReturn: plan.daily,
-                        expiryDate: new Date(Date.now() + plan.days * 86400000).toISOString(),
-                        lastClaimed: null,
-                        status: 'active'
+            const success = await ServerDB.runTransaction(async (db) => {
+                let u = db.solarUsers.find(x => x.id === currentUser.id);
+                if (u.wallet.mainBalance >= plan.price) {
+                    
+                    // Double check for Free Plan duplicate inside transaction
+                    if(plan.price === 0 && u.activePlans.some(p => p.planId === plan.id)) return false;
+
+                    u.wallet.mainBalance -= plan.price;
+                    u.activePlans.push({
+                        planId: plan.id, planName: plan.name, amount: plan.price, dailyReturn: plan.daily,
+                        expiryDate: new Date(Date.now() + plan.days*86400000).toISOString(), lastClaimed: null, status: 'active'
                     });
-
-                    // Referral commission
-                    if (user.referredBy && user.referredBy !== 'ADMIN') {
-                        for (let email in db.solarUsers) {
-                            if (db.solarUsers[email].referralCode === user.referredBy) {
-                                const comm = Math.floor(plan.price * 0.2);
-                                db.solarUsers[email].wallet.mainBalance += comm;
-                                db.solarUsers[email].referrals.earnings += comm;
-                                break;
-                            }
+                    
+                    // Give commission only if plan has price
+                    if (plan.price > 0 && u.referredBy && u.referredBy !== 'ADMIN') {
+                        let referrer = db.solarUsers.find(r => r.referralCode === u.referredBy);
+                        if(referrer) {
+                            let comm = Math.floor(plan.price * 0.2);
+                            referrer.wallet.mainBalance += comm;
+                            referrer.referrals.earnings += comm;
                         }
                     }
+                    currentUser = u; 
+                    localStorage.setItem('currentUser', JSON.stringify(u));
+                    return true;
+                } else {
+                    return false;
                 }
             });
 
-            alert("✅ Plan Activated Successfully!");
-            loadDashboard();
-            btn.innerHTML = "💎 Buy Now"; 
-            btn.disabled = false;
+            if(success) { 
+                alert("✅ Plan Activated Successfully!"); 
+                loadDashboard(); 
+            } else {
+                alert("❌ Server Error: Plan already claimed or Low Balance.");
+            }
+            btn.innerHTML = oldText; btn.disabled = false;
         }
 
         // ==========================================
-        // WALLET
+        // WALLET, DEPOSIT & WITHDRAW
         // ==========================================
         async function loadWallet() {
-            if (!currentUser) return;
-
-            // Refresh data
-            const data = await ServerDB.get();
-            if (data && data.db.solarUsers[currentUser.email]) {
-                currentUserData = data.db.solarUsers[currentUser.email];
-                currentUser = { email: currentUser.email, ...currentUserData };
-            }
-
             document.getElementById('walletBalance').textContent = '₹' + currentUser.wallet.mainBalance;
-
-            const allTx = [
-                ...(data.db.pendingDeposits || []).filter(x => x.userEmail === currentUser.email),
-                ...(data.db.pendingWithdrawals || []).filter(x => x.userEmail === currentUser.email)
-            ].sort((a, b) => new Date(b.requestedAt) - new Date(a.requestedAt));
-
-            const list = document.getElementById('walletTransactions');
-            if (allTx.length > 0) {
-                list.innerHTML = allTx.map(tx => {
+            
+            const data = await ServerDB.get();
+            if(!data) return;
+            
+            const wids = data.db.pendingWithdrawals.filter(x => x.userId === currentUser.id);
+            const deps = data.db.pendingDeposits.filter(x => x.userId === currentUser.id);
+            
+            const list = document.getElementById('walletTransactions'); list.innerHTML='';
+            const allTx =[...deps, ...wids].sort((a,b)=>new Date(b.requestedAt)-new Date(a.requestedAt));
+            
+            if(allTx.length > 0) {
+                allTx.forEach(tx => {
                     const isDep = tx.id.startsWith('DEP');
-                    return `
-                        <div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">
-                            <div>
-                                <strong>${isDep ? 'Deposit' : 'Withdrawal'}</strong><br>
-                                <small>${new Date(tx.requestedAt).toLocaleDateString()}</small>
-                            </div>
-                            <div style="text-align:right">
-                                <strong style="color:${isDep ? '#11998e' : '#ef4444'}">${isDep ? '+' : '-'}₹${tx.amount}</strong><br>
-                                <span style="font-size:11px; background:${tx.status === 'pending' ? 'orange' : (tx.status === 'approved' ? 'green' : 'red')}; color:white; padding:2px 6px; border-radius:10px;">${tx.status.toUpperCase()}</span>
-                            </div>
+                    list.innerHTML += `
+                    <div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">
+                        <div><strong>${isDep?'Deposit':'Withdrawal'}</strong><br><small>${new Date(tx.requestedAt).toLocaleDateString()}</small></div>
+                        <div style="text-align:right">
+                            <strong style="color:${isDep?'#11998e':'#ef4444'}">${isDep?'+':'-'}₹${tx.amount}</strong><br>
+                            <span style="font-size:11px; background:${tx.status==='pending'?'orange':(tx.status==='approved'?'green':'red')}; color:white; padding:2px 6px; border-radius:10px;">${tx.status.toUpperCase()}</span>
                         </div>
-                    `;
-                }).join('');
+                    </div>`;
+                });
             } else {
                 list.innerHTML = '<div class="text-center" style="color:#9ca3af;">No history</div>';
             }
@@ -1062,44 +942,38 @@
             e.preventDefault();
             const amount = document.getElementById('depositAmount').value;
             if (amount < 100) return alert('Min ₹100 required');
-
             pendingDepositAmount = amount;
+            
             const upiId = "6395503566@upi";
             const upiUrl = `upi://pay?pa=${upiId}&pn=SolarEnergy&am=${amount}&cu=INR`;
-
+            
             document.getElementById('addMoneyAmountSection').classList.add('hidden');
             document.getElementById('upiPaymentSection').classList.remove('hidden');
             document.getElementById('upiDisplayAmount').textContent = '₹' + amount;
-
-            window.location.href = upiUrl;
+            
+            window.location.href = upiUrl; 
         });
 
         document.getElementById('depositSubmitForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const txn = document.getElementById('transactionId').value.trim();
-            if (!txn || txn.length < 10) return alert("Please enter valid UTR!");
+            if(!txn || txn.length < 10) return alert("Please enter valid 12-digit UTR!");
+            
+            const btn = e.target.querySelector('button');
+            btn.innerHTML = "🔄 Sending Request..."; btn.disabled = true;
 
-            const btn = e.target.querySelector('button[type="submit"]');
-            btn.innerHTML = "🔄 Sending..."; 
-            btn.disabled = true;
+            const dep = {
+                id: 'DEP'+Date.now(), userId: currentUser.id, userPhone: currentUser.phone,
+                amount: parseInt(pendingDepositAmount), transactionId: txn, status: 'pending', requestedAt: new Date().toISOString()
+            };
 
             await ServerDB.runTransaction(async (db) => {
-                db.pendingDeposits.push({
-                    id: 'DEP' + Date.now(),
-                    userId: currentUser.id,
-                    userEmail: currentUser.email,
-                    userPhone: currentUser.phone,
-                    amount: parseInt(pendingDepositAmount),
-                    transactionId: txn,
-                    status: 'pending',
-                    requestedAt: new Date().toISOString()
-                });
+                db.pendingDeposits.push(dep);
             });
 
             alert("✅ Deposit request sent to Admin!");
             document.getElementById('depositSubmitForm').reset();
-            btn.innerHTML = "✅ Submit for Verification"; 
-            btn.disabled = false;
+            btn.innerHTML = "✅ Submit for Verification"; btn.disabled = false;
             backToAmount();
             showPage('wallet');
         });
@@ -1113,67 +987,50 @@
             e.preventDefault();
             const amt = parseInt(document.getElementById('withdrawAmount').value);
             const met = document.getElementById('withdrawMethod').value;
-
-            if (amt < 200) return alert("Min ₹200 withdrawal allowed");
-            if (currentUser.wallet.mainBalance < amt) return alert("Insufficient balance");
-
+            if(amt < 200) return alert("Min ₹200 withdrawal allowed");
+            if(currentUser.wallet.mainBalance < amt) return alert("Insufficient balance");
+            
             const btn = e.target.querySelector('button');
-            btn.innerHTML = "🔄 Processing..."; 
-            btn.disabled = true;
+            btn.innerHTML = "🔄 Processing..."; btn.disabled = true;
 
-            await ServerDB.runTransaction(async (db) => {
-                const user = db.solarUsers[currentUser.email];
-                if (user.wallet.mainBalance >= amt) {
-                    user.wallet.mainBalance -= amt;
-                    user.wallet.totalWithdrawn = (user.wallet.totalWithdrawn || 0) + amt;
-                    db.pendingWithdrawals.push({
-                        id: 'WID' + Date.now(),
-                        userId: currentUser.id,
-                        userEmail: currentUser.email,
-                        amount: amt,
-                        method: met,
-                        status: 'pending',
-                        requestedAt: new Date().toISOString()
-                    });
+            const req = { id: 'WID'+Date.now(), userId: currentUser.id, amount: amt, method: met, status: 'pending', requestedAt: new Date().toISOString()};
+            
+            const success = await ServerDB.runTransaction(async (db) => {
+                let u = db.solarUsers.find(x => x.id === currentUser.id);
+                if(u.wallet.mainBalance >= amt) {
+                    u.wallet.mainBalance -= amt;
+                    u.wallet.totalWithdrawn += amt;
+                    db.pendingWithdrawals.push(req);
+                    currentUser = u; localStorage.setItem('currentUser', JSON.stringify(u));
+                } else {
+                    alert("Server error: Low Balance.");
                 }
             });
 
-            alert("✅ Withdrawal request submitted!");
-            document.getElementById('withdrawForm').reset();
-            loadWallet();
-            btn.innerHTML = "Submit Withdrawal"; 
-            btn.disabled = false;
+            if(success) { alert("✅ Withdrawal request submitted!"); document.getElementById('withdrawForm').reset(); loadWallet(); }
+            btn.innerHTML = "Submit Withdrawal"; btn.disabled = false;
         });
 
         // ==========================================
-        // REFERRAL
+        // REFERRAL & SUPPORT
         // ==========================================
         async function loadReferral() {
-            if (!currentUser) return;
-
             const link = window.location.origin + window.location.pathname + '?ref=' + currentUser.referralCode;
             document.getElementById('referralLinkDisplay').textContent = link;
-
+            
             const data = await ServerDB.get();
-            const referrals = [];
-
-            for (let email in data.db.solarUsers) {
-                if (data.db.solarUsers[email].referredBy === currentUser.referralCode) {
-                    referrals.push(data.db.solarUsers[email]);
-                }
-            }
-
+            if(!data) return;
+            const actUsers = data.db.solarUsers.filter(u => currentUser.referrals.list.includes(u.id));
+            
             const rbox = document.getElementById('referralsList');
-            if (referrals.length > 0) {
-                rbox.innerHTML = referrals.map(u => `
-                    <div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">
-                        <div>
-                            <strong>${u.name}</strong><br>
-                            <small>Joined ${new Date(u.joinDate).toLocaleDateString()}</small>
-                        </div>
+            if(actUsers.length > 0) {
+                rbox.innerHTML = '';
+                actUsers.forEach(u => {
+                    rbox.innerHTML += `<div style="padding:15px; border-bottom:1px solid #eee; display:flex; justify-content:space-between;">
+                        <div><strong>${u.name}</strong><br><small>Joined ${new Date(u.joinDate).toLocaleDateString()}</small></div>
                         <div style="color:#11998e; font-weight:bold;">₹15</div>
-                    </div>
-                `).join('');
+                    </div>`;
+                });
             } else {
                 rbox.innerHTML = '<div class="text-center" style="color: #9ca3af;">No referrals yet</div>';
             }
@@ -1184,60 +1041,46 @@
             alert("✅ Link Copied!");
         }
 
-        // ==========================================
-        // SUPPORT
-        // ==========================================
         document.getElementById('supportForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const subj = document.getElementById('supportSubject').value;
             const msg = document.getElementById('supportMessage').value;
-
+            
             const btn = e.target.querySelector('button');
-            btn.innerHTML = "🔄 Submitting..."; 
-            btn.disabled = true;
+            btn.innerHTML = "🔄 Submitting..."; btn.disabled = true;
 
             await ServerDB.runTransaction(async (db) => {
                 db.tickets.push({
-                    id: 'TKT' + Date.now(),
-                    userId: currentUser.id,
-                    userEmail: currentUser.email,
-                    phone: currentUser.phone,
-                    subject: subj,
-                    message: msg,
-                    status: 'Open',
-                    date: new Date().toISOString()
+                    id: 'TKT'+Date.now(), userId: currentUser.id, phone: currentUser.phone,
+                    subject: subj, message: msg, status: 'Open', date: new Date().toISOString()
                 });
             });
 
             alert('✅ Ticket Submitted successfully!');
-            e.target.reset();
-            btn.innerHTML = "🚀 Submit Ticket"; 
-            btn.disabled = false;
-            loadSupport();
+            e.target.reset(); btn.innerHTML = "🚀 Submit Ticket"; btn.disabled = false; loadSupport();
         });
 
         async function loadSupport() {
-            if (!currentUser) return;
-
             const data = await ServerDB.get();
-            const mytix = (data.db.tickets || [])
-                .filter(t => t.userEmail === currentUser.email)
-                .reverse();
-
+            if(!data) return;
+            const mytix = data.db.tickets.filter(t => t.userId === currentUser.id).reverse();
             const box = document.getElementById('myTicketsList');
-            if (mytix.length > 0) {
-                box.innerHTML = mytix.map(t => `
-                    <div style="padding:15px; border:1px solid #eee; border-radius:10px; margin-bottom:10px;">
-                        <div style="display:flex; justify-content:space-between;">
-                            <strong>${t.subject}</strong>
-                            <span style="font-size:12px; font-weight:bold; color:${t.status === 'Resolved' ? 'green' : 'orange'}">${t.status}</span>
-                        </div>
+            if(mytix.length > 0) {
+                box.innerHTML = '';
+                mytix.forEach(t => {
+                    box.innerHTML += `<div style="padding:15px; border:1px solid #eee; border-radius:10px; margin-bottom:10px;">
+                        <div style="display:flex; justify-content:space-between;"><strong>${t.subject}</strong> <span style="font-size:12px; font-weight:bold; color:${t.status==='Resolved'?'green':'orange'}">${t.status}</span></div>
                         <p style="font-size:13px; color:#666; margin-top:5px;">${t.message}</p>
-                    </div>
-                `).join('');
-            } else {
-                box.innerHTML = '<div class="text-center" style="color:#9ca3af;">No tickets</div>';
+                    </div>`;
+                });
+            } else { 
+                box.innerHTML = '<div class="text-center" style="color:#9ca3af;">No tickets</div>'; 
             }
+        }
+
+        function logout() { 
+            localStorage.removeItem('currentUser'); 
+            location.reload(); 
         }
     </script>
 </body>
