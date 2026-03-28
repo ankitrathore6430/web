@@ -9,6 +9,9 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     
+    <!-- GitHub DB Utility -->
+    <script src="github-db.js"></script>
+    
     <style>
         * {
             margin: 0;
@@ -795,10 +798,17 @@
             const urlParams = new URLSearchParams(window.location.search);
             const refCode = urlParams.get('ref');
             
-            if (refCode) {
-                localStorage.setItem('pendingReferral', refCode);
-            }
+                window.onload = async () => {
+            const savedUser = localStorage.getItem('currentUser');
             
+            // Sync from GitHub on load
+            try {
+                await GitHubDB.syncGitHubToLocal();
+                console.log('Data synced from GitHub');
+            } catch (e) {
+                console.error('Initial sync failed', e);
+            }
+
             if (savedUser) {
                 currentUser = JSON.parse(savedUser);
                 showPage('dashboard');
@@ -834,10 +844,27 @@
             const phone = document.getElementById('loginPhone').value;
             const password = document.getElementById('loginPassword').value;
             
-            const users = JSON.parse(localStorage.getItem('solarUsers') || '[]');
-            const user = users.find(u => u.phone === phone && u.password === password);
-            
-            if (user) {
+            // First sync from GitHub to ensure we have latest users
+            GitHubDB.syncGitHubToLocal().then(() => {
+                const users = JSON.parse(localStorage.getItem('solarUsers') || '[]');
+                const user = users.find(u => u.phone === phone && u.password === password);
+                
+                if (user) {
+                    if (user.status === 'blocked') {
+                        showMessage('loginMessage', '❌ Your account has been blocked!', 'error');
+                        return;
+                    }
+                    
+                    currentUser = user;
+                    localStorage.setItem('currentUser', JSON.stringify(user));
+                    showMessage('loginMessage', '✅ Login successful!', 'success');
+                    setTimeout(() => showPage('dashboard'), 1000);
+                } else {
+                    showMessage('loginMessage', '❌ Invalid phone or password!', 'error');
+                }
+            }).catch(err => {
+                showMessage('loginMessage', '❌ Connection error. Try again.', 'error');
+            });
                 if (user.status === 'blocked') {
                     showMessage('loginMessage', '❌ Your account has been blocked!', 'error');
                     return;
@@ -1139,7 +1166,14 @@
                 
                 const users = JSON.parse(localStorage.getItem('solarUsers') || '[]');
                 users.push(newUser);
-                localStorage.setItem('solarUsers', JSON.stringify(users));
+                
+                // Update GitHub
+                await GitHubDB.updateData({
+                    users: users,
+                    pendingDeposits: JSON.parse(localStorage.getItem('pendingDeposits') || '[]'),
+                    pendingWithdrawals: JSON.parse(localStorage.getItem('pendingWithdrawals') || '[]')
+                });
+
                 localStorage.setItem('currentUser', JSON.stringify(newUser));
                 localStorage.removeItem('pendingReferral');
                 
