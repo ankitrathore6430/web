@@ -2,1636 +2,385 @@
 <html lang="hi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Solar Energy - Refer & Earn</title>
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', sans-serif; -webkit-tap-highlight-color: transparent; }
+        :root { --primary: #667eea; --primary-dark: #764ba2; --success: #11998e; --success-light: #38ef7d; --warning: #f093fb; --danger: #f5576c; }
         
-        body {
-            background: #f5f7fa;
-            min-height: 100vh;
-        }
+        body { background: #f0f2f5; min-height: 100vh; padding-bottom: 80px; }
         
-        /* ===== NAVBAR ===== */
-        .navbar {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 15px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.2);
-        }
+        /* Header */
+        .header { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; padding: 20px; text-align: center; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 15px rgba(0,0,0,0.2); }
+        .header h1 { font-size: 26px; margin-bottom: 5px; }
+        .header p { font-size: 14px; opacity: 0.9; }
         
-        .logo {
-            font-size: 24px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+        /* Bottom Navigation */
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; display: flex; justify-content: space-around; padding: 8px 0; box-shadow: 0 -4px 15px rgba(0,0,0,0.1); z-index: 1000; }
+        .nav-item { text-align: center; color: #666; text-decoration: none; font-size: 11px; padding: 5px 10px; border: none; background: none; cursor: pointer; transition: all 0.3s; }
+        .nav-item span { display: block; font-size: 22px; margin-bottom: 2px; }
+        .nav-item.active { color: var(--primary); transform: scale(1.1); }
         
-        .nav-links {
-            display: flex;
-            gap: 10px;
-            align-items: center;
-        }
+        /* Cards */
+        .card { background: white; margin: 15px; padding: 20px; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        .card-title { font-size: 20px; font-weight: bold; margin-bottom: 15px; color: #333; display: flex; align-items: center; gap: 10px; }
         
-        .nav-links a, .nav-links button {
-            color: white;
-            text-decoration: none;
-            padding: 10px 20px;
-            border-radius: 25px;
-            transition: all 0.3s;
-            font-weight: 500;
-            background: transparent;
-            border: none;
-            cursor: pointer;
-            font-size: 14px;
-        }
+        /* Buttons */
+        .btn { padding: 15px 25px; border: none; border-radius: 12px; font-size: 16px; font-weight: bold; cursor: pointer; transition: all 0.3s; width: 100%; margin: 8px 0; text-transform: uppercase; letter-spacing: 0.5px; }
+        .btn-primary { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4); }
+        .btn-success { background: linear-gradient(135deg, var(--success) 0%, var(--success-light) 100%); color: white; box-shadow: 0 4px 15px rgba(17, 153, 142, 0.4); }
+        .btn-warning { background: linear-gradient(135deg, var(--warning) 0%, var(--danger) 100%); color: white; box-shadow: 0 4px 15px rgba(240, 147, 251, 0.4); }
+        .btn-outline { background: transparent; border: 2px solid var(--primary); color: var(--primary); }
+        .btn:disabled { background: #ccc; cursor: not-allowed; box-shadow: none; }
+        .btn:active { transform: scale(0.98); }
         
-        .nav-links a:hover, .nav-links a.active, .nav-links button:hover {
-            background: rgba(255,255,255,0.2);
-        }
+        /* Forms */
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: #555; font-size: 14px; }
+        input, select, textarea { width: 100%; padding: 15px; border: 2px solid #e0e0e0; border-radius: 12px; font-size: 16px; transition: all 0.3s; }
+        input:focus, select:focus, textarea:focus { border-color: var(--primary); outline: none; box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1); }
         
-        .balance-pill {
-            background: rgba(255,255,255,0.2);
-            padding: 8px 20px;
-            border-radius: 20px;
-            font-weight: bold;
-        }
+        /* Plans Grid */
+        .plans-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; padding: 15px; }
+        .plan-card { background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 8px 25px rgba(0,0,0,0.1); transition: all 0.3s; border: 2px solid transparent; }
+        .plan-card:hover { transform: translateY(-5px); border-color: var(--primary); }
+        .plan-header { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; padding: 25px; text-align: center; position: relative; }
+        .plan-header.popular { background: linear-gradient(135deg, var(--warning) 0%, var(--danger) 100%); }
+        .plan-badge { position: absolute; top: 15px; right: -35px; background: white; color: var(--danger); padding: 5px 40px; transform: rotate(45deg); font-size: 12px; font-weight: bold; box-shadow: 0 2px 10px rgba(0,0,0,0.2); }
+        .plan-name { font-size: 24px; font-weight: bold; margin-bottom: 10px; }
+        .plan-price { font-size: 42px; font-weight: bold; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .plan-body { padding: 25px; }
+        .plan-feature { display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid #eee; font-size: 15px; }
+        .plan-feature:last-child { border-bottom: none; }
         
-        /* ===== CONTAINER ===== */
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 30px 20px;
-        }
+        /* Balance Card */
+        .balance-card { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white; padding: 35px; border-radius: 25px; text-align: center; margin: 15px; box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3); position: relative; overflow: hidden; }
+        .balance-card::before { content: ''; position: absolute; top: -50%; right: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%); }
+        .balance-label { font-size: 16px; opacity: 0.9; text-transform: uppercase; letter-spacing: 2px; }
+        .balance-amount { font-size: 56px; font-weight: bold; margin: 15px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .balance-actions { display: flex; gap: 15px; margin-top: 20px; position: relative; z-index: 1; }
+        .balance-actions .btn { margin: 0; flex: 1; }
         
-        /* ===== PAGES ===== */
-        .page {
-            display: none;
-        }
+        /* Stats */
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 15px; }
+        .stat-card { background: white; padding: 25px 15px; border-radius: 20px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: all 0.3s; }
+        .stat-card:hover { transform: translateY(-3px); }
+        .stat-number { font-size: 32px; font-weight: bold; color: var(--primary); margin-bottom: 5px; }
+        .stat-label { font-size: 13px; color: #666; text-transform: uppercase; letter-spacing: 1px; }
         
-        .page.active {
-            display: block;
-            animation: fadeIn 0.5s;
-        }
+        /* Pages */
+        .page { display: none; animation: fadeIn 0.4s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
         
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        /* Messages */
+        .message { padding: 15px 20px; border-radius: 12px; margin: 15px; display: none; font-size: 14px; font-weight: 500; animation: slideIn 0.3s ease; }
+        .message.show { display: block; }
+        @keyframes slideIn { from { transform: translateX(-100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        .message.success { background: #d4edda; color: #155724; border-left: 5px solid #28a745; }
+        .message.error { background: #f8d7da; color: #721c24; border-left: 5px solid #dc3545; }
+        .message.info { background: #e3f2fd; color: #1976d2; border-left: 5px solid #2196f3; }
+        .message.warning { background: #fff3cd; color: #856404; border-left: 5px solid #ffc107; }
         
-        /* ===== BUTTONS ===== */
-        .btn {
-            padding: 15px 30px;
-            border: none;
-            border-radius: 10px;
-            font-size: 16px;
-            font-weight: bold;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: inline-block;
-            text-align: center;
-        }
+        /* Loading */
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.95); z-index: 9999; display: none; justify-content: center; align-items: center; flex-direction: column; }
+        .loading-overlay.show { display: flex; }
+        .spinner { width: 60px; height: 60px; border: 5px solid #f3f3f3; border-top: 5px solid var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        .loading-text { margin-top: 20px; color: var(--primary); font-size: 18px; font-weight: bold; }
         
-        .btn-primary {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-        }
+        /* Referral Box */
+        .referral-box { background: linear-gradient(135deg, var(--warning) 0%, var(--danger) 100%); color: white; padding: 35px; margin: 15px; border-radius: 25px; text-align: center; box-shadow: 0 10px 30px rgba(240, 147, 251, 0.3); }
+        .referral-amount { font-size: 72px; font-weight: bold; margin: 20px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .referral-link-box { background: rgba(255,255,255,0.2); padding: 20px; border-radius: 15px; word-break: break-all; font-size: 14px; margin: 20px 0; backdrop-filter: blur(10px); }
         
-        .btn-success {
-            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
-            color: white;
-        }
+        /* Ticket Styles */
+        .ticket-item { background: white; padding: 20px; margin: 15px; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); border-left: 5px solid var(--primary); }
+        .ticket-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .ticket-status { padding: 5px 15px; border-radius: 20px; font-size: 12px; font-weight: bold; }
+        .status-open { background: #fff3cd; color: #856404; }
+        .status-resolved { background: #d4edda; color: #155724; }
+        .status-pending { background: #e3f2fd; color: #1976d2; }
         
-        .btn-warning {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-        }
+        /* Transaction List */
+        .transaction-item { display: flex; justify-content: space-between; align-items: center; padding: 18px 20px; border-bottom: 1px solid #eee; transition: background 0.3s; }
+        .transaction-item:hover { background: #f8f9fa; }
+        .transaction-item:last-child { border-bottom: none; }
+        .tx-info h4 { font-size: 15px; margin-bottom: 5px; color: #333; }
+        .tx-info small { color: #999; font-size: 12px; }
+        .tx-amount { font-size: 18px; font-weight: bold; }
+        .tx-credit { color: var(--success); }
+        .tx-debit { color: var(--danger); }
+        .tx-pending { color: #ff9800; }
         
-        .btn-outline {
-            background: transparent;
-            color: #667eea;
-            border: 2px solid #667eea;
-        }
+        /* OTP Inputs */
+        .otp-container { display: flex; gap: 12px; justify-content: center; margin: 30px 0; }
+        .otp-input { width: 55px; height: 65px; text-align: center; font-size: 28px; font-weight: bold; border: 2px solid #e0e0e0; border-radius: 15px; transition: all 0.3s; }
+        .otp-input:focus { border-color: var(--primary); box-shadow: 0 0 0 4px rgba(102, 126, 234, 0.1); outline: none; }
         
-        .btn:hover:not(:disabled) {
-            transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.2);
-        }
-        
-        .btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .btn-block {
-            width: 100%;
-            display: block;
-        }
-        
-        /* ===== CARDS ===== */
-        .card {
-            background: white;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-            margin-bottom: 25px;
-        }
-        
-        .card-title {
-            font-size: 24px;
-            color: #333;
-            margin-bottom: 20px;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        /* ===== FORMS ===== */
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 600;
-        }
-        
-        input, select, textarea {
-            width: 100%;
-            padding: 15px;
-            border: 2px solid #e0e0e0;
-            border-radius: 10px;
-            font-size: 16px;
-            transition: all 0.3s;
-        }
-        
-        input:focus, select:focus, textarea:focus {
-            outline: none;
-            border-color: #667eea;
-        }
-        
-        .phone-input {
-            display: flex;
-            gap: 10px;
-        }
-        
-        .phone-input select {
-            width: 100px;
-        }
-        
-        /* ===== OTP INPUTS ===== */
-        .otp-inputs {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin: 25px 0;
-        }
-        
-        .otp-inputs input {
-            width: 55px;
-            height: 55px;
-            text-align: center;
-            font-size: 24px;
-            font-weight: bold;
-        }
-        
-        /* ===== MESSAGES ===== */
-        .message {
-            padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 20px;
-            display: none;
-        }
-        
-        .message.success {
-            background: #d4edda;
-            color: #155724;
-            display: block;
-            border-left: 4px solid #28a745;
-        }
-        
-        .message.error {
-            background: #f8d7da;
-            color: #721c24;
-            display: block;
-            border-left: 4px solid #dc3545;
-        }
-        
-        .message.info {
-            background: #e3f2fd;
-            color: #1976d2;
-            display: block;
-            border-left: 4px solid #2196f3;
-        }
-        
-        /* ===== LANDING PAGE ===== */
-        .hero {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 80px 40px;
-            border-radius: 20px;
-            text-align: center;
-            margin-bottom: 30px;
-        }
-        
-        .hero h1 {
-            font-size: 48px;
-            margin-bottom: 20px;
-        }
-        
-        .hero p {
-            font-size: 20px;
-            margin-bottom: 10px;
-            opacity: 0.9;
-        }
-        
-        .highlight {
-            color: #f093fb;
-            font-weight: bold;
-        }
-        
-        .big-btn {
-            padding: 20px 50px;
-            font-size: 22px;
-            margin-top: 30px;
-        }
-        
-        .stats-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-        
-        .stat-card {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            text-align: center;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
-        }
-        
-        .stat-number {
-            font-size: 36px;
-            font-weight: bold;
-            color: #667eea;
-        }
-        
-        /* ===== UTILS ===== */
-        .text-center { text-align: center; }
-        .mt-20 { margin-top: 20px; }
-        .mb-20 { margin-bottom: 20px; }
+        /* Hidden */
         .hidden { display: none !important; }
         
-        .loading {
-            display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #ffffff;
-            border-radius: 50%;
-            border-top-color: transparent;
-            animation: spin 1s ease-in-out infinite;
-            margin-left: 10px;
-            vertical-align: middle;
-        }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-        
-        /* ===== RESPONSIVE ===== */
-        @media (max-width: 768px) {
-            .nav-links { display: none; }
-            .hero h1 { font-size: 32px; }
-            .hero { padding: 40px 20px; }
-            .otp-inputs input { width: 45px; height: 45px; }
+        /* Responsive */
+        @media (max-width: 480px) { 
+            .plans-container { grid-template-columns: 1fr; padding: 10px; } 
+            .card { margin: 10px; padding: 15px; } 
+            .balance-amount { font-size: 42px; }
+            .referral-amount { font-size: 56px; }
+            .btn { padding: 12px 20px; font-size: 14px; }
         }
     </style>
 </head>
 <body>
-    <!-- ===== NAVBAR ===== -->
-    <nav class="navbar" id="navbar" style="display: none;">
-        <div class="logo" onclick="showPage('dashboard')">🌞 Solar Energy</div>
-        <div class="nav-links">
-            <a href="#" onclick="showPage('dashboard')" id="nav-dashboard">🏠 Dashboard</a>
-            <a href="#" onclick="showPage('plans')" id="nav-plans">💎 Plans</a>
-            <a href="#" onclick="showPage('referral')" id="nav-referral">👥 Refer</a>
-            <a href="#" onclick="showPage('wallet')" id="nav-wallet">💰 Wallet</a>
-            <div class="balance-pill">₹<span id="navBalance">0</span></div>
-            <button onclick="logout()">🚪 Logout</button>
-        </div>
-    </nav>
+    <!-- Loading Overlay -->
+    <div id="loadingOverlay" class="loading-overlay">
+        <div class="spinner"></div>
+        <div class="loading-text">Loading...</div>
+    </div>
 
-    <!-- ===== LANDING PAGE ===== -->
-    <div id="landing" class="page active">
-        <div class="hero">
+    <!-- Message Container -->
+    <div id="messageContainer"></div>
+
+    <!-- PART 1 ENDS HERE - Continue to Part 2 for HTML Body Content -->    <!-- HOME PAGE -->
+    <div id="homePage" class="page active">
+        <div class="header">
             <h1>🌞 Solar Energy</h1>
-            <p>India's <span class="highlight">#1 Refer & Earn</span> Platform</p>
-            <p>💰 <span class="highlight">₹15</span> Instant per Referral</p>
-            <p>💎 <span class="highlight">20%</span> Commission on Plan Purchase</p>
-            <p>🏆 <span class="highlight">5%-3%-1%</span> Lifetime Passive Income</p>
-            <button class="btn btn-success big-btn" onclick="showPage('register')">
-                🚀 Start Earning Now - It's FREE!
-            </button>
-            <div class="mt-20">
-                <button class="btn btn-outline" onclick="showPage('login')" style="color: white; border-color: white;">
-                    🔐 Already have an account? Login
-                </button>
-            </div>
+            <p>India's #1 Refer & Earn Platform</p>
         </div>
         
-        <div class="container">
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number">50,000+</div>
-                    <div>Happy Users</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">₹2Cr+</div>
-                    <div>Total Paid</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">₹15</div>
-                    <div>Per Refer</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number">4.9★</div>
-                    <div>Rating</div>
-                </div>
+        <div class="balance-card">
+            <div class="balance-label">Available Balance</div>
+            <div class="balance-amount">₹<span id="homeBalance">0</span></div>
+            <div class="balance-actions">
+                <button class="btn btn-success" onclick="showPage('wallet')">➕ Add Money</button>
+                <button class="btn btn-warning" onclick="showPage('wallet')">➖ Withdraw</button>
+            </div>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number" id="homeRefers">0</div>
+                <div class="stat-label">Total Refers</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="homeEarnings">₹0</div>
+                <div class="stat-label">Total Earnings</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="homePlans">0</div>
+                <div class="stat-label">Active Plans</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" id="homeCode">----</div>
+                <div class="stat-label">My Code</div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">💎 Investment Plans</div>
+            <p style="color: #666; margin-bottom: 20px;">Choose a plan and earn daily returns!</p>
+        </div>
+
+        <div class="plans-container" id="homePlansContainer">
+            <!-- Plans loaded dynamically -->
+        </div>
+
+        <div class="card">
+            <div class="card-title">📝 Recent Transactions</div>
+            <div id="homeTransactions">
+                <p style="text-align: center; color: #999; padding: 30px;">No transactions yet</p>
             </div>
         </div>
     </div>
 
-    <!-- ===== LOGIN PAGE ===== -->
-    <div id="login" class="page">
-        <div class="container" style="max-width: 450px;">
-            <div class="card">
-                <div class="text-center mb-20">
-                    <div style="font-size: 32px; font-weight: bold; margin-bottom: 10px; background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">🌞 Solar Energy</div>
-                    <p style="color: #666;">Welcome back! Login to continue</p>
-                </div>
-                
-                <div id="loginMessage" class="message"></div>
-                
-                <!-- Login with Password -->
-                <div id="loginPasswordSection">
-                    <form id="loginForm">
-                        <div class="form-group">
-                            <label>📱 Phone Number</label>
-                            <input type="tel" id="loginPhone" placeholder="9876543210" maxlength="10" required>
-                        </div>
-                        <div class="form-group">
-                            <label>🔒 Password</label>
-                            <input type="password" id="loginPassword" placeholder="Enter password" required>
-                        </div>
-                        <div style="text-align: right; margin-bottom: 20px;">
-                            <a href="#" onclick="showPage('forgot')" style="color: #667eea; font-size: 14px;">Forgot Password?</a>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-block" id="loginBtn">
-                            🔐 Login
-                        </button>
-                    </form>
-                    
-                    <div style="text-align: center; margin: 25px 0; position: relative;">
-                        <span style="background: white; padding: 0 15px; color: #666; position: relative; z-index: 1;">OR</span>
-                        <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: #eee;"></div>
-                    </div>
-                    
-                    <button class="btn btn-outline btn-block" onclick="showLoginOtp()">
-                        📱 Login with OTP
-                    </button>
-                </div>
-                
-                <!-- Login with OTP -->
-                <div id="loginOtpSection" class="hidden">
-                    <form id="loginOtpForm">
-                        <div class="form-group">
-                            <label>📱 Phone Number</label>
-                            <input type="tel" id="loginOtpPhone" placeholder="9876543210" maxlength="10" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-block" id="sendLoginOtpBtn">
-                            📲 Send OTP
-                        </button>
-                        <button type="button" class="btn btn-outline btn-block mt-20" onclick="showLoginPassword()">
-                            ← Back to Password Login
-                        </button>
-                    </form>
-                </div>
-                
-                <!-- Verify Login OTP -->
-                <div id="verifyLoginOtpSection" class="hidden">
-                    <div class="text-center mb-20">
-                        <p style="color: #666;">Enter OTP sent to <strong id="displayLoginPhone"></strong></p>
-                    </div>
-                    <form id="verifyLoginOtpForm">
-                        <div class="otp-inputs">
-                            <input type="text" maxlength="1" class="otp-digit-login" data-index="0">
-                            <input type="text" maxlength="1" class="otp-digit-login" data-index="1">
-                            <input type="text" maxlength="1" class="otp-digit-login" data-index="2">
-                            <input type="text" maxlength="1" class="otp-digit-login" data-index="3">
-                            <input type="text" maxlength="1" class="otp-digit-login" data-index="4">
-                            <input type="text" maxlength="1" class="otp-digit-login" data-index="5">
-                        </div>
-                        <input type="hidden" id="fullLoginOtp">
-                        <button type="submit" class="btn btn-success btn-block">
-                            ✅ Verify & Login
-                        </button>
-                        <div class="text-center mt-20">
-                            <span id="loginCountdown">60</span>s
-                            <button type="button" class="btn btn-outline btn-block mt-20 hidden" id="resendLoginBtn" onclick="resendLoginOtp()">
-                                Resend OTP
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                
-                <div class="text-center mt-20" style="border-top: 1px solid #eee; padding-top: 20px;">
-                    Don't have an account? <a href="#" onclick="showPage('register')" style="color: #667eea; font-weight: bold;">Register now</a>
-                </div>
-            </div>
+    <!-- LOGIN PAGE -->
+    <div id="loginPage" class="page">
+        <div style="padding: 60px 20px 30px; text-align: center;">
+            <div style="font-size: 64px; margin-bottom: 20px;">🌞</div>
+            <h1 style="margin-bottom: 10px; color: #333; font-size: 32px;">Welcome Back</h1>
+            <p style="color: #666; margin-bottom: 30px;">Login to continue earning</p>
         </div>
-    </div>
-
-    <!-- ===== FORGOT PASSWORD PAGE ===== -->
-    <div id="forgot" class="page">
-        <div class="container" style="max-width: 450px;">
-            <div class="card">
-                <div class="text-center mb-20">
-                    <div style="font-size: 32px; font-weight: bold; margin-bottom: 10px;">🔐 Reset Password</div>
-                    <p style="color: #666;">Enter your phone number to receive OTP</p>
-                </div>
-                
-                <div id="forgotMessage" class="message"></div>
-                
-                <!-- Send Reset OTP -->
-                <div id="forgotSendSection">
-                    <form id="forgotForm">
-                        <div class="form-group">
-                            <label>📱 Phone Number</label>
-                            <input type="tel" id="forgotPhone" placeholder="9876543210" maxlength="10" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-block" id="sendResetOtpBtn">
-                            📲 Send Reset OTP
-                        </button>
-                        <button type="button" class="btn btn-outline btn-block mt-20" onclick="showPage('login')">
-                            ← Back to Login
-                        </button>
-                    </form>
-                </div>
-                
-                <!-- Verify Reset OTP -->
-                <div id="forgotVerifySection" class="hidden">
-                    <div class="text-center mb-20">
-                        <p style="color: #666;">Enter OTP sent to <strong id="displayForgotPhone"></strong></p>
-                    </div>
-                    <form id="verifyForgotForm">
-                        <div class="otp-inputs">
-                            <input type="text" maxlength="1" class="otp-digit-forgot" data-index="0">
-                            <input type="text" maxlength="1" class="otp-digit-forgot" data-index="1">
-                            <input type="text" maxlength="1" class="otp-digit-forgot" data-index="2">
-                            <input type="text" maxlength="1" class="otp-digit-forgot" data-index="3">
-                            <input type="text" maxlength="1" class="otp-digit-forgot" data-index="4">
-                            <input type="text" maxlength="1" class="otp-digit-forgot" data-index="5">
-                        </div>
-                        <input type="hidden" id="fullForgotOtp">
-                        <button type="submit" class="btn btn-success btn-block">
-                            ✅ Verify OTP
-                        </button>
-                        <div class="text-center mt-20">
-                            <span id="forgotCountdown">60</span>s
-                            <button type="button" class="btn btn-outline btn-block mt-20 hidden" id="resendForgotBtn" onclick="resendForgotOtp()">
-                                Resend OTP
-                            </button>
-                        </div>
-                    </form>
-                </div>
-                
-                <!-- New Password -->
-                <div id="newPasswordSection" class="hidden">
-                    <form id="newPasswordForm">
-                        <div class="form-group">
-                            <label>🔒 New Password</label>
-                            <input type="password" id="newPassword" placeholder="Create new password" required minlength="6">
-                        </div>
-                        <div class="form-group">
-                            <label>✅ Confirm Password</label>
-                            <input type="password" id="confirmNewPassword" placeholder="Confirm password" required>
-                        </div>
-                        <button type="submit" class="btn btn-success btn-block">
-                            💾 Update Password
-                        </button>
-                    </form>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ===== REGISTER PAGE ===== -->
-    <div id="register" class="page">
-        <div class="container" style="max-width: 450px;">
-            <div class="card">
-                <div class="text-center mb-20">
-                    <div style="font-size: 32px; font-weight: bold; margin-bottom: 10px; background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">🌞 Solar Energy</div>
-                    <p style="color: #666;">Create account & start earning!</p>
-                </div>
-                
-                <div id="registerMessage" class="message"></div>
-                
-                <!-- Referral Banner -->
-                <div id="referralBanner" class="message info hidden">
-                    🎉 <strong>You were invited!</strong> Register now and get ₹15 bonus instantly!
-                </div>
-                
-                <!-- Step 1: Basic Info -->
-                <div id="registerStep1">
-                    <form id="registerForm">
-                        <div class="form-group">
-                            <label>👤 Full Name *</label>
-                            <input type="text" id="regName" placeholder="Enter your full name" required>
-                        </div>
-                        <div class="form-group">
-                            <label>📱 Phone Number *</label>
-                            <div class="phone-input">
-                                <select disabled><option>+91</option></select>
-                                <input type="tel" id="regPhone" placeholder="9876543210" maxlength="10" required>
-                            </div>
-                        </div>
-                        <div class="form-group">
-                            <label>🔒 Password *</label>
-                            <input type="password" id="regPassword" placeholder="Create password (min 6 chars)" required minlength="6">
-                        </div>
-                        <div class="form-group">
-                            <label>✅ Confirm Password *</label>
-                            <input type="password" id="regConfirmPassword" placeholder="Confirm password" required>
-                        </div>
-                        <div class="form-group">
-                            <label>📧 Email (Optional)</label>
-                            <input type="email" id="regEmail" placeholder="For account recovery">
-                        </div>
-                        <div class="form-group">
-                            <label>🔗 Referral Code (Optional)</label>
-                            <input type="text" id="regReferral" placeholder="Friend's code (auto-filled if available)">
-                        </div>
-                        <button type="submit" class="btn btn-success btn-block" id="sendRegOtpBtn">
-                            📲 Send OTP & Continue
-                        </button>
-                    </form>
-                </div>
-                
-                <!-- Step 2: Verify OTP -->
-                <div id="registerStep2" class="hidden">
-                    <div class="text-center mb-20">
-                        <p style="color: #666;">Enter OTP sent to <strong id="displayRegPhone"></strong></p>
-                    </div>
-                    <form id="verifyRegForm">
-                        <div class="otp-inputs">
-                            <input type="text" maxlength="1" class="otp-digit-reg" data-index="0">
-                            <input type="text" maxlength="1" class="otp-digit-reg" data-index="1">
-                            <input type="text" maxlength="1" class="otp-digit-reg" data-index="2">
-                            <input type="text" maxlength="1" class="otp-digit-reg" data-index="3">
-                            <input type="text" maxlength="1" class="otp-digit-reg" data-index="4">
-                            <input type="text" maxlength="1" class="otp-digit-reg" data-index="5">
-                        </div>
-                        <input type="hidden" id="fullRegOtp">
-                        <button type="submit" class="btn btn-success btn-block">
-                            ✅ Verify & Create Account
-                        </button>
-                        <div class="text-center mt-20">
-                            <span id="regCountdown">60</span>s
-                            <button type="button" class="btn btn-outline btn-block mt-20 hidden" id="resendRegBtn" onclick="resendRegOtp()">
-                                Resend OTP
-                            </button>
-                        </div>
-                        <button type="button" class="btn btn-outline btn-block mt-20" onclick="backToRegStep1()">
-                            ← Change Number
-                        </button>
-                    </form>
-                </div>
-                
-                <!-- Step 3: Success -->
-                <div id="registerStep3" class="hidden text-center">
-                    <div style="font-size: 80px; margin-bottom: 20px;">🎉</div>
-                    <h2 style="color: #333; margin-bottom: 15px;">Registration Successful!</h2>
-                    <p style="color: #666; margin-bottom: 10px;">Your account has been created.</p>
-                    <p id="regBonusText" style="color: #11998e; font-weight: bold; margin-bottom: 25px;"></p>
-                    <button class="btn btn-success btn-block" onclick="showPage('dashboard')">
-                        🚀 Go to Dashboard
-                    </button>
-                </div>
-                
-                <div class="text-center mt-20" style="border-top: 1px solid #eee; padding-top: 20px;">
-                    Already have an account? <a href="#" onclick="showPage('login')" style="color: #667eea; font-weight: bold;">Login here</a>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ===== DASHBOARD PAGE ===== -->
-    <div id="dashboard" class="page">
-        <div class="container">
-            <div class="card">
-                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 20px;">
-                    <div>
-                        <h1 style="color: #333; margin-bottom: 5px;">Welcome back, <span id="dashName">User</span>! 👋</h1>
-                        <p style="color: #666;">Member since <span id="dashJoinDate">--</span></p>
-                    </div>
-                    <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 20px 30px; border-radius: 15px; text-align: center;">
-                        <div style="font-size: 12px; opacity: 0.9;">YOUR REFERRAL CODE</div>
-                        <div id="dashReferralCode" style="font-size: 28px; font-weight: bold; margin: 10px 0; letter-spacing: 2px;">----</div>
-                        <button onclick="copyReferral()" style="background: white; color: #f5576c; border: none; padding: 8px 20px; border-radius: 20px; cursor: pointer; font-weight: bold;">📋 Copy Link</button>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="stats-grid">
-                <div class="stat-card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white;">
-                    <div style="font-size: 14px; opacity: 0.9; margin-bottom: 10px;">💰 Total Balance</div>
-                    <div id="dashBalance" style="font-size: 36px; font-weight: bold;">₹0</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="dashRefers">0</div>
-                    <div>Total Refers</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="dashEarnings">₹0</div>
-                    <div>Total Earnings</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-number" id="dashPlans">0</div>
-                    <div>Active Plans</div>
-                </div>
-            </div>
-            
-            <div class="card">
-                <h2 class="card-title">⚡ Quick Actions</h2>
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
-                    <button class="btn btn-success" onclick="showPage('wallet')">
-                        💰 Add Money / Withdraw
-                    </button>
-                    <button class="btn btn-primary" onclick="showPage('plans')">
-                        💎 Buy Investment Plan
-                    </button>
-                    <button class="btn btn-warning" onclick="showPage('referral')">
-                        👥 Refer & Earn ₹15
-                    </button>
-                </div>
-            </div>
-            
-            <div class="card">
-                <h2 class="card-title">🏦 Active Plans</h2>
-                <div id="dashPlansList">
-                    <div class="text-center" style="padding: 40px; color: #999;">
-                        No active plans. <a href="#" onclick="showPage('plans')" style="color: #667eea;">Buy one now!</a>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="card">
-                <h2 class="card-title">📝 Recent Transactions</h2>
-                <div id="dashTransactions">
-                    <div class="text-center" style="padding: 40px; color: #999;">No transactions yet</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ===== PLANS PAGE ===== -->
-    <div id="plans" class="page">
-        <div class="container">
-            <div class="card">
-                <h2 class="card-title">💎 Investment Plans</h2>
-                <p style="color: #666; margin-bottom: 25px;">Choose a plan and earn daily returns!</p>
-                
-                <div id="plansList" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;">
-                    <!-- Plans loaded dynamically -->
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ===== JAVASCRIPT ===== -->
-    <script>
-        // 🔥 FIREBASE CONFIG - REPLACE WITH YOUR VALUES
-        const firebaseConfig = {
-  apiKey: "AIzaSyA3pH_dnb6_--wRoDSuoj-TAudsmJ7D4R0",
-  authDomain: "solor-energy.firebaseapp.com",
-  projectId: "solor-energy",
-  storageBucket: "solor-energy.firebasestorage.app",
-  messagingSenderId: "772737546715",
-  appId: "1:772737546715:web:3736545b464523bdc04ffe",
-  measurementId: "G-ZG0MDB5TTR"
-};
         
-        // Initialize Firebase
-        firebase.initializeApp(firebaseConfig);
-        const auth = firebase.auth();
-        
-        // ===== GLOBAL VARIABLES =====
-        let currentUser = null;
-        let confirmationResult = null;
-        let tempUserData = {};
-        let countdownInterval = null;
-        
-        // ===== PLANS DATA =====
-        const plans = [
-            { id: 'free', name: 'Free Trial', price: 0, daily: 10, days: 7, total: 70, popular: false },
-            { id: 'nano', name: 'Nano', price: 100, daily: 20, days: 30, total: 600, popular: false },
-            { id: 'micro', name: 'Micro', price: 200, daily: 45, days: 30, total: 1350, popular: false },
-            { id: 'mini', name: 'Mini', price: 300, daily: 75, days: 30, total: 2250, popular: false },
-            { id: 'basic', name: 'Basic', price: 500, daily: 150, days: 30, total: 4500, popular: true },
-            { id: 'standard', name: 'Standard', price: 1000, daily: 350, days: 30, total: 10500, popular: false },
-            { id: 'pro', name: 'Pro', price: 2000, daily: 800, days: 30, total: 24000, popular: false }
-        ];
-        
-        // ===== PAGE NAVIGATION =====
-        function showPage(pageName) {
-            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            document.getElementById(pageName).classList.add('active');
-            
-            const navbar = document.getElementById('navbar');
-            if (pageName === 'landing' || pageName === 'login' || pageName === 'register' || pageName === 'forgot') {
-                navbar.style.display = 'none';
-            } else {
-                navbar.style.display = 'flex';
-                updateNavActive(pageName);
-            }
-            
-            if (pageName === 'dashboard') loadDashboard();
-            if (pageName === 'plans') loadPlans();
-            if (pageName === 'wallet') loadWallet();
-            if (pageName === 'referral') loadReferral();
-            
-            window.scrollTo(0, 0);
-        }
-        
-        function updateNavActive(pageName) {
-            document.querySelectorAll('.nav-links a').forEach(a => a.classList.remove('active'));
-            const navId = 'nav-' + pageName;
-            const navElement = document.getElementById(navId);
-            if (navElement) navElement.classList.add('active');
-        }
-        
-        // ===== CHECK AUTH ON LOAD =====
-        window.onload = function() {
-            const savedUser = localStorage.getItem('currentUser');
-            const urlParams = new URLSearchParams(window.location.search);
-            const refCode = urlParams.get('ref');
-            
-            if (refCode) {
-                localStorage.setItem('pendingReferral', refCode);
-            }
-            
-            if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                showPage('dashboard');
-            } else {
-                showPage('landing');
-            }
-        };
-        
-        // ===== SHOW MESSAGE =====
-        function showMessage(elementId, text, type) {
-            const msg = document.getElementById(elementId);
-            msg.textContent = text;
-            msg.className = 'message ' + type;
-            setTimeout(() => msg.className = 'message', 5000);
-        }
-        
-        // ===== LOGIN FUNCTIONS =====
-        function showLoginOtp() {
-            document.getElementById('loginPasswordSection').classList.add('hidden');
-            document.getElementById('loginOtpSection').classList.remove('hidden');
-        }
-        
-        function showLoginPassword() {
-            document.getElementById('loginOtpSection').classList.add('hidden');
-            document.getElementById('verifyLoginOtpSection').classList.add('hidden');
-            document.getElementById('loginPasswordSection').classList.remove('hidden');
-        }
-        
-        // Login with password
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const phone = document.getElementById('loginPhone').value;
-            const password = document.getElementById('loginPassword').value;
-            
-            const users = JSON.parse(localStorage.getItem('solarUsers') || '[]');
-            const user = users.find(u => u.phone === phone && u.password === password);
-            
-            if (user) {
-                if (user.status === 'blocked') {
-                    showMessage('loginMessage', '❌ Your account has been blocked!', 'error');
-                    return;
-                }
-                
-                currentUser = user;
-                localStorage.setItem('currentUser', JSON.stringify(user));
-                showMessage('loginMessage', '✅ Login successful!', 'success');
-                setTimeout(() => showPage('dashboard'), 1000);
-            } else {
-                showMessage('loginMessage', '❌ Invalid phone or password!', 'error');
-            }
-        });
-        
-        // Send login OTP
-        document.getElementById('loginOtpForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const phone = document.getElementById('loginOtpPhone').value;
-            
-            const users = JSON.parse(localStorage.getItem('solarUsers') || '[]');
-            if (!users.find(u => u.phone === phone)) {
-                showMessage('loginMessage', '❌ This number is not registered!', 'error');
-                return;
-            }
-            
-            const btn = document.getElementById('sendLoginOtpBtn');
-            btn.innerHTML = 'Sending<span class="loading"></span>';
-            btn.disabled = true;
-            
-            try {
-                const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sendLoginOtpBtn', {
-                    size: 'invisible'
-                });
-                
-                confirmationResult = await auth.signInWithPhoneNumber('+91' + phone, recaptchaVerifier);
-                
-                document.getElementById('displayLoginPhone').textContent = phone;
-                document.getElementById('loginOtpSection').classList.add('hidden');
-                document.getElementById('verifyLoginOtpSection').classList.remove('hidden');
-                
-                setupOtpInputs('otp-digit-login', 'fullLoginOtp');
-                startCountdown('loginCountdown', 'resendLoginBtn', 60);
-                
-            } catch (error) {
-                showMessage('loginMessage', '❌ ' + error.message, 'error');
-                btn.innerHTML = '📲 Send OTP';
-                btn.disabled = false;
-            }
-        });
-        
-        // Verify login OTP
-        document.getElementById('verifyLoginOtpForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const otp = document.getElementById('fullLoginOtp').value;
-            
-            try {
-                await confirmationResult.confirm(otp);
-                
-                const phone = document.getElementById('loginOtpPhone').value;
-                const users = JSON.parse(localStorage.getItem('solarUsers') || '[]');
-                const user = users.find(u => u.phone === phone);
-                
-                if (user) {
-                    currentUser = user;
-                    localStorage.setItem('currentUser', JSON.stringify(user));
-                    showPage('dashboard');
-                }
-                
-            } catch (error) {
-                showMessage('loginMessage', '❌ Invalid OTP!', 'error');
-            }
-        });
-        
-        // ===== FORGOT PASSWORD =====
-        document.getElementById('forgotForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const phone = document.getElementById('forgotPhone').value;
-            tempUserData.phone = phone;
-            
-            const users = JSON.parse(localStorage.getItem('solarUsers') || '[]');
-            if (!users.find(u => u.phone === phone)) {
-                showMessage('forgotMessage', '❌ This number is not registered!', 'error');
-                return;
-            }
-            
-            const btn = document.getElementById('sendResetOtpBtn');
-            btn.innerHTML = 'Sending<span class="loading"></span>';
-            btn.disabled = true;
-            
-            try {
-                const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sendResetOtpBtn', {
-                    size: 'invisible'
-                });
-                
-                confirmationResult = await auth.signInWithPhoneNumber('+91' + phone, recaptchaVerifier);
-                
-                document.getElementById('displayForgotPhone').textContent = phone;
-                document.getElementById('forgotSendSection').classList.add('hidden');
-                document.getElementById('forgotVerifySection').classList.remove('hidden');
-                
-                setupOtpInputs('otp-digit-forgot', 'fullForgotOtp');
-                startCountdown('forgotCountdown', 'resendForgotBtn', 60);
-                
-            } catch (error) {
-                showMessage('forgotMessage', '❌ ' + error.message, 'error');
-                btn.innerHTML = '📲 Send Reset OTP';
-                btn.disabled = false;
-            }
-        });
-        
-        // Verify forgot OTP
-        document.getElementById('verifyForgotForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const otp = document.getElementById('fullForgotOtp').value;
-            
-            try {
-                await confirmationResult.confirm(otp);
-                document.getElementById('forgotVerifySection').classList.add('hidden');
-                document.getElementById('newPasswordSection').classList.remove('hidden');
-                
-            } catch (error) {
-                showMessage('forgotMessage', '❌ Invalid OTP!', 'error');
-            }
-        });
-        
-        // Update password
-        document.getElementById('newPasswordForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const newPass = document.getElementById('newPassword').value;
-            const confirmPass = document.getElementById('confirmNewPassword').value;
-            
-            if (newPass !== confirmPass) {
-                showMessage('forgotMessage', '❌ Passwords do not match!', 'error');
-                return;
-            }
-            
-            const users = JSON.parse(localStorage.getItem('solarUsers') || '[]');
-            const userIndex = users.findIndex(u => u.phone === tempUserData.phone);
-            
-            if (userIndex !== -1) {
-                users[userIndex].password = newPass;
-                localStorage.setItem('solarUsers', JSON.stringify(users));
-                
-                showMessage('forgotMessage', '✅ Password updated! Redirecting to login...', 'success');
-                setTimeout(() => showPage('login'), 1500);
-            }
-        });
-        
-        // ===== REGISTRATION =====
-        const pendingRef = localStorage.getItem('pendingReferral');
-        if (pendingRef) {
-            document.getElementById('regReferral').value = pendingRef;
-            document.getElementById('referralBanner').classList.remove('hidden');
-        }
-        
-        // Step 1: Send OTP
-        document.getElementById('registerForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const name = document.getElementById('regName').value.trim();
-            const phone = document.getElementById('regPhone').value.trim();
-            const password = document.getElementById('regPassword').value;
-            const confirmPass = document.getElementById('regConfirmPassword').value;
-            const email = document.getElementById('regEmail').value.trim();
-            const referral = document.getElementById('regReferral').value.trim();
-            
-            if (phone.length !== 10 || !/^\d+$/.test(phone)) {
-                showMessage('registerMessage', '❌ Enter valid 10-digit phone number', 'error');
-                return;
-            }
-            
-            if (password.length < 6) {
-                showMessage('registerMessage', '❌ Password must be at least 6 characters', 'error');
-                return;
-            }
-            
-            if (password !== confirmPass) {
-                showMessage('registerMessage', '❌ Passwords do not match', 'error');
-                return;
-            }
-            
-            const users = JSON.parse(localStorage.getItem('solarUsers') || '[]');
-            if (users.find(u => u.phone === phone)) {
-                showMessage('registerMessage', '❌ This number is already registered. Please login.', 'error');
-                setTimeout(() => showPage('login'), 2000);
-                return;
-            }
-            
-            tempUserData = { name, phone, password, email, referral };
-            
-            const btn = document.getElementById('sendRegOtpBtn');
-            btn.innerHTML = 'Sending OTP<span class="loading"></span>';
-            btn.disabled = true;
-            
-            try {
-                const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('sendRegOtpBtn', {
-                    size: 'invisible'
-                });
-                
-                confirmationResult = await auth.signInWithPhoneNumber('+91' + phone, recaptchaVerifier);
-                
-                document.getElementById('displayRegPhone').textContent = phone;
-                document.getElementById('registerStep1').classList.add('hidden');
-                document.getElementById('registerStep2').classList.remove('hidden');
-                
-                setupOtpInputs('otp-digit-reg', 'fullRegOtp');
-                startCountdown('regCountdown', 'resendRegBtn', 60);
-                
-            } catch (error) {
-                showMessage('registerMessage', '❌ ' + error.message, 'error');
-                btn.innerHTML = '📲 Send OTP & Continue';
-                btn.disabled = false;
-            }
-        });
-        
-        // Step 2: Verify OTP and create account
-        document.getElementById('verifyRegForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const otp = document.getElementById('fullRegOtp').value;
-            
-            try {
-                const result = await confirmationResult.confirm(otp);
-                
-                const userId = 'SOLAR' + Date.now().toString().slice(-6);
-                const myReferralCode = tempUserData.name.substring(0, 4).toUpperCase() + Math.floor(Math.random() * 1000);
-                
-                let bonus = 0;
-                let referredBy = 'ADMIN';
-                
-                if (tempUserData.referral) {
-                    const users = JSON.parse(localStorage.getItem('solarUsers') || '[]');
-                    const referrer = users.find(u => u.referralCode === tempUserData.referral);
-                    
-                    if (referrer) {
-                        bonus = 15;
-                        referredBy = tempUserData.referral;
-                        
-                        referrer.wallet.mainBalance += 15;
-                        referrer.wallet.referralBalance += 15;
-                        referrer.referrals.count += 1;
-                        referrer.referrals.list.push(userId);
-                        referrer.referrals.earnings += 15;
-                        referrer.transactions.push({
-                            id: 'TXN' + Date.now(),
-                            type: 'referral_bonus',
-                            amount: 15,
-                            description: `Referral bonus for ${tempUserData.name}`,
-                            date: new Date().toISOString()
-                        });
-                        
-                        const refIndex = users.findIndex(u => u.id === referrer.id);
-                        users[refIndex] = referrer;
-                        localStorage.setItem('solarUsers', JSON.stringify(users));
-                    }
-                }
-                
-                const newUser = {
-                    id: userId,
-                    name: tempUserData.name,
-                    phone: tempUserData.phone,
-                    email: tempUserData.email,
-                    password: tempUserData.password,
-                    referralCode: myReferralCode,
-                    referredBy: referredBy,
-                    joinDate: new Date().toISOString(),
-                    wallet: {
-                        mainBalance: bonus,
-                        referralBalance: bonus,
-                        totalWithdrawn: 0
-                    },
-                    referrals: {
-                        count: 0,
-                        list: [],
-                        earnings: 0
-                    },
-                    activePlans: [],
-                    transactions: [{
-                        id: 'TXN' + Date.now(),
-                        type: bonus > 0 ? 'referral_bonus' : 'signup',
-                        amount: bonus,
-                        description: bonus > 0 ? `Referral bonus from ${tempUserData.referral}` : 'Account created',
-                        date: new Date().toISOString()
-                    }],
-                    bankDetails: {
-                        upiId: '',
-                        accountNumber: '',
-                        ifsc: '',
-                        bankName: ''
-                    },
-                    status: 'active',
-                    firebaseUid: result.user.uid
-                };
-                
-                const users = JSON.parse(localStorage.getItem('solarUsers') || '[]');
-                users.push(newUser);
-                localStorage.setItem('solarUsers', JSON.stringify(users));
-                localStorage.setItem('currentUser', JSON.stringify(newUser));
-                localStorage.removeItem('pendingReferral');
-                
-                currentUser = newUser;
-                
-                document.getElementById('registerStep2').classList.add('hidden');
-                document.getElementById('registerStep3').classList.remove('hidden');
-                document.getElementById('regBonusText').textContent = bonus > 0 ? `🎉 ₹${bonus} referral bonus credited!` : 'Welcome to Solar Energy!';
-                
-            } catch (error) {
-                showMessage('registerMessage', '❌ Invalid OTP!', 'error');
-            }
-        });
-        
-        // ===== OTP INPUT HANDLING =====
-        function setupOtpInputs(digitClass, hiddenInputId) {
-            document.querySelectorAll('.' + digitClass).forEach((input, index) => {
-                input.addEventListener('input', (e) => {
-                    if (e.target.value.length === 1) {
-                        const next = document.querySelectorAll('.' + digitClass)[index + 1];
-                        if (next) next.focus();
-                    }
-                    
-                    let otp = '';
-                    document.querySelectorAll('.' + digitClass).forEach(inp => otp += inp.value);
-                    document.getElementById(hiddenInputId).value = otp;
-                });
-                
-                input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
-                        document.querySelectorAll('.' + digitClass)[index - 1].focus();
-                    }
-                });
-            });
-        }
-        
-        // ===== COUNTDOWN TIMER =====
-        function startCountdown(countdownId, resendBtnId, seconds) {
-            let secs = seconds;
-            const countdownEl = document.getElementById(countdownId);
-            const resendBtn = document.getElementById(resendBtnId);
-            
-            clearInterval(countdownInterval);
-            
-            countdownInterval = setInterval(() => {
-                secs--;
-                countdownEl.textContent = secs;
-                
-                if (secs <= 0) {
-                    clearInterval(countdownInterval);
-                    countdownEl.parentElement.classList.add('hidden');
-                    resendBtn.classList.remove('hidden');
-                }
-            }, 1000);
-        }
-        
-        function backToRegStep1() {
-            clearInterval(countdownInterval);
-            document.getElementById('registerStep2').classList.add('hidden');
-            document.getElementById('registerStep1').classList.remove('hidden');
-            document.getElementById('sendRegOtpBtn').innerHTML = '📲 Send OTP & Continue';
-            document.getElementById('sendRegOtpBtn').disabled = false;
-            document.querySelectorAll('.otp-digit-reg').forEach(inp => inp.value = '');
-        }
-        
-        // ===== DASHBOARD =====
-        function loadDashboard() {
-            if (!currentUser) return;
-            
-            const users = JSON.parse(localStorage.getItem('solarUsers') || '[]');
-            const user = users.find(u => u.id === currentUser.id) || currentUser;
-            currentUser = user;
-            localStorage.setItem('currentUser', JSON.stringify(user));
-            
-            document.getElementById('dashName').textContent = user.name;
-            document.getElementById('dashJoinDate').textContent = new Date(user.joinDate).toLocaleDateString();
-            document.getElementById('dashReferralCode').textContent = user.referralCode;
-            document.getElementById('navBalance').textContent = user.wallet.mainBalance;
-            document.getElementById('dashBalance').textContent = '₹' + user.wallet.mainBalance;
-            document.getElementById('dashRefers').textContent = user.referrals.count;
-            document.getElementById('dashEarnings').textContent = '₹' + (user.referrals.earnings + user.wallet.mainBalance);
-            document.getElementById('dashPlans').textContent = user.activePlans.length;
-            
-            const plansList = document.getElementById('dashPlansList');
-            if (user.activePlans.length > 0) {
-                plansList.innerHTML = '';
-                user.activePlans.forEach(plan => {
-                    const daysLeft = Math.ceil((new Date(plan.expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
-                    plansList.innerHTML += `
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #eee;">
-                            <div>
-                                <strong>${plan.planName} Plan</strong><br>
-                                <small>₹${plan.amount} • ${daysLeft} days left</small>
-                            </div>
-                            <div style="color: #667eea; font-weight: bold;">₹${plan.dailyReturn}/day</div>
-                        </div>
-                    `;
-                });
-            }
-            
-            const txList = document.getElementById('dashTransactions');
-            if (user.transactions && user.transactions.length > 0) {
-                txList.innerHTML = '';
-                user.transactions.slice().reverse().slice(0, 5).forEach(tx => {
-                    const isCredit = tx.type.includes('bonus') || tx.type.includes('commission') || 
-                                    tx.type.includes('daily') || tx.type.includes('earning') || 
-                                    tx.type === 'referral_bonus' || tx.type === 'deposit_approved';
-                    const isPending = tx.status === 'pending';
-                    
-                    txList.innerHTML += `
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #eee;">
-                            <div>
-                                <strong>${tx.description}</strong><br>
-                                <small>${new Date(tx.date).toLocaleDateString()}</small>
-                            </div>
-                            <div style="text-align: right;">
-                                <div style="color: ${isCredit ? '#11998e' : '#f5576c'}; font-weight: bold;">
-                                    ${isCredit ? '+' : '-'}₹${tx.amount}
-                                </div>
-                                ${isPending ? '<span style="padding: 3px 10px; border-radius: 15px; font-size: 11px; background: #fff3cd; color: #856404;">Pending</span>' : ''}
-                            </div>
-                        </div>
-                    `;
-                });
-            }
-            
-            processDailyClaims();
-        }
-        
-        // ===== PLANS PAGE =====
-        function loadPlans() {
-            const container = document.getElementById('plansList');
-            container.innerHTML = '';
-            
-            plans.forEach(plan => {
-                const hasPlan = currentUser.activePlans.find(p => p.planId === plan.id);
-                const canAfford = currentUser.wallet.mainBalance >= plan.price;
-                
-                container.innerHTML += `
-                    <div style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 30px rgba(0,0,0,0.1);">
-                        <div style="background: ${plan.popular ? 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)' : (plan.price === 0 ? 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)' : 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)')}; color: white; padding: 30px; text-align: center; position: relative;">
-                            ${plan.popular ? '<div style="position: absolute; top: 10px; right: -30px; background: #ff6b6b; padding: 5px 40px; transform: rotate(45deg); font-size: 12px; font-weight: bold;">POPULAR</div>' : ''}
-                            <div style="font-size: 24px; font-weight: bold; margin-bottom: 10px;">${plan.name}</div>
-                            <div style="font-size: 42px; font-weight: bold;">₹${plan.price}</div>
-                        </div>
-                        <div style="padding: 25px;">
-                            <ul style="list-style: none; margin-bottom: 20px;">
-                                <li style="padding: 12px 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;">
-                                    <span>Daily Return</span><strong style="color: #11998e;">₹${plan.daily}</strong>
-                                </li>
-                                <li style="padding: 12px 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;">
-                                    <span>Duration</span><strong>${plan.days} Days</strong>
-                                </li>
-                                <li style="padding: 12px 0; border-bottom: 1px solid #eee; display: flex; justify-content: space-between;">
-                                    <span>Total Return</span><strong style="color: #667eea;">₹${plan.total}</strong>
-                                </li>
-                                <li style="padding: 12px 0; display: flex; justify-content: space-between;">
-                                    <span>Net Profit</span><strong style="color: #f5576c;">₹${plan.total - plan.price}</strong>
-                                </li>
-                            </ul>
-                            <button class="btn btn-primary btn-block" onclick="buyPlan('${plan.id}')" 
-                                ${hasPlan || (!canAfford && plan.price > 0) ? 'disabled style="background: #ccc;"' : ''}>
-                                ${hasPlan ? '✓ Already Active' : (plan.price === 0 ? '🎁 Claim Free' : (canAfford ? '💎 Buy Now' : '❌ Low Balance'))}
-                            </button>
-                        </div>
-                    </div>
-                `;
-            });
-        }
-        
-        function buyPlan(planId) {
-            const plan = plans.find(p => p.id === planId);
-            const users = JSON.parse(localStorage.getItem('solarUsers') || '[]');
-            const userIndex = users.findIndex(u => u.id === currentUser.id);
-            
-            if (users[userIndex].wallet.mainBalance < plan.price) {
-                alert('❌ Insufficient balance!');
-                return;
-            }
-            
-            users[userIndex].wallet.mainBalance -= plan.price;
-            
-            const expiryDate = new Date();
-            expiryDate.setDate(expiryDate.getDate() + plan.days);
-            
-            users[userIndex].activePlans.push({
-                planId: plan.id,
-                planName: plan.name,
-                amount: plan.price,
-                dailyReturn: plan.daily,
-                purchasedDate: new Date().toISOString(),
-                expiryDate: expiryDate.toISOString(),
-                totalClaimed: 0,
-                status: 'active'
-            });
-            
-            users[userIndex].transactions.push({
-                id: 'TXN' + Date.now(),
-                type: 'plan_purchase',
-                amount: plan.price,
-                description: `Purchased ${plan.name} plan`,
-                date: new Date().toISOString()
-            });
-            
-            // Referral commission (20%)
-            if (users[userIndex].referredBy && users[userIndex].referredBy !== 'ADMIN') {
-                const referrerIndex = users.findIndex(u => u.referralCode === users[userIndex].referredBy);
-                if (referrerIndex !== -1) {
-                    const commission = Math.floor(plan.price * 0.2);
-                    users[referrerIndex].wallet.mainBalance += commission;
-                    users[referrerIndex].wallet.referralBalance += commission;
-                    users[referrerIndex].referrals.earnings += commission;
-                    users[referrerIndex].transactions.push({
-                        id: 'TXN' + Date.now(),
-                        type: 'plan_commission',
-                        amount: commission,
-                        description: `20% commission from ${users[userIndex].name}'s ${plan.name} plan`,
-                        date: new Date().toISOString()
-                    });
-                }
-            }
-            
-            localStorage.setItem('solarUsers', JSON.stringify(users));
-            localStorage.setItem('currentUser', JSON.stringify(users[userIndex]));
-            currentUser = users[userIndex];
-            
-            alert('✅ Plan activated successfully!');
-            loadPlans();
-            loadDashboard();
-        }
-        
-        // ===== PROCESS DAILY CLAIMS =====
-        function processDailyClaims() {
-            const users = JSON.parse(localStorage.getItem('solarUsers') || '[]');
-            const userIndex = users.findIndex(u => u.id === currentUser.id);
-            
-            if (userIndex === -1) return;
-            
-            const user = users[userIndex];
-            let totalClaimed = 0;
-            let updated = false;
-            
-            user.activePlans.forEach(plan => {
-                const now = new Date();
-                const expiry = new Date(plan.expiryDate);
-                
-                if (now < expiry && plan.status === 'active') {
-                    const lastClaim = plan.lastClaimed ? new Date(plan.lastClaimed) : null;
-                    const today = new Date();
-                    today.setHours(0,0,0,0);
-                    
-                    if (!lastClaim || lastClaim < today) {
-                        user.wallet.mainBalance += plan.dailyReturn;
-                        totalClaimed += plan.dailyReturn;
-                        plan.totalClaimed += plan.dailyReturn;
-                        plan.lastClaimed = new Date().toISOString();
-                        updated = true;
-                        
-                        user.transactions.push({
-                            id: 'TXN' + Date.now(),
-                            type: 'daily_earning',
-                            amount: plan.dailyReturn,
-                            description: `Daily earning from ${plan.planName}`,
-                            date: new Date().toISOString()
-                        });
-                    }
-                }
-            });
-            
-            if (updated) {
-                users[userIndex] = user;
-                localStorage.setItem('solarUsers', JSON.stringify(users));
-                localStorage.setItem('currentUser', JSON.stringify(user));
-                currentUser = user;
-                loadDashboard();
-            }
-        }
-        
-        // ===== LOGOUT =====
-        function logout() {
-            localStorage.removeItem('currentUser');
-            currentUser = null;
-            showPage('landing');
-        }
-        
-        // ===== COPY REFERRAL =====
-        function copyReferral() {
-            const code = document.getElementById('dashReferralCode').textContent;
-            const link = window.location.origin + window.location.pathname + '?ref=' + code;
-            
-            navigator.clipboard.writeText(link).then(() => {
-                alert('✅ Referral link copied!\n\n' + link);
-            });
-        }
-        
-        // Resend functions
-        async function resendLoginOtp() {
-            document.getElementById('resendLoginBtn').disabled = true;
-            showMessage('loginMessage', '✅ OTP resent!', 'success');
-        }
-        
-        async function resendForgotOtp() {
-            document.getElementById('resendForgotBtn').disabled = true;
-            showMessage('forgotMessage', '✅ OTP resent!', 'success');
-        }
-        
-        async function resendRegOtp() {
-            document.getElementById('resendRegBtn').disabled = true;
-            showMessage('registerMessage', '✅ OTP resent!', 'success');
-        }
-    </script>
-</body>
-</html>
-    <!-- ===== WALLET PAGE ===== -->
-    <div id="wallet" class="page">
-        <div class="container">
-            <!-- Balance Card -->
-            <div class="card" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; text-align: center;">
-                <div style="font-size: 18px; opacity: 0.9; margin-bottom: 10px;">Available Balance</div>
-                <div id="walletBalance" style="font-size: 56px; font-weight: bold; margin-bottom: 20px;">₹0</div>
-                <div style="display: flex; gap: 15px; justify-content: center; flex-wrap: wrap;">
-                    <button class="btn btn-success" onclick="showAddMoney()">
-                        ➕ Add Money
-                    </button>
-                    <button class="btn btn-warning" onclick="showWithdraw()">
-                        💸 Withdraw
-                    </button>
-                </div>
-            </div>
-            
-            <!-- Add Money - Amount Input -->
-            <div class="card" id="addMoneyAmountSection">
-                <h2 class="card-title">💳 Add Money to Wallet</h2>
-                <div class="message info">
-                    💡 Minimum deposit: ₹100 | Enter amount and pay via UPI
-                </div>
-                <form id="addMoneyAmountForm">
-                    <div class="form-group">
-                        <label>Enter Amount (₹)</label>
-                        <input type="number" id="depositAmount" min="100" placeholder="Minimum ₹100" required>
-                    </div>
-                    <button type="submit" class="btn btn-success btn-block">
-                        Continue to Payment
-                    </button>
-                    <button type="button" class="btn btn-outline btn-block mt-20" onclick="hideAddMoney()">
-                        ← Cancel
-                    </button>
-                </form>
-            </div>
-            
-            <!-- UPI Payment Section -->
-            <div class="card hidden" id="upiPaymentSection">
-                <h2 class="card-title">📱 Pay via UPI</h2>
-                
-                <div style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); color: white; padding: 30px; border-radius: 20px; text-align: center; margin-bottom: 25px;">
-                    <div style="font-size: 18px; margin-bottom: 10px;">Pay to this UPI ID</div>
-                    <div style="font-size: 32px; font-weight: bold; background: rgba(255,255,255,0.2); padding: 15px; border-radius: 10px; margin: 15px 0; letter-spacing: 2px;">6395503566@upi</div>
-                    <button onclick="copyUpi()" style="background: white; color: #11998e; border: none; padding: 10px 25px; border-radius: 25px; cursor: pointer; font-weight: bold;">📋 Copy UPI ID</button>
-                    
-                    <div style="margin-top: 20px; padding: 15px; background: rgba(255,255,255,0.2); border-radius: 10px; text-align: left; font-size: 14px;">
-                        <div style="margin-bottom: 10px;"><strong>Amount to Pay: <span id="upiDisplayAmount" style="font-size: 18px;">₹0</span></strong></div>
-                        <div style="opacity: 0.9; line-height: 1.6;">
-                            1. Open any UPI app (GPay, PhonePe, Paytm)<br>
-                            2. Pay to: <strong>6395503566@upi</strong><br>
-                            3. Note down the Transaction ID<br>
-                            4. Enter Transaction ID below<br>
-                            5. Admin will verify and add money
-                        </div>
-                    </div>
-                </div>
-                
-                <form id="depositSubmitForm">
-                    <div class="form-group">
-                        <label>📝 UPI Transaction ID / UTR Number *</label>
-                        <input type="text" id="transactionId" placeholder="Example: 123456789012 or T123456789012" required maxlength="20">
-                        <div style="font-size: 12px; color: #666; margin-top: 5px;">
-                            You can find this in your UPI app payment history
-                        </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>🏦 Paid From (UPI App)</label>
-                        <select id="upiApp" required>
-                            <option value="">Select UPI App</option>
-                            <option value="gpay">Google Pay</option>
-                            <option value="phonepe">PhonePe</option>
-                            <option value="paytm">Paytm</option>
-                            <option value="amazonpay">Amazon Pay</option>
-                            <option value="bhim">BHIM</option>
-                            <option value="other">Other</option>
-                        </select>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>📝 Notes (Optional)</label>
-                        <input type="text" id="depositNotes" placeholder="Any additional information">
-                    </div>
-                    
-                    <div class="message info">
-                        ⏳ After submission, admin will verify your payment within 24 hours.
-                    </div>
-                    
-                    <button type="submit" class="btn btn-success btn-block">
-                        ✅ Submit for Verification
-                    </button>
-                    <button type="button" class="btn btn-outline btn-block mt-20" onclick="backToAmount()">
-                        ← Change Amount
-                    </button>
-                </form>
-            </div>
-            
-            <!-- Withdraw Section -->
-            <div class="card hidden" id="withdrawSection">
-                <h2 class="card-title">💸 Withdraw Money</h2>
-                
-                <div class="message info">
-                    ⚡ Minimum withdrawal: ₹200 | Maximum: ₹10,000/day
-                </div>
-                
-                <form id="withdrawForm">
-                    <div class="form-group">
-                        <label>Amount (₹)</label>
-                        <input type="number" id="withdrawAmount" min="200" max="10000" required placeholder="Enter amount">
-                    </div>
-                    
-                    <div class="form-group">
-                        <label>Select Payment Method</label>
-                        <select id="withdrawMethod" required onchange="checkWithdrawMethod()">
-                            <option value="">Choose method</option>
-                        </select>
-                    </div>
-                    
-                    <div id="savedMethodsDisplay" style="margin-bottom: 20px;">
-                        <!-- Saved methods loaded here -->
-                    </div>
-                    
-                    <button type="button" class="btn btn-outline btn-block mb-20" onclick="openAddMethodModal()">
-                        ➕ Add New Bank/UPI
-                    </button>
-                    
-                    <button type="submit" class="btn btn-warning btn-block">
-                        Request Withdrawal
-                    </button>
-                    <button type="button" class="btn btn-outline btn-block mt-20" onclick="hideWithdraw()">
-                        ← Cancel
-                    </button>
-                </form>
-            </div>
-            
-            <!-- Transactions -->
-            <div class="card">
-                <h2 class="card-title">📝 Transaction History</h2>
-                <div id="walletTransactions">
-                    <div class="text-center" style="padding: 40px; color: #999;">No transactions yet</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- ===== ADD PAYMENT METHOD MODAL ===== -->
-    <div id="addMethodModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 2000; justify-content: center; align-items: center;">
-        <div style="background: white; padding: 40px; border-radius: 20px; width: 90%; max-width: 500px; max-height: 90vh; overflow-y: auto;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-                <h2>➕ Add Payment Method</h2>
-                <button onclick="closeAddMethodModal()" style="background: none; border: none; font-size: 28px; cursor: pointer; color: #999;">&times;</button>
-            </div>
-            
-            <form id="addMethodForm">
+        <div class="card">
+            <form id="loginForm">
                 <div class="form-group">
-                    <label>Type</label>
-                    <select id="methodType" required onchange="toggleMethodFields()">
-                        <option value="">Select type</option>
+                    <label>📱 Phone Number</label>
+                    <input type="tel" id="loginPhone" placeholder="9876543210" maxlength="10" required>
+                </div>
+                <div class="form-group">
+                    <label>🔒 Password</label>
+                    <input type="password" id="loginPassword" placeholder="Enter password" required>
+                </div>
+                <button type="submit" class="btn btn-primary">🔐 Login</button>
+                <button type="button" class="btn btn-outline" onclick="showPage('register')">📝 Create Account</button>
+                <div style="text-align: center; margin-top: 15px;">
+                    <a href="#" onclick="showPage('forgot')" style="color: var(--primary); font-size: 14px;">Forgot Password?</a>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- REGISTER PAGE -->
+    <div id="registerPage" class="page">
+        <div style="padding: 30px 20px; text-align: center;">
+            <h2 style="color: #333; font-size: 28px;">📝 Create Account</h2>
+            <p style="color: #666; font-size: 14px; margin-top: 10px;">Start your earning journey today!</p>
+        </div>
+        
+        <div class="card">
+            <div id="regStep1">
+                <form id="registerForm">
+                    <div class="form-group">
+                        <label>👤 Full Name *</label>
+                        <input type="text" id="regName" placeholder="Your full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>📱 Phone Number *</label>
+                        <input type="tel" id="regPhone" placeholder="9876543210" maxlength="10" required>
+                    </div>
+                    <div class="form-group">
+                        <label>🔒 Password *</label>
+                        <input type="password" id="regPassword" placeholder="Min 6 characters" minlength="6" required>
+                    </div>
+                    <div class="form-group">
+                        <label>✅ Confirm Password *</label>
+                        <input type="password" id="regConfirm" placeholder="Confirm password" required>
+                    </div>
+                    <div class="form-group">
+                        <label>🔗 Referral Code (Optional)</label>
+                        <input type="text" id="regReferral" placeholder="Friend's referral code">
+                    </div>
+                    <button type="submit" class="btn btn-success">🚀 Register Now</button>
+                    <button type="button" class="btn btn-outline" onclick="showPage('login')">← Back to Login</button>
+                </form>
+            </div>
+            
+            <!-- OTP Verification Step -->
+            <div id="regStep2" class="hidden">
+                <div style="text-align: center; margin-bottom: 25px;">
+                    <p style="color: #666;">Enter OTP sent to <strong id="otpPhone"></strong></p>
+                </div>
+                <div class="otp-container">
+                    <input type="text" class="otp-input" maxlength="1" data-index="0">
+                    <input type="text" class="otp-input" maxlength="1" data-index="1">
+                    <input type="text" class="otp-input" maxlength="1" data-index="2">
+                    <input type="text" class="otp-input" maxlength="1" data-index="3">
+                    <input type="text" class="otp-input" maxlength="1" data-index="4">
+                    <input type="text" class="otp-input" maxlength="1" data-index="5">
+                </div>
+                <input type="hidden" id="fullOtp">
+                <button class="btn btn-success" onclick="verifyOtp()">✅ Verify OTP</button>
+                <div style="text-align: center; margin: 20px 0;">
+                    <span id="otpTimer">60</span>s
+                    <button class="btn btn-outline hidden" id="resendOtpBtn" onclick="resendOtp()">Resend OTP</button>
+                </div>
+                <button class="btn btn-outline" onclick="backToReg()">← Change Number</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FORGOT PASSWORD PAGE -->
+    <div id="forgotPage" class="page">
+        <div style="padding: 40px 20px; text-align: center;">
+            <h2 style="color: #333;">🔐 Reset Password</h2>
+            <p style="color: #666; margin-top: 10px;">Enter your phone number</p>
+        </div>
+        <div class="card">
+            <form id="forgotForm">
+                <div class="form-group">
+                    <label>📱 Phone Number</label>
+                    <input type="tel" id="forgotPhone" placeholder="9876543210" maxlength="10" required>
+                </div>
+                <button type="submit" class="btn btn-primary">📲 Send Reset Link</button>
+                <button type="button" class="btn btn-outline" onclick="showPage('login')">← Back to Login</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- WALLET PAGE -->
+    <div id="walletPage" class="page">
+        <div class="header">
+            <h1>💰 My Wallet</h1>
+        </div>
+        
+        <div class="balance-card">
+            <div class="balance-label">Available Balance</div>
+            <div class="balance-amount">₹<span id="walletBalance">0</span></div>
+            <div class="balance-actions">
+                <button class="btn btn-success" onclick="showAddMoney()">➕ Add</button>
+                <button class="btn btn-warning" onclick="showWithdraw()">➖ Withdraw</button>
+            </div>
+        </div>
+
+        <!-- Add Money -->
+        <div id="addMoneySection" class="card hidden">
+            <div class="card-title">➕ Add Money</div>
+            <form id="addMoneyForm">
+                <div class="form-group">
+                    <label>Amount (₹) - Min ₹100</label>
+                    <input type="number" id="addAmount" min="100" placeholder="Enter amount" required>
+                </div>
+                <div style="background: linear-gradient(135deg, var(--success) 0%, var(--success-light) 100%); color: white; padding: 20px; border-radius: 15px; margin-bottom: 20px;">
+                    <p style="font-size: 14px; margin-bottom: 10px;">📌 Pay to UPI ID:</p>
+                    <p style="font-size: 24px; font-weight: bold; letter-spacing: 2px;">6395503566@upi</p>
+                    <button type="button" class="btn btn-outline" onclick="copyUpi()" style="margin-top: 15px; color: white; border-color: white;">📋 Copy UPI ID</button>
+                </div>
+                <div class="form-group">
+                    <label>UPI Transaction ID / UTR</label>
+                    <input type="text" id="upiTxnId" placeholder="Enter transaction reference number" required>
+                </div>
+                <div class="form-group">
+                    <label>Paid Via</label>
+                    <select id="paidVia" required>
+                        <option value="">Select App</option>
+                        <option value="gpay">Google Pay</option>
+                        <option value="phonepe">PhonePe</option>
+                        <option value="paytm">Paytm</option>
+                        <option value="amazon">Amazon Pay</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-success">✅ Submit Request</button>
+                <button type="button" class="btn btn-outline" onclick="hideAddMoney()">Cancel</button>
+            </form>
+        </div>
+
+        <!-- Withdraw -->
+        <div id="withdrawSection" class="card hidden">
+            <div class="card-title">➖ Withdraw Money</div>
+            <form id="withdrawForm">
+                <div class="form-group">
+                    <label>Amount (₹) - Min ₹200</label>
+                    <input type="number" id="withdrawAmount" min="200" placeholder="Enter amount" required>
+                </div>
+                <div class="form-group">
+                    <label>Payment Method</label>
+                    <select id="withdrawMethod" onchange="toggleWithdrawFields()" required>
+                        <option value="">Select Method</option>
                         <option value="upi">UPI ID</option>
                         <option value="bank">Bank Account</option>
                     </select>
                 </div>
-                
                 <div id="upiField" class="hidden">
                     <div class="form-group">
                         <label>UPI ID</label>
-                        <input type="text" id="upiIdInput" placeholder="name@upi">
+                        <input type="text" id="upiId" placeholder="name@upi">
                     </div>
                 </div>
-                
                 <div id="bankFields" class="hidden">
                     <div class="form-group">
                         <label>Account Holder Name</label>
-                        <input type="text" id="accountName" placeholder="Full name">
+                        <input type="text" id="accName" placeholder="Full name">
                     </div>
                     <div class="form-group">
                         <label>Account Number</label>
-                        <input type="text" id="accountNumber" placeholder="Account number">
+                        <input type="text" id="accNumber" placeholder="Account number">
                     </div>
                     <div class="form-group">
                         <label>IFSC Code</label>
@@ -1642,435 +391,1213 @@
                         <input type="text" id="bankName" placeholder="State Bank of India">
                     </div>
                 </div>
-                
-                <button type="submit" class="btn btn-primary btn-block">
-                    💾 Save Method
-                </button>
+                <button type="submit" class="btn btn-warning">💸 Request Withdrawal</button>
+                <button type="button" class="btn btn-outline" onclick="hideWithdraw()">Cancel</button>
             </form>
         </div>
+
+        <div class="card">
+            <div class="card-title">📝 Transaction History</div>
+            <div id="walletTransactions">
+                <p style="text-align: center; color: #999; padding: 30px;">No transactions yet</p>
+            </div>
+        </div>
     </div>
 
-    <!-- ===== REFERRAL PAGE ===== -->
-    <div id="referral" class="page">
-        <div class="container">
-            <div style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; padding: 40px; border-radius: 20px; text-align: center; margin-bottom: 25px;">
-                <div style="font-size: 20px; margin-bottom: 10px;">Per Successful Referral</div>
-                <div style="font-size: 72px; font-weight: bold; background: rgba(255,255,255,0.2); padding: 20px; border-radius: 15px; margin: 20px 0; letter-spacing: 3px;">₹15</div>
-                <div style="font-size: 18px; margin-bottom: 20px;">Instantly Credited - No KYC Required!</div>
-                <div style="font-size: 14px; opacity: 0.9;">
-                    + 20% commission on their plan purchase<br>
-                    + 5%-3%-1% lifetime passive income
+    <!-- PART 2 ENDS HERE - Continue to Part 3 for Referral & Support Pages -->    <!-- REFERRAL PAGE -->
+    <div id="referralPage" class="page">
+        <div class="header">
+            <h1>👥 Refer & Earn</h1>
+        </div>
+        
+        <div class="referral-box">
+            <div style="font-size: 20px; margin-bottom: 10px;">Per Successful Referral</div>
+            <div class="referral-amount">₹15</div>
+            <div style="font-size: 16px; margin-bottom: 15px;">Instantly Credited - No KYC Required!</div>
+            <div style="font-size: 14px; opacity: 0.9;">
+                + 20% commission on their plan purchase<br>
+                + 5%-3%-1% lifetime passive income
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">🔗 Your Referral Link</div>
+            <div class="referral-link-box" id="refLink">
+                Loading...
+            </div>
+            <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                <button class="btn btn-primary" onclick="copyRefLink()" style="flex: 1;">📋 Copy</button>
+                <button class="btn btn-success" onclick="shareWhatsApp()" style="flex: 1;">📱 WhatsApp</button>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">📊 Your Referral Stats</div>
+            <div class="stats-grid" style="margin: 0;">
+                <div class="stat-card">
+                    <div class="stat-number" id="refTotal">0</div>
+                    <div class="stat-label">Total Refers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="refEarned">₹0</div>
+                    <div class="stat-label">Earned</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="refPendingCount">0</div>
+                    <div class="stat-label">Pending</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="refActive">0</div>
+                    <div class="stat-label">Active</div>
                 </div>
             </div>
-            
-            <div class="card">
-                <h2 class="card-title">🔗 Your Referral Link</h2>
-                <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
-                    <div id="referralLinkDisplay" style="font-size: 16px; word-break: break-all; color: #667eea; font-weight: bold;">
-                        Loading...
-                    </div>
-                </div>
-                <div style="display: flex; gap: 15px; flex-wrap: wrap;">
-                    <button class="btn btn-success" onclick="copyReferralLink()">
-                        📋 Copy Link
-                    </button>
-                    <button class="btn btn-primary" onclick="shareWhatsApp()">
-                        📱 WhatsApp
-                    </button>
-                    <button class="btn btn-outline" onclick="shareTelegram()">
-                        ✈️ Telegram
-                    </button>
-                </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">👥 My Referrals List</div>
+            <div id="refList">
+                <p style="text-align: center; color: #999; padding: 30px;">No referrals yet. Start sharing!</p>
             </div>
-            
-            <div class="card">
-                <h2 class="card-title">📊 Your Referral Stats</h2>
-                <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr);">
-                    <div class="stat-card">
-                        <div class="stat-number" id="refTotal">0</div>
-                        <div>Total Refers</div>
+        </div>
+    </div>
+
+    <!-- SUPPORT PAGE -->
+    <div id="supportPage" class="page">
+        <div class="header">
+            <h1>🎧 Support Center</h1>
+        </div>
+        
+        <div class="card">
+            <div class="card-title">📝 Create New Ticket</div>
+            <form id="ticketForm">
+                <div class="form-group">
+                    <label>Issue Type</label>
+                    <select id="ticketType" required>
+                        <option value="">Select issue type</option>
+                        <option value="deposit">Deposit Issue</option>
+                        <option value="withdrawal">Withdrawal Issue</option>
+                        <option value="plan">Plan Issue</option>
+                        <option value="referral">Referral Issue</option>
+                        <option value="technical">Technical Problem</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Subject</label>
+                    <input type="text" id="ticketSubject" placeholder="Short description of your issue" required>
+                </div>
+                <div class="form-group">
+                    <label>Message</label>
+                    <textarea id="ticketMessage" rows="4" placeholder="Describe your problem in detail..." required></textarea>
+                </div>
+                <button type="submit" class="btn btn-primary">📤 Submit Ticket</button>
+            </form>
+        </div>
+
+        <div class="card">
+            <div class="card-title">📋 My Tickets</div>
+            <div id="ticketsList">
+                <p style="text-align: center; color: #999; padding: 30px;">No tickets yet</p>
+            </div>
+        </div>
+
+        <div class="card" style="background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+            <div class="card-title">📞 Direct Contact</div>
+            <div style="display: grid; gap: 15px;">
+                <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: white; border-radius: 12px;">
+                    <span style="font-size: 28px;">💬</span>
+                    <div style="flex: 1;">
+                        <div style="font-weight: bold;">WhatsApp Support</div>
+                        <div style="color: #666; font-size: 14px;">+91 6395503566</div>
                     </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="refEarned">₹0</div>
-                        <div>Earned</div>
-                    </div>
-                    <div class="stat-card">
-                        <div class="stat-number" id="refPending">0</div>
-                        <div>Pending</div>
+                    <a href="https://wa.me/916395503566" target="_blank" class="btn btn-success" style="width: auto; padding: 10px 20px; margin: 0;">Chat</a>
+                </div>
+                <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: white; border-radius: 12px;">
+                    <span style="font-size: 28px;">✉️</span>
+                    <div style="flex: 1;">
+                        <div style="font-weight: bold;">Email Support</div>
+                        <div style="color: #666; font-size: 14px;">support@solarenergy.com</div>
                     </div>
                 </div>
-            </div>
-            
-            <div class="card">
-                <h2 class="card-title">👥 My Referrals</h2>
-                <div id="referralsList">
-                    <div class="text-center" style="padding: 40px; color: #999;">
-                        No referrals yet. Start sharing your link!
+                <div style="display: flex; align-items: center; gap: 15px; padding: 15px; background: white; border-radius: 12px;">
+                    <span style="font-size: 28px;">⏰</span>
+                    <div style="flex: 1;">
+                        <div style="font-weight: bold;">Working Hours</div>
+                        <div style="color: #666; font-size: 14px;">10 AM - 7 PM (Mon-Sat)</div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- ===== JAVASCRIPT CONTINUED ===== -->
-    <script>
-        // ===== WALLET FUNCTIONS =====
-        function loadWallet() {
+    <!-- PROFILE PAGE -->
+    <div id="profilePage" class="page">
+        <div class="header">
+            <h1>👤 My Profile</h1>
+        </div>
+        
+        <div class="card" style="text-align: center; padding: 40px 20px; background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); color: white;">
+            <div style="font-size: 80px; margin-bottom: 15px;">👤</div>
+            <h2 id="profileName" style="font-size: 28px; margin-bottom: 5px;">User Name</h2>
+            <p id="profilePhone" style="font-size: 16px; opacity: 0.9; margin-bottom: 15px;">+91 9876543210</p>
+            <span class="badge badge-success" style="background: rgba(255,255,255,0.2); color: white; padding: 8px 20px; font-size: 14px;">✅ Active Account</span>
+        </div>
+
+        <div class="card">
+            <div class="card-title">📊 Account Stats</div>
+            <div class="stats-grid" style="margin: 0;">
+                <div class="stat-card">
+                    <div class="stat-number" id="profJoinDate">--</div>
+                    <div class="stat-label">Joined</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="profTotalEarn">₹0</div>
+                    <div class="stat-label">Total Earned</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">⚙️ Quick Actions</div>
+            <button class="btn btn-outline" onclick="showPage('wallet')">💰 Wallet Settings</button>
+            <button class="btn btn-outline" onclick="showPage('support')">🎧 Help & Support</button>
+            <button class="btn btn-warning" onclick="logout()">🚪 Logout</button>
+        </div>
+
+        <div class="card" style="background: #fff3cd;">
+            <div class="card-title" style="color: #856404;">🔒 Security Notice</div>
+            <p style="color: #856404; font-size: 14px; line-height: 1.6;">
+                Never share your password with anyone. Our team will never ask for your password or OTP.
+            </p>
+        </div>
+    </div>
+
+    <!-- BOTTOM NAVIGATION -->
+    <nav class="bottom-nav" id="bottomNav" style="display: none;">
+        <button class="nav-item active" onclick="showPage('home')" data-page="home">
+            <span>🏠</span>
+            <span>Home</span>
+        </button>
+        <button class="nav-item" onclick="showPage('wallet')" data-page="wallet">
+            <span>💰</span>
+            <span>Wallet</span>
+        </button>
+        <button class="nav-item" onclick="showPage('referral')" data-page="referral">
+            <span>👥</span>
+            <span>Refer</span>
+        </button>
+        <button class="nav-item" onclick="showPage('support')" data-page="support">
+            <span>🎧</span>
+            <span>Support</span>
+        </button>
+        <button class="nav-item" onclick="showPage('profile')" data-page="profile">
+            <span>👤</span>
+            <span>Profile</span>
+        </button>
+    </nav>
+
+    <!-- PART 3 ENDS HERE - Continue to Part 4 for JavaScript Config & Functions -->    <script>
+        // ==================== FIREBASE CONFIGURATION ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyA3pH_dnb6_--wRoDSuoj-TAudsmJ7D4R0",
+            authDomain: "solor-energy.firebaseapp.com",
+            databaseURL: "https://solor-energy-default-rtdb.firebaseio.com",
+            projectId: "solor-energy",
+            storageBucket: "solor-energy.firebasestorage.app",
+            messagingSenderId: "772737546715",
+            appId: "1:772737546715:web:3736545b464523bdc04ffe",
+            measurementId: "G-ZG0MDB5TTR"
+        };
+
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        // ==================== GLOBAL VARIABLES ====================
+        let currentUser = null;
+        let confirmationResult = null;
+        let tempUserData = {};
+        let otpTimer = null;
+
+        // ==================== PLANS DATA ====================
+        const PLANS = [
+            { id: 'free', name: 'Free Trial', price: 0, daily: 10, days: 7, total: 70, popular: false, desc: 'Start earning without investment' },
+            { id: 'nano', name: 'Nano', price: 100, daily: 20, days: 30, total: 600, popular: false, desc: 'Perfect for beginners' },
+            { id: 'micro', name: 'Micro', price: 200, daily: 45, days: 30, total: 1350, popular: false, desc: 'Good daily returns' },
+            { id: 'mini', name: 'Mini', price: 300, daily: 75, days: 30, total: 2250, popular: false, desc: 'Balanced investment' },
+            { id: 'basic', name: 'Basic', price: 500, daily: 150, days: 30, total: 4500, popular: true, desc: 'Most Popular Choice' },
+            { id: 'standard', name: 'Standard', price: 1000, daily: 350, days: 30, total: 10500, popular: false, desc: 'High returns' },
+            { id: 'pro', name: 'Pro', price: 2000, daily: 800, days: 30, total: 24000, popular: false, desc: 'Maximum earnings' }
+        ];
+
+        // ==================== UTILITY FUNCTIONS ====================
+        function showLoading(text = 'Loading...') {
+            document.querySelector('.loading-text').textContent = text;
+            document.getElementById('loadingOverlay').classList.add('show');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingOverlay').classList.remove('show');
+        }
+
+        function showMessage(text, type = 'info') {
+            const container = document.getElementById('messageContainer');
+            const msg = document.createElement('div');
+            msg.className = `message ${type} show`;
+            msg.textContent = text;
+            container.appendChild(msg);
+            
+            setTimeout(() => {
+                msg.remove();
+            }, 5000);
+        }
+
+        function generateId(prefix = 'ID') {
+            return prefix + Date.now().toString().slice(-6) + Math.random().toString(36).substr(2, 4).toUpperCase();
+        }
+
+        function formatDate(dateString) {
+            return new Date(dateString).toLocaleDateString('en-IN', {
+                day: '2-digit', month: 'short', year: 'numeric'
+            });
+        }
+
+        // ==================== PAGE NAVIGATION ====================
+        function showPage(page) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            
+            // Show selected page
+            const pageId = page + 'Page';
+            const pageEl = document.getElementById(pageId);
+            if (pageEl) pageEl.classList.add('active');
+
+            // Update bottom nav
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.page === page) item.classList.add('active');
+            });
+
+            // Show/hide bottom nav
+            const bottomNav = document.getElementById('bottomNav');
+            const noNavPages = ['login', 'register', 'forgot'];
+            if (noNavPages.includes(page) || !currentUser) {
+                bottomNav.style.display = 'none';
+            } else {
+                bottomNav.style.display = 'flex';
+            }
+
+            // Load page data
+            if (page === 'home') loadHomeData();
+            if (page === 'wallet') loadWalletData();
+            if (page === 'referral') loadReferralData();
+            if (page === 'support') loadSupportData();
+            if (page === 'profile') loadProfileData();
+
+            window.scrollTo(0, 0);
+        }
+
+        // ==================== AUTHENTICATION ====================
+        
+        // Login
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showLoading('Logging in...');
+            
+            const phone = document.getElementById('loginPhone').value;
+            const password = document.getElementById('loginPassword').value;
+
+            try {
+                // Check user in database
+                const snapshot = await database.ref('users').orderByChild('phone').equalTo(phone).once('value');
+                const users = snapshot.val();
+                
+                if (!users) {
+                    hideLoading();
+                    showMessage('❌ User not found!', 'error');
+                    return;
+                }
+
+                const user = Object.values(users)[0];
+                
+                if (user.password !== password) {
+                    hideLoading();
+                    showMessage('❌ Invalid password!', 'error');
+                    return;
+                }
+
+                if (user.status === 'blocked') {
+                    hideLoading();
+                    showMessage('❌ Your account has been blocked!', 'error');
+                    return;
+                }
+
+                currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                
+                // Setup real-time listener for user data
+                setupUserListener(user.id);
+                
+                hideLoading();
+                showMessage('✅ Login successful!', 'success');
+                showPage('home');
+                
+            } catch (error) {
+                hideLoading();
+                console.error('Login error:', error);
+                showMessage('❌ Login failed. Try again!', 'error');
+            }
+        });
+
+        // Register - Step 1: Send OTP
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const name = document.getElementById('regName').value.trim();
+            const phone = document.getElementById('regPhone').value.trim();
+            const password = document.getElementById('regPassword').value;
+            const confirm = document.getElementById('regConfirm').value;
+            const referral = document.getElementById('regReferral').value.trim().toUpperCase();
+
+            // Validation
+            if (password !== confirm) {
+                showMessage('❌ Passwords do not match!', 'error');
+                return;
+            }
+
+            if (phone.length !== 10 || !/^\d+$/.test(phone)) {
+                showMessage('❌ Enter valid 10-digit phone number', 'error');
+                return;
+            }
+
+            showLoading('Sending OTP...');
+
+            try {
+                // Check if user already exists
+                const snapshot = await database.ref('users').orderByChild('phone').equalTo(phone).once('value');
+                if (snapshot.val()) {
+                    hideLoading();
+                    showMessage('❌ Phone number already registered!', 'error');
+                    return;
+                }
+
+                // Send OTP
+                const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('registerForm', {
+                    size: 'invisible',
+                    callback: () => console.log('Recaptcha verified')
+                });
+
+                confirmationResult = await auth.signInWithPhoneNumber('+91' + phone, recaptchaVerifier);
+                
+                tempUserData = { name, phone, password, referral };
+                
+                hideLoading();
+                document.getElementById('regStep1').classList.add('hidden');
+                document.getElementById('regStep2').classList.remove('hidden');
+                document.getElementById('otpPhone').textContent = phone;
+                
+                setupOtpInputs();
+                startOtpTimer();
+                
+            } catch (error) {
+                hideLoading();
+                console.error('OTP error:', error);
+                showMessage('❌ Failed to send OTP: ' + error.message, 'error');
+            }
+        });
+
+        // Setup OTP input fields
+        function setupOtpInputs() {
+            const inputs = document.querySelectorAll('.otp-input');
+            inputs.forEach((input, index) => {
+                input.value = '';
+                input.addEventListener('input', (e) => {
+                    if (e.target.value.length === 1 && index < 5) {
+                        inputs[index + 1].focus();
+                    }
+                    updateFullOtp();
+                });
+                
+                input.addEventListener('keydown', (e) => {
+                    if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                });
+            });
+        }
+
+        function updateFullOtp() {
+            const inputs = document.querySelectorAll('.otp-input');
+            let otp = '';
+            inputs.forEach(input => otp += input.value);
+            document.getElementById('fullOtp').value = otp;
+        }
+
+        function startOtpTimer() {
+            let timeLeft = 60;
+            const timerEl = document.getElementById('otpTimer');
+            const resendBtn = document.getElementById('resendOtpBtn');
+            
+            clearInterval(otpTimer);
+            resendBtn.classList.add('hidden');
+            
+            otpTimer = setInterval(() => {
+                timeLeft--;
+                timerEl.textContent = timeLeft;
+                
+                if (timeLeft <= 0) {
+                    clearInterval(otpTimer);
+                    timerEl.parentElement.classList.add('hidden');
+                    resendBtn.classList.remove('hidden');
+                }
+            }, 1000);
+        }
+
+        async function verifyOtp() {
+            const otp = document.getElementById('fullOtp').value;
+            
+            if (otp.length !== 6) {
+                showMessage('❌ Enter complete OTP', 'error');
+                return;
+            }
+
+            showLoading('Verifying...');
+
+            try {
+                const result = await confirmationResult.confirm(otp);
+                
+                // Create user in database
+                await createUserInDatabase(result.user.uid);
+                
+            } catch (error) {
+                hideLoading();
+                showMessage('❌ Invalid OTP!', 'error');
+            }
+        }
+
+        async function createUserInDatabase(firebaseUid) {
+            const { name, phone, password, referral } = tempUserData;
+            
+            // Generate referral code
+            const myReferralCode = name.substring(0, 4).toUpperCase() + Math.floor(Math.random() * 1000);
+            
+            let bonus = 0;
+            let referredBy = 'ADMIN';
+            
+            // Process referral
+            if (referral) {
+                const refSnapshot = await database.ref('users').orderByChild('referralCode').equalTo(referral).once('value');
+                const referrerData = refSnapshot.val();
+                
+                if (referrerData) {
+                    const referrerId = Object.keys(referrerData)[0];
+                    const referrer = referrerData[referrerId];
+                    
+                    bonus = 15;
+                    referredBy = referral;
+                    
+                    // Credit referrer
+                    await database.ref(`users/${referrerId}`).update({
+                        'wallet/mainBalance': (referrer.wallet?.mainBalance || 0) + 15,
+                        'referrals/count': (referrer.referrals?.count || 0) + 1,
+                        'referrals/earnings': (referrer.referrals?.earnings || 0) + 15
+                    });
+                    
+                    // Add referrer transaction
+                    const refTxn = {
+                        id: generateId('TXN'),
+                        type: 'referral_bonus',
+                        amount: 15,
+                        description: `Referral bonus for ${name}`,
+                        date: new Date().toISOString()
+                    };
+                    await database.ref(`users/${referrerId}/transactions`).push(refTxn);
+                }
+            }
+
+            // Create new user
+            const newUser = {
+                id: generateId('USER'),
+                firebaseUid: firebaseUid,
+                name: name,
+                phone: phone,
+                password: password,
+                email: '',
+                referralCode: myReferralCode,
+                referredBy: referredBy,
+                joinDate: new Date().toISOString(),
+                status: 'active',
+                wallet: {
+                    mainBalance: bonus,
+                    totalWithdrawn: 0
+                },
+                referrals: {
+                    count: 0,
+                    list: {},
+                    earnings: 0
+                },
+                activePlans: {},
+                transactions: {
+                    [Date.now()]: {
+                        id: generateId('TXN'),
+                        type: bonus > 0 ? 'referral_bonus' : 'signup',
+                        amount: bonus,
+                        description: bonus > 0 ? 'Referral signup bonus' : 'Account created',
+                        date: new Date().toISOString()
+                    }
+                },
+                bankDetails: {
+                    upiId: '',
+                    accountNumber: '',
+                    ifsc: '',
+                    bankName: ''
+                }
+            };
+
+            await database.ref(`users/${newUser.id}`).set(newUser);
+            
+            currentUser = newUser;
+            localStorage.setItem('currentUser', JSON.stringify(newUser));
+            setupUserListener(newUser.id);
+            
+            hideLoading();
+            showMessage(bonus > 0 ? `✅ Registered! ₹${bonus} bonus credited!` : '✅ Registration successful!', 'success');
+            showPage('home');
+        }
+
+        // PART 4 ENDS HERE - Continue to Part 5 for remaining functions        // Setup real-time user data listener
+        function setupUserListener(userId) {
+            database.ref(`users/${userId}`).on('value', (snapshot) => {
+                if (snapshot.val()) {
+                    currentUser = snapshot.val();
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    // Update UI if on relevant pages
+                    if (document.getElementById('homePage').classList.contains('active')) {
+                        updateHomeUI();
+                    }
+                    if (document.getElementById('walletPage').classList.contains('active')) {
+                        updateWalletUI();
+                    }
+                }
+            });
+        }
+
+        // ==================== HOME PAGE FUNCTIONS ====================
+        function loadHomeData() {
             if (!currentUser) return;
+            updateHomeUI();
+            renderPlans();
+            loadTransactions();
+        }
+
+        function updateHomeUI() {
+            document.getElementById('homeBalance').textContent = currentUser.wallet?.mainBalance || 0;
+            document.getElementById('homeRefers').textContent = currentUser.referrals?.count || 0;
+            document.getElementById('homeEarnings').textContent = '₹' + ((currentUser.referrals?.earnings || 0) + (currentUser.wallet?.mainBalance || 0));
+            document.getElementById('homePlans').textContent = Object.keys(currentUser.activePlans || {}).length;
+            document.getElementById('homeCode').textContent = currentUser.referralCode;
+        }
+
+        function renderPlans() {
+            const container = document.getElementById('homePlansContainer');
+            const activePlanIds = Object.values(currentUser.activePlans || {}).map(p => p.planId);
             
-            document.getElementById('walletBalance').textContent = '₹' + currentUser.wallet.mainBalance;
-            
-            // Reset sections
-            document.getElementById('addMoneyAmountSection').classList.remove('hidden');
-            document.getElementById('upiPaymentSection').classList.add('hidden');
-            document.getElementById('withdrawSection').classList.add('hidden');
-            
-            // Load saved methods for withdrawal
-            const methodSelect = document.getElementById('withdrawMethod');
-            methodSelect.innerHTML = '<option value="">Choose method</option>';
-            
-            const methodsDisplay = document.getElementById('savedMethodsDisplay');
-            methodsDisplay.innerHTML = '';
-            
-            if (currentUser.bankDetails.upiId) {
-                methodSelect.innerHTML += `<option value="upi">UPI - ${currentUser.bankDetails.upiId}</option>`;
-                methodsDisplay.innerHTML += `
-                    <div style="padding: 15px; background: #f8f9fa; border-radius: 10px; margin-bottom: 10px;">
-                        <strong>📱 UPI</strong><br>
-                        <small>${currentUser.bankDetails.upiId}</small>
+            container.innerHTML = PLANS.map(plan => {
+                const hasPlan = activePlanIds.includes(plan.id);
+                const canAfford = (currentUser.wallet?.mainBalance || 0) >= plan.price;
+                
+                return `
+                    <div class="plan-card">
+                        <div class="plan-header ${plan.popular ? 'popular' : ''}">
+                            ${plan.popular ? '<div class="plan-badge">POPULAR</div>' : ''}
+                            <div class="plan-name">${plan.name}</div>
+                            <div class="plan-price">₹${plan.price}</div>
+                            <div style="font-size: 14px; margin-top: 5px; opacity: 0.9;">${plan.desc}</div>
+                        </div>
+                        <div class="plan-body">
+                            <div class="plan-feature"><span>💰 Daily Return</span><strong style="color: var(--success);">₹${plan.daily}</strong></div>
+                            <div class="plan-feature"><span>📅 Duration</span><strong>${plan.days} Days</strong></div>
+                            <div class="plan-feature"><span>💵 Total Return</span><strong style="color: var(--primary);">₹${plan.total}</strong></div>
+                            <div class="plan-feature"><span>📈 Net Profit</span><strong style="color: var(--danger);">₹${plan.total - plan.price}</strong></div>
+                            <button class="btn ${hasPlan ? 'btn-outline' : (canAfford ? 'btn-primary' : 'btn-outline')}" 
+                                onclick="buyPlan('${plan.id}')" 
+                                ${hasPlan || (!canAfford && plan.price > 0) ? 'disabled' : ''}
+                                style="${hasPlan ? 'opacity: 0.6;' : ''}">
+                                ${hasPlan ? '✓ Already Active' : (plan.price === 0 ? '🎁 Claim Free' : (canAfford ? '💎 Buy Now' : '❌ Low Balance'))}
+                            </button>
+                        </div>
                     </div>
                 `;
+            }).join('');
+        }
+
+        async function buyPlan(planId) {
+            const plan = PLANS.find(p => p.id === planId);
+            if (!plan) return;
+
+            const balance = currentUser.wallet?.mainBalance || 0;
+            if (balance < plan.price) {
+                showMessage('❌ Insufficient balance!', 'error');
+                return;
             }
+
+            showLoading('Processing...');
+
+            try {
+                const userId = currentUser.id;
+                const expiryDate = new Date();
+                expiryDate.setDate(expiryDate.getDate() + plan.days);
+
+                // Deduct balance
+                await database.ref(`users/${userId}/wallet/mainBalance`).set(balance - plan.price);
+
+                // Add plan
+                const planData = {
+                    planId: plan.id,
+                    planName: plan.name,
+                    amount: plan.price,
+                    dailyReturn: plan.daily,
+                    purchasedDate: new Date().toISOString(),
+                    expiryDate: expiryDate.toISOString(),
+                    status: 'active',
+                    totalClaimed: 0
+                };
+                await database.ref(`users/${userId}/activePlans`).push(planData);
+
+                // Add transaction
+                const txn = {
+                    id: generateId('TXN'),
+                    type: 'plan_purchase',
+                    amount: plan.price,
+                    description: `Purchased ${plan.name} plan`,
+                    date: new Date().toISOString()
+                };
+                await database.ref(`users/${userId}/transactions`).push(txn);
+
+                // Referral commission (20%)
+                if (currentUser.referredBy && currentUser.referredBy !== 'ADMIN') {
+                    const refSnapshot = await database.ref('users').orderByChild('referralCode').equalTo(currentUser.referredBy).once('value');
+                    const referrerData = refSnapshot.val();
+                    
+                    if (referrerData) {
+                        const referrerId = Object.keys(referrerData)[0];
+                        const referrer = referrerData[referrerId];
+                        const commission = Math.floor(plan.price * 0.2);
+                        
+                        await database.ref(`users/${referrerId}`).update({
+                            'wallet/mainBalance': (referrer.wallet?.mainBalance || 0) + commission,
+                            'referrals/earnings': (referrer.referrals?.earnings || 0) + commission
+                        });
+
+                        const commTxn = {
+                            id: generateId('TXN'),
+                            type: 'plan_commission',
+                            amount: commission,
+                            description: `20% commission from ${currentUser.name}`,
+                            date: new Date().toISOString()
+                        };
+                        await database.ref(`users/${referrerId}/transactions`).push(commTxn);
+                    }
+                }
+
+                hideLoading();
+                showMessage('✅ Plan activated successfully!', 'success');
+                
+            } catch (error) {
+                hideLoading();
+                console.error('Buy plan error:', error);
+                showMessage('❌ Failed to buy plan', 'error');
+            }
+        }
+
+        function loadTransactions() {
+            const container = document.getElementById('homeTransactions');
+            const transactions = currentUser.transactions || {};
             
-            if (currentUser.bankDetails.accountNumber) {
-                methodSelect.innerHTML += `<option value="bank">Bank - ${currentUser.bankDetails.bankName}</option>`;
-                methodsDisplay.innerHTML += `
-                    <div style="padding: 15px; background: #f8f9fa; border-radius: 10px; margin-bottom: 10px;">
-                        <strong>🏦 ${currentUser.bankDetails.bankName}</strong><br>
-                        <small>****${currentUser.bankDetails.accountNumber.slice(-4)}</small>
+            if (Object.keys(transactions).length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999; padding: 30px;">No transactions yet</p>';
+                return;
+            }
+
+            const sortedTxns = Object.values(transactions).sort((a, b) => 
+                new Date(b.date) - new Date(a.date)
+            ).slice(0, 5);
+
+            container.innerHTML = sortedTxns.map(tx => {
+                const isCredit = ['referral_bonus', 'plan_commission', 'daily_earning', 'deposit_approved'].includes(tx.type);
+                const isPending = tx.status === 'pending';
+                
+                return `
+                    <div class="transaction-item">
+                        <div class="tx-info">
+                            <h4>${tx.description}</h4>
+                            <small>${formatDate(tx.date)}</small>
+                        </div>
+                        <div class="tx-amount ${isPending ? 'tx-pending' : (isCredit ? 'tx-credit' : 'tx-debit')}">
+                            ${isCredit ? '+' : '-'}₹${tx.amount}
+                            ${isPending ? '<span style="font-size: 11px; display: block; text-align: right;">(Pending)</span>' : ''}
+                        </div>
                     </div>
                 `;
-            }
+            }).join('');
+        }
+
+        // ==================== WALLET FUNCTIONS ====================
+        function loadWalletData() {
+            if (!currentUser) return;
+            updateWalletUI();
+        }
+
+        function updateWalletUI() {
+            document.getElementById('walletBalance').textContent = currentUser.wallet?.mainBalance || 0;
             
             // Load transactions
-            const txList = document.getElementById('walletTransactions');
-            if (currentUser.transactions && currentUser.transactions.length > 0) {
-                txList.innerHTML = '';
-                
-                // Separate pending deposits
-                const pendingDeposits = JSON.parse(localStorage.getItem('pendingDeposits') || '[]')
-                    .filter(d => d.userId === currentUser.id && d.status === 'pending');
-                
-                // Show pending deposits first
-                pendingDeposits.forEach(dep => {
-                    txList.innerHTML += `
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #eee; background: #fff3cd;">
-                            <div>
-                                <strong>⏳ Deposit Pending</strong><br>
-                                <small>Amount: ₹${dep.amount} | Txn ID: ${dep.transactionId}</small>
-                            </div>
-                            <div style="color: #856404; font-weight: bold;">+₹${dep.amount}</div>
-                        </div>
-                    `;
-                });
-                
-                // Show other transactions
-                currentUser.transactions.slice().reverse().forEach(tx => {
-                    const isCredit = tx.type.includes('bonus') || tx.type.includes('commission') || 
-                                    tx.type.includes('daily') || tx.type.includes('earning') || 
-                                    tx.type === 'referral_bonus' || tx.type === 'deposit_approved';
-                    
-                    txList.innerHTML += `
-                        <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #eee;">
-                            <div>
-                                <strong>${tx.description}</strong><br>
-                                <small>${new Date(tx.date).toLocaleDateString()}</small>
-                            </div>
-                            <div style="color: ${isCredit ? '#11998e' : '#f5576c'}; font-weight: bold;">
-                                ${isCredit ? '+' : '-'}₹${tx.amount}
-                            </div>
-                        </div>
-                    `;
-                });
+            const container = document.getElementById('walletTransactions');
+            const transactions = currentUser.transactions || {};
+            
+            if (Object.keys(transactions).length === 0) {
+                container.innerHTML = '<p style="text-align: center; color: #999; padding: 30px;">No transactions yet</p>';
+                return;
             }
+
+            const sortedTxns = Object.values(transactions).sort((a, b) => 
+                new Date(b.date) - new Date(a.date)
+            );
+
+            container.innerHTML = sortedTxns.map(tx => {
+                const isCredit = ['referral_bonus', 'plan_commission', 'daily_earning', 'deposit_approved'].includes(tx.type);
+                const isPending = tx.status === 'pending';
+                
+                return `
+                    <div class="transaction-item">
+                        <div class="tx-info">
+                            <h4>${tx.description}</h4>
+                            <small>${formatDate(tx.date)}</small>
+                        </div>
+                        <div class="tx-amount ${isPending ? 'tx-pending' : (isCredit ? 'tx-credit' : 'tx-debit')}">
+                            ${isCredit ? '+' : '-'}₹${tx.amount}
+                        </div>
+                    </div>
+                `;
+            }).join('');
         }
-        
+
         function showAddMoney() {
-            document.getElementById('addMoneyAmountSection').classList.remove('hidden');
-            document.getElementById('upiPaymentSection').classList.add('hidden');
+            document.getElementById('addMoneySection').classList.remove('hidden');
             document.getElementById('withdrawSection').classList.add('hidden');
         }
-        
+
         function hideAddMoney() {
-            document.getElementById('addMoneyAmountSection').classList.add('hidden');
-            document.getElementById('upiPaymentSection').classList.add('hidden');
+            document.getElementById('addMoneySection').classList.add('hidden');
         }
-        
+
         function showWithdraw() {
-            document.getElementById('addMoneyAmountSection').classList.add('hidden');
-            document.getElementById('upiPaymentSection').classList.add('hidden');
             document.getElementById('withdrawSection').classList.remove('hidden');
+            document.getElementById('addMoneySection').classList.add('hidden');
         }
-        
+
         function hideWithdraw() {
             document.getElementById('withdrawSection').classList.add('hidden');
-            document.getElementById('addMoneyAmountSection').classList.remove('hidden');
         }
-        
-        function backToAmount() {
-            document.getElementById('upiPaymentSection').classList.add('hidden');
-            document.getElementById('addMoneyAmountSection').classList.remove('hidden');
-        }
-        
+
         function copyUpi() {
             navigator.clipboard.writeText('6395503566@upi').then(() => {
-                alert('✅ UPI ID copied: 6395503566@upi');
+                showMessage('✅ UPI ID copied!', 'success');
             });
         }
-        
-        // Add money - Step 1: Enter amount
-        document.getElementById('addMoneyAmountForm').addEventListener('submit', (e) => {
+
+        function toggleWithdrawFields() {
+            const method = document.getElementById('withdrawMethod').value;
+            document.getElementById('upiField').classList.toggle('hidden', method !== 'upi');
+            document.getElementById('bankFields').classList.toggle('hidden', method !== 'bank');
+        }
+
+        // Add Money
+        document.getElementById('addMoneyForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const amount = document.getElementById('depositAmount').value;
             
+            const amount = parseInt(document.getElementById('addAmount').value);
+            const txnId = document.getElementById('upiTxnId').value.trim();
+            const paidVia = document.getElementById('paidVia').value;
+
             if (amount < 100) {
-                alert('❌ Minimum deposit amount is ₹100');
+                showMessage('❌ Minimum deposit ₹100', 'error');
                 return;
             }
-            
-            pendingDepositAmount = amount;
-            document.getElementById('upiDisplayAmount').textContent = '₹' + amount;
-            document.getElementById('addMoneyAmountSection').classList.add('hidden');
-            document.getElementById('upiPaymentSection').classList.remove('hidden');
-        });
-        
-        // Add money - Step 2: Submit transaction ID
-        document.getElementById('depositSubmitForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const transactionId = document.getElementById('transactionId').value.trim();
-            const upiApp = document.getElementById('upiApp').value;
-            const notes = document.getElementById('depositNotes').value.trim();
-            
-            if (!transactionId) {
-                alert('❌ Please enter Transaction ID');
-                return;
+
+            showLoading('Submitting...');
+
+            try {
+                // Create deposit request
+                const deposit = {
+                    id: generateId('DEP'),
+                    userId: currentUser.id,
+                    userName: currentUser.name,
+                    userPhone: currentUser.phone,
+                    amount: amount,
+                    transactionId: txnId,
+                    upiApp: paidVia,
+                    status: 'pending',
+                    requestedAt: new Date().toISOString()
+                };
+
+                await database.ref('deposits').push(deposit);
+
+                // Add pending transaction to user
+                const txn = {
+                    id: deposit.id,
+                    type: 'deposit_pending',
+                    amount: amount,
+                    description: `Deposit pending (Txn: ${txnId})`,
+                    date: new Date().toISOString(),
+                    status: 'pending'
+                };
+                await database.ref(`users/${currentUser.id}/transactions`).push(txn);
+
+                hideLoading();
+                showMessage('✅ Deposit request submitted! Admin will verify soon.', 'success');
+                document.getElementById('addMoneyForm').reset();
+                hideAddMoney();
+
+            } catch (error) {
+                hideLoading();
+                showMessage('❌ Failed to submit request', 'error');
             }
-            
-            // Create deposit request
-            const depositRequest = {
-                id: 'DEP' + Date.now(),
-                userId: currentUser.id,
-                userName: currentUser.name,
-                userPhone: currentUser.phone,
-                amount: parseInt(pendingDepositAmount),
-                transactionId: transactionId,
-                upiApp: upiApp,
-                notes: notes,
-                status: 'pending',
-                requestedAt: new Date().toISOString()
-            };
-            
-            // Save to pending deposits
-            const pendingDeposits = JSON.parse(localStorage.getItem('pendingDeposits') || '[]');
-            pendingDeposits.push(depositRequest);
-            localStorage.setItem('pendingDeposits', JSON.stringify(pendingDeposits));
-            
-            // Add to user transactions as pending
-            const users = JSON.parse(localStorage.getItem('solarUsers') || '[]');
-            const userIndex = users.findIndex(u => u.id === currentUser.id);
-            
-            users[userIndex].transactions.push({
-                id: depositRequest.id,
-                type: 'deposit_pending',
-                amount: depositRequest.amount,
-                description: `Deposit pending (Txn: ${transactionId})`,
-                date: new Date().toISOString(),
-                status: 'pending'
-            });
-            
-            localStorage.setItem('solarUsers', JSON.stringify(users));
-            localStorage.setItem('currentUser', JSON.stringify(users[userIndex]));
-            currentUser = users[userIndex];
-            
-            alert('✅ Deposit request submitted!\n\nAdmin will verify and approve within 24 hours.');
-            
-            // Reset form
-            document.getElementById('depositAmount').value = '';
-            document.getElementById('transactionId').value = '';
-            document.getElementById('upiApp').value = '';
-            document.getElementById('depositNotes').value = '';
-            
-            showAddMoney();
-            loadWallet();
         });
-        
+
         // Withdraw
-        document.getElementById('withdrawForm').addEventListener('submit', (e) => {
+        document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             const amount = parseInt(document.getElementById('withdrawAmount').value);
             const method = document.getElementById('withdrawMethod').value;
             
-            if (!method) {
-                alert('❌ Please select a payment method');
-                return;
-            }
+            const balance = currentUser.wallet?.mainBalance || 0;
             
             if (amount < 200) {
-                alert('❌ Minimum withdrawal is ₹200');
+                showMessage('❌ Minimum withdrawal ₹200', 'error');
                 return;
             }
-            
-            if (amount > 10000) {
-                alert('❌ Maximum withdrawal is ₹10,000');
+
+            if (balance < amount) {
+                showMessage('❌ Insufficient balance!', 'error');
                 return;
             }
-            
-            if (currentUser.wallet.mainBalance < amount) {
-                alert('❌ Insufficient balance');
-                return;
+
+            showLoading('Processing...');
+
+            try {
+                let details = '';
+                if (method === 'upi') {
+                    details = document.getElementById('upiId').value;
+                } else {
+                    const accName = document.getElementById('accName').value;
+                    const accNumber = document.getElementById('accNumber').value;
+                    const ifsc = document.getElementById('ifscCode').value;
+                    const bank = document.getElementById('bankName').value;
+                    details = `${accName}, ${bank}, A/c: ${accNumber}, IFSC: ${ifsc}`;
+                    
+                    // Save bank details
+                    await database.ref(`users/${currentUser.id}/bankDetails`).set({
+                        upiId: document.getElementById('upiId').value || '',
+                        accountNumber: accNumber,
+                        ifsc: ifsc,
+                        bankName: bank,
+                        accountHolder: accName
+                    });
+                }
+
+                // Deduct balance
+                await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set(balance - amount);
+                await database.ref(`users/${currentUser.id}/wallet/totalWithdrawn`).set((currentUser.wallet?.totalWithdrawn || 0) + amount);
+
+                // Create withdrawal request
+                const withdrawal = {
+                    id: generateId('WID'),
+                    userId: currentUser.id,
+                    userName: currentUser.name,
+                    userPhone: currentUser.phone,
+                    amount: amount,
+                    method: method,
+                    details: details,
+                    status: 'pending',
+                    requestedAt: new Date().toISOString()
+                };
+
+                await database.ref('withdrawals').push(withdrawal);
+
+                // Add transaction
+                const txn = {
+                    id: withdrawal.id,
+                    type: 'withdrawal_pending',
+                    amount: amount,
+                    description: `Withdrawal to ${method.toUpperCase()}`,
+                    date: new Date().toISOString(),
+                    status: 'pending'
+                };
+                await database.ref(`users/${currentUser.id}/transactions`).push(txn);
+
+                hideLoading();
+                showMessage('✅ Withdrawal request submitted!', 'success');
+                document.getElementById('withdrawForm').reset();
+                hideWithdraw();
+
+            } catch (error) {
+                hideLoading();
+                showMessage('❌ Failed to process withdrawal', 'error');
             }
+        });
+
+        // ==================== REFERRAL FUNCTIONS ====================
+        function loadReferralData() {
+            if (!currentUser) return;
             
-            // Create withdrawal request
-            const withdrawalRequest = {
-                id: 'WID' + Date.now(),
+            const link = `${window.location.origin}${window.location.pathname}?ref=${currentUser.referralCode}`;
+            document.getElementById('refLink').textContent = link;
+            
+            document.getElementById('refTotal').textContent = currentUser.referrals?.count || 0;
+            document.getElementById('refEarned').textContent = '₹' + (currentUser.referrals?.earnings || 0);
+            
+            // Calculate pending and active
+            const refList = currentUser.referrals?.list || {};
+            const refCount = Object.keys(refList).length;
+            document.getElementById('refActive').textContent = refCount;
+            document.getElementById('refPendingCount').textContent = Math.max(0, (currentUser.referrals?.count || 0) - refCount);
+            
+            // Load referrals list
+            const listContainer = document.getElementById('refList');
+            if (refCount === 0) {
+                listContainer.innerHTML = '<p style="text-align: center; color: #999; padding: 30px;">No referrals yet. Start sharing!</p>';
+            } else {
+                listContainer.innerHTML = Object.values(refList).map(ref => `
+                    <div class="transaction-item">
+                        <div class="tx-info">
+                            <h4>${ref.name || 'User'}</h4>
+                            <small>Joined: ${formatDate(ref.date)}</small>
+                        </div>
+                        <div class="tx-amount tx-credit">+₹15</div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function copyRefLink() {
+            const link = document.getElementById('refLink').textContent;
+            navigator.clipboard.writeText(link).then(() => {
+                showMessage('✅ Link copied!', 'success');
+            });
+        }
+
+        function shareWhatsApp() {
+            const link = document.getElementById('refLink').textContent;
+            const text = `🌞 Join Solar Energy!\\n\\n💰 Get ₹15 instant per referral!\\n💎 20% commission on plans!\\n🏆 Lifetime passive income!\\n\\n🔗 ${link}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+        }
+
+        // ==================== SUPPORT FUNCTIONS ====================
+        function loadSupportData() {
+            if (!currentUser) return;
+            
+            database.ref('tickets').orderByChild('userId').equalTo(currentUser.id).once('value', (snapshot) => {
+                const tickets = snapshot.val() || {};
+                const container = document.getElementById('ticketsList');
+                
+                if (Object.keys(tickets).length === 0) {
+                    container.innerHTML = '<p style="text-align: center; color: #999; padding: 30px;">No tickets yet</p>';
+                    return;
+                }
+
+                container.innerHTML = Object.values(tickets).sort((a, b) => 
+                    new Date(b.createdAt) - new Date(a.createdAt)
+                ).map(ticket => `
+                    <div class="ticket-item">
+                        <div class="ticket-header">
+                            <strong>${ticket.subject}</strong>
+                            <span class="ticket-status status-${ticket.status}">${ticket.status.toUpperCase()}</span>
+                        </div>
+                        <p style="color: #666; font-size: 14px; margin: 10px 0;">${ticket.message}</p>
+                        <small style="color: #999;">${formatDate(ticket.createdAt)}</small>
+                    </div>
+                `).join('');
+            });
+        }
+
+        document.getElementById('ticketForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const ticket = {
+                id: generateId('TIC'),
                 userId: currentUser.id,
                 userName: currentUser.name,
                 userPhone: currentUser.phone,
-                amount: amount,
-                method: method,
-                status: 'pending',
-                requestedAt: new Date().toISOString()
+                type: document.getElementById('ticketType').value,
+                subject: document.getElementById('ticketSubject').value,
+                message: document.getElementById('ticketMessage').value,
+                status: 'open',
+                createdAt: new Date().toISOString(),
+                replies: {}
             };
-            
-            // Save to pending withdrawals
-            const pendingWithdrawals = JSON.parse(localStorage.getItem('pendingWithdrawals') || '[]');
-            pendingWithdrawals.push(withdrawalRequest);
-            localStorage.setItem('pendingWithdrawals', JSON.stringify(pendingWithdrawals));
-            
-            // Deduct from balance immediately (or you can wait for approval)
-            const users = JSON.parse(localStorage.getItem('solarUsers') || '[]');
-            const userIndex = users.findIndex(u => u.id === currentUser.id);
-            
-            users[userIndex].wallet.mainBalance -= amount;
-            users[userIndex].wallet.totalWithdrawn += amount;
-            users[userIndex].transactions.push({
-                id: withdrawalRequest.id,
-                type: 'withdrawal_pending',
-                amount: amount,
-                description: `Withdrawal request (${method})`,
-                date: new Date().toISOString(),
-                status: 'pending'
-            });
-            
-            localStorage.setItem('solarUsers', JSON.stringify(users));
-            localStorage.setItem('currentUser', JSON.stringify(users[userIndex]));
-            currentUser = users[userIndex];
-            
-            alert('✅ Withdrawal request submitted!\n\nWill be processed within 24 hours.');
-            loadWallet();
-        });
-        
-        // Add payment method modal
-        function openAddMethodModal() {
-            document.getElementById('addMethodModal').style.display = 'flex';
-        }
-        
-        function closeAddMethodModal() {
-            document.getElementById('addMethodModal').style.display = 'none';
-        }
-        
-        function toggleMethodFields() {
-            const type = document.getElementById('methodType').value;
-            document.getElementById('upiField').classList.toggle('hidden', type !== 'upi');
-            document.getElementById('bankFields').classList.toggle('hidden', type !== 'bank');
-        }
-        
-        document.getElementById('addMethodForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            
-            const type = document.getElementById('methodType').value;
-            const users = JSON.parse(localStorage.getItem('solarUsers') || '[]');
-            const userIndex = users.findIndex(u => u.id === currentUser.id);
-            
-            if (type === 'upi') {
-                users[userIndex].bankDetails.upiId = document.getElementById('upiIdInput').value;
-            } else {
-                users[userIndex].bankDetails.accountNumber = document.getElementById('accountNumber').value;
-                users[userIndex].bankDetails.ifsc = document.getElementById('ifscCode').value;
-                users[userIndex].bankDetails.bankName = document.getElementById('bankName').value;
+
+            showLoading('Submitting...');
+
+            try {
+                await database.ref('tickets').push(ticket);
+                hideLoading();
+                showMessage('✅ Ticket submitted! We will respond soon.', 'success');
+                document.getElementById('ticketForm').reset();
+                loadSupportData();
+            } catch (error) {
+                hideLoading();
+                showMessage('❌ Failed to submit ticket', 'error');
             }
-            
-            localStorage.setItem('solarUsers', JSON.stringify(users));
-            localStorage.setItem('currentUser', JSON.stringify(users[userIndex]));
-            currentUser = users[userIndex];
-            
-            closeAddMethodModal();
-            loadWallet();
-            alert('✅ Payment method saved!');
         });
-        
-        // ===== REFERRAL FUNCTIONS =====
-        function loadReferral() {
+
+        // ==================== PROFILE FUNCTIONS ====================
+        function loadProfileData() {
             if (!currentUser) return;
             
-            const link = window.location.origin + window.location.pathname + '?ref=' + currentUser.referralCode;
-            document.getElementById('referralLinkDisplay').textContent = link;
+            document.getElementById('profileName').textContent = currentUser.name;
+            document.getElementById('profilePhone').textContent = '+91 ' + currentUser.phone;
+            document.getElementById('profJoinDate').textContent = formatDate(currentUser.joinDate);
+            document.getElementById('profTotalEarn').textContent = '₹' + ((currentUser.referrals?.earnings || 0) + (currentUser.wallet?.mainBalance || 0));
+        }
+
+        function logout() {
+            // Remove listener
+            if (currentUser) {
+                database.ref(`users/${currentUser.id}`).off();
+            }
             
-            document.getElementById('refTotal').textContent = currentUser.referrals.count;
-            document.getElementById('refEarned').textContent = '₹' + currentUser.referrals.earnings;
+            currentUser = null;
+            localStorage.removeItem('currentUser');
+            auth.signOut();
             
-            // Count pending referrals (joined but not purchased)
-            const users = JSON.parse(localStorage.getItem('solarUsers') || '[]');
-            let pending = 0;
-            currentUser.referrals.list.forEach(refId => {
-                const ref = users.find(u => u.id === refId);
-                if (ref && ref.activePlans.length === 0) pending++;
-            });
-            document.getElementById('refPending').textContent = pending;
-            
-            // Load referrals list
-            const list = document.getElementById('referralsList');
-            if (currentUser.referrals.list.length > 0) {
-                list.innerHTML = '';
-                currentUser.referrals.list.forEach(refId => {
-                    const ref = users.find(u => u.id === refId);
-                    if (ref) {
-                        list.innerHTML += `
-                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 15px; border-bottom: 1px solid #eee;">
-                                <div>
-                                    <strong>${ref.name}</strong><br>
-                                    <small>Joined ${new Date(ref.joinDate).toLocaleDateString()}</small>
-                                </div>
-                                <div style="color: #11998e; font-weight: bold;">+₹15</div>
-                            </div>
-                        `;
-                    }
+            showMessage('👋 Logged out successfully', 'info');
+            showPage('login');
+        }
+
+        function backToReg() {
+            document.getElementById('regStep2').classList.add('hidden');
+            document.getElementById('regStep1').classList.remove('hidden');
+            clearInterval(otpTimer);
+        }
+
+        async function resendOtp() {
+            showLoading('Resending OTP...');
+            try {
+                const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('resendOtpBtn', {
+                    size: 'invisible'
                 });
+                confirmationResult = await auth.signInWithPhoneNumber('+91' + tempUserData.phone, recaptchaVerifier);
+                hideLoading();
+                startOtpTimer();
+                showMessage('✅ OTP resent!', 'success');
+            } catch (error) {
+                hideLoading();
+                showMessage('❌ Failed to resend OTP', 'error');
             }
         }
-        
-        function copyReferralLink() {
-            const link = document.getElementById('referralLinkDisplay').textContent;
-            navigator.clipboard.writeText(link).then(() => {
-                alert('✅ Referral link copied!');
+
+        // Forgot password
+        document.getElementById('forgotForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showLoading('Processing...');
+            
+            const phone = document.getElementById('forgotPhone').value;
+            
+            try {
+                const snapshot = await database.ref('users').orderByChild('phone').equalTo(phone).once('value');
+                if (!snapshot.val()) {
+                    hideLoading();
+                    showMessage('❌ Phone number not found!', 'error');
+                    return;
+                }
+
+                // In real app, send SMS or email reset link
+                // For now, just show message
+                hideLoading();
+                showMessage('📱 Contact support to reset password: +91 6395503566', 'info');
+                
+            } catch (error) {
+                hideLoading();
+                showMessage('❌ Error processing request', 'error');
+            }
+        });
+
+        // ==================== INITIALIZATION ====================
+        window.onload = function() {
+            // Check for saved user
+            const savedUser = localStorage.getItem('currentUser');
+            if (savedUser) {
+                currentUser = JSON.parse(savedUser);
+                setupUserListener(currentUser.id);
+                showPage('home');
+            } else {
+                // Check URL for referral
+                const urlParams = new URLSearchParams(window.location.search);
+                const refCode = urlParams.get('ref');
+                if (refCode) {
+                    localStorage.setItem('pendingReferral', refCode);
+                    document.getElementById('regReferral').value = refCode;
+                    showPage('register');
+                } else {
+                    showPage('login');
+                }
+            }
+
+            // Process daily earnings check
+            if (currentUser) {
+                processDailyEarnings();
+            }
+        };
+
+        // Process daily earnings
+        async function processDailyEarnings() {
+            if (!currentUser || !currentUser.activePlans) return;
+            
+            const now = new Date();
+            const today = now.toISOString().split('T')[0];
+            
+            Object.values(currentUser.activePlans).forEach(async (plan) => {
+                if (plan.status !== 'active') return;
+                
+                const expiryDate = new Date(plan.expiryDate);
+                if (now > expiryDate) {
+                    // Plan expired
+                    await database.ref(`users/${currentUser.id}/activePlans/${plan.planId}/status`).set('expired');
+                    return;
+                }
+
+                // Check if already claimed today
+                const lastClaim = plan.lastClaimed ? plan.lastClaimed.split('T')[0] : null;
+                if (lastClaim === today) return;
+
+                // Credit daily earning
+                const newBalance = (currentUser.wallet?.mainBalance || 0) + plan.dailyReturn;
+                await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set(newBalance);
+                
+                // Update plan
+                await database.ref(`users/${currentUser.id}/activePlans/${plan.planId}`).update({
+                    lastClaimed: now.toISOString(),
+                    totalClaimed: (plan.totalClaimed || 0) + plan.dailyReturn
+                });
+
+                // Add transaction
+                const txn = {
+                    id: generateId('TXN'),
+                    type: 'daily_earning',
+                    amount: plan.dailyReturn,
+                    description: `Daily earning from ${plan.planName}`,
+                    date: now.toISOString()
+                };
+                await database.ref(`users/${currentUser.id}/transactions`).push(txn);
             });
         }
-        
-        function shareWhatsApp() {
-            const link = document.getElementById('referralLinkDisplay').textContent;
-            const text = `🌞 Join Solar Energy!\n\n💰 Get ₹15 instant per referral!\n💎 20% commission on plans!\n🏆 Lifetime passive income!\n\n🔗 ${link}`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
-        }
-        
-        function shareTelegram() {
-            const link = document.getElementById('referralLinkDisplay').textContent;
-            const text = `🌞 Solar Energy - Refer & Earn!\n\n💰 ₹15 instant per referral\n💎 20% commission\n🏆 5%-3%-1% lifetime income\n\n${link}`;
-            window.open(`https://t.me/share/url?url=${encodeURIComponent(link)}&text=${encodeURIComponent(text)}`);
-        }
+
+        // Run daily earnings check every hour
+        setInterval(processDailyEarnings, 3600000);
     </script>
 </body>
 </html>
-
-
