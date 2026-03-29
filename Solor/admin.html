@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Panel - Solar Energy</title>
-    <!-- GitHub DB Utility -->
-    <script src="github-db.js"></script>
     <style>
         * {
             margin: 0;
@@ -448,9 +446,7 @@
         
         // Check if already logged in
         if (sessionStorage.getItem('adminLoggedIn') === 'true') {
-            GitHubDB.syncGitHubToLocal().then(() => {
-                showAdminPanel();
-            });
+            showAdminPanel();
         }
         
         // Admin login
@@ -466,10 +462,9 @@
             }
         });
         
-        async function showAdminPanel() {
+        function showAdminPanel() {
             document.getElementById('loginScreen').classList.add('hidden');
             document.getElementById('adminPanel').classList.remove('hidden');
-            await GitHubDB.syncGitHubToLocal();
             loadDashboard();
         }
         
@@ -568,7 +563,7 @@
             });
         }
         
-        async function addMoney(userId) {
+        function addMoney(userId) {
             const amount = prompt('Enter amount to add:');
             if (!amount || isNaN(amount)) return;
             
@@ -585,7 +580,7 @@
                     date: new Date().toISOString()
                 });
                 
-                await GitHubDB.syncLocalToGitHub();
+                localStorage.setItem('solarUsers', JSON.stringify(users));
                 alert('✅ Money added!');
                 loadUsers();
                 loadDashboard();
