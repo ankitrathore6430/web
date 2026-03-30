@@ -1522,3 +1522,861 @@
             </div>
         </div>
     </div>
+    <script>
+        // Firebase Config
+        const firebaseConfig = {
+            apiKey: "AIzaSyA3pH_dnb6_--wRoDSuoj-TAudsmJ7D4R0",
+            authDomain: "solor-energy.firebaseapp.com",
+            databaseURL: "https://solor-energy-default-rtdb.firebaseio.com",
+            projectId: "solor-energy",
+            storageBucket: "solor-energy.firebasestorage.app",
+            messagingSenderId: "772737546715",
+            appId: "1:772737546715:web:3736545b464523bdc04ffe"
+        };
+
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        // Global Variables
+        let currentAdmin = null;
+        let allUsers = {};
+        let allDeposits = {};
+        let allWithdrawals = {};
+        let allTickets = {};
+        let allPlans = {};
+        let currentDepositId = null;
+        let currentWithdrawalId = null;
+        let currentTicketId = null;
+        let currentUserId = null;
+
+        // Admin Credentials
+        const ADMIN_EMAIL = "admin@solarenergy.com";
+        const ADMIN_PASSWORD = "admin123";
+
+        // Utility Functions
+        function showLoading(text = 'Loading...') {
+            document.querySelector('#loadingScreen p').textContent = text;
+            document.getElementById('loadingScreen').classList.add('active');
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingScreen').classList.remove('active');
+        }
+
+        function showToast(message, type = 'info') {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast ${type}`;
+            const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-times-circle' : 'fa-info-circle';
+            toast.innerHTML = `
+                <div class="toast-icon"><i class="fas ${icon}"></i></div>
+                <div class="toast-content"><h4>${type.charAt(0).toUpperCase() + type.slice(1)}</h4><p>${message}</p></div>
+            `;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100px)';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+
+        function formatCurrency(amount) {
+            return '₹' + (parseInt(amount) || 0).toLocaleString('en-IN');
+        }
+
+        function formatDate(dateString) {
+            if (!dateString) return '--';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+        }
+
+        function generateId(prefix = 'ID') {
+            return prefix + Date.now().toString().slice(-6) + Math.random().toString(36).substr(2, 4).toUpperCase();
+        }
+
+        // Auth
+        document.getElementById('adminLoginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('adminEmail').value;
+            const password = document.getElementById('adminPassword').value;
+            
+            showLoading('Logging in...');
+            
+            setTimeout(() => {
+                if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
+                    currentAdmin = { email: email };
+                    hideLoading();
+                    document.getElementById('loginPage').classList.add('hidden');
+                    document.getElementById('adminDashboard').classList.remove('hidden');
+                    showToast('Welcome Admin!', 'success');
+                    initDashboard();
+                } else {
+                    hideLoading();
+                    showToast('Invalid credentials!', 'error');
+                }
+            }, 800);
+        });
+
+        function logoutAdmin() {
+            if (confirm('Logout?')) {
+                currentAdmin = null;
+                document.getElementById('adminDashboard').classList.add('hidden');
+                document.getElementById('loginPage').classList.remove('hidden');
+                document.getElementById('adminLoginForm').reset();
+                showToast('Logged out', 'info');
+            }
+        }
+
+        // Navigation
+        function showSection(section) {
+            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
+            event.target.closest('.menu-item').classList.add('active');
+            document.querySelectorAll('.admin-section').forEach(sec => sec.classList.add('hidden'));
+            document.getElementById(section + 'Section').classList.remove('hidden');
+            
+            const titles = {
+                'dashboard': 'Dashboard',
+                'users': 'Users',
+                'deposits': 'Deposits',
+                'withdrawals': 'Withdrawals',
+                'plans': 'Plans',
+                'tickets': 'Tickets',
+                'settings': 'Settings'
+            };
+            document.getElementById('pageTitle').textContent = titles[section];
+            
+            if (section === 'users') loadUsers();
+            if (section === 'deposits') loadDeposits();
+            if (section === 'withdrawals') loadWithdrawals();
+            if (section === 'plans') loadPlans();
+            if (section === 'tickets') loadTickets();
+            if (section === 'settings') loadSettings();
+            
+            if (window.innerWidth <= 1024) {
+                toggleSidebar();
+            }
+        }
+
+        function toggleSidebar() {
+            const sidebar = document.getElementById('adminSidebar');
+            const overlay = document.getElementById('sidebarOverlay');
+            sidebar.classList.toggle('hidden-mobile');
+            overlay.classList.toggle('active');
+        }
+
+        // Dashboard Init
+        function initDashboard() {
+            setupListeners();
+            updateStats();
+        }
+
+        function setupListeners() {
+            database.ref('users').on('value', (snap) => {
+                allUsers = snap.val() || {};
+                updateStats();
+                if (!document.getElementById('usersSection').classList.contains('hidden')) loadUsers();
+            });
+
+            database.ref('deposits').on('value', (snap) => {
+                allDeposits = snap.val() || {};
+                updateStats();
+                updateBadges();
+                if (!document.getElementById('depositsSection').classList.contains('hidden')) loadDeposits();
+            });
+
+            database.ref('withdrawals').on('value', (snap) => {
+                allWithdrawals = snap.val() || {};
+                updateStats();
+                updateBadges();
+                if (!document.getElementById('withdrawalsSection').classList.contains('hidden')) loadWithdrawals();
+            });
+
+            database.ref('tickets').on('value', (snap) => {
+                allTickets = snap.val() || {};
+                updateBadges();
+                if (!document.getElementById('ticketsSection').classList.contains('hidden')) loadTickets();
+            });
+
+            database.ref('plans').on('value', (snap) => {
+                allPlans = snap.val() || {};
+                if (!document.getElementById('plansSection').classList.contains('hidden')) loadPlans();
+            });
+        }
+
+        function updateBadges() {
+            const pendingDeps = Object.values(allDeposits).filter(d => d.status === 'pending').length;
+            const pendingWds = Object.values(allWithdrawals).filter(w => w.status === 'pending').length;
+            const openTix = Object.values(allTickets).filter(t => t.status === 'open').length;
+            
+            document.getElementById('pendingDepositsBadge').textContent = pendingDeps;
+            document.getElementById('pendingWithdrawalsBadge').textContent = pendingWds;
+            document.getElementById('openTicketsBadge').textContent = openTix;
+            document.getElementById('totalUsersBadge').textContent = Object.keys(allUsers).length;
+            document.getElementById('notificationCount').textContent = pendingDeps + pendingWds + openTix;
+        }
+
+        function updateStats() {
+            const users = Object.values(allUsers);
+            const deposits = Object.values(allDeposits);
+            const withdrawals = Object.values(allWithdrawals);
+            
+            document.getElementById('statTotalUsers').textContent = users.length;
+            
+            const today = new Date().toDateString();
+            const newToday = users.filter(u => new Date(u.joinDate).toDateString() === today).length;
+            document.getElementById('statNewUsersToday').textContent = `+${newToday} today`;
+            
+            const totalBal = users.reduce((sum, u) => sum + (u.wallet?.mainBalance || 0), 0);
+            document.getElementById('statTotalBalance').textContent = formatCurrency(totalBal);
+            
+            const pendingDeps = deposits.filter(d => d.status === 'pending');
+            document.getElementById('statPendingDeposits').textContent = pendingDeps.length;
+            const pendingDepAmt = pendingDeps.reduce((sum, d) => sum + d.amount, 0);
+            document.getElementById('statPendingDepositAmount').textContent = formatCurrency(pendingDepAmt);
+            
+            const pendingWds = withdrawals.filter(w => w.status === 'pending');
+            document.getElementById('statPendingWithdrawals').textContent = pendingWds.length;
+            const pendingWdAmt = pendingWds.reduce((sum, w) => sum + w.amount, 0);
+            document.getElementById('statPendingWithdrawalAmount').textContent = formatCurrency(pendingWdAmt);
+            
+            loadRecentActivity();
+        }
+
+        function loadRecentActivity() {
+            const activities = [];
+            Object.entries(allDeposits).forEach(([id, d]) => {
+                activities.push({ type: 'deposit', user: d.userName, amount: d.amount, status: d.status, date: d.requestedAt });
+            });
+            Object.entries(allWithdrawals).forEach(([id, w]) => {
+                activities.push({ type: 'withdrawal', user: w.userName, amount: w.amount, status: w.status, date: w.requestedAt });
+            });
+            activities.sort((a, b) => new Date(b.date) - new Date(a.date));
+            
+            const tbody = document.getElementById('recentActivityBody');
+            if (activities.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><i class="fas fa-inbox"></i><h3>No Activity</h3></td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = activities.slice(0, 10).map(act => `
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-avatar">${act.user?.charAt(0).toUpperCase() || 'U'}</div>
+                            <span>${act.user || 'Unknown'}</span>
+                        </div>
+                    </td>
+                    <td>${act.type === 'deposit' ? '<i class="fas fa-arrow-down text-success"></i> Deposit' : '<i class="fas fa-arrow-up text-danger"></i> Withdrawal'}</td>
+                    <td>${formatCurrency(act.amount)}</td>
+                    <td><span class="badge badge-${act.status === 'pending' ? 'warning' : act.status === 'approved' ? 'success' : 'danger'}">${act.status}</span></td>
+                    <td>${formatDate(act.date)}</td>
+                </tr>
+            `).join('');
+        }
+
+        // Users
+        function loadUsers() {
+            const tbody = document.getElementById('usersTableBody');
+            const users = Object.entries(allUsers);
+            
+            if (users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="fas fa-users"></i><h3>No Users</h3></td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = users.map(([id, user]) => `
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-avatar">${user.name?.charAt(0).toUpperCase() || 'U'}</div>
+                            <div class="user-info">
+                                <h4>${user.name || 'Unknown'}</h4>
+                                <p>${user.referralCode || 'No Ref'}</p>
+                            </div>
+                        </div>
+                    </td>
+                    <td>${user.phone || '--'}</td>
+                    <td>${formatCurrency(user.wallet?.mainBalance || 0)}</td>
+                    <td><span class="badge badge-${user.status === 'active' ? 'success' : 'danger'}">${user.status || 'active'}</span></td>
+                    <td>${formatDate(user.joinDate)}</td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn view" onclick="viewUser('${id}')" title="View"><i class="fas fa-eye"></i></button>
+                            <button class="action-btn ${user.status === 'active' ? 'reject' : 'approve'}" onclick="toggleUserStatus('${id}')" title="${user.status === 'active' ? 'Block' : 'Unblock'}"><i class="fas fa-${user.status === 'active' ? 'ban' : 'check'}"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function searchUsers() {
+            const search = document.getElementById('userSearch').value.toLowerCase();
+            const rows = document.querySelectorAll('#usersTableBody tr');
+            rows.forEach(row => {
+                row.style.display = row.textContent.toLowerCase().includes(search) ? '' : 'none';
+            });
+        }
+
+        function viewUser(userId) {
+            currentUserId = userId;
+            const user = allUsers[userId];
+            if (!user) return;
+            
+            const plans = Object.values(user.activePlans || {});
+            const txns = Object.values(user.transactions || {}).slice(-5);
+            
+            document.getElementById('userModalBody').innerHTML = `
+                <div style="text-align: center; padding: 20px; background: var(--gradient-1); border-radius: 16px; color: white; margin-bottom: 20px;">
+                    <div style="font-size: 48px; margin-bottom: 10px;">👤</div>
+                    <h2 style="font-size: 22px;">${user.name}</h2>
+                    <p>${user.phone}</p>
+                </div>
+                <div class="detail-grid">
+                    <div class="detail-item"><span class="detail-label">Balance</span><span class="detail-value">${formatCurrency(user.wallet?.mainBalance || 0)}</span></div>
+                    <div class="detail-item"><span class="detail-label">Referrals</span><span class="detail-value">${user.referrals?.count || 0}</span></div>
+                    <div class="detail-item"><span class="detail-label">Active Plans</span><span class="detail-value">${plans.length}</span></div>
+                    <div class="detail-item"><span class="detail-label">Total Earned</span><span class="detail-value">${formatCurrency(user.referrals?.earnings || 0)}</span></div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <h4 style="margin-bottom: 12px;">Recent Transactions</h4>
+                    ${txns.length > 0 ? txns.map(t => `
+                        <div style="padding: 12px; background: #f8fafc; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between;">
+                            <div><div style="font-size: 14px;">${t.description}</div><div style="font-size: 12px; color: var(--gray);">${formatDate(t.date)}</div></div>
+                            <div style="font-weight: 600; color: ${t.amount > 0 ? 'var(--success)' : 'var(--danger)'}">${t.amount > 0 ? '+' : ''}${formatCurrency(t.amount)}</div>
+                        </div>
+                    `).join('') : '<p style="color: var(--gray);">No transactions</p>'}
+                </div>
+            `;
+            document.getElementById('userModal').classList.add('active');
+        }
+
+        function toggleUserStatus(userId) {
+            const user = allUsers[userId];
+            if (!user) return;
+            const newStatus = user.status === 'active' ? 'blocked' : 'active';
+            if (confirm(`${newStatus === 'blocked' ? 'Block' : 'Unblock'} this user?`)) {
+                showLoading('Updating...');
+                database.ref(`users/${userId}/status`).set(newStatus)
+                    .then(() => {
+                        hideLoading();
+                        showToast(`User ${newStatus === 'blocked' ? 'blocked' : 'unblocked'}`, 'success');
+                        loadUsers();
+                    })
+                    .catch(err => {
+                        hideLoading();
+                        showToast('Error: ' + err.message, 'error');
+                    });
+            }
+        }
+
+        function blockUser() {
+            if (currentUserId) {
+                toggleUserStatus(currentUserId);
+                closeModal('userModal');
+            }
+        }
+
+        function exportUsers() {
+            const users = Object.values(allUsers);
+            const csv = [
+                ['Name', 'Phone', 'Balance', 'Referrals', 'Status', 'Join Date'].join(','),
+                ...users.map(u => [u.name, u.phone, u.wallet?.mainBalance || 0, u.referrals?.count || 0, u.status, u.joinDate].join(','))
+            ].join('\n');
+            const blob = new Blob([csv], { type: 'text/csv' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'users_' + new Date().toISOString().split('T')[0] + '.csv';
+            a.click();
+            showToast('Exported successfully', 'success');
+        }
+
+        // Deposits
+        function loadDeposits() {
+            const filter = document.getElementById('depositFilter').value;
+            const tbody = document.getElementById('depositsTableBody');
+            let deposits = Object.entries(allDeposits);
+            if (filter !== 'all') deposits = deposits.filter(([id, d]) => d.status === filter);
+            deposits.sort((a, b) => new Date(b[1].requestedAt) - new Date(a[1].requestedAt));
+            
+            if (deposits.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><i class="fas fa-inbox"></i><h3>No Deposits</h3></td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = deposits.map(([id, d]) => `
+                <tr>
+                    <td><code style="font-size: 12px;">${d.id?.slice(-8) || id.slice(-8)}</code></td>
+                    <td>${d.userName}<br><small style="color: var(--gray);">${d.userPhone}</small></td>
+                    <td style="font-weight: 600; color: var(--success);">${formatCurrency(d.amount)}</td>
+                    <td><code style="font-size: 12px;">${d.transactionId?.slice(-12) || '--'}</code></td>
+                    <td>${formatDate(d.requestedAt)}</td>
+                    <td><span class="badge badge-${d.status === 'pending' ? 'warning' : d.status === 'approved' ? 'success' : 'danger'}">${d.status}</span></td>
+                    <td>
+                        <div class="action-btns">
+                            ${d.status === 'pending' ? `
+                                <button class="action-btn approve" onclick="openDepositModal('${id}')" title="Approve"><i class="fas fa-check"></i></button>
+                                <button class="action-btn reject" onclick="quickRejectDeposit('${id}')" title="Reject"><i class="fas fa-times"></i></button>
+                            ` : '<span style="color: var(--gray); font-size: 12px;">Processed</span>'}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openDepositModal(depositId) {
+            currentDepositId = depositId;
+            const deposit = allDeposits[depositId];
+            if (!deposit) return;
+            
+            document.getElementById('depositDetails').innerHTML = `
+                <div class="detail-card">
+                    <div class="detail-grid">
+                        <div class="detail-item"><span class="detail-label">User</span><span class="detail-value">${deposit.userName}</span></div>
+                        <div class="detail-item"><span class="detail-label">Amount</span><span class="detail-value" style="color: var(--success);">${formatCurrency(deposit.amount)}</span></div>
+                        <div class="detail-item"><span class="detail-label">UPI App</span><span class="detail-value">${deposit.upiApp || '--'}</span></div>
+                        <div class="detail-item"><span class="detail-label">Txn ID</span><span class="detail-value" style="font-size: 13px;">${deposit.transactionId || '--'}</span></div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('depositAction').value = 'approve';
+            document.getElementById('depositNote').value = '';
+            document.getElementById('depositModal').classList.add('active');
+        }
+
+        function quickRejectDeposit(depositId) {
+            if (!confirm('Reject this deposit?')) return;
+            showLoading('Rejecting...');
+            database.ref(`deposits/${depositId}`).update({
+                status: 'rejected',
+                processedAt: new Date().toISOString()
+            })
+            .then(() => {
+                hideLoading();
+                showToast('Deposit rejected', 'success');
+            })
+            .catch(err => {
+                hideLoading();
+                showToast('Error: ' + err.message, 'error');
+            });
+        }
+
+        function processDepositAction() {
+            if (!currentDepositId) return;
+            const action = document.getElementById('depositAction').value;
+            const note = document.getElementById('depositNote').value;
+            const deposit = allDeposits[currentDepositId];
+            
+            showLoading('Processing...');
+            
+            const updates = {
+                status: action === 'approve' ? 'approved' : 'rejected',
+                processedAt: new Date().toISOString(),
+                adminNote: note
+            };
+            
+            database.ref(`deposits/${currentDepositId}`).update(updates)
+                .then(() => {
+                    if (action === 'approve') {
+                        const userRef = database.ref(`users/${deposit.userId}`);
+                        return userRef.once('value').then(snap => {
+                            const user = snap.val();
+                            const newBal = (user.wallet?.mainBalance || 0) + deposit.amount;
+                            return Promise.all([
+                                userRef.child('wallet/mainBalance').set(newBal),
+                                userRef.child('transactions').push({
+                                    id: generateId('TXN'),
+                                    type: 'deposit_approved',
+                                    amount: deposit.amount,
+                                    description: 'Deposit approved by admin',
+                                    date: new Date().toISOString(),
+                                    status: 'completed'
+                                })
+                            ]);
+                        });
+                    }
+                })
+                .then(() => {
+                    hideLoading();
+                    closeModal('depositModal');
+                    showToast(`Deposit ${action}ed successfully`, 'success');
+                    document.getElementById('depositNote').value = '';
+                })
+                .catch(err => {
+                    hideLoading();
+                    showToast('Error: ' + err.message, 'error');
+                });
+        }
+
+        // Withdrawals
+        function loadWithdrawals() {
+            const filter = document.getElementById('withdrawalFilter').value;
+            const tbody = document.getElementById('withdrawalsTableBody');
+            let withdrawals = Object.entries(allWithdrawals);
+            if (filter !== 'all') withdrawals = withdrawals.filter(([id, w]) => w.status === filter);
+            withdrawals.sort((a, b) => new Date(b[1].requestedAt) - new Date(a[1].requestedAt));
+            
+            if (withdrawals.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><i class="fas fa-inbox"></i><h3>No Withdrawals</h3></td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = withdrawals.map(([id, w]) => `
+                <tr>
+                    <td><code style="font-size: 12px;">${w.id?.slice(-8) || id.slice(-8)}</code></td>
+                    <td>${w.userName}<br><small style="color: var(--gray);">${w.userPhone}</small></td>
+                    <td style="font-weight: 600; color: var(--danger);">${formatCurrency(w.amount)}</td>
+                    <td>${w.method?.toUpperCase() || '--'}</td>
+                    <td>${formatDate(w.requestedAt)}</td>
+                    <td><span class="badge badge-${w.status === 'pending' ? 'warning' : w.status === 'approved' ? 'success' : 'danger'}">${w.status}</span></td>
+                    <td>
+                        <div class="action-btns">
+                            ${w.status === 'pending' ? `
+                                <button class="action-btn approve" onclick="openWithdrawalModal('${id}')" title="Approve"><i class="fas fa-check"></i></button>
+                                <button class="action-btn reject" onclick="quickRejectWithdrawal('${id}')" title="Reject"><i class="fas fa-times"></i></button>
+                            ` : '<span style="color: var(--gray); font-size: 12px;">Processed</span>'}
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openWithdrawalModal(withdrawalId) {
+            currentWithdrawalId = withdrawalId;
+            const w = allWithdrawals[withdrawalId];
+            if (!w) return;
+            
+            document.getElementById('withdrawalDetails').innerHTML = `
+                <div class="detail-card">
+                    <div class="detail-grid">
+                        <div class="detail-item"><span class="detail-label">User</span><span class="detail-value">${w.userName}</span></div>
+                        <div class="detail-item"><span class="detail-label">Amount</span><span class="detail-value" style="color: var(--danger);">${formatCurrency(w.amount)}</span></div>
+                        <div class="detail-item"><span class="detail-label">Method</span><span class="detail-value">${w.method?.toUpperCase()}</span></div>
+                        <div class="detail-item"><span class="detail-label">Details</span><span class="detail-value" style="font-size: 12px; word-break: break-all;">${w.details || '--'}</span></div>
+                    </div>
+                </div>
+            `;
+            document.getElementById('withdrawalAction').value = 'approve';
+            document.getElementById('withdrawalRef').value = '';
+            document.getElementById('withdrawalNote').value = '';
+            document.getElementById('withdrawalModal').classList.add('active');
+        }
+
+        function quickRejectWithdrawal(withdrawalId) {
+            if (!confirm('Reject this withdrawal?')) return;
+            showLoading('Rejecting...');
+            database.ref(`withdrawals/${withdrawalId}`).update({
+                status: 'rejected',
+                processedAt: new Date().toISOString()
+            })
+            .then(() => {
+                hideLoading();
+                showToast('Withdrawal rejected', 'success');
+            })
+            .catch(err => {
+                hideLoading();
+                showToast('Error: ' + err.message, 'error');
+            });
+        }
+
+        function processWithdrawalAction() {
+            if (!currentWithdrawalId) return;
+            const action = document.getElementById('withdrawalAction').value;
+            const ref = document.getElementById('withdrawalRef').value;
+            const note = document.getElementById('withdrawalNote').value;
+            
+            if (action === 'approve' && !ref) {
+                showToast('Please enter UTR/Reference number', 'error');
+                return;
+            }
+            
+            showLoading('Processing...');
+            
+            const updates = {
+                status: action === 'approve' ? 'approved' : 'rejected',
+                processedAt: new Date().toISOString(),
+                transactionRef: ref,
+                adminNote: note
+            };
+            
+            database.ref(`withdrawals/${currentWithdrawalId}`).update(updates)
+                .then(() => {
+                    hideLoading();
+                    closeModal('withdrawalModal');
+                    showToast(`Withdrawal ${action}ed successfully`, 'success');
+                    document.getElementById('withdrawalRef').value = '';
+                    document.getElementById('withdrawalNote').value = '';
+                })
+                .catch(err => {
+                    hideLoading();
+                    showToast('Error: ' + err.message, 'error');
+                });
+        }
+
+        // Plans
+        function loadPlans() {
+            const tbody = document.getElementById('plansTableBody');
+            const plans = Object.entries(allPlans);
+            
+            if (plans.length === 0) {
+                // Create default plans
+                const defaultPlans = {
+                    free: { id: 'free', name: 'Free Trial', price: 0, daily: 10, days: 7, total: 70, icon: '🎁', popular: false, active: true },
+                    nano: { id: 'nano', name: 'Nano', price: 100, daily: 20, days: 30, total: 600, icon: '⚡', popular: false, active: true },
+                    micro: { id: 'micro', name: 'Micro', price: 200, daily: 45, days: 30, total: 1350, icon: '💎', popular: false, active: true },
+                    mini: { id: 'mini', name: 'Mini', price: 300, daily: 75, days: 30, total: 2250, icon: '🚀', popular: false, active: true },
+                    basic: { id: 'basic', name: 'Basic', price: 500, daily: 150, days: 30, total: 4500, icon: '👑', popular: true, active: true },
+                    standard: { id: 'standard', name: 'Standard', price: 1000, daily: 350, days: 30, total: 10500, icon: '💰', popular: false, active: true },
+                    pro: { id: 'pro', name: 'Pro', price: 2000, daily: 800, days: 30, total: 24000, icon: '🏆', popular: false, active: true }
+                };
+                Object.entries(defaultPlans).forEach(([id, plan]) => {
+                    database.ref(`plans/${id}`).set(plan);
+                });
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading...</p></td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = plans.map(([id, plan]) => `
+                <tr>
+                    <td>
+                        <div class="user-cell">
+                            <div style="font-size: 24px;">${plan.icon || '💎'}</div>
+                            <div>
+                                <div style="font-weight: 600;">${plan.name}</div>
+                                ${plan.popular ? '<span class="badge badge-warning" style="font-size: 10px;">POPULAR</span>' : ''}
+                            </div>
+                        </div>
+                    </td>
+                    <td>${plan.price === 0 ? 'FREE' : formatCurrency(plan.price)}</td>
+                    <td>${formatCurrency(plan.daily)}/day</td>
+                    <td>${plan.days} days</td>
+                    <td>${formatCurrency(plan.total)}</td>
+                    <td>
+                        <label style="position: relative; display: inline-block; width: 50px; height: 26px;">
+                            <input type="checkbox" ${plan.active ? 'checked' : ''} onchange="togglePlanStatus('${id}', this.checked)" style="opacity: 0; width: 0; height: 0;">
+                            <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: ${plan.active ? 'var(--success)' : '#e2e8f0'}; transition: 0.3s; border-radius: 34px;">
+                                <span style="position: absolute; content: ''; height: 20px; width: 20px; left: 3px; bottom: 3px; background: white; transition: 0.3s; border-radius: 50%; transform: ${plan.active ? 'translateX(24px)' : 'translateX(0)'};"></span>
+                            </span>
+                        </label>
+                    </td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn edit" onclick="editPlan('${id}')" title="Edit"><i class="fas fa-edit"></i></button>
+                            <button class="action-btn delete" onclick="deletePlan('${id}')" title="Delete"><i class="fas fa-trash"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function openPlanModal() {
+            document.getElementById('planModalTitle').textContent = 'Add Plan';
+            document.getElementById('planId').value = '';
+            document.getElementById('planName').value = '';
+            document.getElementById('planPrice').value = '';
+            document.getElementById('planDaily').value = '';
+            document.getElementById('planDays').value = '';
+            document.getElementById('planIcon').value = '';
+            document.getElementById('planPopular').checked = false;
+            document.getElementById('planModal').classList.add('active');
+        }
+
+        function editPlan(planId) {
+            const plan = allPlans[planId];
+            if (!plan) return;
+            document.getElementById('planModalTitle').textContent = 'Edit Plan';
+            document.getElementById('planId').value = planId;
+            document.getElementById('planName').value = plan.name;
+            document.getElementById('planPrice').value = plan.price;
+            document.getElementById('planDaily').value = plan.daily;
+            document.getElementById('planDays').value = plan.days;
+            document.getElementById('planIcon').value = plan.icon || '';
+            document.getElementById('planPopular').checked = plan.popular || false;
+            document.getElementById('planModal').classList.add('active');
+        }
+
+        function savePlan() {
+            const planId = document.getElementById('planId').value;
+            const planData = {
+                name: document.getElementById('planName').value,
+                price: parseInt(document.getElementById('planPrice').value) || 0,
+                daily: parseInt(document.getElementById('planDaily').value) || 0,
+                days: parseInt(document.getElementById('planDays').value) || 30,
+                total: (parseInt(document.getElementById('planDaily').value) || 0) * (parseInt(document.getElementById('planDays').value) || 30),
+                icon: document.getElementById('planIcon').value || '💎',
+                popular: document.getElementById('planPopular').checked,
+                active: true
+            };
+            
+            if (!planData.name) {
+                showToast('Enter plan name', 'error');
+                return;
+            }
+            
+            showLoading('Saving...');
+            const id = planId || generateId('PLAN');
+            database.ref(`plans/${id}`).update(planData)
+                .then(() => {
+                    hideLoading();
+                    closeModal('planModal');
+                    showToast('Plan saved', 'success');
+                })
+                .catch(err => {
+                    hideLoading();
+                    showToast('Error: ' + err.message, 'error');
+                });
+        }
+
+        function togglePlanStatus(planId, active) {
+            database.ref(`plans/${planId}/active`).set(active)
+                .then(() => showToast(`Plan ${active ? 'activated' : 'deactivated'}`, 'success'))
+                .catch(err => showToast('Error: ' + err.message, 'error'));
+        }
+
+        function deletePlan(planId) {
+            if (!confirm('Delete this plan?')) return;
+            database.ref(`plans/${planId}`).remove()
+                .then(() => showToast('Plan deleted', 'success'))
+                .catch(err => showToast('Error: ' + err.message, 'error'));
+        }
+
+        // Tickets
+        function loadTickets() {
+            const filter = document.getElementById('ticketFilter').value;
+            const tbody = document.getElementById('ticketsTableBody');
+            let tickets = Object.entries(allTickets);
+            if (filter !== 'all') tickets = tickets.filter(([id, t]) => t.status === filter);
+            tickets.sort((a, b) => new Date(b[1].createdAt) - new Date(a[1].createdAt));
+            
+            if (tickets.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><i class="fas fa-inbox"></i><h3>No Tickets</h3></td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = tickets.map(([id, t]) => `
+                <tr>
+                    <td><code style="font-size: 12px;">${t.id?.slice(-8) || id.slice(-8)}</code></td>
+                    <td>${t.userName}<br><small style="color: var(--gray);">${t.userPhone}</small></td>
+                    <td><span class="badge badge-info">${t.type?.toUpperCase()}</span></td>
+                    <td>${t.subject}</td>
+                    <td>${formatDate(t.createdAt)}</td>
+                    <td><span class="badge badge-${t.status === 'open' ? 'warning' : 'success'}">${t.status}</span></td>
+                    <td>
+                        <div class="action-btns">
+                            <button class="action-btn view" onclick="viewTicket('${id}')" title="View"><i class="fas fa-eye"></i></button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function viewTicket(ticketId) {
+            currentTicketId = ticketId;
+            const t = allTickets[ticketId];
+            if (!t) return;
+            
+            document.getElementById('ticketDetails').innerHTML = `
+                <div class="detail-card">
+                    <div style="margin-bottom: 15px;">
+                        <span class="badge badge-${t.status === 'open' ? 'warning' : 'success'}">${t.status.toUpperCase()}</span>
+                        <span class="badge badge-info" style="margin-left: 10px;">${t.type?.toUpperCase()}</span>
+                    </div>
+                    <h4 style="margin-bottom: 10px;">${t.subject}</h4>
+                    <p style="color: var(--gray); margin-bottom: 15px;">${t.message}</p>
+                    <div style="font-size: 13px; color: var(--gray);">
+                        From: ${t.userName} (${t.userPhone})<br>
+                        Date: ${formatDate(t.createdAt)}
+                    </div>
+                </div>
+            `;
+            document.getElementById('ticketReply').value = '';
+            document.getElementById('ticketModal').classList.add('active');
+        }
+
+        function replyTicket() {
+            if (!currentTicketId) return;
+            const reply = document.getElementById('ticketReply').value;
+            if (!reply) {
+                showToast('Enter reply message', 'error');
+                return;
+            }
+            showLoading('Sending...');
+            database.ref(`tickets/${currentTicketId}/replies`).push({
+                message: reply,
+                from: 'admin',
+                timestamp: new Date().toISOString()
+            })
+            .then(() => {
+                hideLoading();
+                document.getElementById('ticketReply').value = '';
+                showToast('Reply sent', 'success');
+            })
+            .catch(err => {
+                hideLoading();
+                showToast('Error: ' + err.message, 'error');
+            });
+        }
+
+        function closeTicket() {
+            if (!currentTicketId) return;
+            database.ref(`tickets/${currentTicketId}/status`).set('closed')
+                .then(() => {
+                    closeModal('ticketModal');
+                    showToast('Ticket closed', 'success');
+                })
+                .catch(err => showToast('Error: ' + err.message, 'error'));
+        }
+
+        // Settings
+        function loadSettings() {
+            database.ref('settings').once('value', (snap) => {
+                const s = snap.val() || {};
+                document.getElementById('upiIdSetting').value = s.upiId || '6395503566@upi';
+                document.getElementById('referralBonusSetting').value = s.referralBonus || 15;
+                document.getElementById('commissionSetting').value = s.commission || 20;
+                document.getElementById('minWithdrawalSetting').value = s.minWithdrawal || 200;
+                document.getElementById('maxWithdrawalSetting').value = s.maxWithdrawal || 10000;
+            });
+        }
+
+        function saveSettings() {
+            const settings = {
+                upiId: document.getElementById('upiIdSetting').value,
+                referralBonus: parseInt(document.getElementById('referralBonusSetting').value) || 15,
+                commission: parseInt(document.getElementById('commissionSetting').value) || 20,
+                minWithdrawal: parseInt(document.getElementById('minWithdrawalSetting').value) || 200,
+                maxWithdrawal: parseInt(document.getElementById('maxWithdrawalSetting').value) || 10000,
+                updatedAt: new Date().toISOString()
+            };
+            showLoading('Saving...');
+            database.ref('settings').set(settings)
+                .then(() => {
+                    hideLoading();
+                    showToast('Settings saved', 'success');
+                })
+                .catch(err => {
+                    hideLoading();
+                    showToast('Error: ' + err.message, 'error');
+                });
+        }
+
+        // Modal Utilities
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        function closeModalOnOverlay(event, modalId) {
+            if (event.target.classList.contains('modal-overlay')) {
+                closeModal(modalId);
+            }
+        }
+
+        function refreshData() {
+            showLoading('Refreshing...');
+            setTimeout(() => {
+                hideLoading();
+                showToast('Data refreshed', 'success');
+            }, 800);
+        }
+    </script>
+</body>
+</html>
