@@ -4,14 +4,17 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Solar Energy - Admin Panel</title>
+    
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
         :root {
             --primary: #6366f1;
             --primary-dark: #4f46e5;
@@ -22,6 +25,7 @@
             --success-light: #34d399;
             --danger: #ef4444;
             --warning: #f59e0b;
+            --info: #3b82f6;
             --dark: #0f172a;
             --dark-light: #1e293b;
             --gray: #64748b;
@@ -32,249 +36,199 @@
             --gradient-2: linear-gradient(135deg, #10b981 0%, #34d399 100%);
             --gradient-3: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
             --gradient-4: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
-            --shadow: 0 4px 15px rgba(0,0,0,0.1);
-            --shadow-lg: 0 10px 30px rgba(0,0,0,0.15);
-        }
-        body { background: #f8fafc; min-height: 100vh; color: var(--dark); }
-        
-        /* Mobile-First Layout */
-        .admin-container { display: flex; min-height: 100vh; }
-        
-        /* Sidebar - Mobile Optimized */
-        .admin-sidebar {
-            width: 280px;
-            background: var(--dark);
-            position: fixed;
-            left: 0;
-            top: 0;
-            bottom: 0;
-            z-index: 1000;
-            transition: transform 0.3s ease;
-            overflow-y: auto;
-            overflow-x: hidden;
+            --gradient-dark: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.3);
         }
         
-        .admin-sidebar.hidden-mobile {
-            transform: translateX(-100%);
-        }
+        body { background: var(--light); min-height: 100vh; color: var(--dark); overflow-x: hidden; }
         
-        .sidebar-header {
-            padding: 20px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-        
-        .sidebar-logo {
-            width: 45px;
-            height: 45px;
-            background: var(--gradient-1);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-size: 22px;
-            flex-shrink: 0;
-        }
-        
-        .sidebar-title {
-            color: white;
-            font-size: 18px;
-            font-weight: 700;
-        }
-        
-        .sidebar-menu { padding: 15px 12px; }
-        
-        .menu-item {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 14px 16px;
-            color: rgba(255,255,255,0.7);
-            text-decoration: none;
-            border-radius: 12px;
-            margin-bottom: 6px;
-            transition: all 0.3s;
-            cursor: pointer;
-            position: relative;
-        }
-        
-        .menu-item:hover, .menu-item.active {
-            background: rgba(255,255,255,0.1);
-            color: white;
-        }
-        
-        .menu-item.active {
-            background: var(--primary);
-            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.4);
-        }
-        
-        .menu-item i { font-size: 18px; width: 22px; text-align: center; }
-        
-        .menu-text { font-size: 14px; font-weight: 500; }
-        
-        .menu-badge {
-            position: absolute;
-            right: 12px;
-            background: var(--danger);
-            color: white;
-            padding: 2px 8px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-            min-width: 20px;
-            text-align: center;
-        }
-        
-        /* Overlay for mobile */
-        .sidebar-overlay {
+        .admin-header {
+            background: var(--gradient-dark);
+            padding: 15px 20px;
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 999;
-            display: none;
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-        
-        .sidebar-overlay.active {
-            display: block;
-            opacity: 1;
-        }
-        
-        /* Main Content */
-        .admin-main {
-            flex: 1;
-            margin-left: 280px;
-            transition: margin-left 0.3s;
-        }
-        
-        @media (max-width: 1024px) {
-            .admin-main { margin-left: 0; }
-        }
-        
-        /* Header */
-        .admin-header {
-            height: 65px;
-            background: white;
-            padding: 0 20px;
+            z-index: 1000;
+            box-shadow: var(--shadow-lg);
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
-        
-        .header-left {
-            display: flex;
             align-items: center;
-            gap: 15px;
         }
         
-        .toggle-sidebar {
-            width: 40px;
-            height: 40px;
-            border: none;
-            background: var(--light);
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 18px;
-            color: var(--dark);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .header-title {
-            font-size: 20px;
-            font-weight: 700;
-        }
-        
-        .header-right {
+        .admin-brand {
             display: flex;
             align-items: center;
             gap: 12px;
+            color: var(--white);
         }
         
-        .header-btn {
+        .admin-brand-icon {
             width: 40px;
             height: 40px;
-            border: none;
-            background: var(--light);
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 18px;
-            color: var(--gray);
-            position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .notification-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: var(--danger);
-            color: white;
-            width: 20px;
-            height: 20px;
-            border-radius: 50%;
-            font-size: 11px;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .admin-profile {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            padding: 6px 12px;
-            border-radius: 10px;
-            background: var(--light);
-        }
-        
-        .profile-avatar {
-            width: 36px;
-            height: 36px;
             background: var(--gradient-1);
-            border-radius: 8px;
+            border-radius: 10px;
             display: flex;
             align-items: center;
             justify-content: center;
-            color: white;
-            font-size: 16px;
+            font-size: 20px;
         }
         
-        .profile-name {
+        .admin-brand-text h1 { font-size: 18px; font-weight: 700; }
+        .admin-brand-text p { font-size: 11px; opacity: 0.8; }
+        
+        .hamburger-menu {
+            width: 45px;
+            height: 45px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border: none;
+        }
+        
+        .hamburger-menu:hover { background: rgba(255,255,255,0.2); }
+        
+        .hamburger-line {
+            width: 22px;
+            height: 2px;
+            background: var(--white);
+            border-radius: 2px;
+            transition: all 0.3s;
+        }
+        
+        .hamburger-menu.active .hamburger-line:nth-child(1) {
+            transform: rotate(45deg) translate(5px, 5px);
+        }
+        
+        .hamburger-menu.active .hamburger-line:nth-child(2) {
+            opacity: 0;
+        }
+        
+        .hamburger-menu.active .hamburger-line:nth-child(3) {
+            transform: rotate(-45deg) translate(5px, -5px);
+        }
+        
+        .admin-sidebar {
+            position: fixed;
+            top: 70px;
+            left: -100%;
+            width: 280px;
+            height: calc(100vh - 70px);
+            background: var(--white);
+            z-index: 999;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: var(--shadow-xl);
+            overflow-y: auto;
+        }
+        
+        .admin-sidebar.active { left: 0; }
+        
+        .sidebar-overlay {
+            position: fixed;
+            top: 70px;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 998;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+        
+        .sidebar-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .sidebar-header {
+            padding: 25px 20px;
+            background: var(--gradient-1);
+            color: var(--white);
+        }
+        
+        .admin-avatar {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+            margin-bottom: 15px;
+            border: 3px solid rgba(255,255,255,0.3);
+        }
+        
+        .admin-name { font-size: 18px; font-weight: 700; margin-bottom: 3px; }
+        .admin-role { font-size: 12px; opacity: 0.9; }
+        
+        .sidebar-nav { padding: 15px; }
+        
+        .nav-section { margin-bottom: 20px; }
+        
+        .nav-section-title {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--gray);
+            margin-bottom: 10px;
+            padding: 0 10px;
             font-weight: 600;
-            font-size: 14px;
-            display: none;
         }
         
-        @media (min-width: 768px) {
-            .profile-name { display: block; }
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 15px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s;
+            color: var(--dark);
+            margin-bottom: 5px;
         }
         
-        /* Content Area */
-        .admin-content {
+        .nav-item:hover {
+            background: rgba(99, 102, 241, 0.1);
+            color: var(--primary);
+        }
+        
+        .nav-item.active {
+            background: var(--gradient-1);
+            color: var(--white);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+        
+        .nav-item i { font-size: 20px; width: 24px; text-align: center; }
+        .nav-item span { font-size: 14px; font-weight: 600; }
+        
+        .nav-badge {
+            margin-left: auto;
+            background: var(--danger);
+            color: var(--white);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 700;
+        }
+        
+        .admin-main {
+            margin-top: 70px;
             padding: 20px;
+            min-height: calc(100vh - 70px);
         }
         
-        @media (min-width: 768px) {
-            .admin-content { padding: 30px; }
-        }
-        
-        /* Stats Cards - Mobile Optimized */
         .stats-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
@@ -282,190 +236,305 @@
             margin-bottom: 25px;
         }
         
-        @media (min-width: 768px) {
-            .stats-grid {
-                grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-                gap: 20px;
-            }
-        }
-        
         .stat-card {
-            background: white;
-            border-radius: 16px;
+            background: var(--white);
+            border-radius: 20px;
             padding: 20px;
             box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
         }
         
-        .stat-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: flex-start;
-            margin-bottom: 15px;
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
         }
         
-        .stat-title {
-            font-size: 12px;
-            color: var(--gray);
-            font-weight: 500;
-        }
+        .stat-card.primary::before { background: var(--primary); }
+        .stat-card.success::before { background: var(--success); }
+        .stat-card.warning::before { background: var(--warning); }
+        .stat-card.danger::before { background: var(--danger); }
         
         .stat-icon {
-            width: 44px;
-            height: 44px;
+            width: 45px;
+            height: 45px;
             border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 20px;
+            margin-bottom: 15px;
         }
         
-        .stat-icon.blue { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
-        .stat-icon.green { background: rgba(16, 185, 129, 0.1); color: var(--success); }
-        .stat-icon.orange { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
-        .stat-icon.red { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        .stat-card.primary .stat-icon { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
+        .stat-card.success .stat-icon { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .stat-card.warning .stat-icon { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .stat-card.danger .stat-icon { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
         
         .stat-value {
-            font-size: 24px;
-            font-weight: 700;
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--dark);
             margin-bottom: 5px;
         }
         
-        @media (min-width: 768px) {
-            .stat-value { font-size: 28px; }
+        .stat-label {
+            font-size: 13px;
+            color: var(--gray);
+            font-weight: 500;
         }
         
         .stat-change {
             font-size: 12px;
+            margin-top: 8px;
+            font-weight: 600;
+        }
+        
+        .stat-change.positive { color: var(--success); }
+        
+        .content-card {
+            background: var(--white);
+            border-radius: 24px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: var(--shadow);
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        
+        .card-title {
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--dark);
             display: flex;
             align-items: center;
-            gap: 4px;
-        }
-        
-        .stat-change.up { color: var(--success); }
-        .stat-change.down { color: var(--danger); }
-        
-        /* Data Cards */
-        .data-card {
-            background: white;
-            border-radius: 20px;
-            padding: 20px;
-            box-shadow: var(--shadow);
-            margin-bottom: 25px;
-        }
-        
-        @media (min-width: 768px) {
-            .data-card { padding: 25px; }
-        }
-        
-        .data-header {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-        
-        @media (min-width: 768px) {
-            .data-header {
-                flex-direction: row;
-                justify-content: space-between;
-                align-items: center;
-            }
-        }
-        
-        .data-title {
-            font-size: 18px;
-            font-weight: 700;
-        }
-        
-        .data-actions {
-            display: flex;
             gap: 10px;
-            flex-wrap: wrap;
         }
+        
+        .card-title i { color: var(--primary); }
         
         .search-box {
             position: relative;
             flex: 1;
-            min-width: 200px;
+            max-width: 400px;
         }
         
         .search-box input {
             width: 100%;
-            padding: 12px 40px 12px 16px;
+            padding: 14px 20px 14px 50px;
             border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 14px;
+            border-radius: 16px;
+            font-size: 15px;
+            transition: all 0.3s;
+            background: var(--white);
+        }
+        
+        .search-box input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
         }
         
         .search-box i {
             position: absolute;
-            right: 14px;
+            left: 18px;
             top: 50%;
             transform: translateY(-50%);
-            color: var(--gray-light);
+            color: var(--gray);
+            font-size: 18px;
         }
         
-        .filter-select {
-            padding: 12px 16px;
+        .filter-tabs {
+            display: flex;
+            gap: 10px;
+            overflow-x: auto;
+            padding-bottom: 5px;
+        }
+        
+        .filter-tab {
+            padding: 10px 20px;
+            border-radius: 50px;
             border: 2px solid #e2e8f0;
-            border-radius: 12px;
-            font-size: 14px;
-            background: white;
-            min-width: 140px;
+            background: var(--white);
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            white-space: nowrap;
+            color: var(--gray);
         }
         
-        /* Buttons */
-        .btn {
-            padding: 12px 20px;
+        .filter-tab:hover { border-color: var(--primary-light); }
+        
+        .filter-tab.active {
+            background: var(--gradient-1);
+            color: var(--white);
+            border-color: transparent;
+        }
+        
+        .table-container {
+            overflow-x: auto;
+            border-radius: 16px;
+            border: 1px solid #e2e8f0;
+        }
+        
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        .data-table th {
+            background: var(--light);
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+            color: var(--dark);
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+        }
+        
+        .data-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e2e8f0;
+            vertical-align: middle;
+        }
+        
+        .data-table tr:hover { background: rgba(99, 102, 241, 0.02); }
+        
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background: var(--gradient-1);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--white);
+            font-weight: 700;
+            font-size: 16px;
+        }
+        
+        .user-info h4 { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+        .user-info p { font-size: 12px; color: var(--gray); }
+        
+        .status-badge {
+            padding: 6px 14px;
+            border-radius: 50px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        
+        .status-badge::before {
+            content: '';
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+        
+        .status-badge.active {
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--success);
+        }
+        .status-badge.active::before { background: var(--success); }
+        
+        .status-badge.pending {
+            background: rgba(245, 158, 11, 0.1);
+            color: var(--warning);
+        }
+        .status-badge.pending::before { background: var(--warning); }
+        
+        .status-badge.blocked {
+            background: rgba(239, 68, 68, 0.1);
+            color: var(--danger);
+        }
+        .status-badge.blocked::before { background: var(--danger); }
+        
+        .amount-cell {
+            font-weight: 700;
+            font-size: 15px;
+        }
+        
+        .amount-cell.credit { color: var(--success); }
+        .amount-cell.debit { color: var(--danger); }
+        
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
             border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+        
+        .btn-icon.view { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
+        .btn-icon.edit { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .btn-icon.delete { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        .btn-icon.success { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        
+        .btn-icon:hover { transform: scale(1.1); }
+        
+        .btn-main {
+            padding: 14px 28px;
             border-radius: 12px;
+            border: none;
             font-size: 14px;
             font-weight: 600;
             cursor: pointer;
+            transition: all 0.3s;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            transition: all 0.3s;
-            white-space: nowrap;
-        }
-        
-        .btn-sm {
-            padding: 8px 14px;
-            font-size: 13px;
         }
         
         .btn-primary {
             background: var(--gradient-1);
-            color: white;
+            color: var(--white);
             box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
-        }
-        
-        .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(99, 102, 241, 0.4);
         }
         
         .btn-success {
             background: var(--gradient-2);
-            color: white;
+            color: var(--white);
             box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
-        }
-        
-        .btn-success:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4);
         }
         
         .btn-danger {
             background: var(--gradient-4);
-            color: white;
+            color: var(--white);
             box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3);
-        }
-        
-        .btn-danger:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.4);
         }
         
         .btn-secondary {
@@ -473,129 +542,6 @@
             color: var(--dark);
         }
         
-        .btn-secondary:hover {
-            background: #e2e8f0;
-        }
-        
-        /* Tables - Mobile Optimized */
-        .table-container {
-            overflow-x: auto;
-            -webkit-overflow-scrolling: touch;
-            margin: 0 -20px;
-            padding: 0 20px;
-        }
-        
-        @media (min-width: 768px) {
-            .table-container {
-                margin: 0;
-                padding: 0;
-            }
-        }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            min-width: 600px;
-        }
-        
-        th {
-            text-align: left;
-            padding: 15px 12px;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--gray);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            border-bottom: 2px solid #f1f5f9;
-            white-space: nowrap;
-        }
-        
-        td {
-            padding: 16px 12px;
-            border-bottom: 1px solid #f1f5f9;
-            font-size: 14px;
-            vertical-align: middle;
-        }
-        
-        tr:hover {
-            background: #f8fafc;
-        }
-        
-        .user-cell {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .user-avatar {
-            width: 36px;
-            height: 36px;
-            background: var(--gradient-1);
-            border-radius: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            font-weight: 600;
-            font-size: 14px;
-            flex-shrink: 0;
-        }
-        
-        .user-info h4 {
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 2px;
-        }
-        
-        .user-info p {
-            font-size: 12px;
-            color: var(--gray);
-        }
-        
-        /* Badges */
-        .badge {
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 11px;
-            font-weight: 600;
-            display: inline-block;
-        }
-        
-        .badge-success { background: rgba(16, 185, 129, 0.1); color: var(--success); }
-        .badge-warning { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
-        .badge-danger { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
-        .badge-info { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
-        
-        /* Action Buttons */
-        .action-btns {
-            display: flex;
-            gap: 6px;
-        }
-        
-        .action-btn {
-            width: 36px;
-            height: 36px;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.3s;
-        }
-        
-        .action-btn.view { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
-        .action-btn.approve { background: rgba(16, 185, 129, 0.1); color: var(--success); }
-        .action-btn.reject { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
-        .action-btn.edit { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
-        .action-btn.delete { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
-        
-        .action-btn:hover {
-            transform: scale(1.1);
-        }
-        
-        /* Modal */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -604,360 +550,317 @@
             bottom: 0;
             background: rgba(0,0,0,0.6);
             z-index: 2000;
-            display: none;
-            align-items: flex-end;
+            display: flex;
+            align-items: center;
             justify-content: center;
-            padding: 0;
-        }
-        
-        @media (min-width: 768px) {
-            .modal-overlay {
-                align-items: center;
-                padding: 20px;
-            }
+            padding: 20px;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s;
         }
         
         .modal-overlay.active {
-            display: flex;
+            opacity: 1;
+            visibility: visible;
         }
         
         .modal {
-            background: white;
-            border-radius: 24px 24px 0 0;
+            background: var(--white);
+            border-radius: 24px;
             width: 100%;
-            max-width: 600px;
+            max-width: 500px;
             max-height: 90vh;
             overflow-y: auto;
-            animation: modalSlideUp 0.3s;
+            transform: scale(0.9);
+            transition: all 0.3s;
         }
         
-        @media (min-width: 768px) {
-            .modal {
-                border-radius: 24px;
-                animation: modalFade 0.3s;
-            }
-        }
-        
-        @keyframes modalSlideUp {
-            from { transform: translateY(100%); }
-            to { transform: translateY(0); }
-        }
-        
-        @keyframes modalFade {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
+        .modal-overlay.active .modal {
+            transform: scale(1);
         }
         
         .modal-header {
-            padding: 20px;
-            border-bottom: 1px solid #f1f5f9;
+            padding: 25px;
+            border-bottom: 1px solid #e2e8f0;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            position: sticky;
-            top: 0;
-            background: white;
-            z-index: 10;
         }
         
-        .modal-title {
-            font-size: 18px;
-            font-weight: 700;
-        }
+        .modal-title { font-size: 20px; font-weight: 700; }
         
         .modal-close {
-            width: 36px;
-            height: 36px;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
             border: none;
             background: var(--light);
-            border-radius: 10px;
             cursor: pointer;
-            font-size: 16px;
-            color: var(--gray);
+            font-size: 18px;
+            transition: all 0.3s;
         }
         
-        .modal-body {
-            padding: 20px;
-        }
+        .modal-close:hover { background: var(--danger); color: var(--white); }
         
+        .modal-body { padding: 25px; }
         .modal-footer {
-            padding: 15px 20px;
-            border-top: 1px solid #f1f5f9;
+            padding: 20px 25px;
+            border-top: 1px solid #e2e8f0;
             display: flex;
-            gap: 10px;
+            gap: 12px;
             justify-content: flex-end;
-            position: sticky;
-            bottom: 0;
-            background: white;
         }
         
-        .modal-footer .btn {
-            flex: 1;
-        }
-        
-        @media (min-width: 768px) {
-            .modal-footer .btn {
-                flex: 0 0 auto;
-            }
-        }
-        
-        /* Forms */
-        .form-group {
-            margin-bottom: 20px;
-        }
+        .form-group { margin-bottom: 20px; }
         
         .form-label {
             display: block;
             margin-bottom: 8px;
             font-weight: 600;
             font-size: 14px;
+            color: var(--dark);
         }
         
         .form-input, .form-select, .form-textarea {
             width: 100%;
-            padding: 14px 16px;
+            padding: 14px 18px;
             border: 2px solid #e2e8f0;
             border-radius: 12px;
             font-size: 15px;
-            font-family: 'Poppins', sans-serif;
+            transition: all 0.3s;
         }
         
         .form-input:focus, .form-select:focus, .form-textarea:focus {
             outline: none;
             border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
         }
         
-        .form-textarea {
-            resize: vertical;
-            min-height: 100px;
+        .form-textarea { resize: vertical; min-height: 100px; }
+        
+        .user-detail-header {
+            text-align: center;
+            padding: 30px;
+            background: var(--gradient-1);
+            color: var(--white);
+            border-radius: 20px;
+            margin-bottom: 25px;
         }
         
-        /* Toast */
-        .toast-container {
-            position: fixed;
-            top: 80px;
-            right: 20px;
-            left: 20px;
-            z-index: 3000;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        
-        @media (min-width: 768px) {
-            .toast-container {
-                left: auto;
-                width: 400px;
-            }
-        }
-        
-        .toast {
-            background: white;
-            padding: 16px 20px;
-            border-radius: 14px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            animation: toastSlide 0.3s;
-        }
-        
-        @keyframes toastSlide {
-            from { opacity: 0; transform: translateX(100px); }
-            to { opacity: 1; transform: translateX(0); }
-        }
-        
-        .toast-icon {
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
+        .user-detail-avatar {
+            width: 80px;
+            height: 80px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
-            flex-shrink: 0;
+            margin: 0 auto 15px;
+            font-size: 36px;
+            border: 4px solid rgba(255,255,255,0.3);
         }
         
-        .toast.success .toast-icon { background: rgba(16, 185, 129, 0.1); color: var(--success); }
-        .toast.error .toast-icon { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
-        
-        .toast-content h4 {
-            font-weight: 600;
-            font-size: 15px;
-            margin-bottom: 3px;
+        .detail-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
         }
         
-        .toast-content p {
-            font-size: 13px;
+        .detail-item {
+            background: var(--light);
+            padding: 15px;
+            border-radius: 12px;
+        }
+        
+        .detail-label {
+            font-size: 12px;
             color: var(--gray);
+            margin-bottom: 5px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
         
-        /* Loading */
+        .detail-value {
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--dark);
+        }
+        
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            margin-top: 25px;
+        }
+        
+        .page-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            border: 2px solid #e2e8f0;
+            background: var(--white);
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+        
+        .page-btn:hover { border-color: var(--primary); color: var(--primary); }
+        .page-btn.active {
+            background: var(--gradient-1);
+            color: var(--white);
+            border-color: transparent;
+        }
+        
         .loading-screen {
             position: fixed;
             top: 0;
             left: 0;
-            right: 0;
-            bottom: 0;
-            background: white;
-            z-index: 5000;
+            width: 100%;
+            height: 100%;
+            background: rgba(255,255,255,0.95);
+            z-index: 3000;
             display: none;
             flex-direction: column;
             align-items: center;
             justify-content: center;
         }
         
-        .loading-screen.active {
-            display: flex;
-        }
+        .loading-screen.active { display: flex; }
         
         .loader {
-            width: 50px;
-            height: 50px;
+            width: 60px;
+            height: 60px;
             border: 4px solid #e2e8f0;
             border-top-color: var(--primary);
             border-radius: 50%;
             animation: spin 1s linear infinite;
         }
         
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .toast {
+            position: fixed;
+            top: 90px;
+            left: 50%;
+            transform: translateX(-50%) translateY(-100px);
+            background: var(--dark);
+            color: var(--white);
+            padding: 16px 24px;
+            border-radius: 12px;
+            font-weight: 500;
+            z-index: 4000;
+            opacity: 0;
+            transition: all 0.3s;
+            box-shadow: var(--shadow-xl);
         }
         
-        /* Login Page */
-        .login-container {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            background: var(--gradient-1);
-            padding: 20px;
+        .toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
         }
         
-        .login-box {
-            background: white;
-            border-radius: 24px;
-            padding: 40px 30px;
-            width: 100%;
-            max-width: 420px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.3);
-        }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
         
-        @media (min-width: 768px) {
-            .login-box {
-                padding: 50px 40px;
-            }
-        }
-        
-        .login-logo {
-            text-align: center;
-            margin-bottom: 35px;
-        }
-        
-        .login-logo i {
-            font-size: 56px;
-            color: var(--primary);
-            margin-bottom: 15px;
-        }
-        
-        .login-logo h1 {
-            font-size: 26px;
-            font-weight: 700;
-        }
-        
-        .login-logo p {
-            color: var(--gray);
-            margin-top: 8px;
-            font-size: 14px;
-        }
-        
-        /* Empty State */
         .empty-state {
             text-align: center;
-            padding: 50px 20px;
+            padding: 60px 20px;
             color: var(--gray);
         }
         
-        .empty-state i {
-            font-size: 56px;
-            margin-bottom: 20px;
-            opacity: 0.3;
-        }
+        .empty-state i { font-size: 64px; margin-bottom: 20px; opacity: 0.3; }
+        .empty-state h3 { font-size: 20px; margin-bottom: 10px; }
         
-        .empty-state h3 {
-            font-size: 18px;
-            margin-bottom: 10px;
-        }
+        .admin-page { display: none; }
+        .admin-page.active { display: block; animation: fadeIn 0.4s ease; }
         
-        /* Detail Cards in Modal */
-        .detail-card {
-            background: #f8fafc;
-            border-radius: 16px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-        
-        .detail-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-        }
-        
-        .detail-item {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        
-        .detail-label {
-            font-size: 12px;
-            color: var(--gray);
-        }
-        
-        .detail-value {
-            font-weight: 600;
-            font-size: 15px;
-        }
-        
-        .hidden { display: none !important; }
-        
-        /* Animations */
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
         
-        .animate-fade {
-            animation: fadeIn 0.4s ease;
+        .admin-login {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: var(--gradient-dark);
+            padding: 20px;
+        }
+        
+        .login-card {
+            background: var(--white);
+            border-radius: 30px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: var(--shadow-xl);
+        }
+        
+        .login-logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-logo-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-1);
+            border-radius: 20px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: var(--white);
+            margin-bottom: 20px;
+        }
+        
+        .login-logo h2 { font-size: 24px; font-weight: 700; }
+        .login-logo p { color: var(--gray); margin-top: 5px; }
+        
+        .hidden { display: none !important; }
+        
+        @media (max-width: 768px) {
+            .stats-grid { grid-template-columns: 1fr; }
+            .detail-grid { grid-template-columns: 1fr; }
+            .data-table { font-size: 13px; }
+            .data-table th, .data-table td { padding: 12px 10px; }
+            .card-header { flex-direction: column; align-items: stretch; }
+            .search-box { max-width: 100%; }
         }
     </style>
 </head>
 <body>
+
+    <!-- Loading Screen -->
     <div id="loadingScreen" class="loading-screen">
         <div class="loader"></div>
-        <p style="margin-top: 15px; color: var(--primary); font-weight: 600;">Loading...</p>
+        <p style="margin-top: 20px; color: var(--primary); font-weight: 600;">Loading...</p>
     </div>
-    
-    <div id="toastContainer" class="toast-container"></div>
-    <div id="sidebarOverlay" class="sidebar-overlay" onclick="toggleSidebar()"></div>
-    <!-- LOGIN PAGE -->
-    <div id="loginPage" class="login-container">
-        <div class="login-box">
+
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
+
+    <!-- ========== ADMIN LOGIN PAGE ========== -->
+    <div id="loginPage" class="admin-login">
+        <div class="login-card">
             <div class="login-logo">
-                <i class="fas fa-solar-panel"></i>
-                <h1>Solar Energy Admin</h1>
-                <p>Secure Admin Dashboard</p>
+                <div class="login-logo-icon">🔐</div>
+                <h2>Admin Panel</h2>
+                <p>Solar Energy Management</p>
             </div>
+            
             <form id="adminLoginForm">
                 <div class="form-group">
-                    <label class="form-label">Admin Email</label>
-                    <input type="email" class="form-input" id="adminEmail" placeholder="admin@example.com" required>
+                    <label class="form-label">Username</label>
+                    <input type="text" class="form-input" id="adminUsername" value="admin" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Password</label>
-                    <input type="password" class="form-input" id="adminPassword" placeholder="Enter password" required>
+                    <input type="password" class="form-input" id="adminPassword" value="admin123" required>
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                <button type="submit" class="btn-main btn-primary" style="width: 100%; margin-top: 10px;">
                     <i class="fas fa-sign-in-alt"></i>
                     Login to Dashboard
                 </button>
@@ -965,461 +868,477 @@
         </div>
     </div>
 
-    <!-- ADMIN DASHBOARD -->
-    <div id="adminDashboard" class="admin-container hidden">
-        <!-- Sidebar -->
-        <aside class="admin-sidebar" id="adminSidebar">
+    <!-- ========== ADMIN DASHBOARD ========== -->
+    <div id="dashboardContainer" style="display: none;">
+        
+        <!-- Header -->
+        <header class="admin-header">
+            <div class="admin-brand">
+                <div class="admin-brand-icon">☀️</div>
+                <div class="admin-brand-text">
+                    <h1>Solar Energy</h1>
+                    <p>Admin Control Panel</p>
+                </div>
+            </div>
+            
+            <button class="hamburger-menu" id="hamburgerMenu" onclick="toggleSidebar()">
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+                <span class="hamburger-line"></span>
+            </button>
+        </header>
+
+        <!-- Sidebar Overlay -->
+        <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+        <!-- Sidebar Navigation -->
+        <nav class="admin-sidebar" id="adminSidebar">
             <div class="sidebar-header">
-                <div class="sidebar-logo">
-                    <i class="fas fa-solar-panel"></i>
-                </div>
-                <span class="sidebar-title">Solar Admin</span>
+                <div class="admin-avatar">👤</div>
+                <div class="admin-name" id="adminName">Admin</div>
+                <div class="admin-role">Super Administrator</div>
             </div>
-            <nav class="sidebar-menu">
-                <a href="#" class="menu-item active" onclick="showSection('dashboard')">
-                    <i class="fas fa-tachometer-alt"></i>
-                    <span class="menu-text">Dashboard</span>
-                </a>
-                <a href="#" class="menu-item" onclick="showSection('users')">
-                    <i class="fas fa-users"></i>
-                    <span class="menu-text">Users</span>
-                    <span class="menu-badge" id="totalUsersBadge">0</span>
-                </a>
-                <a href="#" class="menu-item" onclick="showSection('deposits')">
-                    <i class="fas fa-arrow-down"></i>
-                    <span class="menu-text">Deposits</span>
-                    <span class="menu-badge" id="pendingDepositsBadge">0</span>
-                </a>
-                <a href="#" class="menu-item" onclick="showSection('withdrawals')">
-                    <i class="fas fa-arrow-up"></i>
-                    <span class="menu-text">Withdrawals</span>
-                    <span class="menu-badge" id="pendingWithdrawalsBadge">0</span>
-                </a>
-                <a href="#" class="menu-item" onclick="showSection('plans')">
-                    <i class="fas fa-gem"></i>
-                    <span class="menu-text">Plans</span>
-                </a>
-                <a href="#" class="menu-item" onclick="showSection('tickets')">
-                    <i class="fas fa-ticket-alt"></i>
-                    <span class="menu-text">Tickets</span>
-                    <span class="menu-badge" id="openTicketsBadge">0</span>
-                </a>
-                <a href="#" class="menu-item" onclick="showSection('settings')">
-                    <i class="fas fa-cog"></i>
-                    <span class="menu-text">Settings</span>
-                </a>
-                <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-                    <a href="#" class="menu-item" onclick="logoutAdmin()">
-                        <i class="fas fa-sign-out-alt"></i>
-                        <span class="menu-text">Logout</span>
-                    </a>
+            
+            <div class="sidebar-nav">
+                <div class="nav-section">
+                    <div class="nav-section-title">Main Menu</div>
+                    <div class="nav-item active" onclick="showAdminPage('dashboard')" data-page="dashboard">
+                        <i class="fas fa-home"></i>
+                        <span>Dashboard</span>
+                    </div>
+                    <div class="nav-item" onclick="showAdminPage('users')" data-page="users">
+                        <i class="fas fa-users"></i>
+                        <span>All Users</span>
+                        <span class="nav-badge" id="sidebarUserCount">0</span>
+                    </div>
+                    <div class="nav-item" onclick="showAdminPage('deposits')" data-page="deposits">
+                        <i class="fas fa-arrow-down"></i>
+                        <span>Deposits</span>
+                        <span class="nav-badge" id="sidebarDepositCount">0</span>
+                    </div>
+                    <div class="nav-item" onclick="showAdminPage('withdrawals')" data-page="withdrawals">
+                        <i class="fas fa-arrow-up"></i>
+                        <span>Withdrawals</span>
+                        <span class="nav-badge" id="sidebarWithdrawalCount">0</span>
+                    </div>
                 </div>
-            </nav>
-        </aside>
 
-        <!-- Main Content -->
-        <main class="admin-main">
-            <header class="admin-header">
-                <div class="header-left">
-                    <button class="toggle-sidebar" onclick="toggleSidebar()">
-                        <i class="fas fa-bars"></i>
-                    </button>
-                    <h1 class="header-title" id="pageTitle">Dashboard</h1>
+                <div class="nav-section">
+                    <div class="nav-section-title">Plans & Earnings</div>
+                    <div class="nav-item" onclick="showAdminPage('plans')" data-page="plans">
+                        <i class="fas fa-gem"></i>
+                        <span>Plan Management</span>
+                    </div>
+                    <div class="nav-item" onclick="showAdminPage('dailyClaims')" data-page="dailyClaims">
+                        <i class="fas fa-hand-holding-usd"></i>
+                        <span>Daily Claims</span>
+                    </div>
                 </div>
-                <div class="header-right">
-                    <button class="header-btn" onclick="refreshData()">
-                        <i class="fas fa-sync-alt"></i>
-                    </button>
-                    <button class="header-btn">
+
+                <div class="nav-section">
+                    <div class="nav-section-title">Support</div>
+                    <div class="nav-item" onclick="showAdminPage('tickets')" data-page="tickets">
+                        <i class="fas fa-ticket-alt"></i>
+                        <span>Support Tickets</span>
+                        <span class="nav-badge" id="sidebarTicketCount">0</span>
+                    </div>
+                    <div class="nav-item" onclick="showAdminPage('notifications')" data-page="notifications">
                         <i class="fas fa-bell"></i>
-                        <span class="notification-badge" id="notificationCount">0</span>
-                    </button>
-                    <div class="admin-profile">
-                        <div class="profile-avatar">
-                            <i class="fas fa-user-shield"></i>
-                        </div>
-                        <span class="profile-name">Admin</span>
+                        <span>Send Notification</span>
                     </div>
                 </div>
-            </header>
 
-            <div class="admin-content">
-                <!-- DASHBOARD -->
-                <section id="dashboardSection" class="admin-section animate-fade">
-                    <div class="stats-grid">
-                        <div class="stat-card">
-                            <div class="stat-header">
-                                <div>
-                                    <div class="stat-title">Total Users</div>
-                                    <div class="stat-value" id="statTotalUsers">0</div>
-                                    <div class="stat-change up">
-                                        <i class="fas fa-arrow-up"></i>
-                                        <span id="statNewUsersToday">+0 today</span>
-                                    </div>
-                                </div>
-                                <div class="stat-icon blue">
-                                    <i class="fas fa-users"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-header">
-                                <div>
-                                    <div class="stat-title">Total Balance</div>
-                                    <div class="stat-value" id="statTotalBalance">₹0</div>
-                                    <div class="stat-change up">
-                                        <i class="fas fa-wallet"></i>
-                                        <span>User wallets</span>
-                                    </div>
-                                </div>
-                                <div class="stat-icon green">
-                                    <i class="fas fa-rupee-sign"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-header">
-                                <div>
-                                    <div class="stat-title">Pending Deposits</div>
-                                    <div class="stat-value" id="statPendingDeposits">0</div>
-                                    <div class="stat-change down">
-                                        <i class="fas fa-clock"></i>
-                                        <span id="statPendingDepositAmount">₹0</span>
-                                    </div>
-                                </div>
-                                <div class="stat-icon orange">
-                                    <i class="fas fa-arrow-down"></i>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="stat-card">
-                            <div class="stat-header">
-                                <div>
-                                    <div class="stat-title">Pending Withdrawals</div>
-                                    <div class="stat-value" id="statPendingWithdrawals">0</div>
-                                    <div class="stat-change down">
-                                        <i class="fas fa-clock"></i>
-                                        <span id="statPendingWithdrawalAmount">₹0</span>
-                                    </div>
-                                </div>
-                                <div class="stat-icon red">
-                                    <i class="fas fa-arrow-up"></i>
-                                </div>
-                            </div>
-                        </div>
+                <div class="nav-section">
+                    <div class="nav-section-title">System</div>
+                    <div class="nav-item" onclick="showAdminPage('settings')" data-page="settings">
+                        <i class="fas fa-cog"></i>
+                        <span>Settings</span>
                     </div>
-
-                    <div class="data-card">
-                        <div class="data-header">
-                            <h3 class="data-title">Recent Activity</h3>
-                        </div>
-                        <div class="table-container">
-                            <table id="recentActivityTable">
-                                <thead>
-                                    <tr>
-                                        <th>User</th>
-                                        <th>Type</th>
-                                        <th>Amount</th>
-                                        <th>Status</th>
-                                        <th>Time</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="recentActivityBody">
-                                    <tr><td colspan="5" class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading...</p></td></tr>
-                                </tbody>
-                            </table>
-                        </div>
+                    <div class="nav-item" onclick="adminLogout()">
+                        <i class="fas fa-sign-out-alt"></i>
+                        <span style="color: var(--danger);">Logout</span>
                     </div>
-                </section>
-
-                <!-- USERS -->
-                <section id="usersSection" class="admin-section hidden animate-fade">
-                    <div class="data-card">
-                        <div class="data-header">
-                            <h3 class="data-title">All Users</h3>
-                            <div class="data-actions">
-                                <div class="search-box">
-                                    <input type="text" id="userSearch" placeholder="Search users..." onkeyup="searchUsers()">
-                                    <i class="fas fa-search"></i>
-                                </div>
-                                <button class="btn btn-primary btn-sm" onclick="exportUsers()">
-                                    <i class="fas fa-download"></i>
-                                    Export
-                                </button>
-                            </div>
-                        </div>
-                        <div class="table-container">
-                            <table id="usersTable">
-                                <thead>
-                                    <tr>
-                                        <th>User</th>
-                                        <th>Phone</th>
-                                        <th>Balance</th>
-                                        <th>Status</th>
-                                        <th>Joined</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="usersTableBody">
-                                    <tr><td colspan="6" class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading users...</p></td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- DEPOSITS -->
-                <section id="depositsSection" class="admin-section hidden animate-fade">
-                    <div class="data-card">
-                        <div class="data-header">
-                            <h3 class="data-title">Deposit Requests</h3>
-                            <select class="filter-select" id="depositFilter" onchange="loadDeposits()">
-                                <option value="all">All</option>
-                                <option value="pending">Pending</option>
-                                <option value="approved">Approved</option>
-                                <option value="rejected">Rejected</option>
-                            </select>
-                        </div>
-                        <div class="table-container">
-                            <table id="depositsTable">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>User</th>
-                                        <th>Amount</th>
-                                        <th>UPI ID</th>
-                                        <th>Date</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="depositsTableBody">
-                                    <tr><td colspan="7" class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading deposits...</p></td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- WITHDRAWALS -->
-                <section id="withdrawalsSection" class="admin-section hidden animate-fade">
-                    <div class="data-card">
-                        <div class="data-header">
-                            <h3 class="data-title">Withdrawal Requests</h3>
-                            <select class="filter-select" id="withdrawalFilter" onchange="loadWithdrawals()">
-                                <option value="all">All</option>
-                                <option value="pending">Pending</option>
-                                <option value="approved">Approved</option>
-                                <option value="rejected">Rejected</option>
-                            </select>
-                        </div>
-                        <div class="table-container">
-                            <table id="withdrawalsTable">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>User</th>
-                                        <th>Amount</th>
-                                        <th>Method</th>
-                                        <th>Date</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="withdrawalsTableBody">
-                                    <tr><td colspan="7" class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading withdrawals...</p></td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- PLANS -->
-                <section id="plansSection" class="admin-section hidden animate-fade">
-                    <div class="data-card">
-                        <div class="data-header">
-                            <h3 class="data-title">Investment Plans</h3>
-                            <button class="btn btn-primary btn-sm" onclick="openPlanModal()">
-                                <i class="fas fa-plus"></i>
-                                Add Plan
-                            </button>
-                        </div>
-                        <div class="table-container">
-                            <table id="plansTable">
-                                <thead>
-                                    <tr>
-                                        <th>Plan</th>
-                                        <th>Price</th>
-                                        <th>Daily</th>
-                                        <th>Days</th>
-                                        <th>Total</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="plansTableBody">
-                                    <tr><td colspan="7" class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading plans...</p></td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- TICKETS -->
-                <section id="ticketsSection" class="admin-section hidden animate-fade">
-                    <div class="data-card">
-                        <div class="data-header">
-                            <h3 class="data-title">Support Tickets</h3>
-                            <select class="filter-select" id="ticketFilter" onchange="loadTickets()">
-                                <option value="all">All</option>
-                                <option value="open">Open</option>
-                                <option value="closed">Closed</option>
-                            </select>
-                        </div>
-                        <div class="table-container">
-                            <table id="ticketsTable">
-                                <thead>
-                                    <tr>
-                                        <th>ID</th>
-                                        <th>User</th>
-                                        <th>Type</th>
-                                        <th>Subject</th>
-                                        <th>Date</th>
-                                        <th>Status</th>
-                                        <th>Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody id="ticketsTableBody">
-                                    <tr><td colspan="7" class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading tickets...</p></td></tr>
-                                </tbody>
-                            </table>
-                        </div>
-                    </div>
-                </section>
-
-                <!-- SETTINGS -->
-                <section id="settingsSection" class="admin-section hidden animate-fade">
-                    <div class="data-card">
-                        <div class="data-header">
-                            <h3 class="data-title">Platform Settings</h3>
-                        </div>
-                        <div style="display: grid; gap: 25px; max-width: 600px;">
-                            <div>
-                                <h4 style="margin-bottom: 15px; font-size: 16px;">
-                                    <i class="fas fa-qrcode" style="color: var(--primary); margin-right: 8px;"></i>
-                                    UPI Settings
-                                </h4>
-                                <div class="form-group">
-                                    <label class="form-label">UPI ID for Payments</label>
-                                    <input type="text" class="form-input" id="upiIdSetting" placeholder="example@upi">
-                                </div>
-                            </div>
-                            <div style="padding-top: 20px; border-top: 1px solid #e2e8f0;">
-                                <h4 style="margin-bottom: 15px; font-size: 16px;">
-                                    <i class="fas fa-users" style="color: var(--success); margin-right: 8px;"></i>
-                                    Referral Settings
-                                </h4>
-                                <div class="form-group">
-                                    <label class="form-label">Referral Bonus (₹)</label>
-                                    <input type="number" class="form-input" id="referralBonusSetting" value="15">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Commission (%)</label>
-                                    <input type="number" class="form-input" id="commissionSetting" value="20">
-                                </div>
-                            </div>
-                            <div style="padding-top: 20px; border-top: 1px solid #e2e8f0;">
-                                <h4 style="margin-bottom: 15px; font-size: 16px;">
-                                    <i class="fas fa-wallet" style="color: var(--warning); margin-right: 8px;"></i>
-                                    Withdrawal Settings
-                                </h4>
-                                <div class="form-group">
-                                    <label class="form-label">Minimum Amount (₹)</label>
-                                    <input type="number" class="form-input" id="minWithdrawalSetting" value="200">
-                                </div>
-                                <div class="form-group">
-                                    <label class="form-label">Maximum per Day (₹)</label>
-                                    <input type="number" class="form-input" id="maxWithdrawalSetting" value="10000">
-                                </div>
-                            </div>
-                            <button class="btn btn-primary" onclick="saveSettings()">
-                                <i class="fas fa-save"></i>
-                                Save Settings
-                            </button>
-                        </div>
-                    </div>
-                </section>
+                </div>
             </div>
+        </nav>
+
+        <!-- Main Content Area -->
+        <main class="admin-main">
+
+            <!-- ========== DASHBOARD PAGE ========== -->
+            <div id="dashboardPage" class="admin-page active">
+                <div class="stats-grid">
+                    <div class="stat-card primary">
+                        <div class="stat-icon"><i class="fas fa-users"></i></div>
+                        <div class="stat-value" id="statTotalUsers">0</div>
+                        <div class="stat-label">Total Users</div>
+                        <div class="stat-change positive" id="statNewUsersToday">+0 today</div>
+                    </div>
+                    <div class="stat-card success">
+                        <div class="stat-icon"><i class="fas fa-wallet"></i></div>
+                        <div class="stat-value" id="statTotalBalance">₹0</div>
+                        <div class="stat-label">Total Balance</div>
+                    </div>
+                    <div class="stat-card warning">
+                        <div class="stat-icon"><i class="fas fa-clock"></i></div>
+                        <div class="stat-value" id="statPendingDeposits">0</div>
+                        <div class="stat-label">Pending Deposits</div>
+                        <div class="stat-change" id="statPendingDepositAmount">₹0</div>
+                    </div>
+                    <div class="stat-card danger">
+                        <div class="stat-icon"><i class="fas fa-arrow-up"></i></div>
+                        <div class="stat-value" id="statPendingWithdrawals">0</div>
+                        <div class="stat-label">Pending Withdrawals</div>
+                        <div class="stat-change" id="statPendingWithdrawalAmount">₹0</div>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-bolt"></i> Quick Actions</h3>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px;">
+                        <button class="btn-main btn-success" onclick="showAdminPage('deposits')">
+                            <i class="fas fa-check-circle"></i>
+                            Approve Deposits
+                        </button>
+                        <button class="btn-main btn-primary" onclick="showAdminPage('withdrawals')">
+                            <i class="fas fa-money-bill-wave"></i>
+                            Process Withdrawals
+                        </button>
+                        <button class="btn-main btn-secondary" onclick="showAdminPage('users')">
+                            <i class="fas fa-user-plus"></i>
+                            Manage Users
+                        </button>
+                        <button class="btn-main btn-secondary" onclick="showAdminPage('tickets')">
+                            <i class="fas fa-headset"></i>
+                            View Tickets
+                        </button>
+                    </div>
+                </div>
+
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-history"></i> Recent Activity</h3>
+                        <button class="btn-main btn-secondary" style="padding: 10px 20px;" onclick="loadRecentActivity()">
+                            <i class="fas fa-sync-alt"></i> Refresh
+                        </button>
+                    </div>
+                    <div id="recentActivityList">
+                        <div class="empty-state">
+                            <i class="fas fa-spinner fa-spin"></i>
+                            <h3>Loading...</h3>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== USERS PAGE ========== -->
+            <div id="usersPage" class="admin-page">
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-users"></i> All Users</h3>
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="userSearchInput" placeholder="Search by name, phone..." onkeyup="searchUsers()">
+                        </div>
+                    </div>
+                    
+                    <div class="filter-tabs" style="margin-bottom: 20px;">
+                        <button class="filter-tab active" onclick="filterUsers('all')">All Users</button>
+                        <button class="filter-tab" onclick="filterUsers('active')">Active</button>
+                        <button class="filter-tab" onclick="filterUsers('blocked')">Blocked</button>
+                        <button class="filter-tab" onclick="filterUsers('today')">Joined Today</button>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Balance</th>
+                                    <th>Referrals</th>
+                                    <th>Status</th>
+                                    <th>Joined</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="pagination" id="usersPagination"></div>
+                </div>
+            </div>
+
+            <!-- ========== DEPOSITS PAGE ========== -->
+            <div id="depositsPage" class="admin-page">
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-arrow-down"></i> Deposit Requests</h3>
+                        <div class="filter-tabs">
+                            <button class="filter-tab active" onclick="filterDeposits('all')">All</button>
+                            <button class="filter-tab" onclick="filterDeposits('pending')">Pending</button>
+                            <button class="filter-tab" onclick="filterDeposits('approved')">Approved</button>
+                            <button class="filter-tab" onclick="filterDeposits('rejected')">Rejected</button>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Amount</th>
+                                    <th>UPI App</th>
+                                    <th>Txn ID</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="depositsTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== WITHDRAWALS PAGE ========== -->
+            <div id="withdrawalsPage" class="admin-page">
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-arrow-up"></i> Withdrawal Requests</h3>
+                        <div class="filter-tabs">
+                            <button class="filter-tab active" onclick="filterWithdrawals('all')">All</button>
+                            <button class="filter-tab" onclick="filterWithdrawals('pending')">Pending</button>
+                            <button class="filter-tab" onclick="filterWithdrawals('approved')">Approved</button>
+                            <button class="filter-tab" onclick="filterWithdrawals('rejected')">Rejected</button>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Amount</th>
+                                    <th>Method</th>
+                                    <th>Details</th>
+                                    <th>Status</th>
+                                    <th>Date</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="withdrawalsTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== PLANS PAGE ========== -->
+            <div id="plansPage" class="admin-page">
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-gem"></i> Plan Management</h3>
+                    </div>
+                    
+                    <div id="plansList"></div>
+                </div>
+            </div>
+
+            <!-- ========== DAILY CLAIMS PAGE ========== -->
+            <div id="dailyClaimsPage" class="admin-page">
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-hand-holding-usd"></i> Daily Claims Report</h3>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="date" class="form-input" id="claimsDateFilter" onchange="loadDailyClaims()">
+                        </div>
+                    </div>
+                    
+                    <div class="stats-grid" style="margin-bottom: 20px;">
+                        <div class="stat-card primary">
+                            <div class="stat-value" id="todayTotalClaims">0</div>
+                            <div class="stat-label">Total Claims Today</div>
+                        </div>
+                        <div class="stat-card success">
+                            <div class="stat-value" id="todayClaimAmount">₹0</div>
+                            <div class="stat-label">Amount Paid</div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Plan</th>
+                                    <th>Amount</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="claimsTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========== TICKETS PAGE ========== -->
+            <div id="ticketsPage" class="admin-page">
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-ticket-alt"></i> Support Tickets</h3>
+                        <div class="filter-tabs">
+                            <button class="filter-tab active" onclick="filterTickets('all')">All</button>
+                            <button class="filter-tab" onclick="filterTickets('open')">Open</button>
+                            <button class="filter-tab" onclick="filterTickets('closed')">Closed</button>
+                        </div>
+                    </div>
+
+                    <div id="ticketsList"></div>
+                </div>
+            </div>
+
+            <!-- ========== NOTIFICATIONS PAGE ========== -->
+            <div id="notificationsPage" class="admin-page">
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-bell"></i> Send Notification</h3>
+                    </div>
+                    
+                    <form id="notificationForm" onsubmit="sendNotification(event)">
+                        <div class="form-group">
+                            <label class="form-label">Target Audience</label>
+                            <select class="form-select" id="notifTarget" required>
+                                <option value="all">All Users</option>
+                                <option value="active">Active Users Only</option>
+                                <option value="specific">Specific User</option>
+                            </select>
+                        </div>
+                        
+                        <div class="form-group hidden" id="specificUserGroup">
+                            <label class="form-label">User Phone Number</label>
+                            <input type="tel" class="form-input" id="notifUserPhone" placeholder="9876543210" maxlength="10">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Title</label>
+                            <input type="text" class="form-input" id="notifTitle" placeholder="Notification title" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Message</label>
+                            <textarea class="form-textarea" id="notifMessage" placeholder="Enter your message..." required></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn-main btn-primary" style="width: 100%;">
+                            <i class="fas fa-paper-plane"></i> Send Notification
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- ========== SETTINGS PAGE ========== -->
+            <div id="settingsPage" class="admin-page">
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-cog"></i> System Settings</h3>
+                    </div>
+                    
+                    <form id="settingsForm" onsubmit="saveSettings(event)">
+                        <div class="form-group">
+                            <label class="form-label">Minimum Withdrawal (₹)</label>
+                            <input type="number" class="form-input" id="settingMinWithdrawal" value="200" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Maximum Withdrawal per Day (₹)</label>
+                            <input type="number" class="form-input" id="settingMaxWithdrawal" value="10000" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Minimum Deposit (₹)</label>
+                            <input type="number" class="form-input" id="settingMinDeposit" value="100" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Referral Bonus (₹)</label>
+                            <input type="number" class="form-input" id="settingReferralBonus" value="15" required>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">UPI ID for Deposits</label>
+                            <input type="text" class="form-input" id="settingUpiId" value="6395503566@upi" required>
+                        </div>
+                        
+                        <button type="submit" class="btn-main btn-success" style="width: 100%;">
+                            <i class="fas fa-save"></i> Save Settings
+                        </button>
+                    </form>
+                </div>
+            </div>
+
         </main>
     </div>
 
-    <!-- MODALS -->
+    <!-- ========== MODALS ========== -->
     
-    <!-- User Modal -->
-    <div id="userModal" class="modal-overlay" onclick="closeModalOnOverlay(event, 'userModal')">
-        <div class="modal">
+    <!-- User Details Modal -->
+    <div class="modal-overlay" id="userDetailsModal">
+        <div class="modal" style="max-width: 600px;">
             <div class="modal-header">
                 <h3 class="modal-title">User Details</h3>
-                <button class="modal-close" onclick="closeModal('userModal')">
-                    <i class="fas fa-times"></i>
-                </button>
+                <button class="modal-close" onclick="closeModal('userDetailsModal')">×</button>
             </div>
-            <div class="modal-body" id="userModalBody"></div>
+            <div class="modal-body" id="userDetailsContent"></div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('userModal')">Close</button>
-                <button class="btn btn-danger" onclick="blockUser()">
-                    <i class="fas fa-ban"></i>
-                    Block
-                </button>
+                <button class="btn-main btn-secondary" onclick="closeModal('userDetailsModal')">Close</button>
             </div>
         </div>
     </div>
 
-    <!-- Deposit Modal -->
-    <div id="depositModal" class="modal-overlay" onclick="closeModalOnOverlay(event, 'depositModal')">
+    <!-- Deposit Action Modal -->
+    <div class="modal-overlay" id="depositActionModal">
         <div class="modal">
             <div class="modal-header">
                 <h3 class="modal-title">Process Deposit</h3>
-                <button class="modal-close" onclick="closeModal('depositModal')">
-                    <i class="fas fa-times"></i>
-                </button>
+                <button class="modal-close" onclick="closeModal('depositActionModal')">×</button>
             </div>
             <div class="modal-body">
                 <div id="depositDetails"></div>
-                <div class="form-group">
+                <div class="form-group" style="margin-top: 20px;">
                     <label class="form-label">Action</label>
                     <select class="form-select" id="depositAction">
-                        <option value="approve">Approve & Credit</option>
-                        <option value="reject">Reject</option>
+                        <option value="approve">Approve Deposit</option>
+                        <option value="reject">Reject Deposit</option>
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Note (Optional)</label>
+                    <label class="form-label">Admin Note (Optional)</label>
                     <textarea class="form-textarea" id="depositNote" placeholder="Add note..."></textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('depositModal')">Cancel</button>
-                <button class="btn btn-success" onclick="processDepositAction()">
-                    <i class="fas fa-check"></i>
-                    Confirm
-                </button>
+                <button class="btn-main btn-secondary" onclick="closeModal('depositActionModal')">Cancel</button>
+                <button class="btn-main btn-success" onclick="processDepositAction()">Confirm</button>
             </div>
         </div>
     </div>
 
-    <!-- Withdrawal Modal -->
-    <div id="withdrawalModal" class="modal-overlay" onclick="closeModalOnOverlay(event, 'withdrawalModal')">
+    <!-- Withdrawal Action Modal -->
+    <div class="modal-overlay" id="withdrawalActionModal">
         <div class="modal">
             <div class="modal-header">
                 <h3 class="modal-title">Process Withdrawal</h3>
-                <button class="modal-close" onclick="closeModal('withdrawalModal')">
-                    <i class="fas fa-times"></i>
-                </button>
+                <button class="modal-close" onclick="closeModal('withdrawalActionModal')">×</button>
             </div>
             <div class="modal-body">
                 <div id="withdrawalDetails"></div>
-                <div class="form-group">
+                <div class="form-group" style="margin-top: 20px;">
                     <label class="form-label">Action</label>
                     <select class="form-select" id="withdrawalAction">
                         <option value="approve">Approve & Pay</option>
@@ -1427,103 +1346,51 @@
                     </select>
                 </div>
                 <div class="form-group">
-                    <label class="form-label">UTR/Reference Number</label>
-                    <input type="text" class="form-input" id="withdrawalRef" placeholder="Enter reference">
+                    <label class="form-label">Transaction Reference (if approved)</label>
+                    <input type="text" class="form-input" id="withdrawalRef" placeholder="UTR/Ref number">
                 </div>
                 <div class="form-group">
-                    <label class="form-label">Note</label>
+                    <label class="form-label">Admin Note</label>
                     <textarea class="form-textarea" id="withdrawalNote" placeholder="Add note..."></textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('withdrawalModal')">Cancel</button>
-                <button class="btn btn-success" onclick="processWithdrawalAction()">
-                    <i class="fas fa-check"></i>
-                    Confirm
-                </button>
+                <button class="btn-main btn-secondary" onclick="closeModal('withdrawalActionModal')">Cancel</button>
+                <button class="btn-main btn-success" onclick="processWithdrawalAction()">Confirm</button>
             </div>
         </div>
     </div>
 
-    <!-- Ticket Modal -->
-    <div id="ticketModal" class="modal-overlay" onclick="closeModalOnOverlay(event, 'ticketModal')">
+    <!-- Ticket Reply Modal -->
+    <div class="modal-overlay" id="ticketReplyModal">
         <div class="modal">
             <div class="modal-header">
-                <h3 class="modal-title">Ticket Details</h3>
-                <button class="modal-close" onclick="closeModal('ticketModal')">
-                    <i class="fas fa-times"></i>
-                </button>
+                <h3 class="modal-title">Reply to Ticket</h3>
+                <button class="modal-close" onclick="closeModal('ticketReplyModal')">×</button>
             </div>
             <div class="modal-body">
                 <div id="ticketDetails"></div>
+                <div class="form-group" style="margin-top: 20px;">
+                    <label class="form-label">Your Reply</label>
+                    <textarea class="form-textarea" id="ticketReply" rows="4" placeholder="Type your response..." required></textarea>
+                </div>
                 <div class="form-group">
-                    <label class="form-label">Reply Message</label>
-                    <textarea class="form-textarea" id="ticketReply" placeholder="Type your reply..."></textarea>
+                    <label class="form-label">Status</label>
+                    <select class="form-select" id="ticketStatus">
+                        <option value="open">Keep Open</option>
+                        <option value="closed">Close Ticket</option>
+                    </select>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('ticketModal')">Close</button>
-                <button class="btn btn-primary" onclick="replyTicket()">
-                    <i class="fas fa-reply"></i>
-                    Reply
-                </button>
-                <button class="btn btn-success" onclick="closeTicket()">
-                    <i class="fas fa-check-circle"></i>
-                    Close
-                </button>
+                <button class="btn-main btn-secondary" onclick="closeModal('ticketReplyModal')">Cancel</button>
+                <button class="btn-main btn-primary" onclick="sendTicketReply()">Send Reply</button>
             </div>
         </div>
     </div>
 
-    <!-- Plan Modal -->
-    <div id="planModal" class="modal-overlay" onclick="closeModalOnOverlay(event, 'planModal')">
-        <div class="modal">
-            <div class="modal-header">
-                <h3 class="modal-title" id="planModalTitle">Add Plan</h3>
-                <button class="modal-close" onclick="closeModal('planModal')">
-                    <i class="fas fa-times"></i>
-                </button>
-            </div>
-            <div class="modal-body">
-                <input type="hidden" id="planId">
-                <div class="form-group">
-                    <label class="form-label">Plan Name</label>
-                    <input type="text" class="form-input" id="planName" placeholder="e.g., Gold Plan">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Price (₹)</label>
-                    <input type="number" class="form-input" id="planPrice" placeholder="1000">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Daily Return (₹)</label>
-                    <input type="number" class="form-input" id="planDaily" placeholder="50">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Duration (Days)</label>
-                    <input type="number" class="form-input" id="planDays" placeholder="30">
-                </div>
-                <div class="form-group">
-                    <label class="form-label">Icon (Emoji)</label>
-                    <input type="text" class="form-input" id="planIcon" placeholder="💎" maxlength="2">
-                </div>
-                <div class="form-group">
-                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
-                        <input type="checkbox" id="planPopular" style="width: 20px; height: 20px;">
-                        <span>Mark as Popular</span>
-                    </label>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn btn-secondary" onclick="closeModal('planModal')">Cancel</button>
-                <button class="btn btn-primary" onclick="savePlan()">
-                    <i class="fas fa-save"></i>
-                    Save
-                </button>
-            </div>
-        </div>
-    </div>
+    <!-- Firebase Config -->
     <script>
-        // Firebase Config
         const firebaseConfig = {
             apiKey: "AIzaSyA3pH_dnb6_--wRoDSuoj-TAudsmJ7D4R0",
             authDomain: "solor-energy.firebaseapp.com",
@@ -1531,30 +1398,24 @@
             projectId: "solor-energy",
             storageBucket: "solor-energy.firebasestorage.app",
             messagingSenderId: "772737546715",
-            appId: "1:772737546715:web:3736545b464523bdc04ffe"
+            appId: "1:772737546715:web:3736545b464523bdc04ffe",
+            measurementId: "G-ZG0MDB5TTR"
         };
 
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // Global Variables
         let currentAdmin = null;
         let allUsers = {};
         let allDeposits = {};
         let allWithdrawals = {};
         let allTickets = {};
-        let allPlans = {};
-        let currentDepositId = null;
-        let currentWithdrawalId = null;
-        let currentTicketId = null;
-        let currentUserId = null;
+        let selectedDepositId = null;
+        let selectedWithdrawalId = null;
+        let selectedTicketId = null;
+        let selectedUserId = null;
 
-        // Admin Credentials
-        const ADMIN_EMAIL = "admin@solarenergy.com";
-        const ADMIN_PASSWORD = "admin123";
-
-        // Utility Functions
-        function showLoading(text = 'Loading...') {
+        function showLoading(text) {
             document.querySelector('#loadingScreen p').textContent = text;
             document.getElementById('loadingScreen').classList.add('active');
         }
@@ -1563,819 +1424,222 @@
             document.getElementById('loadingScreen').classList.remove('active');
         }
 
-        function showToast(message, type = 'info') {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `toast ${type}`;
-            const icon = type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-times-circle' : 'fa-info-circle';
-            toast.innerHTML = `
-                <div class="toast-icon"><i class="fas ${icon}"></i></div>
-                <div class="toast-content"><h4>${type.charAt(0).toUpperCase() + type.slice(1)}</h4><p>${message}</p></div>
-            `;
-            container.appendChild(toast);
-            setTimeout(() => {
-                toast.style.opacity = '0';
-                toast.style.transform = 'translateX(100px)';
-                setTimeout(() => toast.remove(), 300);
-            }, 3000);
+        function showToast(message, type) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = 'toast ' + type;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+
+        function generateId(prefix) {
+            return prefix + Date.now().toString().slice(-6) + Math.random().toString(36).substr(2, 4).toUpperCase();
         }
 
         function formatCurrency(amount) {
-            return '₹' + (parseInt(amount) || 0).toLocaleString('en-IN');
+            return '₹' + parseInt(amount || 0).toLocaleString('en-IN');
         }
 
         function formatDate(dateString) {
             if (!dateString) return '--';
-            const date = new Date(dateString);
-            return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
-        }
-
-        function generateId(prefix = 'ID') {
-            return prefix + Date.now().toString().slice(-6) + Math.random().toString(36).substr(2, 4).toUpperCase();
-        }
-
-        // Auth
-        document.getElementById('adminLoginForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const email = document.getElementById('adminEmail').value;
-            const password = document.getElementById('adminPassword').value;
-            
-            showLoading('Logging in...');
-            
-            setTimeout(() => {
-                if (email === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
-                    currentAdmin = { email: email };
-                    hideLoading();
-                    document.getElementById('loginPage').classList.add('hidden');
-                    document.getElementById('adminDashboard').classList.remove('hidden');
-                    showToast('Welcome Admin!', 'success');
-                    initDashboard();
-                } else {
-                    hideLoading();
-                    showToast('Invalid credentials!', 'error');
-                }
-            }, 800);
-        });
-
-        function logoutAdmin() {
-            if (confirm('Logout?')) {
-                currentAdmin = null;
-                document.getElementById('adminDashboard').classList.add('hidden');
-                document.getElementById('loginPage').classList.remove('hidden');
-                document.getElementById('adminLoginForm').reset();
-                showToast('Logged out', 'info');
-            }
-        }
-
-        // Navigation
-        function showSection(section) {
-            document.querySelectorAll('.menu-item').forEach(item => item.classList.remove('active'));
-            event.target.closest('.menu-item').classList.add('active');
-            document.querySelectorAll('.admin-section').forEach(sec => sec.classList.add('hidden'));
-            document.getElementById(section + 'Section').classList.remove('hidden');
-            
-            const titles = {
-                'dashboard': 'Dashboard',
-                'users': 'Users',
-                'deposits': 'Deposits',
-                'withdrawals': 'Withdrawals',
-                'plans': 'Plans',
-                'tickets': 'Tickets',
-                'settings': 'Settings'
-            };
-            document.getElementById('pageTitle').textContent = titles[section];
-            
-            if (section === 'users') loadUsers();
-            if (section === 'deposits') loadDeposits();
-            if (section === 'withdrawals') loadWithdrawals();
-            if (section === 'plans') loadPlans();
-            if (section === 'tickets') loadTickets();
-            if (section === 'settings') loadSettings();
-            
-            if (window.innerWidth <= 1024) {
-                toggleSidebar();
-            }
+            return new Date(dateString).toLocaleDateString('en-IN', {
+                day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+            });
         }
 
         function toggleSidebar() {
             const sidebar = document.getElementById('adminSidebar');
             const overlay = document.getElementById('sidebarOverlay');
-            sidebar.classList.toggle('hidden-mobile');
-            overlay.classList.toggle('active');
-        }
-
-        // Dashboard Init
-        function initDashboard() {
-            setupListeners();
-            updateStats();
-        }
-
-        function setupListeners() {
-            database.ref('users').on('value', (snap) => {
-                allUsers = snap.val() || {};
-                updateStats();
-                if (!document.getElementById('usersSection').classList.contains('hidden')) loadUsers();
-            });
-
-            database.ref('deposits').on('value', (snap) => {
-                allDeposits = snap.val() || {};
-                updateStats();
-                updateBadges();
-                if (!document.getElementById('depositsSection').classList.contains('hidden')) loadDeposits();
-            });
-
-            database.ref('withdrawals').on('value', (snap) => {
-                allWithdrawals = snap.val() || {};
-                updateStats();
-                updateBadges();
-                if (!document.getElementById('withdrawalsSection').classList.contains('hidden')) loadWithdrawals();
-            });
-
-            database.ref('tickets').on('value', (snap) => {
-                allTickets = snap.val() || {};
-                updateBadges();
-                if (!document.getElementById('ticketsSection').classList.contains('hidden')) loadTickets();
-            });
-
-            database.ref('plans').on('value', (snap) => {
-                allPlans = snap.val() || {};
-                if (!document.getElementById('plansSection').classList.contains('hidden')) loadPlans();
-            });
-        }
-
-        function updateBadges() {
-            const pendingDeps = Object.values(allDeposits).filter(d => d.status === 'pending').length;
-            const pendingWds = Object.values(allWithdrawals).filter(w => w.status === 'pending').length;
-            const openTix = Object.values(allTickets).filter(t => t.status === 'open').length;
+            const hamburger = document.getElementById('hamburgerMenu');
             
-            document.getElementById('pendingDepositsBadge').textContent = pendingDeps;
-            document.getElementById('pendingWithdrawalsBadge').textContent = pendingWds;
-            document.getElementById('openTicketsBadge').textContent = openTix;
-            document.getElementById('totalUsersBadge').textContent = Object.keys(allUsers).length;
-            document.getElementById('notificationCount').textContent = pendingDeps + pendingWds + openTix;
+            sidebar.classList.toggle('active');
+            overlay.classList.toggle('active');
+            hamburger.classList.toggle('active');
         }
 
-        function updateStats() {
+        function showAdminPage(page) {
+            document.querySelectorAll('.admin-page').forEach(p => p.classList.remove('active'));
+            document.getElementById(page + 'Page').classList.add('active');
+            
+            document.querySelectorAll('.nav-item').forEach(item => {
+                item.classList.remove('active');
+                if (item.dataset.page === page) item.classList.add('active');
+            });
+            
+            toggleSidebar();
+            
+            if (page === 'dashboard') loadDashboardStats();
+            if (page === 'users') loadUsers();
+            if (page === 'deposits') loadDeposits();
+            if (page === 'withdrawals') loadWithdrawals();
+            if (page === 'plans') loadPlans();
+            if (page === 'dailyClaims') loadDailyClaims();
+            if (page === 'tickets') loadTickets();
+            
+            window.scrollTo(0, 0);
+        }
+
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('active');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+
+        // Login - Fixed credentials: admin / admin123
+        document.getElementById('adminLoginForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            const username = document.getElementById('adminUsername').value;
+            const password = document.getElementById('adminPassword').value;
+            
+            if (username === 'admin' && password === 'admin123') {
+                currentAdmin = {
+                    name: 'Admin',
+                    username: 'admin',
+                    loginTime: new Date().toISOString()
+                };
+                
+                showToast('✅ Login successful!', 'success');
+                
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('dashboardContainer').style.display = 'block';
+                document.getElementById('adminName').textContent = currentAdmin.name;
+                
+                sessionStorage.setItem('adminSession', JSON.stringify(currentAdmin));
+                
+                setupRealtimeListeners();
+                loadDashboardStats();
+            } else {
+                showToast('❌ Invalid credentials!', 'error');
+            }
+        });
+
+        function adminLogout() {
+            currentAdmin = null;
+            sessionStorage.removeItem('adminSession');
+            document.getElementById('dashboardContainer').style.display = 'none';
+            document.getElementById('loginPage').style.display = 'flex';
+            document.getElementById('adminLoginForm').reset();
+            showToast('👋 Logged out successfully', 'info');
+        }
+
+        // Check session on load - NO localStorage, only sessionStorage
+        window.onload = function() {
+            const savedSession = sessionStorage.getItem('adminSession');
+            if (savedSession) {
+                currentAdmin = JSON.parse(savedSession);
+                document.getElementById('loginPage').style.display = 'none';
+                document.getElementById('dashboardContainer').style.display = 'block';
+                document.getElementById('adminName').textContent = currentAdmin.name;
+                setupRealtimeListeners();
+                loadDashboardStats();
+            }
+        };
+
+        function setupRealtimeListeners() {
+            database.ref('users').on('value', (snapshot) => {
+                allUsers = snapshot.val() || {};
+                updateSidebarBadges();
+                if (document.getElementById('usersPage').classList.contains('active')) loadUsers();
+                if (document.getElementById('dashboardPage').classList.contains('active')) loadDashboardStats();
+            });
+            
+            database.ref('deposits').on('value', (snapshot) => {
+                allDeposits = snapshot.val() || {};
+                updateSidebarBadges();
+                if (document.getElementById('depositsPage').classList.contains('active')) loadDeposits();
+            });
+            
+            database.ref('withdrawals').on('value', (snapshot) => {
+                allWithdrawals = snapshot.val() || {};
+                updateSidebarBadges();
+                if (document.getElementById('withdrawalsPage').classList.contains('active')) loadWithdrawals();
+            });
+            
+            database.ref('tickets').on('value', (snapshot) => {
+                allTickets = snapshot.val() || {};
+                updateSidebarBadges();
+                if (document.getElementById('ticketsPage').classList.contains('active')) loadTickets();
+            });
+        }
+
+        function updateSidebarBadges() {
+            const pendingDeposits = Object.values(allDeposits).filter(d => d.status === 'pending').length;
+            const pendingWithdrawals = Object.values(allWithdrawals).filter(w => w.status === 'pending').length;
+            const openTickets = Object.values(allTickets).filter(t => t.status === 'open').length;
+            
+            document.getElementById('sidebarDepositCount').textContent = pendingDeposits;
+            document.getElementById('sidebarWithdrawalCount').textContent = pendingWithdrawals;
+            document.getElementById('sidebarTicketCount').textContent = openTickets;
+            document.getElementById('sidebarUserCount').textContent = Object.keys(allUsers).length;
+        }
+
+        function loadDashboardStats() {
             const users = Object.values(allUsers);
             const deposits = Object.values(allDeposits);
             const withdrawals = Object.values(allWithdrawals);
             
-            document.getElementById('statTotalUsers').textContent = users.length;
+            const totalUsers = users.length;
+            const totalBalance = users.reduce((sum, u) => sum + (u.wallet?.mainBalance || 0), 0);
+            const pendingDeposits = deposits.filter(d => d.status === 'pending');
+            const pendingWithdrawals = withdrawals.filter(w => w.status === 'pending');
             
             const today = new Date().toDateString();
-            const newToday = users.filter(u => new Date(u.joinDate).toDateString() === today).length;
-            document.getElementById('statNewUsersToday').textContent = `+${newToday} today`;
+            const newUsersToday = users.filter(u => new Date(u.joinDate).toDateString() === today).length;
             
-            const totalBal = users.reduce((sum, u) => sum + (u.wallet?.mainBalance || 0), 0);
-            document.getElementById('statTotalBalance').textContent = formatCurrency(totalBal);
-            
-            const pendingDeps = deposits.filter(d => d.status === 'pending');
-            document.getElementById('statPendingDeposits').textContent = pendingDeps.length;
-            const pendingDepAmt = pendingDeps.reduce((sum, d) => sum + d.amount, 0);
-            document.getElementById('statPendingDepositAmount').textContent = formatCurrency(pendingDepAmt);
-            
-            const pendingWds = withdrawals.filter(w => w.status === 'pending');
-            document.getElementById('statPendingWithdrawals').textContent = pendingWds.length;
-            const pendingWdAmt = pendingWds.reduce((sum, w) => sum + w.amount, 0);
-            document.getElementById('statPendingWithdrawalAmount').textContent = formatCurrency(pendingWdAmt);
+            document.getElementById('statTotalUsers').textContent = totalUsers;
+            document.getElementById('statTotalBalance').textContent = formatCurrency(totalBalance);
+            document.getElementById('statPendingDeposits').textContent = pendingDeposits.length;
+            document.getElementById('statPendingDepositAmount').textContent = formatCurrency(pendingDeposits.reduce((sum, d) => sum + d.amount, 0));
+            document.getElementById('statPendingWithdrawals').textContent = pendingWithdrawals.length;
+            document.getElementById('statPendingWithdrawalAmount').textContent = formatCurrency(pendingWithdrawals.reduce((sum, w) => sum + w.amount, 0));
+            document.getElementById('statNewUsersToday').textContent = '+' + newUsersToday + ' today';
             
             loadRecentActivity();
         }
 
         function loadRecentActivity() {
-            const activities = [];
-            Object.entries(allDeposits).forEach(([id, d]) => {
-                activities.push({ type: 'deposit', user: d.userName, amount: d.amount, status: d.status, date: d.requestedAt });
-            });
-            Object.entries(allWithdrawals).forEach(([id, w]) => {
-                activities.push({ type: 'withdrawal', user: w.userName, amount: w.amount, status: w.status, date: w.requestedAt });
-            });
-            activities.sort((a, b) => new Date(b.date) - new Date(a.date));
+            const container = document.getElementById('recentActivityList');
+            let activities = [];
             
-            const tbody = document.getElementById('recentActivityBody');
+            Object.values(allUsers).slice(-5).forEach(u => {
+                activities.push({
+                    text: 'New user: ' + u.name,
+                    time: u.joinDate,
+                    icon: 'fa-user-plus',
+                    color: 'primary'
+                });
+            });
+            
+            Object.values(allDeposits).filter(d => d.status === 'pending').slice(-5).forEach(d => {
+                activities.push({
+                    text: 'Deposit: ' + formatCurrency(d.amount) + ' from ' + d.userName,
+                    time: d.requestedAt,
+                    icon: 'fa-arrow-down',
+                    color: 'warning'
+                });
+            });
+            
+            activities.sort((a, b) => new Date(b.time) - new Date(a.time));
+            
             if (activities.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" class="empty-state"><i class="fas fa-inbox"></i><h3>No Activity</h3></td></tr>';
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-bell-slash"></i><h3>No Recent Activity</h3></div>';
                 return;
             }
             
-            tbody.innerHTML = activities.slice(0, 10).map(act => `
-                <tr>
-                    <td>
-                        <div class="user-cell">
-                            <div class="user-avatar">${act.user?.charAt(0).toUpperCase() || 'U'}</div>
-                            <span>${act.user || 'Unknown'}</span>
-                        </div>
-                    </td>
-                    <td>${act.type === 'deposit' ? '<i class="fas fa-arrow-down text-success"></i> Deposit' : '<i class="fas fa-arrow-up text-danger"></i> Withdrawal'}</td>
-                    <td>${formatCurrency(act.amount)}</td>
-                    <td><span class="badge badge-${act.status === 'pending' ? 'warning' : act.status === 'approved' ? 'success' : 'danger'}">${act.status}</span></td>
-                    <td>${formatDate(act.date)}</td>
-                </tr>
-            `).join('');
-        }
-
-        // Users
-        function loadUsers() {
-            const tbody = document.getElementById('usersTableBody');
-            const users = Object.entries(allUsers);
-            
-            if (users.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="6" class="empty-state"><i class="fas fa-users"></i><h3>No Users</h3></td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = users.map(([id, user]) => `
-                <tr>
-                    <td>
-                        <div class="user-cell">
-                            <div class="user-avatar">${user.name?.charAt(0).toUpperCase() || 'U'}</div>
-                            <div class="user-info">
-                                <h4>${user.name || 'Unknown'}</h4>
-                                <p>${user.referralCode || 'No Ref'}</p>
-                            </div>
-                        </div>
-                    </td>
-                    <td>${user.phone || '--'}</td>
-                    <td>${formatCurrency(user.wallet?.mainBalance || 0)}</td>
-                    <td><span class="badge badge-${user.status === 'active' ? 'success' : 'danger'}">${user.status || 'active'}</span></td>
-                    <td>${formatDate(user.joinDate)}</td>
-                    <td>
-                        <div class="action-btns">
-                            <button class="action-btn view" onclick="viewUser('${id}')" title="View"><i class="fas fa-eye"></i></button>
-                            <button class="action-btn ${user.status === 'active' ? 'reject' : 'approve'}" onclick="toggleUserStatus('${id}')" title="${user.status === 'active' ? 'Block' : 'Unblock'}"><i class="fas fa-${user.status === 'active' ? 'ban' : 'check'}"></i></button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function searchUsers() {
-            const search = document.getElementById('userSearch').value.toLowerCase();
-            const rows = document.querySelectorAll('#usersTableBody tr');
-            rows.forEach(row => {
-                row.style.display = row.textContent.toLowerCase().includes(search) ? '' : 'none';
-            });
-        }
-
-        function viewUser(userId) {
-            currentUserId = userId;
-            const user = allUsers[userId];
-            if (!user) return;
-            
-            const plans = Object.values(user.activePlans || {});
-            const txns = Object.values(user.transactions || {}).slice(-5);
-            
-            document.getElementById('userModalBody').innerHTML = `
-                <div style="text-align: center; padding: 20px; background: var(--gradient-1); border-radius: 16px; color: white; margin-bottom: 20px;">
-                    <div style="font-size: 48px; margin-bottom: 10px;">👤</div>
-                    <h2 style="font-size: 22px;">${user.name}</h2>
-                    <p>${user.phone}</p>
-                </div>
-                <div class="detail-grid">
-                    <div class="detail-item"><span class="detail-label">Balance</span><span class="detail-value">${formatCurrency(user.wallet?.mainBalance || 0)}</span></div>
-                    <div class="detail-item"><span class="detail-label">Referrals</span><span class="detail-value">${user.referrals?.count || 0}</span></div>
-                    <div class="detail-item"><span class="detail-label">Active Plans</span><span class="detail-value">${plans.length}</span></div>
-                    <div class="detail-item"><span class="detail-label">Total Earned</span><span class="detail-value">${formatCurrency(user.referrals?.earnings || 0)}</span></div>
-                </div>
-                <div style="margin-top: 20px;">
-                    <h4 style="margin-bottom: 12px;">Recent Transactions</h4>
-                    ${txns.length > 0 ? txns.map(t => `
-                        <div style="padding: 12px; background: #f8fafc; border-radius: 10px; margin-bottom: 8px; display: flex; justify-content: space-between;">
-                            <div><div style="font-size: 14px;">${t.description}</div><div style="font-size: 12px; color: var(--gray);">${formatDate(t.date)}</div></div>
-                            <div style="font-weight: 600; color: ${t.amount > 0 ? 'var(--success)' : 'var(--danger)'}">${t.amount > 0 ? '+' : ''}${formatCurrency(t.amount)}</div>
-                        </div>
-                    `).join('') : '<p style="color: var(--gray);">No transactions</p>'}
-                </div>
-            `;
-            document.getElementById('userModal').classList.add('active');
-        }
-
-        function toggleUserStatus(userId) {
-            const user = allUsers[userId];
-            if (!user) return;
-            const newStatus = user.status === 'active' ? 'blocked' : 'active';
-            if (confirm(`${newStatus === 'blocked' ? 'Block' : 'Unblock'} this user?`)) {
-                showLoading('Updating...');
-                database.ref(`users/${userId}/status`).set(newStatus)
-                    .then(() => {
-                        hideLoading();
-                        showToast(`User ${newStatus === 'blocked' ? 'blocked' : 'unblocked'}`, 'success');
-                        loadUsers();
-                    })
-                    .catch(err => {
-                        hideLoading();
-                        showToast('Error: ' + err.message, 'error');
-                    });
-            }
-        }
-
-        function blockUser() {
-            if (currentUserId) {
-                toggleUserStatus(currentUserId);
-                closeModal('userModal');
-            }
-        }
-
-        function exportUsers() {
-            const users = Object.values(allUsers);
-            const csv = [
-                ['Name', 'Phone', 'Balance', 'Referrals', 'Status', 'Join Date'].join(','),
-                ...users.map(u => [u.name, u.phone, u.wallet?.mainBalance || 0, u.referrals?.count || 0, u.status, u.joinDate].join(','))
-            ].join('\n');
-            const blob = new Blob([csv], { type: 'text/csv' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = 'users_' + new Date().toISOString().split('T')[0] + '.csv';
-            a.click();
-            showToast('Exported successfully', 'success');
-        }
-
-        // Deposits
-        function loadDeposits() {
-            const filter = document.getElementById('depositFilter').value;
-            const tbody = document.getElementById('depositsTableBody');
-            let deposits = Object.entries(allDeposits);
-            if (filter !== 'all') deposits = deposits.filter(([id, d]) => d.status === filter);
-            deposits.sort((a, b) => new Date(b[1].requestedAt) - new Date(a[1].requestedAt));
-            
-            if (deposits.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><i class="fas fa-inbox"></i><h3>No Deposits</h3></td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = deposits.map(([id, d]) => `
-                <tr>
-                    <td><code style="font-size: 12px;">${d.id?.slice(-8) || id.slice(-8)}</code></td>
-                    <td>${d.userName}<br><small style="color: var(--gray);">${d.userPhone}</small></td>
-                    <td style="font-weight: 600; color: var(--success);">${formatCurrency(d.amount)}</td>
-                    <td><code style="font-size: 12px;">${d.transactionId?.slice(-12) || '--'}</code></td>
-                    <td>${formatDate(d.requestedAt)}</td>
-                    <td><span class="badge badge-${d.status === 'pending' ? 'warning' : d.status === 'approved' ? 'success' : 'danger'}">${d.status}</span></td>
-                    <td>
-                        <div class="action-btns">
-                            ${d.status === 'pending' ? `
-                                <button class="action-btn approve" onclick="openDepositModal('${id}')" title="Approve"><i class="fas fa-check"></i></button>
-                                <button class="action-btn reject" onclick="quickRejectDeposit('${id}')" title="Reject"><i class="fas fa-times"></i></button>
-                            ` : '<span style="color: var(--gray); font-size: 12px;">Processed</span>'}
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function openDepositModal(depositId) {
-            currentDepositId = depositId;
-            const deposit = allDeposits[depositId];
-            if (!deposit) return;
-            
-            document.getElementById('depositDetails').innerHTML = `
-                <div class="detail-card">
-                    <div class="detail-grid">
-                        <div class="detail-item"><span class="detail-label">User</span><span class="detail-value">${deposit.userName}</span></div>
-                        <div class="detail-item"><span class="detail-label">Amount</span><span class="detail-value" style="color: var(--success);">${formatCurrency(deposit.amount)}</span></div>
-                        <div class="detail-item"><span class="detail-label">UPI App</span><span class="detail-value">${deposit.upiApp || '--'}</span></div>
-                        <div class="detail-item"><span class="detail-label">Txn ID</span><span class="detail-value" style="font-size: 13px;">${deposit.transactionId || '--'}</span></div>
+            container.innerHTML = activities.map(act => `
+                <div style="display: flex; align-items: center; gap: 15px; padding: 15px; border-bottom: 1px solid #e2e8f0;">
+                    <div style="width: 45px; height: 45px; background: var(--${act.color}); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white;">
+                        <i class="fas ${act.icon}"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 600; font-size: 14px;">${act.text}</div>
+                        <div style="font-size: 12px; color: var(--gray);">${formatDate(act.time)}</div>
                     </div>
                 </div>
-            `;
-            document.getElementById('depositAction').value = 'approve';
-            document.getElementById('depositNote').value = '';
-            document.getElementById('depositModal').classList.add('active');
-        }
-
-        function quickRejectDeposit(depositId) {
-            if (!confirm('Reject this deposit?')) return;
-            showLoading('Rejecting...');
-            database.ref(`deposits/${depositId}`).update({
-                status: 'rejected',
-                processedAt: new Date().toISOString()
-            })
-            .then(() => {
-                hideLoading();
-                showToast('Deposit rejected', 'success');
-            })
-            .catch(err => {
-                hideLoading();
-                showToast('Error: ' + err.message, 'error');
-            });
-        }
-
-        function processDepositAction() {
-            if (!currentDepositId) return;
-            const action = document.getElementById('depositAction').value;
-            const note = document.getElementById('depositNote').value;
-            const deposit = allDeposits[currentDepositId];
-            
-            showLoading('Processing...');
-            
-            const updates = {
-                status: action === 'approve' ? 'approved' : 'rejected',
-                processedAt: new Date().toISOString(),
-                adminNote: note
-            };
-            
-            database.ref(`deposits/${currentDepositId}`).update(updates)
-                .then(() => {
-                    if (action === 'approve') {
-                        const userRef = database.ref(`users/${deposit.userId}`);
-                        return userRef.once('value').then(snap => {
-                            const user = snap.val();
-                            const newBal = (user.wallet?.mainBalance || 0) + deposit.amount;
-                            return Promise.all([
-                                userRef.child('wallet/mainBalance').set(newBal),
-                                userRef.child('transactions').push({
-                                    id: generateId('TXN'),
-                                    type: 'deposit_approved',
-                                    amount: deposit.amount,
-                                    description: 'Deposit approved by admin',
-                                    date: new Date().toISOString(),
-                                    status: 'completed'
-                                })
-                            ]);
-                        });
-                    }
-                })
-                .then(() => {
-                    hideLoading();
-                    closeModal('depositModal');
-                    showToast(`Deposit ${action}ed successfully`, 'success');
-                    document.getElementById('depositNote').value = '';
-                })
-                .catch(err => {
-                    hideLoading();
-                    showToast('Error: ' + err.message, 'error');
-                });
-        }
-
-        // Withdrawals
-        function loadWithdrawals() {
-            const filter = document.getElementById('withdrawalFilter').value;
-            const tbody = document.getElementById('withdrawalsTableBody');
-            let withdrawals = Object.entries(allWithdrawals);
-            if (filter !== 'all') withdrawals = withdrawals.filter(([id, w]) => w.status === filter);
-            withdrawals.sort((a, b) => new Date(b[1].requestedAt) - new Date(a[1].requestedAt));
-            
-            if (withdrawals.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><i class="fas fa-inbox"></i><h3>No Withdrawals</h3></td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = withdrawals.map(([id, w]) => `
-                <tr>
-                    <td><code style="font-size: 12px;">${w.id?.slice(-8) || id.slice(-8)}</code></td>
-                    <td>${w.userName}<br><small style="color: var(--gray);">${w.userPhone}</small></td>
-                    <td style="font-weight: 600; color: var(--danger);">${formatCurrency(w.amount)}</td>
-                    <td>${w.method?.toUpperCase() || '--'}</td>
-                    <td>${formatDate(w.requestedAt)}</td>
-                    <td><span class="badge badge-${w.status === 'pending' ? 'warning' : w.status === 'approved' ? 'success' : 'danger'}">${w.status}</span></td>
-                    <td>
-                        <div class="action-btns">
-                            ${w.status === 'pending' ? `
-                                <button class="action-btn approve" onclick="openWithdrawalModal('${id}')" title="Approve"><i class="fas fa-check"></i></button>
-                                <button class="action-btn reject" onclick="quickRejectWithdrawal('${id}')" title="Reject"><i class="fas fa-times"></i></button>
-                            ` : '<span style="color: var(--gray); font-size: 12px;">Processed</span>'}
-                        </div>
-                    </td>
-                </tr>
             `).join('');
-        }
-
-        function openWithdrawalModal(withdrawalId) {
-            currentWithdrawalId = withdrawalId;
-            const w = allWithdrawals[withdrawalId];
-            if (!w) return;
-            
-            document.getElementById('withdrawalDetails').innerHTML = `
-                <div class="detail-card">
-                    <div class="detail-grid">
-                        <div class="detail-item"><span class="detail-label">User</span><span class="detail-value">${w.userName}</span></div>
-                        <div class="detail-item"><span class="detail-label">Amount</span><span class="detail-value" style="color: var(--danger);">${formatCurrency(w.amount)}</span></div>
-                        <div class="detail-item"><span class="detail-label">Method</span><span class="detail-value">${w.method?.toUpperCase()}</span></div>
-                        <div class="detail-item"><span class="detail-label">Details</span><span class="detail-value" style="font-size: 12px; word-break: break-all;">${w.details || '--'}</span></div>
-                    </div>
-                </div>
-            `;
-            document.getElementById('withdrawalAction').value = 'approve';
-            document.getElementById('withdrawalRef').value = '';
-            document.getElementById('withdrawalNote').value = '';
-            document.getElementById('withdrawalModal').classList.add('active');
-        }
-
-        function quickRejectWithdrawal(withdrawalId) {
-            if (!confirm('Reject this withdrawal?')) return;
-            showLoading('Rejecting...');
-            database.ref(`withdrawals/${withdrawalId}`).update({
-                status: 'rejected',
-                processedAt: new Date().toISOString()
-            })
-            .then(() => {
-                hideLoading();
-                showToast('Withdrawal rejected', 'success');
-            })
-            .catch(err => {
-                hideLoading();
-                showToast('Error: ' + err.message, 'error');
-            });
-        }
-
-        function processWithdrawalAction() {
-            if (!currentWithdrawalId) return;
-            const action = document.getElementById('withdrawalAction').value;
-            const ref = document.getElementById('withdrawalRef').value;
-            const note = document.getElementById('withdrawalNote').value;
-            
-            if (action === 'approve' && !ref) {
-                showToast('Please enter UTR/Reference number', 'error');
-                return;
-            }
-            
-            showLoading('Processing...');
-            
-            const updates = {
-                status: action === 'approve' ? 'approved' : 'rejected',
-                processedAt: new Date().toISOString(),
-                transactionRef: ref,
-                adminNote: note
-            };
-            
-            database.ref(`withdrawals/${currentWithdrawalId}`).update(updates)
-                .then(() => {
-                    hideLoading();
-                    closeModal('withdrawalModal');
-                    showToast(`Withdrawal ${action}ed successfully`, 'success');
-                    document.getElementById('withdrawalRef').value = '';
-                    document.getElementById('withdrawalNote').value = '';
-                })
-                .catch(err => {
-                    hideLoading();
-                    showToast('Error: ' + err.message, 'error');
-                });
-        }
-
-        // Plans
-        function loadPlans() {
-            const tbody = document.getElementById('plansTableBody');
-            const plans = Object.entries(allPlans);
-            
-            if (plans.length === 0) {
-                // Create default plans
-                const defaultPlans = {
-                    free: { id: 'free', name: 'Free Trial', price: 0, daily: 10, days: 7, total: 70, icon: '🎁', popular: false, active: true },
-                    nano: { id: 'nano', name: 'Nano', price: 100, daily: 20, days: 30, total: 600, icon: '⚡', popular: false, active: true },
-                    micro: { id: 'micro', name: 'Micro', price: 200, daily: 45, days: 30, total: 1350, icon: '💎', popular: false, active: true },
-                    mini: { id: 'mini', name: 'Mini', price: 300, daily: 75, days: 30, total: 2250, icon: '🚀', popular: false, active: true },
-                    basic: { id: 'basic', name: 'Basic', price: 500, daily: 150, days: 30, total: 4500, icon: '👑', popular: true, active: true },
-                    standard: { id: 'standard', name: 'Standard', price: 1000, daily: 350, days: 30, total: 10500, icon: '💰', popular: false, active: true },
-                    pro: { id: 'pro', name: 'Pro', price: 2000, daily: 800, days: 30, total: 24000, icon: '🏆', popular: false, active: true }
-                };
-                Object.entries(defaultPlans).forEach(([id, plan]) => {
-                    database.ref(`plans/${id}`).set(plan);
-                });
-                tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><i class="fas fa-spinner fa-spin"></i><p>Loading...</p></td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = plans.map(([id, plan]) => `
-                <tr>
-                    <td>
-                        <div class="user-cell">
-                            <div style="font-size: 24px;">${plan.icon || '💎'}</div>
-                            <div>
-                                <div style="font-weight: 600;">${plan.name}</div>
-                                ${plan.popular ? '<span class="badge badge-warning" style="font-size: 10px;">POPULAR</span>' : ''}
-                            </div>
-                        </div>
-                    </td>
-                    <td>${plan.price === 0 ? 'FREE' : formatCurrency(plan.price)}</td>
-                    <td>${formatCurrency(plan.daily)}/day</td>
-                    <td>${plan.days} days</td>
-                    <td>${formatCurrency(plan.total)}</td>
-                    <td>
-                        <label style="position: relative; display: inline-block; width: 50px; height: 26px;">
-                            <input type="checkbox" ${plan.active ? 'checked' : ''} onchange="togglePlanStatus('${id}', this.checked)" style="opacity: 0; width: 0; height: 0;">
-                            <span style="position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: ${plan.active ? 'var(--success)' : '#e2e8f0'}; transition: 0.3s; border-radius: 34px;">
-                                <span style="position: absolute; content: ''; height: 20px; width: 20px; left: 3px; bottom: 3px; background: white; transition: 0.3s; border-radius: 50%; transform: ${plan.active ? 'translateX(24px)' : 'translateX(0)'};"></span>
-                            </span>
-                        </label>
-                    </td>
-                    <td>
-                        <div class="action-btns">
-                            <button class="action-btn edit" onclick="editPlan('${id}')" title="Edit"><i class="fas fa-edit"></i></button>
-                            <button class="action-btn delete" onclick="deletePlan('${id}')" title="Delete"><i class="fas fa-trash"></i></button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function openPlanModal() {
-            document.getElementById('planModalTitle').textContent = 'Add Plan';
-            document.getElementById('planId').value = '';
-            document.getElementById('planName').value = '';
-            document.getElementById('planPrice').value = '';
-            document.getElementById('planDaily').value = '';
-            document.getElementById('planDays').value = '';
-            document.getElementById('planIcon').value = '';
-            document.getElementById('planPopular').checked = false;
-            document.getElementById('planModal').classList.add('active');
-        }
-
-        function editPlan(planId) {
-            const plan = allPlans[planId];
-            if (!plan) return;
-            document.getElementById('planModalTitle').textContent = 'Edit Plan';
-            document.getElementById('planId').value = planId;
-            document.getElementById('planName').value = plan.name;
-            document.getElementById('planPrice').value = plan.price;
-            document.getElementById('planDaily').value = plan.daily;
-            document.getElementById('planDays').value = plan.days;
-            document.getElementById('planIcon').value = plan.icon || '';
-            document.getElementById('planPopular').checked = plan.popular || false;
-            document.getElementById('planModal').classList.add('active');
-        }
-
-        function savePlan() {
-            const planId = document.getElementById('planId').value;
-            const planData = {
-                name: document.getElementById('planName').value,
-                price: parseInt(document.getElementById('planPrice').value) || 0,
-                daily: parseInt(document.getElementById('planDaily').value) || 0,
-                days: parseInt(document.getElementById('planDays').value) || 30,
-                total: (parseInt(document.getElementById('planDaily').value) || 0) * (parseInt(document.getElementById('planDays').value) || 30),
-                icon: document.getElementById('planIcon').value || '💎',
-                popular: document.getElementById('planPopular').checked,
-                active: true
-            };
-            
-            if (!planData.name) {
-                showToast('Enter plan name', 'error');
-                return;
-            }
-            
-            showLoading('Saving...');
-            const id = planId || generateId('PLAN');
-            database.ref(`plans/${id}`).update(planData)
-                .then(() => {
-                    hideLoading();
-                    closeModal('planModal');
-                    showToast('Plan saved', 'success');
-                })
-                .catch(err => {
-                    hideLoading();
-                    showToast('Error: ' + err.message, 'error');
-                });
-        }
-
-        function togglePlanStatus(planId, active) {
-            database.ref(`plans/${planId}/active`).set(active)
-                .then(() => showToast(`Plan ${active ? 'activated' : 'deactivated'}`, 'success'))
-                .catch(err => showToast('Error: ' + err.message, 'error'));
-        }
-
-        function deletePlan(planId) {
-            if (!confirm('Delete this plan?')) return;
-            database.ref(`plans/${planId}`).remove()
-                .then(() => showToast('Plan deleted', 'success'))
-                .catch(err => showToast('Error: ' + err.message, 'error'));
-        }
-
-        // Tickets
-        function loadTickets() {
-            const filter = document.getElementById('ticketFilter').value;
-            const tbody = document.getElementById('ticketsTableBody');
-            let tickets = Object.entries(allTickets);
-            if (filter !== 'all') tickets = tickets.filter(([id, t]) => t.status === filter);
-            tickets.sort((a, b) => new Date(b[1].createdAt) - new Date(a[1].createdAt));
-            
-            if (tickets.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="7" class="empty-state"><i class="fas fa-inbox"></i><h3>No Tickets</h3></td></tr>';
-                return;
-            }
-            
-            tbody.innerHTML = tickets.map(([id, t]) => `
-                <tr>
-                    <td><code style="font-size: 12px;">${t.id?.slice(-8) || id.slice(-8)}</code></td>
-                    <td>${t.userName}<br><small style="color: var(--gray);">${t.userPhone}</small></td>
-                    <td><span class="badge badge-info">${t.type?.toUpperCase()}</span></td>
-                    <td>${t.subject}</td>
-                    <td>${formatDate(t.createdAt)}</td>
-                    <td><span class="badge badge-${t.status === 'open' ? 'warning' : 'success'}">${t.status}</span></td>
-                    <td>
-                        <div class="action-btns">
-                            <button class="action-btn view" onclick="viewTicket('${id}')" title="View"><i class="fas fa-eye"></i></button>
-                        </div>
-                    </td>
-                </tr>
-            `).join('');
-        }
-
-        function viewTicket(ticketId) {
-            currentTicketId = ticketId;
-            const t = allTickets[ticketId];
-            if (!t) return;
-            
-            document.getElementById('ticketDetails').innerHTML = `
-                <div class="detail-card">
-                    <div style="margin-bottom: 15px;">
-                        <span class="badge badge-${t.status === 'open' ? 'warning' : 'success'}">${t.status.toUpperCase()}</span>
-                        <span class="badge badge-info" style="margin-left: 10px;">${t.type?.toUpperCase()}</span>
-                    </div>
-                    <h4 style="margin-bottom: 10px;">${t.subject}</h4>
-                    <p style="color: var(--gray); margin-bottom: 15px;">${t.message}</p>
-                    <div style="font-size: 13px; color: var(--gray);">
-                        From: ${t.userName} (${t.userPhone})<br>
-                        Date: ${formatDate(t.createdAt)}
-                    </div>
-                </div>
-            `;
-            document.getElementById('ticketReply').value = '';
-            document.getElementById('ticketModal').classList.add('active');
-        }
-
-        function replyTicket() {
-            if (!currentTicketId) return;
-            const reply = document.getElementById('ticketReply').value;
-            if (!reply) {
-                showToast('Enter reply message', 'error');
-                return;
-            }
-            showLoading('Sending...');
-            database.ref(`tickets/${currentTicketId}/replies`).push({
-                message: reply,
-                from: 'admin',
-                timestamp: new Date().toISOString()
-            })
-            .then(() => {
-                hideLoading();
-                document.getElementById('ticketReply').value = '';
-                showToast('Reply sent', 'success');
-            })
-            .catch(err => {
-                hideLoading();
-                showToast('Error: ' + err.message, 'error');
-            });
-        }
-
-        function closeTicket() {
-            if (!currentTicketId) return;
-            database.ref(`tickets/${currentTicketId}/status`).set('closed')
-                .then(() => {
-                    closeModal('ticketModal');
-                    showToast('Ticket closed', 'success');
-                })
-                .catch(err => showToast('Error: ' + err.message, 'error'));
-        }
-
-        // Settings
-        function loadSettings() {
-            database.ref('settings').once('value', (snap) => {
-                const s = snap.val() || {};
-                document.getElementById('upiIdSetting').value = s.upiId || '6395503566@upi';
-                document.getElementById('referralBonusSetting').value = s.referralBonus || 15;
-                document.getElementById('commissionSetting').value = s.commission || 20;
-                document.getElementById('minWithdrawalSetting').value = s.minWithdrawal || 200;
-                document.getElementById('maxWithdrawalSetting').value = s.maxWithdrawal || 10000;
-            });
-        }
-
-        function saveSettings() {
-            const settings = {
-                upiId: document.getElementById('upiIdSetting').value,
-                referralBonus: parseInt(document.getElementById('referralBonusSetting').value) || 15,
-                commission: parseInt(document.getElementById('commissionSetting').value) || 20,
-                minWithdrawal: parseInt(document.getElementById('minWithdrawalSetting').value) || 200,
-                maxWithdrawal: parseInt(document.getElementById('maxWithdrawalSetting').value) || 10000,
-                updatedAt: new Date().toISOString()
-            };
-            showLoading('Saving...');
-            database.ref('settings').set(settings)
-                .then(() => {
-                    hideLoading();
-                    showToast('Settings saved', 'success');
-                })
-                .catch(err => {
-                    hideLoading();
-                    showToast('Error: ' + err.message, 'error');
-                });
-        }
-
-        // Modal Utilities
-        function closeModal(modalId) {
-            document.getElementById(modalId).classList.remove('active');
-        }
-
-        function closeModalOnOverlay(event, modalId) {
-            if (event.target.classList.contains('modal-overlay')) {
-                closeModal(modalId);
-            }
-        }
-
-        function refreshData() {
-            showLoading('Refreshing...');
-            setTimeout(() => {
-                hideLoading();
-                showToast('Data refreshed', 'success');
-            }, 800);
         }
     </script>
 </body>
