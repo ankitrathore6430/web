@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Solar Energy - Premium</title>
+    <title>Solor Energy - Premium</title>
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -66,165 +66,57 @@
             align-items: center;
         }
         
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            color: var(--white);
-        }
-        
-        .brand-icon {
-            width: 45px;
-            height: 45px;
-            background: rgba(255,255,255,0.2);
-            border-radius: 12px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-            backdrop-filter: blur(10px);
-        }
-        
+        .brand { display: flex; align-items: center; gap: 12px; color: var(--white); }
+        .brand-icon { width: 45px; height: 45px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; backdrop-filter: blur(10px); }
         .brand-text h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
         .brand-text p { font-size: 12px; opacity: 0.9; font-weight: 500; }
         
-        .header-balance {
-            background: rgba(255,255,255,0.15);
-            backdrop-filter: blur(10px);
-            padding: 10px 20px;
-            border-radius: 50px;
-            color: var(--white);
-            text-align: center;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        
+        .header-balance { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 10px 20px; border-radius: 50px; color: var(--white); text-align: center; border: 1px solid rgba(255,255,255,0.2); cursor: pointer;}
         .header-balance .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
         .header-balance .amount { font-size: 20px; font-weight: 700; }
         
         /* Premium Bottom Nav */
         .premium-nav {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            background: var(--white);
-            padding: 12px 20px 25px;
-            display: flex;
-            justify-content: space-around;
-            box-shadow: 0 -10px 40px rgba(0,0,0,0.1);
-            z-index: 1000;
-            border-radius: 30px 30px 0 0;
+            position: fixed; bottom: 0; left: 0; right: 0; background: var(--white); padding: 12px 20px 25px; display: flex; justify-content: space-around; box-shadow: 0 -10px 40px rgba(0,0,0,0.1); z-index: 1000; border-radius: 30px 30px 0 0;
         }
-        
-        .nav-item {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5px;
-            padding: 8px 16px;
-            border-radius: 16px;
-            cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: none;
-            background: transparent;
-            color: var(--gray);
-            position: relative;
-        }
-        
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 8px 16px; border-radius: 16px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none; background: transparent; color: var(--gray); position: relative; }
         .nav-item i { font-size: 22px; transition: all 0.3s; }
         .nav-item span { font-size: 11px; font-weight: 600; }
-        
-        .nav-item.active {
-            color: var(--primary);
-            background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-            transform: translateY(-5px);
-        }
-        
-        .nav-item.active i {
-            transform: scale(1.2);
-            filter: drop-shadow(0 4px 8px rgba(99, 102, 241, 0.3));
-        }
+        .nav-item.active { color: var(--primary); background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%); transform: translateY(-5px); }
+        .nav-item.active i { transform: scale(1.2); filter: drop-shadow(0 4px 8px rgba(99, 102, 241, 0.3)); }
         
         /* Premium Cards */
-        .premium-card {
-            background: var(--white);
-            border-radius: 24px;
-            padding: 25px;
-            margin: 20px;
-            box-shadow: var(--shadow);
-            border: 1px solid rgba(0,0,0,0.05);
-            transition: all 0.3s;
-        }
+        .premium-card { background: var(--white); border-radius: 24px; padding: 25px; margin: 20px; box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.05); transition: all 0.3s; }
         
         /* Hero Section */
-        .hero-section {
-            background: var(--gradient-1);
-            margin: 20px;
-            border-radius: 30px;
-            padding: 35px 25px;
-            color: var(--white);
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--shadow-glow);
-        }
+        .hero-section { background: var(--gradient-1); margin: 20px; border-radius: 30px; padding: 35px 25px; color: var(--white); position: relative; overflow: hidden; box-shadow: var(--shadow-glow); }
         
         /* Balance Card Premium */
-        .balance-premium {
-            background: var(--gradient-1);
-            margin: 20px;
-            border-radius: 30px;
-            padding: 35px;
-            color: var(--white);
-            position: relative;
-            overflow: hidden;
-            box-shadow: var(--shadow-glow);
-        }
-        
+        .balance-premium { background: var(--gradient-1); margin: 20px; border-radius: 30px; padding: 35px; color: var(--white); position: relative; overflow: hidden; box-shadow: var(--shadow-glow); }
         .balance-label { font-size: 14px; text-transform: uppercase; letter-spacing: 2px; opacity: 0.9; margin-bottom: 10px; }
         .balance-amount { font-size: 56px; font-weight: 800; margin-bottom: 25px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
         .balance-actions { display: flex; gap: 15px; }
         
-        .btn-premium {
-            flex: 1; padding: 16px; border-radius: 16px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px;
-        }
+        .btn-premium { flex: 1; padding: 16px; border-radius: 16px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-premium-primary { background: var(--white); color: var(--primary); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
         .btn-premium-secondary { background: rgba(255,255,255,0.2); color: var(--white); border: 2px solid rgba(255,255,255,0.3); backdrop-filter: blur(10px); }
         
         /* Plans Layout - VERTICAL POST STYLE */
-        .section-title {
-            display: flex; align-items: center; justify-content: space-between; margin: 30px 20px 20px; padding: 0 5px;
-        }
+        .section-title { display: flex; align-items: center; justify-content: space-between; margin: 30px 20px 20px; padding: 0 5px; }
         .section-title h2 { font-size: 22px; font-weight: 700; color: var(--dark); }
         
-        .plans-vertical {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-            padding: 10px 20px 30px;
-        }
+        .plans-vertical { display: flex; flex-direction: column; gap: 20px; padding: 10px 20px 30px; }
         
-        .plan-card-premium {
-            width: 100%;
-            background: var(--white);
-            border-radius: 28px;
-            overflow: hidden;
-            box-shadow: var(--shadow);
-            transition: all 0.3s;
-            border: 2px solid transparent;
-        }
+        .plan-card-premium { width: 100%; background: var(--white); border-radius: 28px; overflow: hidden; box-shadow: var(--shadow); transition: all 0.3s; border: 2px solid transparent; }
         .plan-card-premium:hover { transform: translateY(-5px); box-shadow: var(--shadow-xl); }
         .plan-card-premium.popular { border-color: var(--secondary); }
         
-        .plan-header-premium {
-            padding: 30px; text-align: center; color: var(--white); position: relative;
-        }
+        .plan-header-premium { padding: 30px; text-align: center; color: var(--white); position: relative; }
         .plan-header-premium.free { background: var(--gradient-2); }
         .plan-header-premium.paid { background: var(--gradient-1); }
         .plan-header-premium.popular { background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%); }
         
-        .popular-badge {
-            position: absolute; top: 15px; right: -35px; background: #fde047; color: var(--dark); padding: 5px 40px; font-size: 11px; font-weight: 700; transform: rotate(45deg); text-transform: uppercase; letter-spacing: 1px;
-        }
+        .popular-badge { position: absolute; top: 15px; right: -35px; background: #fde047; color: var(--dark); padding: 5px 40px; font-size: 11px; font-weight: 700; transform: rotate(45deg); text-transform: uppercase; letter-spacing: 1px; }
         
         .plan-icon { font-size: 40px; margin-bottom: 15px; }
         .plan-name { font-size: 24px; font-weight: 700; margin-bottom: 5px; }
@@ -242,27 +134,8 @@
         .btn-plan-success { background: var(--gradient-2); color: var(--white); }
         
         /* Auto UPI Payment Buttons */
-        .upi-apps-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 20px;
-        }
-        .upi-app-btn {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 14px;
-            border-radius: 14px;
-            border: 2px solid #e2e8f0;
-            background: white;
-            font-weight: 600;
-            font-size: 15px;
-            cursor: pointer;
-            transition: all 0.3s;
-            color: var(--dark);
-        }
+        .upi-apps-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+        .upi-app-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; border-radius: 14px; border: 2px solid #e2e8f0; background: white; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.3s; color: var(--dark); }
         .upi-app-btn:hover { border-color: var(--primary); background: rgba(99, 102, 241, 0.05); transform: translateY(-2px); }
         .upi-app-btn.gpay { color: #ea4335; }
         .upi-app-btn.phonepe { color: #5f259f; }
@@ -323,6 +196,11 @@
         .tx-amount.credit { color: var(--success); }
         .tx-amount.debit { color: var(--danger); }
         .tx-amount.pending { color: var(--warning); }
+        
+        /* Empty State */
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--gray); }
+        .empty-state i { font-size: 64px; margin-bottom: 20px; opacity: 0.3; }
+        .empty-state h3 { font-size: 20px; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -344,7 +222,7 @@
             <div class="brand">
                 <div class="brand-icon">☀️</div>
                 <div class="brand-text">
-                    <h1>Solar Energy</h1>
+                    <h1>Solor Energy</h1>
                     <p>Refer & Earn</p>
                 </div>
             </div>
@@ -358,24 +236,19 @@
     <!-- BOTTOM NAVIGATION -->
     <nav class="premium-nav" id="bottomNav" style="display: none;">
         <button class="nav-item active" onclick="showPage('home')" data-page="home">
-            <i class="fas fa-home"></i>
-            <span>Home</span>
+            <i class="fas fa-home"></i><span>Home</span>
         </button>
         <button class="nav-item" onclick="showPage('plans')" data-page="plans">
-            <i class="fas fa-gem"></i>
-            <span>Plans</span>
+            <i class="fas fa-gem"></i><span>Plans</span>
         </button>
         <button class="nav-item" onclick="showPage('wallet')" data-page="wallet">
-            <i class="fas fa-wallet"></i>
-            <span>Wallet</span>
+            <i class="fas fa-wallet"></i><span>Wallet</span>
         </button>
         <button class="nav-item" onclick="showPage('referral')" data-page="referral">
-            <i class="fas fa-users"></i>
-            <span>Refer</span>
+            <i class="fas fa-users"></i><span>Refer</span>
         </button>
         <button class="nav-item" onclick="showPage('profile')" data-page="profile">
-            <i class="fas fa-user"></i>
-            <span>Profile</span>
+            <i class="fas fa-user"></i><span>Profile</span>
         </button>
     </nav>
 
@@ -412,9 +285,9 @@
                 </div>
                 <button type="submit" class="btn-main btn-main-primary"><i class="fas fa-sign-in-alt"></i> Login</button>
             </form>
-        </div>
-        <div style="text-align: center; padding: 20px;">
-            <p style="color: var(--gray);">Don't have an account? <a href="#" onclick="showPage('register')" style="color: var(--primary); font-weight: 700;">Register Now</a></p>
+            <div style="text-align: center; margin-top: 20px;">
+                <p style="color: var(--gray);">Don't have an account? <a href="#" onclick="showPage('register')" style="color: var(--primary); font-weight: 700; text-decoration: none;">Register Now</a></p>
+            </div>
         </div>
     </div>
 
@@ -450,6 +323,9 @@
                     </div>
                     <button type="submit" class="btn-main btn-main-success">Send OTP</button>
                 </form>
+                <div style="text-align: center; margin-top: 20px;">
+                    <p style="color: var(--gray);">Already have an account? <a href="#" onclick="showPage('login')" style="color: var(--primary); font-weight: 700; text-decoration: none;">Login Now</a></p>
+                </div>
             </div>
 
             <!-- Step 2: OTP -->
@@ -665,15 +541,150 @@
 
     <!-- PROFILE PAGE -->
     <div id="profilePage" class="page">
-        <div style="background: var(--gradient-1); padding: 40px 20px; text-align: center; color: white;">
-            <div style="width: 100px; height: 100px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 50px;">👤</div>
-            <h2 id="profileName" style="font-size: 28px; font-weight: 700;">User</h2>
-            <p id="profilePhone" style="opacity: 0.9;">+91 ---</p>
+        <!-- Profile Header -->
+        <div style="background: var(--gradient-1); padding: 40px 20px; text-align: center; color: white; position: relative;">
+            <div style="width: 100px; height: 100px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 50px; border: 4px solid rgba(255,255,255,0.3);">👤</div>
+            <h2 id="profileName" style="font-size: 28px; font-weight: 700; margin-bottom: 5px;">User Name</h2>
+            <p id="profilePhone" style="opacity: 0.9; font-size: 16px;">+91 9876543210</p>
+            <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.2); padding: 8px 20px; border-radius: 50px; margin-top: 15px; font-size: 14px;">
+                <i class="fas fa-check-circle"></i>
+                Verified Account
+            </div>
         </div>
+
+        <!-- Stats -->
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 20px;">
+            <div class="premium-card" style="margin: 0; padding: 25px; text-align: center;">
+                <div style="font-size: 32px; font-weight: 700; color: var(--primary);" id="profTotalEarn">₹0</div>
+                <div style="font-size: 13px; color: var(--gray); margin-top: 5px;">Total Earnings</div>
+            </div>
+            <div class="premium-card" style="margin: 0; padding: 25px; text-align: center;">
+                <div style="font-size: 32px; font-weight: 700; color: var(--success);" id="profJoinDate">--</div>
+                <div style="font-size: 13px; color: var(--gray); margin-top: 5px;">Member Since</div>
+            </div>
+        </div>
+
+        <!-- Menu Items -->
         <div class="premium-card" style="padding: 10px;">
-            <div style="display: flex; align-items: center; gap: 15px; padding: 20px; cursor: pointer;" onclick="logout()">
+            <div style="display: flex; align-items: center; gap: 15px; padding: 20px; border-radius: 16px; cursor: pointer; transition: all 0.3s;" onclick="showPage('wallet')">
+                <div style="width: 45px; height: 45px; background: rgba(99, 102, 241, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 20px;"><i class="fas fa-wallet"></i></div>
+                <div style="flex: 1;"><div style="font-weight: 600;">Wallet Settings</div><div style="font-size: 13px; color: var(--gray);">Manage payment methods</div></div>
+                <i class="fas fa-chevron-right" style="color: var(--gray-light);"></i>
+            </div>
+            
+            <div style="height: 1px; background: var(--light); margin: 0 20px;"></div>
+            
+            <div style="display: flex; align-items: center; gap: 15px; padding: 20px; border-radius: 16px; cursor: pointer; transition: all 0.3s;" onclick="showPage('support')">
+                <div style="width: 45px; height: 45px; background: rgba(245, 158, 11, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--warning); font-size: 20px;"><i class="fas fa-headset"></i></div>
+                <div style="flex: 1;"><div style="font-weight: 600;">Help & Support</div><div style="font-size: 13px; color: var(--gray);">Contact us 24/7</div></div>
+                <i class="fas fa-chevron-right" style="color: var(--gray-light);"></i>
+            </div>
+            
+            <div style="height: 1px; background: var(--light); margin: 0 20px;"></div>
+            
+            <div style="display: flex; align-items: center; gap: 15px; padding: 20px; border-radius: 16px; cursor: pointer; transition: all 0.3s;" onclick="logout()">
                 <div style="width: 45px; height: 45px; background: rgba(239, 68, 68, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--danger); font-size: 20px;"><i class="fas fa-sign-out-alt"></i></div>
-                <div style="flex: 1;"><div style="font-weight: 600; color: var(--danger);">Logout</div></div>
+                <div style="flex: 1;"><div style="font-weight: 600; color: var(--danger);">Logout</div><div style="font-size: 13px; color: var(--gray);">Sign out from app</div></div>
+                <i class="fas fa-chevron-right" style="color: var(--gray-light);"></i>
+            </div>
+        </div>
+
+        <!-- Security Notice -->
+        <div class="premium-card" style="background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.2);">
+            <div style="display: flex; gap: 15px;">
+                <i class="fas fa-shield-alt" style="color: var(--warning); font-size: 24px;"></i>
+                <div>
+                    <div style="font-weight: 600; color: var(--warning); margin-bottom: 5px;">Security Notice</div>
+                    <div style="font-size: 13px; color: var(--gray);">Never share your password or OTP with anyone. Our team will never ask for it.</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="text-align: center; padding: 30px 20px; color: var(--gray-light); font-size: 13px;">
+            <p>Version 2.0.0</p>
+            <p style="margin-top: 5px;">Made with ❤️ in India</p>
+        </div>
+    </div>
+
+    <!-- SUPPORT PAGE -->
+    <div id="supportPage" class="page">
+        <div style="padding: 30px 20px;">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 10px;">
+                <i class="fas fa-headset" style="color: var(--primary); margin-right: 10px;"></i>
+                Help Center
+            </h2>
+            <p style="color: var(--gray);">We're here to help you 24/7</p>
+        </div>
+
+        <!-- Contact Cards -->
+        <div style="display: grid; gap: 15px; margin: 0 20px 25px;">
+            <a href="https://wa.me/916395503566" target="_blank" style="text-decoration: none;">
+                <div class="premium-card" style="margin: 0; display: flex; align-items: center; gap: 20px; cursor: pointer; transition: all 0.3s;">
+                    <div style="width: 60px; height: 60px; background: #25D366; border-radius: 20px; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px;">
+                        <i class="fab fa-whatsapp"></i>
+                    </div>
+                    <div style="flex: 1;">
+                        <div style="font-weight: 700; color: var(--dark); font-size: 18px;">WhatsApp Support</div>
+                        <div style="font-size: 14px; color: var(--gray); margin-top: 3px;">+91 6395503566</div>
+                        <div style="font-size: 12px; color: #25D366; margin-top: 5px;">
+                            <i class="fas fa-circle" style="font-size: 8px; margin-right: 5px;"></i> Usually replies in 5 mins
+                        </div>
+                    </div>
+                    <i class="fas fa-external-link-alt" style="color: var(--gray-light);"></i>
+                </div>
+            </a>
+            <div class="premium-card" style="margin: 0; display: flex; align-items: center; gap: 20px;">
+                <div style="width: 60px; height: 60px; background: var(--gradient-3); border-radius: 20px; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px;">
+                    <i class="fas fa-clock"></i>
+                </div>
+                <div style="flex: 1;">
+                    <div style="font-weight: 700; color: var(--dark); font-size: 18px;">Working Hours</div>
+                    <div style="font-size: 14px; color: var(--gray); margin-top: 3px;">10 AM - 7 PM (Mon-Sat)</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Create Ticket -->
+        <div class="premium-card">
+            <h3 style="margin-bottom: 20px; font-size: 20px;">
+                <i class="fas fa-ticket-alt" style="color: var(--secondary); margin-right: 10px;"></i>
+                Create Support Ticket
+            </h3>
+            
+            <form class="form-premium" id="ticketForm">
+                <div class="form-group">
+                    <label>Issue Type</label>
+                    <select class="input-premium" id="ticketType" required>
+                        <option value="">Select issue category</option>
+                        <option value="deposit">💰 Deposit Issue</option>
+                        <option value="withdrawal">💸 Withdrawal Issue</option>
+                        <option value="plan">💎 Plan Issue</option>
+                        <option value="referral">👥 Referral Issue</option>
+                        <option value="technical">🔧 Technical Problem</option>
+                        <option value="other">📋 Other</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Subject</label>
+                    <input type="text" class="input-premium" id="ticketSubject" placeholder="Brief description of your issue" required>
+                </div>
+                <div class="form-group">
+                    <label>Message</label>
+                    <textarea class="input-premium" id="ticketMessage" rows="4" placeholder="Describe your problem in detail..." required></textarea>
+                </div>
+                <button type="submit" class="btn-main btn-main-primary">
+                    <i class="fas fa-paper-plane"></i> Submit Ticket
+                </button>
+            </form>
+        </div>
+
+        <!-- My Tickets -->
+        <div class="section-title" style="margin-top: 30px;"><h2>My Tickets</h2></div>
+        <div id="ticketsList" style="margin: 0 20px;">
+            <div class="empty-state">
+                <i class="fas fa-ticket-alt"></i>
+                <h3>No Tickets Yet</h3>
+                <p>Create a ticket if you need help</p>
             </div>
         </div>
     </div>
@@ -737,6 +748,7 @@
             if(page === 'wallet') loadWalletData();
             if(page === 'referral') loadReferralData();
             if(page === 'profile') loadProfileData();
+            if(page === 'support') loadSupportData();
             window.scrollTo(0,0);
         }
 
@@ -952,7 +964,7 @@
             const amount = document.getElementById('addAmount').value;
             if(!amount || amount < 100) return showToast('❌ Minimum ₹100 required', 'error');
 
-            const upiString = `pa=${ADMIN_UPI_ID}&pn=Solar%20Energy&am=${amount}&cu=INR`;
+            const upiString = `pa=${ADMIN_UPI_ID}&pn=Solor%20Energy&am=${amount}&cu=INR`;
             let intentUrl = '';
             
             if(app === 'gpay') intentUrl = `gpay://upi/pay?${upiString}`;
@@ -1006,8 +1018,55 @@
             document.getElementById('refEarned').textContent = '₹'+(currentUser.referrals?.earnings || 0);
         }
         function copyRefLink() { navigator.clipboard.writeText(document.getElementById('refLink').textContent); showToast('Link Copied!', 'success'); }
-        function loadProfileData() { document.getElementById('profileName').textContent = currentUser.name; document.getElementById('profilePhone').textContent = '+91 '+currentUser.phone; }
+        
+        function loadProfileData() { 
+            if(!currentUser) return;
+            document.getElementById('profileName').textContent = currentUser.name; 
+            document.getElementById('profilePhone').textContent = '+91 '+currentUser.phone; 
+            document.getElementById('profJoinDate').textContent = new Date(currentUser.joinDate).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+            document.getElementById('profTotalEarn').textContent = '₹' + ((currentUser.referrals?.earnings || 0) + (currentUser.wallet?.mainBalance || 0));
+        }
+        
         function logout() { localStorage.removeItem('currentUser'); window.location.reload(); }
+
+        // ==================== SUPPORT TICKETS ====================
+        function loadSupportData() {
+            if (!currentUser) return;
+            database.ref('tickets').orderByChild('userId').equalTo(currentUser.id).once('value', (snapshot) => {
+                const tickets = snapshot.val() || {};
+                const container = document.getElementById('ticketsList');
+                if (Object.keys(tickets).length === 0) {
+                    container.innerHTML = `<div class="empty-state"><i class="fas fa-ticket-alt"></i><h3>No Tickets Yet</h3></div>`;
+                    return;
+                }
+                container.innerHTML = Object.values(tickets).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map(ticket => `
+                    <div class="premium-card" style="margin: 0 0 15px 0; border-left: 4px solid ${ticket.status === 'open' ? 'var(--warning)' : 'var(--success)'};">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="background:${ticket.status === 'open' ? 'var(--warning)' : 'var(--success)'}; color:white; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:bold;">${ticket.status.toUpperCase()}</span>
+                            <small style="color: var(--gray);">${new Date(ticket.createdAt).toLocaleDateString()}</small>
+                        </div>
+                        <h4 style="margin-bottom: 8px;">${ticket.subject}</h4>
+                        <p style="color: var(--gray); font-size: 14px;">${ticket.message}</p>
+                        ${ticket.reply ? `<div style="background: rgba(99, 102, 241, 0.1); padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 13px;"><strong style="color:var(--primary);">Admin:</strong> ${ticket.reply}</div>` : ''}
+                    </div>
+                `).join('');
+            });
+        }
+
+        document.getElementById('ticketForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const ticket = {
+                id: generateId('TIC'), userId: currentUser.id, userName: currentUser.name, userPhone: currentUser.phone,
+                type: document.getElementById('ticketType').value, subject: document.getElementById('ticketSubject').value,
+                message: document.getElementById('ticketMessage').value, status: 'open', createdAt: new Date().toISOString()
+            };
+            showLoading('Submitting...');
+            try {
+                await database.ref('tickets').push(ticket);
+                hideLoading(); showToast('Ticket created!', 'success');
+                document.getElementById('ticketForm').reset(); loadSupportData();
+            } catch (error) { hideLoading(); showToast('Failed to create ticket', 'error'); }
+        });
 
     </script>
 </body>
