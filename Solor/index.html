@@ -20,19 +20,10 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
         
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --primary-light: #818cf8;
-            --secondary: #ec4899;
-            --accent: #f59e0b;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --dark: #0f172a;
-            --gray: #64748b;
-            --gray-light: #94a3b8;
-            --light: #f1f5f9;
-            --white: #ffffff;
+            --primary: #6366f1; --primary-dark: #4f46e5; --primary-light: #818cf8;
+            --secondary: #ec4899; --accent: #f59e0b; --success: #10b981; --success-light: #34d399;
+            --danger: #ef4444; --warning: #f59e0b; --dark: #0f172a; --dark-light: #1e293b;
+            --gray: #64748b; --gray-light: #94a3b8; --light: #f1f5f9; --white: #ffffff;
             --gradient-1: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
             --gradient-2: linear-gradient(135deg, #10b981 0%, #34d399 100%);
             --gradient-3: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
@@ -388,7 +379,7 @@
         <div class="tx-list" id="homeTransactions"></div>
     </div>
 
-    <!-- PLANS PAGE -->
+    <!-- PLANS PAGE (VERTICAL POST LAYOUT WITH CLAIM SYSTEM) -->
     <div id="plansPage" class="page">
         <div style="padding: 30px 20px;">
             <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 10px;"><i class="fas fa-gem" style="color: var(--secondary); margin-right: 10px;"></i>Investment Plans</h2>
@@ -402,14 +393,16 @@
                     <p style="opacity: 0.9; margin-bottom: 15px;">Earn ₹10/day for 7 days - No investment!</p>
                 </div>
             </div>
-            <button class="btn-premium btn-premium-primary" id="freePlanBtn" onclick="buyPlan('free')" style="margin-top: 20px;">Claim Free Plan</button>
+            <div id="freePlanAction">
+                <!-- Action Buttons will load dynamically here -->
+            </div>
         </div>
 
-        <!-- Plans will load vertically here with offers -->
+        <!-- Plans will load vertically here with offers & claim buttons -->
         <div class="plans-vertical" id="plansContainer"></div>
     </div>
 
-    <!-- WALLET PAGE -->
+    <!-- WALLET PAGE WITH AUTO UPI REDIRECT -->
     <div id="walletPage" class="page">
         <div class="balance-premium" style="background: var(--gradient-1);">
             <div class="balance-content">
@@ -424,10 +417,11 @@
             <button class="wallet-tab" onclick="showWalletTab('history')" data-tab="history">History</button>
         </div>
 
-        <!-- Add Money -->
+        <!-- Add Money Auto UPI -->
         <div id="walletAddSection" class="wallet-section">
             <div class="premium-card">
                 <h3 style="margin-bottom: 20px; font-size: 20px;"><i class="fas fa-plus-circle" style="color: var(--success); margin-right: 10px;"></i>Add Money</h3>
+                
                 <form class="form-premium" id="addMoneyForm">
                     <div class="form-group">
                         <label>1. Enter Amount (Min ₹100)</label>
@@ -438,9 +432,10 @@
                         </div>
                         <input type="number" class="input-premium" id="addAmount" placeholder="Enter Amount" min="100" required>
                     </div>
+
                     <div class="form-group">
                         <label>2. Pay Directly via UPI App</label>
-                        <p style="font-size: 12px; color: var(--gray); margin-bottom: 10px;">Click to open app directly.</p>
+                        <p style="font-size: 12px; color: var(--gray); margin-bottom: 10px;">Click to open app directly. Amount will be filled automatically.</p>
                         <div class="upi-apps-grid">
                             <div class="upi-app-btn gpay" onclick="payViaUPI('gpay')"><i class="fab fa-google-pay" style="font-size: 24px;"></i> GPay</div>
                             <div class="upi-app-btn phonepe" onclick="payViaUPI('phonepe')"><i class="fas fa-rupee-sign"></i> PhonePe</div>
@@ -448,6 +443,7 @@
                             <div class="upi-app-btn bhim" onclick="payViaUPI('upi')"><i class="fas fa-qrcode"></i> Any UPI</div>
                         </div>
                     </div>
+
                     <div class="form-group">
                         <label>3. Enter Details After Payment</label>
                         <input type="text" class="input-premium" id="upiTxnId" placeholder="Enter 12-digit UTR Number" required style="margin-bottom: 10px;">
@@ -459,13 +455,14 @@
                             <option value="Other">Other UPI</option>
                         </select>
                     </div>
+
                     <button type="submit" class="btn-main btn-main-success">Submit Payment Details</button>
                 </form>
             </div>
         </div>
 
-        <!-- Withdraw -->
         <div id="walletWithdrawSection" class="wallet-section hidden">
+            <!-- Withdraw form remains same layout -->
             <div class="premium-card">
                 <h3 style="margin-bottom: 20px; font-size: 20px;"><i class="fas fa-minus-circle" style="color: var(--danger); margin-right: 10px;"></i>Withdraw</h3>
                 <form class="form-premium" id="withdrawForm">
@@ -481,7 +478,9 @@
                             <option value="bank">Bank Account</option>
                         </select>
                     </div>
-                    <div id="upiFields" class="hidden"><div class="form-group"><label>UPI ID</label><input type="text" class="input-premium" id="upiIdInput"></div></div>
+                    <div id="upiFields" class="hidden">
+                        <div class="form-group"><label>UPI ID</label><input type="text" class="input-premium" id="upiIdInput"></div>
+                    </div>
                     <div id="bankFields" class="hidden">
                         <div class="form-group"><label>Account Holder</label><input type="text" class="input-premium" id="bankHolderName"></div>
                         <div class="form-group"><label>Account No</label><input type="text" class="input-premium" id="bankAccNumber"></div>
@@ -493,7 +492,6 @@
             </div>
         </div>
 
-        <!-- History -->
         <div id="walletHistorySection" class="wallet-section hidden">
             <div class="tx-list" id="walletTransactions"></div>
         </div>
@@ -501,17 +499,50 @@
 
     <!-- REFERRAL PAGE -->
     <div id="referralPage" class="page">
-        <div class="premium-card" style="background: var(--gradient-1); color: white; text-align: center;">
-            <div style="font-size: 80px; font-weight: 800; margin: 20px 0;">₹15</div>
-            <div style="font-size: 16px; font-weight: 600;">Instant per Referral Signup</div>
-            <div style="margin-top:15px; background:rgba(255,255,255,0.2); padding:10px; border-radius:10px; font-size:14px;">
-                <strong>Plan Purchase Commission:</strong><br>
-                Level 1: 5% | Level 2: 3% | Level 3: 1%
-            </div>
-            <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; margin: 20px 0; font-family: monospace; word-break: break-all;" id="refLink">Loading...</div>
-            <button class="btn-main btn-main-success" onclick="copyRefLink()">Copy Link</button>
+        <div class="premium-card" style="background: var(--gradient-1); color: white; text-align: center; margin-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0;">
+            <h2 style="font-size: 24px; font-weight: 700;">Invite & Earn Massive!</h2>
+            <p style="opacity: 0.9; font-size: 14px;">Build your team and earn lifetime passive income</p>
+            <div style="font-size: 60px; font-weight: 800; margin: 15px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">₹15</div>
+            <div style="font-size: 16px; font-weight: 600; background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 20px; display: inline-block;">Instant Per Signup</div>
         </div>
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 20px;">
+        
+        <div class="premium-card" style="margin-top: -10px; z-index: 10; position: relative;">
+            <p style="font-size: 12px; color: var(--gray); margin-bottom: 5px; text-transform: uppercase; font-weight: 700;">Your Referral Link</p>
+            <div style="background: var(--light); padding: 15px; border-radius: 12px; font-family: monospace; word-break: break-all; border: 1px dashed var(--gray-light); color: var(--primary-dark); font-weight: 600; margin-bottom: 15px;" id="refLink">Loading...</div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-main btn-main-primary" onclick="copyRefLink()" style="flex: 1;"><i class="fas fa-copy"></i> Copy</button>
+                <button class="btn-main" onclick="shareWhatsApp()" style="flex: 1; background: #25D366; color: white;"><i class="fab fa-whatsapp"></i> Share</button>
+            </div>
+        </div>
+
+        <div class="section-title"><h2><i class="fas fa-sitemap" style="color: var(--primary); margin-right: 10px;"></i>3-Level Commission</h2></div>
+        
+        <div class="premium-card" style="padding: 15px;">
+            <div style="display: flex; align-items: center; gap: 15px; padding: 15px 0; border-bottom: 1px solid var(--light);">
+                <div style="width: 50px; height: 50px; background: rgba(99, 102, 241, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary); font-weight: 800; font-size: 20px;">L1</div>
+                <div style="flex: 1;">
+                    <div style="font-weight: 700; font-size: 16px;">Direct Refers (5%)</div>
+                    <div style="font-size: 12px; color: var(--gray);">Friends who join using your link</div>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 15px; padding: 15px 0; border-bottom: 1px solid var(--light);">
+                <div style="width: 50px; height: 50px; background: rgba(16, 185, 129, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--success); font-weight: 800; font-size: 20px;">L2</div>
+                <div style="flex: 1;">
+                    <div style="font-weight: 700; font-size: 16px;">Indirect Refers (3%)</div>
+                    <div style="font-size: 12px; color: var(--gray);">Friends of your direct refers</div>
+                </div>
+            </div>
+            <div style="display: flex; align-items: center; gap: 15px; padding: 15px 0;">
+                <div style="width: 50px; height: 50px; background: rgba(245, 158, 11, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--warning); font-weight: 800; font-size: 20px;">L3</div>
+                <div style="flex: 1;">
+                    <div style="font-weight: 700; font-size: 16px;">Deep Refers (1%)</div>
+                    <div style="font-size: 12px; color: var(--gray);">Friends of level 2 refers</div>
+                </div>
+            </div>
+        </div>
+
+        <div class="section-title"><h2><i class="fas fa-chart-line" style="color: var(--success); margin-right: 10px;"></i>Your Team Stats</h2></div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 0 20px 20px;">
             <div class="premium-card" style="margin: 0; padding: 25px; text-align: center;">
                 <div style="font-size: 28px; font-weight: 700; color: var(--dark);" id="refTotal">0</div>
                 <div style="font-size: 12px; color: var(--gray);">Total Refers</div>
@@ -692,6 +723,7 @@
                     currentUser = snap.val();
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
                     if(document.getElementById('homePage').classList.contains('active')) updateHomeUI();
+                    if(document.getElementById('plansPage').classList.contains('active')) loadPlansPage();
                     if(document.getElementById('walletPage').classList.contains('active')) loadWalletData();
                 }
             });
@@ -827,7 +859,7 @@
 
             const txns = Object.values(currentUser.transactions || {}).sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5);
             document.getElementById('homeTransactions').innerHTML = txns.length ? txns.map(tx => {
-                let status = tx.status || 'approved'; // default old txns to approved
+                let status = tx.status || 'approved'; 
                 if(tx.type.includes('pending')) status = 'pending';
                 if(tx.type.includes('rejected')) status = 'rejected';
                 return `
@@ -838,32 +870,83 @@
                         <div style="font-size:11px;color:gray;">${new Date(tx.date).toLocaleDateString()} <span class="status-badge status-${status}">${status}</span></div>
                         ${tx.adminReason ? `<div style="font-size:11px; color:var(--danger); margin-top:3px;">Reason: ${tx.adminReason}</div>` : ''}
                     </div>
-                    <div style="font-weight:bold;">₹${tx.amount}</div>
+                    <div style="font-weight:bold; color: ${status==='pending'?'#b45309':(status==='rejected'||tx.type.includes('withdrawal')||tx.type.includes('purchase')?'#ef4444':'#10b981')}">₹${tx.amount}</div>
                 </div>`;
             }).join('') : '<p style="text-align:center;">No Activity</p>';
         }
 
         async function claimDailyEarnings() {
             const plans = Object.values(currentUser.activePlans || {});
+            if(plans.length === 0) return;
             const total = plans.reduce((s,p)=>s+p.dailyReturn, 0);
             showLoading('Claiming...');
             await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set((currentUser.wallet?.mainBalance||0) + total);
             await database.ref(`users/${currentUser.id}/lastClaimDate`).set(new Date().toDateString());
             await database.ref(`users/${currentUser.id}/transactions`).push({id: generateId('TXN'), type: 'daily_earning', amount: total, description: 'Daily Earning', date: new Date().toISOString(), status: 'approved'});
             for(let key in currentUser.activePlans) { await database.ref(`users/${currentUser.id}/activePlans/${key}/totalClaimed`).set((currentUser.activePlans[key].totalClaimed||0) + currentUser.activePlans[key].dailyReturn); }
-            hideLoading(); showToast(`₹${total} Claimed!`, 'success'); updateHomeUI();
+            hideLoading(); showToast(`₹${total} Claimed!`, 'success'); 
+            
+            updateHomeUI();
+            if(document.getElementById('plansPage').classList.contains('active')) {
+                loadPlansPage(); // refresh buttons on plans page if currently there
+            }
         }
 
-        // ==================== PLANS (VERTICAL + OFFERS) ====================
+        // ==================== PLANS (VERTICAL + OFFERS + CLAIM SYSTEM) ====================
         function loadPlansPage() {
             const activeIds = Object.values(currentUser.activePlans || {}).map(p=>p.planId);
             const bal = currentUser.wallet?.mainBalance||0;
-            document.getElementById('freePlanBtn').disabled = activeIds.includes('free');
-            document.getElementById('freePlanBtn').textContent = activeIds.includes('free') ? 'Claimed' : 'Claim Free Plan';
+            const todayClaimed = currentUser.lastClaimDate === new Date().toDateString();
+            
+            // Handle Free Plan Button
+            const hasFreePlan = activeIds.includes('free');
+            const freePlanDiv = document.getElementById('freePlanAction');
+            if(hasFreePlan) {
+                if(todayClaimed) {
+                    freePlanDiv.innerHTML = `
+                        <div style="display:flex; gap:10px; margin-top: 15px;">
+                            <button class="btn-premium" style="flex:1; cursor:default; background:rgba(255,255,255,0.2); color:white; border:none;" disabled><i class="fas fa-check-circle"></i> Active</button>
+                            <button class="btn-premium" style="flex:1; background:rgba(255,255,255,0.4); color:white; border:none;" onclick="showToast('Claim again tomorrow!', 'info')">Claimed</button>
+                        </div>`;
+                } else {
+                    freePlanDiv.innerHTML = `
+                        <div style="display:flex; gap:10px; margin-top: 15px;">
+                            <button class="btn-premium" style="flex:1; cursor:default; background:rgba(255,255,255,0.2); color:white; border:none;" disabled><i class="fas fa-check-circle"></i> Active</button>
+                            <button class="btn-premium" style="flex:1; background:#f59e0b; color:white; border:none;" onclick="claimDailyEarnings()"><i class="fas fa-hand-holding-usd"></i> Claim</button>
+                        </div>`;
+                }
+            } else {
+                freePlanDiv.innerHTML = `<button class="btn-premium btn-premium-primary" onclick="buyPlan('free')" style="margin-top: 20px; width:100%;">Claim Free Plan</button>`;
+            }
 
+            // Handle Other Plans
             document.getElementById('plansContainer').innerHTML = PLANS.filter(p=>p.id!=='free').map(p => {
                 const disc = activeOffers[p.id] || 0;
                 const finalPrice = disc > 0 ? p.price - (p.price * disc / 100) : p.price;
+                const isActive = activeIds.includes(p.id);
+                
+                let actionButtons = '';
+                if (isActive) {
+                    if (todayClaimed) {
+                        actionButtons = `
+                            <div style="display:flex; gap:10px;">
+                                <button class="btn-plan btn-plan-success" style="flex:1; cursor:default;" disabled><i class="fas fa-check-circle"></i> Active</button>
+                                <button class="btn-plan" style="flex:1; background:var(--gray-light); color:white;" onclick="showToast('Claim again tomorrow!', 'info')"><i class="fas fa-check"></i> Claimed</button>
+                            </div>
+                        `;
+                    } else {
+                        actionButtons = `
+                            <div style="display:flex; gap:10px;">
+                                <button class="btn-plan btn-plan-success" style="flex:1; cursor:default;" disabled><i class="fas fa-check-circle"></i> Active</button>
+                                <button class="btn-plan" style="flex:1; background:var(--warning); color:white;" onclick="claimDailyEarnings()"><i class="fas fa-hand-holding-usd"></i> Claim</button>
+                            </div>
+                        `;
+                    }
+                } else if (bal >= finalPrice) {
+                    actionButtons = `<button class="btn-plan btn-plan-primary" onclick="buyPlan('${p.id}')">Buy Now</button>`;
+                } else {
+                    actionButtons = `<button class="btn-plan" style="background:#cbd5e1;" onclick="showPage('wallet'); showWalletTab('add');">Add Money</button>`;
+                }
                 
                 return `
                 <div class="plan-card-premium ${p.popular?'popular':''}">
@@ -883,9 +966,7 @@
                             <li><i class="fas fa-check-circle"></i> <span class="highlight">${p.days}</span> Days</li>
                             <li><i class="fas fa-check-circle"></i> Total <span class="highlight">₹${p.total}</span></li>
                         </ul>
-                        ${activeIds.includes(p.id) ? `<button class="btn-plan btn-plan-success" disabled>Active</button>` : 
-                          bal >= finalPrice ? `<button class="btn-plan btn-plan-primary" onclick="buyPlan('${p.id}')">Buy Now</button>` :
-                          `<button class="btn-plan" style="background:#cbd5e1;" onclick="showPage('wallet'); showWalletTab('add');">Add Money</button>`}
+                        ${actionButtons}
                     </div>
                 </div>`;
             }).join('');
@@ -939,7 +1020,8 @@
                 await distributeCommission(currentUser.referredBy, finalPrice);
             }
             
-            hideLoading(); showToast('Plan Activated!', 'success'); showPage('home');
+            hideLoading(); showToast('Plan Activated!', 'success'); 
+            showPage('plans'); // Refresh plans page to show Claim button immediately
         }
 
         // ==================== WALLET & TRANSACTIONS ====================
@@ -1028,6 +1110,12 @@
         }
         function copyRefLink() { navigator.clipboard.writeText(document.getElementById('refLink').textContent); showToast('Link Copied!', 'success'); }
         
+        function shareWhatsApp() {
+            const link = document.getElementById('refLink').textContent;
+            const text = `☀️ Start Earning with Solor Energy!\n\n🎁 Get ₹15 Instant Bonus per refer!\n💵 Earn up to 5%-3%-1% daily commissions!\n\nJoin now: ${link}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+        }
+
         function loadProfileData() { 
             if(!currentUser) return;
             document.getElementById('profileName').textContent = currentUser.name; 
