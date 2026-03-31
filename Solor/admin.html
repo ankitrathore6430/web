@@ -15,16 +15,9 @@
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
         
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --success: #10b981;
-            --danger: #ef4444;
-            --warning: #f59e0b;
-            --dark: #0f172a;
-            --gray: #64748b;
-            --gray-light: #94a3b8;
-            --light: #f1f5f9;
-            --white: #ffffff;
+            --primary: #6366f1; --primary-dark: #4f46e5; --success: #10b981; --danger: #ef4444;
+            --warning: #f59e0b; --dark: #0f172a; --gray: #64748b; --gray-light: #94a3b8;
+            --light: #f1f5f9; --white: #ffffff;
             --gradient-1: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
             --gradient-dark: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
@@ -253,7 +246,7 @@
                 </div>
             </div>
 
-            <!-- Offers Page (NEW) -->
+            <!-- Offers Page -->
             <div id="offersPage" class="admin-page">
                 <div class="content-card">
                     <div class="card-header">
@@ -262,9 +255,7 @@
                     </div>
                     <p style="color: var(--gray); margin-bottom: 20px; font-size: 13px;">Set a percentage discount (e.g., 20) for any plan. Leave empty for no discount.</p>
                     
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;" id="offersGrid">
-                        <!-- Loaded dynamically -->
-                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;" id="offersGrid"></div>
                 </div>
             </div>
 
@@ -367,10 +358,13 @@
         <div class="modal">
             <div class="modal-header"><h3 style="font-size: 18px;">Reply Ticket</h3><button class="btn-icon" onclick="closeModal('ticketModal')">×</button></div>
             <div class="modal-body">
-                <div id="ticketDetails" style="margin-bottom: 15px; font-size: 14px;"></div>
-                <textarea class="form-textarea" id="ticketReply" placeholder="Type your reply..."></textarea>
+                <div id="ticketDetails" style="background: var(--light); padding: 15px; border-radius: 12px; margin-bottom: 15px; font-size: 14px;"></div>
+                <div class="form-group">
+                    <label class="form-label">Admin Reply</label>
+                    <textarea class="form-textarea" id="ticketReply" rows="4" placeholder="Type your reply to the user..."></textarea>
+                </div>
             </div>
-            <div class="modal-footer"><button class="btn-main btn-primary" onclick="submitTicket()">Send Reply</button></div>
+            <div class="modal-footer"><button class="btn-main btn-primary" onclick="submitTicket()">Send Reply & Close Ticket</button></div>
         </div>
     </div>
 
@@ -391,6 +385,7 @@
         let appData = { users: {}, deposits: {}, withdrawals: {}, tickets: {}, settings: {} };
         let currentActionId = null;
         let currentUserId = null;
+        let currentFirebaseKey = null; // Important for Tickets
 
         const PLANS = [
             { id: 'nano', name: 'Nano' }, { id: 'micro', name: 'Micro' }, 
@@ -439,7 +434,7 @@
             e.preventDefault();
             const u = document.getElementById('adminUsername').value;
             const p = document.getElementById('adminPassword').value;
-            if(u==='admin' && p==='admin123') { // Replace with strong password
+            if(u==='admin' && p==='admin123') { 
                 sessionStorage.setItem('adminAuth', 'true');
                 window.location.reload();
             } else showToast('Invalid credentials', 'error');
@@ -537,7 +532,7 @@
             
             showLoading();
             await db.ref(`users/${currentUserId}/wallet/mainBalance`).set(newBal);
-            await db.ref(`users/${currentUserId}/transactions`).push({
+            await db.ref(`users/${currentUserId}/transactions/${Date.now()}`).set({
                 id: Date.now().toString(), type: type==='add'?'admin_credit':'admin_debit',
                 amount: amt, description: type==='add'?'Added by Admin':'Deducted by Admin',
                 date: new Date().toISOString(), status: 'approved'
@@ -551,7 +546,7 @@
             closeModal('userModal'); showToast('User status updated');
         }
 
-        // DEPOSITS (With Sync & Reason)
+        // DEPOSITS (Fixed Sync & Reason)
         function loadDeposits() {
             const deps = Object.values(appData.deposits || {}).filter(d=>d.status==='pending').sort((a,b)=>new Date(a.requestedAt)-new Date(b.requestedAt));
             document.getElementById('depositsTableBody').innerHTML = deps.length ? deps.map(d => `
@@ -586,9 +581,11 @@
             updates[`deposits/${currentActionId}/status`] = action;
             updates[`deposits/${currentActionId}/adminReason`] = reason;
             
-            // 2. Update user transaction history directly to sync with app
+            // 2. OVERRIDE type to remove 'pending' word from User App + set status
+            const newType = action === 'approved' ? 'deposit_approved' : 'deposit_rejected';
             updates[`users/${currentUserId}/transactions/${currentActionId}/status`] = action;
             updates[`users/${currentUserId}/transactions/${currentActionId}/adminReason`] = reason;
+            updates[`users/${currentUserId}/transactions/${currentActionId}/type`] = newType; 
             
             // 3. Add balance if approved
             if(action === 'approved') {
@@ -600,7 +597,7 @@
             hideLoading(); closeModal('depositModal'); showToast('Deposit processed successfully');
         }
 
-        // WITHDRAWALS (With Sync, Reason & Refund)
+        // WITHDRAWALS (Fixed Sync, Reason & Refund Math)
         function loadWithdrawals() {
             const withs = Object.values(appData.withdrawals || {}).filter(w=>w.status==='pending').sort((a,b)=>new Date(a.requestedAt)-new Date(b.requestedAt));
             document.getElementById('withdrawalsTableBody').innerHTML = withs.length ? withs.map(w => `
@@ -635,17 +632,18 @@
             updates[`withdrawals/${currentActionId}/status`] = action;
             updates[`withdrawals/${currentActionId}/adminReason`] = reason;
             
-            // 2. Update user transaction history sync
+            // 2. OVERRIDE type to remove 'pending' word from User App + set status
+            const newType = action === 'approved' ? 'withdrawal_approved' : 'withdrawal_rejected';
             updates[`users/${currentUserId}/transactions/${currentActionId}/status`] = action;
             updates[`users/${currentUserId}/transactions/${currentActionId}/adminReason`] = reason;
+            updates[`users/${currentUserId}/transactions/${currentActionId}/type`] = newType;
             
-            // 3. REFUND balance if rejected
-            if(action === 'rejected') {
-                const u = appData.users[currentUserId];
+            // 3. REFUND balance if rejected OR ADD to Total Withdrawn if approved
+            const u = appData.users[currentUserId];
+            if(action === 'approved') {
+                updates[`users/${currentUserId}/wallet/totalWithdrawn`] = (u.wallet?.totalWithdrawn || 0) + w.amount;
+            } else if(action === 'rejected') {
                 updates[`users/${currentUserId}/wallet/mainBalance`] = (u.wallet?.mainBalance || 0) + w.amount;
-                // revert total withdrawn stat
-                let currentWithdrawn = u.wallet?.totalWithdrawn || 0;
-                updates[`users/${currentUserId}/wallet/totalWithdrawn`] = Math.max(0, currentWithdrawn - w.amount);
             }
             
             await db.ref().update(updates);
@@ -675,9 +673,14 @@
             hideLoading(); showToast('Offers updated on website!', 'success');
         }
 
-        // TICKETS
+        // TICKETS (Fixed Push ID Issue)
         function loadTickets() {
-            const ticks = Object.values(appData.tickets || {}).filter(t=>t.status==='open').sort((a,b)=>new Date(a.createdAt)-new Date(b.createdAt));
+            // Mapping Firebase PUSH keys directly so we can reply to the exact node
+            const ticks = Object.entries(appData.tickets || {})
+                                .map(([fbKey, tData]) => ({ ...tData, fbKey: fbKey }))
+                                .filter(t => t.status === 'open')
+                                .sort((a,b) => new Date(a.createdAt) - new Date(b.createdAt));
+                                
             document.getElementById('ticketsList').innerHTML = ticks.length ? ticks.map(t => `
                 <div style="background: var(--light); padding: 15px; border-radius: 12px; margin-bottom: 15px;">
                     <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
@@ -686,14 +689,18 @@
                     </div>
                     <h4>${t.subject}</h4>
                     <p style="font-size:14px; color:var(--gray); margin:10px 0;">${t.message}</p>
-                    <button class="btn-main btn-primary" style="padding: 6px 12px; font-size:12px;" onclick="openTicket('${t.id}')">Reply</button>
+                    <button class="btn-main btn-primary" style="padding: 6px 12px; font-size:12px;" onclick="openTicket('${t.fbKey}')">Reply</button>
                 </div>
             `).join('') : '<p style="text-align:center;">No open tickets</p>';
         }
 
-        function openTicket(tid) {
-            currentActionId = tid;
-            document.getElementById('ticketDetails').textContent = appData.tickets[tid].message;
+        function openTicket(fbKey) {
+            currentFirebaseKey = fbKey; 
+            const t = appData.tickets[fbKey];
+            document.getElementById('ticketDetails').innerHTML = `
+                <p><strong>Subject:</strong> ${t.subject}</p>
+                <p><strong>User Message:</strong> ${t.message}</p>
+            `;
             document.getElementById('ticketReply').value = '';
             openModal('ticketModal');
         }
@@ -703,8 +710,15 @@
             if(!reply) return showToast('Please enter a reply', 'error');
             
             showLoading();
-            await db.ref(`tickets/${currentActionId}`).update({ status: 'closed', reply: reply, repliedAt: new Date().toISOString() });
-            hideLoading(); closeModal('ticketModal'); showToast('Reply sent');
+            // Updaing exactly using the Firebase push key
+            await db.ref(`tickets/${currentFirebaseKey}`).update({ 
+                status: 'closed', 
+                reply: reply, 
+                repliedAt: new Date().toISOString() 
+            });
+            hideLoading(); 
+            closeModal('ticketModal'); 
+            showToast('Reply sent successfully');
         }
 
         // SETTINGS
