@@ -145,8 +145,6 @@
             filter: drop-shadow(0 4px 8px rgba(99, 102, 241, 0.3));
         }
         
-        .nav-item:hover:not(.active) { color: var(--primary-light); }
-        
         /* Premium Cards */
         .premium-card {
             background: var(--white);
@@ -156,14 +154,6 @@
             box-shadow: var(--shadow);
             border: 1px solid rgba(0,0,0,0.05);
             transition: all 0.3s;
-        }
-        
-        .premium-card:hover { box-shadow: var(--shadow-lg); }
-        
-        .card-glass {
-            background: rgba(255,255,255,0.9);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255,255,255,0.3);
         }
         
         /* Hero Section */
@@ -178,51 +168,6 @@
             box-shadow: var(--shadow-glow);
         }
         
-        .hero-section::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-            animation: pulse 4s ease-in-out infinite;
-        }
-        
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); opacity: 0.5; }
-            50% { transform: scale(1.1); opacity: 0.8; }
-        }
-        
-        .hero-content { position: relative; z-index: 1; }
-        .hero-badge {
-            display: inline-flex;
-            align-items: center;
-            gap: 8px;
-            background: rgba(255,255,255,0.2);
-            padding: 8px 16px;
-            border-radius: 50px;
-            font-size: 12px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            backdrop-filter: blur(10px);
-        }
-        
-        .hero-title { font-size: 32px; font-weight: 800; line-height: 1.2; margin-bottom: 15px; }
-        .hero-title span { color: #fde047; }
-        
-        .hero-stats {
-            display: flex;
-            gap: 20px;
-            margin-top: 25px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(255,255,255,0.2);
-        }
-        
-        .hero-stat { text-align: center; }
-        .hero-stat .value { font-size: 24px; font-weight: 700; }
-        .hero-stat .label { font-size: 11px; opacity: 0.8; text-transform: uppercase; }
-        
         /* Balance Card Premium */
         .balance-premium {
             background: var(--gradient-1);
@@ -235,128 +180,50 @@
             box-shadow: var(--shadow-glow);
         }
         
-        .balance-premium::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            right: 0;
-            height: 50%;
-            background: linear-gradient(to top, rgba(0,0,0,0.2), transparent);
-        }
-        
-        .balance-content { position: relative; z-index: 1; }
-        
-        .balance-label {
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            opacity: 0.9;
-            margin-bottom: 10px;
-        }
-        
-        .balance-amount {
-            font-size: 56px;
-            font-weight: 800;
-            margin-bottom: 25px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        .balance-actions {
-            display: flex;
-            gap: 15px;
-        }
+        .balance-label { font-size: 14px; text-transform: uppercase; letter-spacing: 2px; opacity: 0.9; margin-bottom: 10px; }
+        .balance-amount { font-size: 56px; font-weight: 800; margin-bottom: 25px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .balance-actions { display: flex; gap: 15px; }
         
         .btn-premium {
-            flex: 1;
-            padding: 16px;
-            border-radius: 16px;
-            border: none;
-            font-size: 15px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
+            flex: 1; padding: 16px; border-radius: 16px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px;
         }
+        .btn-premium-primary { background: var(--white); color: var(--primary); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .btn-premium-secondary { background: rgba(255,255,255,0.2); color: var(--white); border: 2px solid rgba(255,255,255,0.3); backdrop-filter: blur(10px); }
         
-        .btn-premium-primary {
-            background: var(--white);
-            color: var(--primary);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-        }
-        
-        .btn-premium-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(0,0,0,0.3); }
-        
-        .btn-premium-secondary {
-            background: rgba(255,255,255,0.2);
-            color: var(--white);
-            border: 2px solid rgba(255,255,255,0.3);
-            backdrop-filter: blur(10px);
-        }
-        
-        /* Premium Plans */
+        /* Plans Layout - VERTICAL POST STYLE */
         .section-title {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin: 30px 20px 20px;
-            padding: 0 5px;
+            display: flex; align-items: center; justify-content: space-between; margin: 30px 20px 20px; padding: 0 5px;
         }
-        
         .section-title h2 { font-size: 22px; font-weight: 700; color: var(--dark); }
-        .section-title a { color: var(--primary); font-size: 14px; font-weight: 600; text-decoration: none; }
         
-        .plans-scroll {
+        .plans-vertical {
             display: flex;
+            flex-direction: column;
             gap: 20px;
-            overflow-x: auto;
             padding: 10px 20px 30px;
-            scroll-snap-type: x mandatory;
-            -webkit-overflow-scrolling: touch;
         }
-        
-        .plans-scroll::-webkit-scrollbar { display: none; }
         
         .plan-card-premium {
-            min-width: 280px;
+            width: 100%;
             background: var(--white);
             border-radius: 28px;
             overflow: hidden;
             box-shadow: var(--shadow);
-            scroll-snap-align: start;
             transition: all 0.3s;
             border: 2px solid transparent;
         }
-        
-        .plan-card-premium:hover { transform: translateY(-10px); box-shadow: var(--shadow-xl); }
+        .plan-card-premium:hover { transform: translateY(-5px); box-shadow: var(--shadow-xl); }
         .plan-card-premium.popular { border-color: var(--secondary); }
         
         .plan-header-premium {
-            padding: 30px;
-            text-align: center;
-            color: var(--white);
-            position: relative;
+            padding: 30px; text-align: center; color: var(--white); position: relative;
         }
-        
         .plan-header-premium.free { background: var(--gradient-2); }
         .plan-header-premium.paid { background: var(--gradient-1); }
         .plan-header-premium.popular { background: linear-gradient(135deg, #ec4899 0%, #f472b6 100%); }
         
         .popular-badge {
-            position: absolute;
-            top: 15px;
-            right: -35px;
-            background: #fde047;
-            color: var(--dark);
-            padding: 5px 40px;
-            font-size: 11px;
-            font-weight: 700;
-            transform: rotate(45deg);
-            text-transform: uppercase;
-            letter-spacing: 1px;
+            position: absolute; top: 15px; right: -35px; background: #fde047; color: var(--dark); padding: 5px 40px; font-size: 11px; font-weight: 700; transform: rotate(45deg); text-transform: uppercase; letter-spacing: 1px;
         }
         
         .plan-icon { font-size: 40px; margin-bottom: 15px; }
@@ -365,405 +232,97 @@
         .plan-price span { font-size: 20px; font-weight: 500; }
         
         .plan-body-premium { padding: 25px; }
-        
-        .plan-features {
-            list-style: none;
-            margin-bottom: 25px;
-        }
-        
-        .plan-features li {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 0;
-            border-bottom: 1px solid var(--light);
-            font-size: 14px;
-            color: var(--gray);
-        }
-        
-        .plan-features li:last-child { border-bottom: none; }
+        .plan-features { list-style: none; margin-bottom: 25px; }
+        .plan-features li { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--light); font-size: 14px; color: var(--gray); }
         .plan-features i { color: var(--success); font-size: 18px; }
         .plan-features .highlight { color: var(--dark); font-weight: 600; }
         
-        .btn-plan {
-            width: 100%;
-            padding: 16px;
-            border-radius: 16px;
-            border: none;
+        .btn-plan { width: 100%; padding: 16px; border-radius: 16px; border: none; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-plan-primary { background: var(--gradient-1); color: var(--white); box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3); }
+        .btn-plan-success { background: var(--gradient-2); color: var(--white); }
+        
+        /* Auto UPI Payment Buttons */
+        .upi-apps-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+        .upi-app-btn {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 14px;
+            border-radius: 14px;
+            border: 2px solid #e2e8f0;
+            background: white;
+            font-weight: 600;
             font-size: 15px;
-            font-weight: 700;
             cursor: pointer;
             transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
+            color: var(--dark);
         }
+        .upi-app-btn:hover { border-color: var(--primary); background: rgba(99, 102, 241, 0.05); transform: translateY(-2px); }
+        .upi-app-btn.gpay { color: #ea4335; }
+        .upi-app-btn.phonepe { color: #5f259f; }
+        .upi-app-btn.paytm { color: #00b9f5; }
+        .upi-app-btn.bhim { color: #ff7a00; }
         
-        .btn-plan-primary {
-            background: var(--gradient-1);
-            color: var(--white);
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
-        }
+        /* Form Styles */
+        .form-premium .form-group { margin-bottom: 25px; }
+        .form-premium label { display: block; margin-bottom: 10px; font-weight: 600; color: var(--dark); font-size: 14px; }
+        .input-premium { width: 100%; padding: 18px 20px; border: 2px solid #e2e8f0; border-radius: 16px; font-size: 16px; transition: all 0.3s; background: var(--white); }
+        .input-premium:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
         
-        .btn-plan-primary:hover:not(:disabled) { transform: scale(1.02); box-shadow: 0 15px 40px rgba(99, 102, 241, 0.4); }
-        .btn-plan-primary:disabled { opacity: 0.6; cursor: not-allowed; background: var(--gray-light); }
+        .btn-main { width: 100%; padding: 18px; border-radius: 16px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
+        .btn-main-primary { background: var(--gradient-1); color: var(--white); box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3); }
+        .btn-main-success { background: var(--gradient-2); color: var(--white); box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3); }
         
-        .btn-plan-success {
-            background: var(--gradient-2);
-            color: var(--white);
-        }
+        /* Utility */
+        .page { display: none; animation: fadeIn 0.4s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .hidden { display: none !important; }
+        ::-webkit-scrollbar { width: 0; height: 0; }
         
-        /* Transaction List Premium */
-        .tx-list { margin: 0 20px; }
+        /* Loading & Toast */
+        .loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--white); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .loading-screen.active { display: flex; }
+        .loader { width: 60px; height: 60px; border: 4px solid #e2e8f0; border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
         
-        .tx-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 18px;
-            background: var(--white);
-            border-radius: 20px;
-            margin-bottom: 12px;
-            box-shadow: var(--shadow-sm);
-            transition: all 0.3s;
-        }
+        .toast { position: fixed; top: 100px; left: 50%; transform: translateX(-50%) translateY(-100px); background: var(--dark); color: var(--white); padding: 16px 24px; border-radius: 12px; font-weight: 500; z-index: 10000; opacity: 0; transition: all 0.3s; box-shadow: var(--shadow-xl); }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
         
-        .tx-item:hover { transform: translateX(5px); box-shadow: var(--shadow); }
+        /* Wallet Tabs */
+        .wallet-tabs { display: flex; gap: 10px; margin: 20px; background: var(--white); padding: 8px; border-radius: 16px; box-shadow: var(--shadow-sm); }
+        .wallet-tab { flex: 1; padding: 14px; border-radius: 12px; border: none; background: transparent; font-weight: 600; cursor: pointer; transition: all 0.3s; color: var(--gray); }
+        .wallet-tab.active { background: var(--gradient-1); color: var(--white); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
         
-        .tx-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 20px;
-        }
+        /* OTP Inputs */
+        .otp-container { display: flex; gap: 12px; justify-content: center; margin: 30px 0; }
+        .otp-input-premium { width: 55px; height: 65px; border: 2px solid #e2e8f0; border-radius: 16px; text-align: center; font-size: 24px; font-weight: 700; transition: all 0.3s; }
+        .otp-input-premium:focus { border-color: var(--primary); outline: none; transform: scale(1.1); }
         
+        /* Daily Claim */
+        .claim-card { background: var(--gradient-2); margin: 20px; border-radius: 30px; padding: 30px; color: var(--white); text-align: center; box-shadow: 0 20px 40px rgba(16, 185, 129, 0.3); }
+        .claim-amount { font-size: 48px; font-weight: 800; margin: 15px 0; }
+        .claim-btn { background: var(--white); color: var(--success); border: none; padding: 18px 40px; border-radius: 16px; font-size: 18px; font-weight: 700; cursor: pointer; margin-top: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: all 0.3s; }
+        .claim-btn.claimed { background: var(--gray-light); color: var(--white); }
+        
+        .tx-item { display: flex; align-items: center; gap: 15px; padding: 18px; background: var(--white); border-radius: 20px; margin-bottom: 12px; box-shadow: var(--shadow-sm); transition: all 0.3s; }
+        .tx-icon { width: 50px; height: 50px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
         .tx-icon.credit { background: rgba(16, 185, 129, 0.1); color: var(--success); }
         .tx-icon.debit { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
         .tx-icon.pending { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
-        
         .tx-details { flex: 1; }
-        .tx-title { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
-        .tx-date { font-size: 12px; color: var(--gray-light); }
-        
-        .tx-amount {
-            font-weight: 700;
-            font-size: 16px;
-        }
-        
+        .tx-amount { font-weight: 700; font-size: 16px; }
         .tx-amount.credit { color: var(--success); }
         .tx-amount.debit { color: var(--danger); }
         .tx-amount.pending { color: var(--warning); }
-        
-        /* Forms Premium */
-        .form-premium .form-group { margin-bottom: 25px; }
-        
-        .form-premium label {
-            display: block;
-            margin-bottom: 10px;
-            font-weight: 600;
-            color: var(--dark);
-            font-size: 14px;
-        }
-        
-        .input-premium {
-            width: 100%;
-            padding: 18px 20px;
-            border: 2px solid #e2e8f0;
-            border-radius: 16px;
-            font-size: 16px;
-            transition: all 0.3s;
-            background: var(--white);
-        }
-        
-        .input-premium:focus {
-            outline: none;
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-        }
-        
-        .input-group {
-            display: flex;
-            gap: 12px;
-        }
-        
-        .input-group .input-premium { flex: 1; }
-        
-        /* Buttons */
-        .btn-main {
-            width: 100%;
-            padding: 18px;
-            border-radius: 16px;
-            border: none;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .btn-main-primary {
-            background: var(--gradient-1);
-            color: var(--white);
-            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
-        }
-        
-        .btn-main-primary:hover { transform: translateY(-3px); box-shadow: 0 15px 40px rgba(99, 102, 241, 0.4); }
-        
-        .btn-main-success {
-            background: var(--gradient-2);
-            color: var(--white);
-            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);
-        }
-        
-        /* OTP Inputs */
-        .otp-container {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            margin: 30px 0;
-        }
-        
-        .otp-input-premium {
-            width: 55px;
-            height: 65px;
-            border: 2px solid #e2e8f0;
-            border-radius: 16px;
-            text-align: center;
-            font-size: 24px;
-            font-weight: 700;
-            transition: all 0.3s;
-        }
-        
-        .otp-input-premium:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
-            outline: none;
-            transform: scale(1.1);
-        }
-        
-        /* Pages */
-        .page { display: none; animation: fadeIn 0.4s ease; }
-        .page.active { display: block; }
-        
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-        
-        /* Loading */
-        .loading-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: var(--white);
-            z-index: 9999;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        
-        .loading-screen.active { display: flex; }
-        
-        .loader {
-            width: 60px;
-            height: 60px;
-            border: 4px solid #e2e8f0;
-            border-top-color: var(--primary);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        
-        @keyframes spin { to { transform: rotate(360deg); } }
-        
-        /* Toast Notification */
-        .toast {
-            position: fixed;
-            top: 100px;
-            left: 50%;
-            transform: translateX(-50%) translateY(-100px);
-            background: var(--dark);
-            color: var(--white);
-            padding: 16px 24px;
-            border-radius: 12px;
-            font-weight: 500;
-            z-index: 10000;
-            opacity: 0;
-            transition: all 0.3s;
-            box-shadow: var(--shadow-xl);
-        }
-        
-        .toast.show {
-            transform: translateX(-50%) translateY(0);
-            opacity: 1;
-        }
-        
-        .toast.success { background: var(--success); }
-        .toast.error { background: var(--danger); }
-        .toast.warning { background: var(--warning); }
-        
-        /* Referral Section */
-        .referral-hero {
-            background: var(--gradient-1);
-            margin: 20px;
-            border-radius: 30px;
-            padding: 40px 30px;
-            text-align: center;
-            color: var(--white);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .referral-amount {
-            font-size: 80px;
-            font-weight: 800;
-            margin: 20px 0;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-        
-        .referral-card {
-            background: rgba(255,255,255,0.1);
-            backdrop-filter: blur(10px);
-            border-radius: 20px;
-            padding: 25px;
-            margin-top: 25px;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
-        
-        .referral-link {
-            background: rgba(0,0,0,0.2);
-            padding: 15px;
-            border-radius: 12px;
-            font-size: 14px;
-            word-break: break-all;
-            margin: 15px 0;
-            font-family: monospace;
-        }
-        
-        /* Wallet Section */
-        .wallet-tabs {
-            display: flex;
-            gap: 10px;
-            margin: 20px;
-            background: var(--white);
-            padding: 8px;
-            border-radius: 16px;
-            box-shadow: var(--shadow-sm);
-        }
-        
-        .wallet-tab {
-            flex: 1;
-            padding: 14px;
-            border-radius: 12px;
-            border: none;
-            background: transparent;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            color: var(--gray);
-        }
-        
-        .wallet-tab.active {
-            background: var(--gradient-1);
-            color: var(--white);
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
-        }
-        
-        /* Payment Methods */
-        .payment-method {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            padding: 20px;
-            background: var(--white);
-            border-radius: 20px;
-            margin-bottom: 15px;
-            border: 2px solid transparent;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        
-        .payment-method:hover { border-color: var(--primary-light); }
-        .payment-method.selected { border-color: var(--primary); background: rgba(99, 102, 241, 0.05); }
-        
-        .payment-icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 15px;
-            background: var(--light);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 24px;
-        }
-        
-        /* Daily Claim */
-        .claim-card {
-            background: var(--gradient-2);
-            margin: 20px;
-            border-radius: 30px;
-            padding: 30px;
-            color: var(--white);
-            text-align: center;
-            box-shadow: 0 20px 40px rgba(16, 185, 129, 0.3);
-        }
-        
-        .claim-amount { font-size: 48px; font-weight: 800; margin: 15px 0; }
-        .claim-btn {
-            background: var(--white);
-            color: var(--success);
-            border: none;
-            padding: 18px 40px;
-            border-radius: 16px;
-            font-size: 18px;
-            font-weight: 700;
-            cursor: pointer;
-            margin-top: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            transition: all 0.3s;
-        }
-        
-        .claim-btn:hover:not(:disabled) { transform: scale(1.05); }
-        .claim-btn:disabled { opacity: 0.6; cursor: not-allowed; }
-        .claim-btn.claimed { background: var(--gray-light); color: var(--white); }
-        
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-            color: var(--gray);
-        }
-        
-        .empty-state i { font-size: 64px; margin-bottom: 20px; opacity: 0.3; }
-        .empty-state h3 { font-size: 20px; margin-bottom: 10px; }
-        .empty-state p { font-size: 14px; }
-        
-        /* Animations */
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        
-        .animate-float { animation: float 3s ease-in-out infinite; }
-        
-        /* Hide scrollbar */
-        ::-webkit-scrollbar { width: 0; height: 0; }
-        
-        /* Utility */
-        .text-center { text-align: center; }
-        .mt-20 { margin-top: 20px; }
-        .mb-20 { margin-bottom: 20px; }
-        .hidden { display: none !important; }
     </style>
 </head>
 <body>
@@ -779,7 +338,7 @@
     <!-- reCAPTCHA Container -->
     <div id="recaptcha-container"></div>
 
-    <!-- PART 1 ENDS - Continue to Part 2 -->    <!-- PREMIUM HEADER -->
+    <!-- PREMIUM HEADER -->
     <header class="premium-header" id="mainHeader" style="display: none;">
         <div class="header-content">
             <div class="brand">
@@ -824,53 +383,23 @@
     <div id="landingPage" class="page active">
         <div class="hero-section">
             <div class="hero-content">
-                <div class="hero-badge">
-                    <i class="fas fa-fire"></i>
-                    India's #1 Earning App
-                </div>
-                <h1 class="hero-title">Earn <span>₹15</span> Per Referral Instantly!</h1>
-                <p style="opacity: 0.9; margin-bottom: 25px; font-size: 16px;">
-                    Join 50,000+ users earning daily. Start with FREE plan!
-                </p>
-                <div class="hero-stats">
-                    <div class="hero-stat">
-                        <div class="value">₹2Cr+</div>
-                        <div class="label">Paid Out</div>
-                    </div>
-                    <div class="hero-stat">
-                        <div class="value">50K+</div>
-                        <div class="label">Users</div>
-                    </div>
-                    <div class="hero-stat">
-                        <div class="value">4.9★</div>
-                        <div class="label">Rating</div>
-                    </div>
-                </div>
+                <div class="hero-badge"><i class="fas fa-fire"></i> India's #1 Earning App</div>
+                <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 15px;">Earn <span style="color:#fde047;">₹15</span> Per Referral Instantly!</h1>
+                <p style="opacity: 0.9; margin-bottom: 25px;">Join 50,000+ users earning daily. Start with FREE plan!</p>
             </div>
         </div>
-
         <div style="padding: 20px;">
-            <button class="btn-main btn-main-primary" onclick="showPage('register')">
-                <i class="fas fa-rocket"></i>
-                Start Earning Now - It's FREE!
-            </button>
-            <button class="btn-main" style="background: transparent; color: var(--primary); border: 2px solid var(--primary);" onclick="showPage('login')">
-                <i class="fas fa-sign-in-alt"></i>
-                Already have an account? Login
-            </button>
+            <button class="btn-main btn-main-primary" onclick="showPage('register')"><i class="fas fa-rocket"></i> Start Earning Now - It's FREE!</button>
+            <button class="btn-main" style="background: transparent; color: var(--primary); border: 2px solid var(--primary);" onclick="showPage('login')"><i class="fas fa-sign-in-alt"></i> Already have an account? Login</button>
         </div>
     </div>
 
     <!-- LOGIN PAGE -->
     <div id="loginPage" class="page">
         <div style="padding: 40px 20px; text-align: center;">
-            <div style="width: 80px; height: 80px; background: var(--gradient-1); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 25px; font-size: 40px; color: white; box-shadow: var(--shadow-glow);">
-                🔐
-            </div>
-            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 10px;">Welcome Back!</h2>
-            <p style="color: var(--gray);">Login to continue your earning journey</p>
+            <h2 style="font-size: 28px; font-weight: 700;">Welcome Back!</h2>
+            <p style="color: var(--gray);">Login to continue earning</p>
         </div>
-
         <div class="premium-card">
             <form class="form-premium" id="loginForm">
                 <div class="form-group">
@@ -879,79 +408,54 @@
                 </div>
                 <div class="form-group">
                     <label><i class="fas fa-lock" style="margin-right: 8px; color: var(--primary);"></i>Password</label>
-                    <input type="password" class="input-premium" id="loginPassword" placeholder="Enter your password" required>
+                    <input type="password" class="input-premium" id="loginPassword" placeholder="Enter password" required>
                 </div>
-                <div style="text-align: right; margin-bottom: 20px;">
-                    <a href="#" onclick="showPage('forgot')" style="color: var(--primary); font-size: 14px; font-weight: 500;">Forgot Password?</a>
-                </div>
-                <button type="submit" class="btn-main btn-main-primary">
-                    <i class="fas fa-sign-in-alt"></i>
-                    Login
-                </button>
+                <button type="submit" class="btn-main btn-main-primary"><i class="fas fa-sign-in-alt"></i> Login</button>
             </form>
         </div>
-
         <div style="text-align: center; padding: 20px;">
-            <p style="color: var(--gray);">Don't have an account? 
-                <a href="#" onclick="showPage('register')" style="color: var(--primary); font-weight: 700;">Register Now</a>
-            </p>
+            <p style="color: var(--gray);">Don't have an account? <a href="#" onclick="showPage('register')" style="color: var(--primary); font-weight: 700;">Register Now</a></p>
         </div>
     </div>
 
     <!-- REGISTER PAGE -->
     <div id="registerPage" class="page">
-        <div style="padding: 30px 20px; text-align: center;">
-            <div style="width: 80px; height: 80px; background: var(--gradient-2); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 25px; font-size: 40px; color: white; box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3);">
-                📝
-            </div>
-            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 10px;">Create Account</h2>
-            <p style="color: var(--gray);">Start earning in 30 seconds!</p>
-        </div>
-
-        <div class="premium-card">
-            <!-- Step 1: Basic Info -->
+        <div class="premium-card" style="margin-top:40px;">
+            <!-- Step 1: Info -->
             <div id="regStep1">
+                <h2 style="text-align:center; margin-bottom: 20px;">Create Account</h2>
                 <form class="form-premium" id="registerForm">
                     <div class="form-group">
-                        <label><i class="fas fa-user" style="margin-right: 8px; color: var(--primary);"></i>Full Name *</label>
+                        <label>Full Name *</label>
                         <input type="text" class="input-premium" id="regName" placeholder="Your full name" required>
                     </div>
                     <div class="form-group">
-                        <label><i class="fas fa-phone-alt" style="margin-right: 8px; color: var(--primary);"></i>Phone Number *</label>
+                        <label>Phone Number *</label>
                         <input type="tel" class="input-premium" id="regPhone" placeholder="9876543210" maxlength="10" required>
                     </div>
                     <div class="form-group">
-                        <label><i class="fas fa-lock" style="margin-right: 8px; color: var(--primary);"></i>Password *</label>
+                        <label>Password *</label>
                         <input type="password" class="input-premium" id="regPassword" placeholder="Min 6 characters" minlength="6" required>
                     </div>
                     <div class="form-group">
-                        <label><i class="fas fa-check-circle" style="margin-right: 8px; color: var(--primary);"></i>Confirm Password *</label>
+                        <label>Confirm Password *</label>
                         <input type="password" class="input-premium" id="regConfirm" placeholder="Confirm password" required>
                     </div>
                     <div class="form-group">
-                        <label><i class="fas fa-gift" style="margin-right: 8px; color: var(--secondary);"></i>Referral Code (Optional)</label>
-                        <input type="text" class="input-premium" id="regReferral" placeholder="Friend's code (auto-filled if available)" style="border-color: var(--secondary);">
-                        <p style="font-size: 12px; color: var(--secondary); margin-top: 8px;" id="refBonusText">
-                            <i class="fas fa-info-circle"></i> You were invited! Get ₹15 bonus on signup!
+                        <label>Referral Code (Optional)</label>
+                        <input type="text" class="input-premium" id="regReferral" placeholder="Friend's code">
+                        <p style="font-size: 12px; color: var(--secondary); margin-top: 8px; display:none;" id="refBonusText">
+                            <i class="fas fa-info-circle"></i> You were invited! Get ₹15 bonus!
                         </p>
                     </div>
-                    <button type="submit" class="btn-main btn-main-success">
-                        <i class="fas fa-paper-plane"></i>
-                        Send OTP & Continue
-                    </button>
+                    <button type="submit" class="btn-main btn-main-success">Send OTP</button>
                 </form>
             </div>
 
-            <!-- Step 2: OTP Verification -->
-            <div id="regStep2" class="hidden">
-                <div class="text-center" style="margin-bottom: 30px;">
-                    <div style="width: 60px; height: 60px; background: var(--gradient-1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; font-size: 24px;">
-                        📱
-                    </div>
-                    <h3 style="margin-bottom: 10px;">Verify OTP</h3>
-                    <p style="color: var(--gray); font-size: 14px;">Enter 6-digit code sent to <strong id="otpPhoneDisplay" style="color: var(--dark);"></strong></p>
-                </div>
-
+            <!-- Step 2: OTP -->
+            <div id="regStep2" class="hidden text-center">
+                <h3>Verify OTP</h3>
+                <p style="color: var(--gray); font-size: 14px;">Sent to <strong id="otpPhoneDisplay"></strong></p>
                 <div class="otp-container">
                     <input type="text" class="otp-input-premium" maxlength="1" data-index="0">
                     <input type="text" class="otp-input-premium" maxlength="1" data-index="1">
@@ -961,93 +465,37 @@
                     <input type="text" class="otp-input-premium" maxlength="1" data-index="5">
                 </div>
                 <input type="hidden" id="fullOtp">
-
-                <button class="btn-main btn-main-primary" onclick="verifyOtp()">
-                    <i class="fas fa-check"></i>
-                    Verify & Create Account
-                </button>
-
-                <div class="text-center" style="margin-top: 25px;">
-                    <p style="color: var(--gray); font-size: 14px;">
-                        Didn't receive? 
-                        <span id="otpTimer" style="color: var(--primary); font-weight: 600;">60s</span>
-                    </p>
-                    <button class="btn-main hidden" id="resendOtpBtn" onclick="resendOtp()" style="background: transparent; color: var(--primary); margin-top: 10px;">
-                        Resend OTP
-                    </button>
+                <button class="btn-main btn-main-primary" onclick="verifyOtp()">Verify & Create Account</button>
+                <div style="margin-top: 20px;">
+                    <span id="otpTimer" style="color: var(--primary); font-weight: 600;">60s</span>
+                    <button class="btn-main hidden" id="resendOtpBtn" onclick="resendOtp()" style="background: transparent; color: var(--primary);">Resend OTP</button>
                 </div>
-
-                <button class="btn-main" onclick="backToReg()" style="background: transparent; color: var(--gray); margin-top: 15px;">
-                    <i class="fas fa-arrow-left"></i>
-                    Change Number
-                </button>
+                <button class="btn-main" onclick="backToReg()" style="background: transparent; color: var(--gray); margin-top: 5px;">Change Number</button>
             </div>
 
             <!-- Step 3: Success -->
             <div id="regStep3" class="hidden text-center">
-                <div style="width: 100px; height: 100px; background: var(--gradient-2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 25px; color: white; font-size: 50px; animation: float 2s ease-in-out infinite;">
-                    🎉
-                </div>
-                <h2 style="font-size: 28px; margin-bottom: 15px;">Welcome Aboard!</h2>
-                <p style="color: var(--gray); margin-bottom: 10px;">Your account has been created successfully.</p>
+                <div style="font-size: 50px; margin-bottom:15px;">🎉</div>
+                <h2 style="font-size: 28px; margin-bottom: 15px;">Welcome!</h2>
                 <p id="bonusMessage" style="color: var(--success); font-weight: 700; font-size: 18px; margin-bottom: 30px;"></p>
-                <button class="btn-main btn-main-primary" onclick="showPage('home')">
-                    <i class="fas fa-rocket"></i>
-                    Go to Dashboard
-                </button>
+                <button class="btn-main btn-main-primary" onclick="showPage('home')">Go to Dashboard</button>
             </div>
-        </div>
-    </div>
-
-    <!-- FORGOT PASSWORD PAGE -->
-    <div id="forgotPage" class="page">
-        <div style="padding: 40px 20px; text-align: center;">
-            <div style="width: 80px; height: 80px; background: var(--gradient-3); border-radius: 24px; display: flex; align-items: center; justify-content: center; margin: 0 auto 25px; font-size: 40px; color: white;">
-                🔐
-            </div>
-            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 10px;">Reset Password</h2>
-            <p style="color: var(--gray);">Enter your phone number</p>
-        </div>
-
-        <div class="premium-card">
-            <form class="form-premium" id="forgotForm">
-                <div class="form-group">
-                    <label><i class="fas fa-phone-alt" style="margin-right: 8px; color: var(--primary);"></i>Phone Number</label>
-                    <input type="tel" class="input-premium" id="forgotPhone" placeholder="9876543210" maxlength="10" required>
-                </div>
-                <button type="submit" class="btn-main btn-main-primary">
-                    <i class="fas fa-paper-plane"></i>
-                    Send Reset Link
-                </button>
-                <button type="button" class="btn-main" onclick="showPage('login')" style="background: transparent; color: var(--gray);">
-                    <i class="fas fa-arrow-left"></i>
-                    Back to Login
-                </button>
-            </form>
         </div>
     </div>
 
     <!-- HOME PAGE -->
     <div id="homePage" class="page">
-        <!-- Balance Card -->
         <div class="balance-premium">
             <div class="balance-content">
                 <div class="balance-label">Total Balance</div>
                 <div class="balance-amount">₹<span id="homeBalance">0</span></div>
                 <div class="balance-actions">
-                    <button class="btn-premium btn-premium-primary" onclick="showPage('wallet'); showWalletTab('add');">
-                        <i class="fas fa-plus"></i>
-                        Add Money
-                    </button>
-                    <button class="btn-premium btn-premium-secondary" onclick="showPage('wallet'); showWalletTab('withdraw');">
-                        <i class="fas fa-minus"></i>
-                        Withdraw
-                    </button>
+                    <button class="btn-premium btn-premium-primary" onclick="showPage('wallet'); showWalletTab('add');"><i class="fas fa-plus"></i> Add Money</button>
+                    <button class="btn-premium btn-premium-secondary" onclick="showPage('wallet'); showWalletTab('withdraw');"><i class="fas fa-minus"></i> Withdraw</button>
                 </div>
             </div>
         </div>
 
-        <!-- Quick Stats -->
         <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 0 20px 25px;">
             <div class="premium-card" style="margin: 0; padding: 20px; text-align: center;">
                 <div style="font-size: 24px; font-weight: 700; color: var(--primary);" id="homeRefers">0</div>
@@ -1063,596 +511,173 @@
             </div>
         </div>
 
-        <!-- Daily Claim Section (If has active plans) -->
         <div id="dailyClaimSection" class="hidden">
             <div class="claim-card">
-                <i class="fas fa-gift" style="font-size: 40px; opacity: 0.9;"></i>
                 <div class="claim-amount">₹<span id="claimAmount">0</span></div>
                 <p style="opacity: 0.9;">Daily earnings ready to claim!</p>
-                <button class="claim-btn" id="claimBtn" onclick="claimDailyEarnings()">
-                    <i class="fas fa-hand-holding-usd"></i>
-                    Claim Now
-                </button>
+                <button class="claim-btn" id="claimBtn" onclick="claimDailyEarnings()"><i class="fas fa-hand-holding-usd"></i> Claim Now</button>
                 <p id="claimTimer" style="margin-top: 15px; font-size: 14px; opacity: 0.8;"></p>
             </div>
         </div>
 
-        <!-- Active Plans -->
-        <div class="section-title">
-            <h2><i class="fas fa-fire" style="color: var(--accent); margin-right: 10px;"></i>My Active Plans</h2>
-        </div>
-        <div id="activePlansList" style="margin: 0 20px;">
-            <div class="empty-state">
-                <i class="fas fa-rocket"></i>
-                <h3>No Active Plans</h3>
-                <p>Buy a plan to start earning daily!</p>
-                <button class="btn-main btn-main-primary" onclick="showPage('plans')" style="margin-top: 20px; max-width: 200px;">
-                    View Plans
-                </button>
-            </div>
-        </div>
+        <div class="section-title"><h2><i class="fas fa-fire" style="color: var(--accent); margin-right: 10px;"></i>My Active Plans</h2></div>
+        <div id="activePlansList" style="margin: 0 20px;"></div>
 
-        <!-- Recent Transactions -->
-        <div class="section-title">
-            <h2><i class="fas fa-history" style="color: var(--primary); margin-right: 10px;"></i>Recent Activity</h2>
-            <a href="#" onclick="showPage('wallet')">View All</a>
-        </div>
-        <div class="tx-list" id="homeTransactions">
-            <div class="empty-state" style="padding: 40px 20px;">
-                <i class="fas fa-receipt"></i>
-                <h3>No Transactions Yet</h3>
-            </div>
-        </div>
+        <div class="section-title"><h2><i class="fas fa-history" style="color: var(--primary); margin-right: 10px;"></i>Recent Activity</h2></div>
+        <div class="tx-list" id="homeTransactions"></div>
     </div>
 
-    <!-- PART 2 ENDS - Continue to Part 3 -->    <!-- PLANS PAGE -->
+    <!-- PLANS PAGE (VERTICAL POST LAYOUT) -->
     <div id="plansPage" class="page">
         <div style="padding: 30px 20px;">
-            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 10px;">
-                <i class="fas fa-gem" style="color: var(--secondary); margin-right: 10px;"></i>
-                Investment Plans
-            </h2>
-            <p style="color: var(--gray);">Choose a plan that suits you best</p>
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 10px;"><i class="fas fa-gem" style="color: var(--secondary); margin-right: 10px;"></i>Investment Plans</h2>
         </div>
 
-        <!-- Free Plan Special -->
-        <div class="premium-card" style="background: var(--gradient-2); color: white; margin-bottom: 30px;">
+        <div class="premium-card" style="background: var(--gradient-2); color: white; margin-bottom: 20px;">
             <div style="display: flex; align-items: center; gap: 20px;">
                 <div style="font-size: 50px;">🎁</div>
                 <div style="flex: 1;">
                     <h3 style="font-size: 24px; margin-bottom: 5px;">Free Trial Plan</h3>
                     <p style="opacity: 0.9; margin-bottom: 15px;">Earn ₹10/day for 7 days - No investment!</p>
-                    <div style="display: flex; gap: 20px; font-size: 14px; opacity: 0.9;">
-                        <span><i class="fas fa-check-circle" style="margin-right: 5px;"></i>₹70 Total</span>
-                        <span><i class="fas fa-check-circle" style="margin-right: 5px;"></i>7 Days</span>
-                    </div>
                 </div>
             </div>
-            <button class="btn-premium btn-premium-primary" id="freePlanBtn" onclick="buyPlan('free')" style="margin-top: 20px;">
-                Claim Free Plan
-            </button>
+            <button class="btn-premium btn-premium-primary" id="freePlanBtn" onclick="buyPlan('free')" style="margin-top: 20px;">Claim Free Plan</button>
         </div>
 
-        <!-- Premium Plans -->
-        <div class="section-title" style="margin-top: 30px;">
-            <h2>Premium Plans</h2>
-        </div>
-        
-        <div class="plans-scroll" id="plansContainer">
-            <!-- Plans loaded dynamically -->
-        </div>
-
-        <!-- Plan Benefits -->
-        <div class="premium-card" style="margin-top: 30px;">
-            <h3 style="margin-bottom: 20px; font-size: 18px;">
-                <i class="fas fa-shield-alt" style="color: var(--success); margin-right: 10px;"></i>
-                Why Choose Us?
-            </h3>
-            <div style="display: grid; gap: 15px;">
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div style="width: 40px; height: 40px; background: rgba(16, 185, 129, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--success);">
-                        <i class="fas fa-bolt"></i>
-                    </div>
-                    <div>
-                        <div style="font-weight: 600;">Instant Withdrawals</div>
-                        <div style="font-size: 13px; color: var(--gray);">Get paid within 24 hours</div>
-                    </div>
-                </div>
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div style="width: 40px; height: 40px; background: rgba(99, 102, 241, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--primary);">
-                        <i class="fas fa-percentage"></i>
-                    </div>
-                    <div>
-                        <div style="font-weight: 600;">20% Referral Commission</div>
-                        <div style="font-size: 13px; color: var(--gray);">Earn on friend's plan purchase</div>
-                    </div>
-                </div>
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div style="width: 40px; height: 40px; background: rgba(236, 72, 153, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--secondary);">
-                        <i class="fas fa-headset"></i>
-                    </div>
-                    <div>
-                        <div style="font-weight: 600;">24/7 Support</div>
-                        <div style="font-size: 13px; color: var(--gray);">We're here to help you</div>
-                    </div>
-                </div>
-            </div>
-        </div>
+        <!-- Plans will load vertically here -->
+        <div class="plans-vertical" id="plansContainer"></div>
     </div>
 
-    <!-- WALLET PAGE -->
+    <!-- WALLET PAGE WITH AUTO UPI REDIRECT -->
     <div id="walletPage" class="page">
-        <!-- Balance -->
         <div class="balance-premium" style="background: var(--gradient-1);">
             <div class="balance-content">
                 <div class="balance-label">Available Balance</div>
                 <div class="balance-amount">₹<span id="walletBalance">0</span></div>
-                <div class="balance-actions">
-                    <button class="btn-premium btn-premium-primary" onclick="showWalletTab('add')">
-                        <i class="fas fa-plus"></i>
-                        Add
-                    </button>
-                    <button class="btn-premium btn-premium-secondary" onclick="showWalletTab('withdraw')">
-                        <i class="fas fa-minus"></i>
-                        Withdraw
-                    </button>
-                </div>
             </div>
         </div>
 
-        <!-- Wallet Tabs -->
         <div class="wallet-tabs">
-            <button class="wallet-tab active" onclick="showWalletTab('add')" data-tab="add">
-                <i class="fas fa-plus-circle"></i> Add Money
-            </button>
-            <button class="wallet-tab" onclick="showWalletTab('withdraw')" data-tab="withdraw">
-                <i class="fas fa-minus-circle"></i> Withdraw
-            </button>
-            <button class="wallet-tab" onclick="showWalletTab('history')" data-tab="history">
-                <i class="fas fa-history"></i> History
-            </button>
+            <button class="wallet-tab active" onclick="showWalletTab('add')" data-tab="add">Add Money</button>
+            <button class="wallet-tab" onclick="showWalletTab('withdraw')" data-tab="withdraw">Withdraw</button>
+            <button class="wallet-tab" onclick="showWalletTab('history')" data-tab="history">History</button>
         </div>
 
-        <!-- Add Money Section -->
+        <!-- Add Money Auto UPI -->
         <div id="walletAddSection" class="wallet-section">
             <div class="premium-card">
-                <h3 style="margin-bottom: 20px; font-size: 20px;">
-                    <i class="fas fa-plus-circle" style="color: var(--success); margin-right: 10px;"></i>
-                    Add Money to Wallet
-                </h3>
+                <h3 style="margin-bottom: 20px; font-size: 20px;"><i class="fas fa-plus-circle" style="color: var(--success); margin-right: 10px;"></i>Add Money</h3>
                 
-                <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(52, 211, 153, 0.1) 100%); border: 2px dashed var(--success); border-radius: 20px; padding: 25px; text-align: center; margin-bottom: 25px;">
-                    <i class="fas fa-qrcode" style="font-size: 60px; color: var(--success); margin-bottom: 15px;"></i>
-                    <p style="font-size: 14px; color: var(--gray); margin-bottom: 10px;">Pay to UPI ID</p>
-                    <div style="font-size: 24px; font-weight: 700; color: var(--dark); letter-spacing: 1px; margin-bottom: 15px;" id="upiIdDisplay">
-                        6395503566@upi
-                    </div>
-                    <button class="btn-main btn-main-success" onclick="copyUpi()" style="max-width: 200px;">
-                        <i class="fas fa-copy"></i>
-                        Copy UPI ID
-                    </button>
-                </div>
-
                 <form class="form-premium" id="addMoneyForm">
                     <div class="form-group">
-                        <label>Amount (₹) - Minimum ₹100</label>
+                        <label>1. Enter Amount (Min ₹100)</label>
                         <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
-                            <button type="button" class="amount-chip" onclick="setAmount(100)" style="padding: 10px 20px; border: 2px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer; font-weight: 600;">₹100</button>
-                            <button type="button" class="amount-chip" onclick="setAmount(500)" style="padding: 10px 20px; border: 2px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer; font-weight: 600;">₹500</button>
-                            <button type="button" class="amount-chip" onclick="setAmount(1000)" style="padding: 10px 20px; border: 2px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer; font-weight: 600;">₹1000</button>
-                            <button type="button" class="amount-chip" onclick="setAmount(2000)" style="padding: 10px 20px; border: 2px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer; font-weight: 600;">₹2000</button>
+                            <button type="button" onclick="setAmount(100)" style="padding: 10px 20px; border: 2px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer;">₹100</button>
+                            <button type="button" onclick="setAmount(500)" style="padding: 10px 20px; border: 2px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer;">₹500</button>
+                            <button type="button" onclick="setAmount(1000)" style="padding: 10px 20px; border: 2px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer;">₹1000</button>
                         </div>
-                        <input type="number" class="input-premium" id="addAmount" placeholder="Enter custom amount" min="100" required>
+                        <input type="number" class="input-premium" id="addAmount" placeholder="Enter Amount" min="100" required>
                     </div>
+
                     <div class="form-group">
-                        <label><i class="fas fa-receipt" style="margin-right: 8px; color: var(--primary);"></i>UPI Transaction ID / UTR Number *</label>
-                        <input type="text" class="input-premium" id="upiTxnId" placeholder="Enter 12-digit UTR number" required>
-                        <p style="font-size: 12px; color: var(--gray); margin-top: 8px;">
-                            <i class="fas fa-info-circle"></i>
-                            You can find this in your UPI app payment history
-                        </p>
+                        <label>2. Pay Directly via UPI App</label>
+                        <p style="font-size: 12px; color: var(--gray); margin-bottom: 10px;">Click to open app directly. Amount will be filled automatically.</p>
+                        <div class="upi-apps-grid">
+                            <div class="upi-app-btn gpay" onclick="payViaUPI('gpay')"><i class="fab fa-google-pay" style="font-size: 24px;"></i> GPay</div>
+                            <div class="upi-app-btn phonepe" onclick="payViaUPI('phonepe')"><i class="fas fa-rupee-sign"></i> PhonePe</div>
+                            <div class="upi-app-btn paytm" onclick="payViaUPI('paytm')"><i class="fas fa-wallet"></i> Paytm</div>
+                            <div class="upi-app-btn bhim" onclick="payViaUPI('upi')"><i class="fas fa-qrcode"></i> Any UPI</div>
+                        </div>
                     </div>
+
                     <div class="form-group">
-                        <label>Paid Via</label>
+                        <label>3. Enter Details After Payment</label>
+                        <input type="text" class="input-premium" id="upiTxnId" placeholder="Enter 12-digit UTR Number" required style="margin-bottom: 10px;">
                         <select class="input-premium" id="paidVia" required>
-                            <option value="">Select Payment App</option>
+                            <option value="">Select App You Used</option>
                             <option value="Google Pay">Google Pay</option>
                             <option value="PhonePe">PhonePe</option>
                             <option value="Paytm">Paytm</option>
-                            <option value="Amazon Pay">Amazon Pay</option>
-                            <option value="BHIM">BHIM</option>
-                            <option value="Other">Other</option>
+                            <option value="Other">Other UPI</option>
                         </select>
                     </div>
-                    <button type="submit" class="btn-main btn-main-success">
-                        <i class="fas fa-paper-plane"></i>
-                        Submit Request
-                    </button>
-                </form>
 
-                <div style="background: rgba(245, 158, 11, 0.1); border-radius: 16px; padding: 20px; margin-top: 25px;">
-                    <p style="font-size: 13px; color: var(--warning); display: flex; align-items: flex-start; gap: 10px;">
-                        <i class="fas fa-clock" style="margin-top: 3px;"></i>
-                        <span>Your deposit will be verified within 24 hours. Please keep your UPI transaction screenshot for reference.</span>
-                    </p>
-                </div>
+                    <button type="submit" class="btn-main btn-main-success">Submit Payment Details</button>
+                </form>
             </div>
         </div>
 
-        <!-- Withdraw Section -->
         <div id="walletWithdrawSection" class="wallet-section hidden">
+            <!-- Withdraw form remains same layout -->
             <div class="premium-card">
-                <h3 style="margin-bottom: 20px; font-size: 20px;">
-                    <i class="fas fa-minus-circle" style="color: var(--danger); margin-right: 10px;"></i>
-                    Withdraw Money
-                </h3>
-
-                <div style="background: rgba(239, 68, 68, 0.05); border-radius: 16px; padding: 20px; margin-bottom: 25px;">
-                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 15px;">
-                        <i class="fas fa-info-circle" style="color: var(--danger); font-size: 24px;"></i>
-                        <div>
-                            <div style="font-weight: 600; color: var(--danger);">Minimum Withdrawal: ₹200</div>
-                            <div style="font-size: 13px; color: var(--gray);">Maximum: ₹10,000 per day</div>
-                        </div>
-                    </div>
-                </div>
-
+                <h3 style="margin-bottom: 20px; font-size: 20px;"><i class="fas fa-minus-circle" style="color: var(--danger); margin-right: 10px;"></i>Withdraw</h3>
                 <form class="form-premium" id="withdrawForm">
                     <div class="form-group">
-                        <label>Amount (₹)</label>
-                        <input type="number" class="input-premium" id="withdrawAmount" placeholder="Enter amount (Min ₹200)" min="200" max="10000" required>
+                        <label>Amount (Min ₹200)</label>
+                        <input type="number" class="input-premium" id="withdrawAmount" placeholder="Amount" min="200" required>
                     </div>
-
                     <div class="form-group">
-                        <label>Select Withdrawal Method</label>
-                        
-                        <!-- UPI Option -->
-                        <div class="payment-method" onclick="selectMethod('upi')" id="methodUpi">
-                            <div class="payment-icon" style="background: rgba(99, 102, 241, 0.1); color: var(--primary);">
-                                <i class="fas fa-mobile-alt"></i>
-                            </div>
-                            <div style="flex: 1;">
-                                <div style="font-weight: 600;">UPI ID</div>
-                                <div style="font-size: 13px; color: var(--gray);">Instant transfer</div>
-                            </div>
-                            <i class="fas fa-chevron-right" style="color: var(--gray-light);"></i>
-                        </div>
-
-                        <!-- Bank Option -->
-                        <div class="payment-method" onclick="selectMethod('bank')" id="methodBank">
-                            <div class="payment-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--success);">
-                                <i class="fas fa-university"></i>
-                            </div>
-                            <div style="flex: 1;">
-                                <div style="font-weight: 600;">Bank Account</div>
-                                <div style="font-size: 13px; color: var(--gray);">NEFT/IMPS transfer</div>
-                            </div>
-                            <i class="fas fa-chevron-right" style="color: var(--gray-light);"></i>
-                        </div>
+                        <label>Select Method</label>
+                        <select class="input-premium" id="withdrawMethod" onchange="toggleWithdrawMethod()" required>
+                            <option value="">Select</option>
+                            <option value="upi">UPI ID</option>
+                            <option value="bank">Bank Account</option>
+                        </select>
                     </div>
-
-                    <!-- UPI Fields -->
                     <div id="upiFields" class="hidden">
-                        <div class="form-group">
-                            <label>UPI ID</label>
-                            <input type="text" class="input-premium" id="upiIdInput" placeholder="name@upi">
-                        </div>
+                        <div class="form-group"><label>UPI ID</label><input type="text" class="input-premium" id="upiIdInput"></div>
                     </div>
-
-                    <!-- Bank Fields -->
                     <div id="bankFields" class="hidden">
-                        <div class="form-group">
-                            <label>Account Holder Name</label>
-                            <input type="text" class="input-premium" id="bankHolderName" placeholder="Full name as per bank">
-                        </div>
-                        <div class="form-group">
-                            <label>Account Number</label>
-                            <input type="text" class="input-premium" id="bankAccNumber" placeholder="Account number">
-                        </div>
-                        <div class="form-group">
-                            <label>IFSC Code</label>
-                            <input type="text" class="input-premium" id="bankIfsc" placeholder="SBIN0001234">
-                        </div>
-                        <div class="form-group">
-                            <label>Bank Name</label>
-                            <input type="text" class="input-premium" id="bankName" placeholder="State Bank of India">
-                        </div>
+                        <div class="form-group"><label>Account Holder</label><input type="text" class="input-premium" id="bankHolderName"></div>
+                        <div class="form-group"><label>Account No</label><input type="text" class="input-premium" id="bankAccNumber"></div>
+                        <div class="form-group"><label>IFSC Code</label><input type="text" class="input-premium" id="bankIfsc"></div>
+                        <div class="form-group"><label>Bank Name</label><input type="text" class="input-premium" id="bankName"></div>
                     </div>
-
-                    <button type="submit" class="btn-main" style="background: var(--gradient-4); color: white; box-shadow: 0 10px 30px rgba(239, 68, 68, 0.3);">
-                        <i class="fas fa-paper-plane"></i>
-                        Request Withdrawal
-                    </button>
+                    <button type="submit" class="btn-main" style="background: var(--gradient-4); color: white;">Request Withdrawal</button>
                 </form>
-
-                <div style="background: rgba(99, 102, 241, 0.05); border-radius: 16px; padding: 20px; margin-top: 25px;">
-                    <p style="font-size: 13px; color: var(--primary); display: flex; align-items: flex-start; gap: 10px;">
-                        <i class="fas fa-shield-alt" style="margin-top: 3px;"></i>
-                        <span>Your withdrawal will be processed within 24 hours. Please ensure your bank details are correct.</span>
-                    </p>
-                </div>
             </div>
         </div>
 
-        <!-- History Section -->
         <div id="walletHistorySection" class="wallet-section hidden">
-            <div class="tx-list" id="walletTransactions">
-                <div class="empty-state">
-                    <i class="fas fa-receipt"></i>
-                    <h3>No Transactions Yet</h3>
-                    <p>Your transaction history will appear here</p>
-                </div>
-            </div>
+            <div class="tx-list" id="walletTransactions"></div>
         </div>
     </div>
 
     <!-- REFERRAL PAGE -->
     <div id="referralPage" class="page">
-        <div class="referral-hero">
-            <div style="font-size: 18px; opacity: 0.9; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 10px;">You Earn</div>
-            <div class="referral-amount">₹15</div>
-            <div style="font-size: 20px; font-weight: 600; margin-bottom: 10px;">Per Successful Referral</div>
-            <div style="opacity: 0.8; font-size: 14px;">
-                + 20% commission on plan purchase<br>
-                + 5%-3%-1% lifetime passive income
-            </div>
-
-            <div class="referral-card">
-                <p style="font-size: 14px; margin-bottom: 10px;">Your Referral Link</p>
-                <div class="referral-link" id="refLink">Loading...</div>
-                <div style="display: flex; gap: 10px;">
-                    <button class="btn-premium btn-premium-primary" onclick="copyRefLink()" style="flex: 1;">
-                        <i class="fas fa-copy"></i>
-                        Copy
-                    </button>
-                    <button class="btn-premium" onclick="shareWhatsApp()" style="flex: 1; background: #25D366; color: white;">
-                        <i class="fab fa-whatsapp"></i>
-                        Share
-                    </button>
-                </div>
-            </div>
+        <div class="premium-card" style="background: var(--gradient-1); color: white; text-align: center;">
+            <div style="font-size: 80px; font-weight: 800; margin: 20px 0;">₹15</div>
+            <div style="font-size: 20px; font-weight: 600;">Per Successful Referral + 20% Commission</div>
+            <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; margin: 20px 0; font-family: monospace;" id="refLink">Loading...</div>
+            <button class="btn-main btn-main-success" onclick="copyRefLink()">Copy Link</button>
         </div>
-
-        <!-- Stats -->
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 20px;">
-            <div class="premium-card" style="margin: 0; padding: 25px 15px; text-align: center;">
-                <div style="width: 50px; height: 50px; background: rgba(99, 102, 241, 0.1); border-radius: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; color: var(--primary); font-size: 24px;">
-                    <i class="fas fa-users"></i>
-                </div>
-                <div style="font-size: 28px; font-weight: 700; color: var(--dark);" id="refTotal">0</div>
-                <div style="font-size: 12px; color: var(--gray); margin-top: 5px;">Total Refers</div>
-            </div>
-            <div class="premium-card" style="margin: 0; padding: 25px 15px; text-align: center;">
-                <div style="width: 50px; height: 50px; background: rgba(16, 185, 129, 0.1); border-radius: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; color: var(--success); font-size: 24px;">
-                    <i class="fas fa-rupee-sign"></i>
-                </div>
-                <div style="font-size: 28px; font-weight: 700; color: var(--dark);" id="refEarned">₹0</div>
-                <div style="font-size: 12px; color: var(--gray); margin-top: 5px;">Total Earned</div>
-            </div>
-            <div class="premium-card" style="margin: 0; padding: 25px 15px; text-align: center;">
-                <div style="width: 50px; height: 50px; background: rgba(245, 158, 11, 0.1); border-radius: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; color: var(--warning); font-size: 24px;">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div style="font-size: 28px; font-weight: 700; color: var(--dark);" id="refPending">0</div>
-                <div style="font-size: 12px; color: var(--gray); margin-top: 5px;">Pending</div>
-            </div>
-        </div>
-
-        <!-- How it Works -->
-        <div class="premium-card">
-            <h3 style="margin-bottom: 20px; font-size: 18px;">
-                <i class="fas fa-lightbulb" style="color: var(--accent); margin-right: 10px;"></i>
-                How It Works?
-            </h3>
-            <div style="display: grid; gap: 20px;">
-                <div style="display: flex; gap: 15px;">
-                    <div style="width: 40px; height: 40px; background: var(--gradient-1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; flex-shrink: 0;">1</div>
-                    <div>
-                        <div style="font-weight: 600;">Share Your Link</div>
-                        <div style="font-size: 13px; color: var(--gray);">Copy and share with friends & family</div>
-                    </div>
-                </div>
-                <div style="display: flex; gap: 15px;">
-                    <div style="width: 40px; height: 40px; background: var(--gradient-1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; flex-shrink: 0;">2</div>
-                    <div>
-                        <div style="font-weight: 600;">They Register</div>
-                        <div style="font-size: 13px; color: var(--gray);">Friend signs up using your link</div>
-                    </div>
-                </div>
-                <div style="display: flex; gap: 15px;">
-                    <div style="width: 40px; height: 40px; background: var(--gradient-1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700; flex-shrink: 0;">3</div>
-                    <div>
-                        <div style="font-weight: 600;">You Earn ₹15</div>
-                        <div style="font-size: 13px; color: var(--gray);">Instantly credited to your wallet</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- PART 3 ENDS - Continue to Part 4 -->    <!-- PROFILE PAGE -->
-    <div id="profilePage" class="page">
-        <!-- Profile Header -->
-        <div style="background: var(--gradient-1); padding: 40px 20px; text-align: center; color: white; position: relative;">
-            <div style="width: 100px; height: 100px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 50px; border: 4px solid rgba(255,255,255,0.3);">
-                👤
-            </div>
-            <h2 id="profileName" style="font-size: 28px; font-weight: 700; margin-bottom: 5px;">User Name</h2>
-            <p id="profilePhone" style="opacity: 0.9; font-size: 16px;">+91 9876543210</p>
-            <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.2); padding: 8px 20px; border-radius: 50px; margin-top: 15px; font-size: 14px;">
-                <i class="fas fa-check-circle"></i>
-                Verified Account
-            </div>
-        </div>
-
-        <!-- Stats -->
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 20px;">
             <div class="premium-card" style="margin: 0; padding: 25px; text-align: center;">
-                <div style="font-size: 32px; font-weight: 700; color: var(--primary);" id="profTotalEarn">₹0</div>
-                <div style="font-size: 13px; color: var(--gray); margin-top: 5px;">Total Earnings</div>
+                <div style="font-size: 28px; font-weight: 700; color: var(--dark);" id="refTotal">0</div>
+                <div style="font-size: 12px; color: var(--gray);">Total Refers</div>
             </div>
             <div class="premium-card" style="margin: 0; padding: 25px; text-align: center;">
-                <div style="font-size: 32px; font-weight: 700; color: var(--success);" id="profJoinDate">--</div>
-                <div style="font-size: 13px; color: var(--gray); margin-top: 5px;">Member Since</div>
+                <div style="font-size: 28px; font-weight: 700; color: var(--success);" id="refEarned">₹0</div>
+                <div style="font-size: 12px; color: var(--gray);">Total Earned</div>
             </div>
         </div>
+    </div>
 
-        <!-- Menu Items -->
+    <!-- PROFILE PAGE -->
+    <div id="profilePage" class="page">
+        <div style="background: var(--gradient-1); padding: 40px 20px; text-align: center; color: white;">
+            <div style="width: 100px; height: 100px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 50px;">👤</div>
+            <h2 id="profileName" style="font-size: 28px; font-weight: 700;">User</h2>
+            <p id="profilePhone" style="opacity: 0.9;">+91 ---</p>
+        </div>
         <div class="premium-card" style="padding: 10px;">
-            <div style="display: flex; align-items: center; gap: 15px; padding: 20px; border-radius: 16px; cursor: pointer; transition: all 0.3s;" onclick="showPage('wallet')">
-                <div style="width: 45px; height: 45px; background: rgba(99, 102, 241, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 20px;">
-                    <i class="fas fa-wallet"></i>
-                </div>
-                <div style="flex: 1;">
-                    <div style="font-weight: 600;">Wallet Settings</div>
-                    <div style="font-size: 13px; color: var(--gray);">Manage payment methods</div>
-                </div>
-                <i class="fas fa-chevron-right" style="color: var(--gray-light);"></i>
-            </div>
-            
-            <div style="height: 1px; background: var(--light); margin: 0 20px;"></div>
-            
-            <div style="display: flex; align-items: center; gap: 15px; padding: 20px; border-radius: 16px; cursor: pointer; transition: all 0.3s;" onclick="showPage('support')">
-                <div style="width: 45px; height: 45px; background: rgba(245, 158, 11, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--warning); font-size: 20px;">
-                    <i class="fas fa-headset"></i>
-                </div>
-                <div style="flex: 1;">
-                    <div style="font-weight: 600;">Help & Support</div>
-                    <div style="font-size: 13px; color: var(--gray);">Contact us 24/7</div>
-                </div>
-                <i class="fas fa-chevron-right" style="color: var(--gray-light);"></i>
-            </div>
-            
-            <div style="height: 1px; background: var(--light); margin: 0 20px;"></div>
-            
-            <div style="display: flex; align-items: center; gap: 15px; padding: 20px; border-radius: 16px; cursor: pointer; transition: all 0.3s;" onclick="logout()">
-                <div style="width: 45px; height: 45px; background: rgba(239, 68, 68, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--danger); font-size: 20px;">
-                    <i class="fas fa-sign-out-alt"></i>
-                </div>
-                <div style="flex: 1;">
-                    <div style="font-weight: 600; color: var(--danger);">Logout</div>
-                    <div style="font-size: 13px; color: var(--gray);">Sign out from app</div>
-                </div>
-                <i class="fas fa-chevron-right" style="color: var(--gray-light);"></i>
-            </div>
-        </div>
-
-        <!-- Security Notice -->
-        <div class="premium-card" style="background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.2);">
-            <div style="display: flex; gap: 15px;">
-                <i class="fas fa-shield-alt" style="color: var(--warning); font-size: 24px;"></i>
-                <div>
-                    <div style="font-weight: 600; color: var(--warning); margin-bottom: 5px;">Security Notice</div>
-                    <div style="font-size: 13px; color: var(--gray);">Never share your password or OTP with anyone. Our team will never ask for it.</div>
-                </div>
-            </div>
-        </div>
-
-        <div style="text-align: center; padding: 30px 20px; color: var(--gray-light); font-size: 13px;">
-            <p>Version 2.0.0</p>
-            <p style="margin-top: 5px;">Made with ❤️ in India</p>
-        </div>
-    </div>
-
-    <!-- SUPPORT PAGE -->
-    <div id="supportPage" class="page">
-        <div style="padding: 30px 20px;">
-            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 10px;">
-                <i class="fas fa-headset" style="color: var(--primary); margin-right: 10px;"></i>
-                Help Center
-            </h2>
-            <p style="color: var(--gray);">We're here to help you 24/7</p>
-        </div>
-
-        <!-- Contact Cards -->
-        <div style="display: grid; gap: 15px; margin: 0 20px 25px;">
-            <a href="https://wa.me/916395503566" target="_blank" style="text-decoration: none;">
-                <div class="premium-card" style="margin: 0; display: flex; align-items: center; gap: 20px; cursor: pointer; transition: all 0.3s;">
-                    <div style="width: 60px; height: 60px; background: #25D366; border-radius: 20px; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px;">
-                        <i class="fab fa-whatsapp"></i>
-                    </div>
-                    <div style="flex: 1;">
-                        <div style="font-weight: 700; color: var(--dark); font-size: 18px;">WhatsApp Support</div>
-                        <div style="font-size: 14px; color: var(--gray); margin-top: 3px;">+91 6395503566</div>
-                        <div style="font-size: 12px; color: #25D366; margin-top: 5px;">
-                            <i class="fas fa-circle" style="font-size: 8px; margin-right: 5px;"></i>
-                            Usually replies in 5 mins
-                        </div>
-                    </div>
-                    <i class="fas fa-external-link-alt" style="color: var(--gray-light);"></i>
-                </div>
-            </a>
-
-            <div class="premium-card" style="margin: 0; display: flex; align-items: center; gap: 20px;">
-                <div style="width: 60px; height: 60px; background: var(--gradient-1); border-radius: 20px; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px;">
-                    <i class="fas fa-envelope"></i>
-                </div>
-                <div style="flex: 1;">
-                    <div style="font-weight: 700; color: var(--dark); font-size: 18px;">Email Support</div>
-                    <div style="font-size: 14px; color: var(--gray); margin-top: 3px;">support@solarenergy.com</div>
-                </div>
-            </div>
-
-            <div class="premium-card" style="margin: 0; display: flex; align-items: center; gap: 20px;">
-                <div style="width: 60px; height: 60px; background: var(--gradient-3); border-radius: 20px; display: flex; align-items: center; justify-content: center; color: white; font-size: 28px;">
-                    <i class="fas fa-clock"></i>
-                </div>
-                <div style="flex: 1;">
-                    <div style="font-weight: 700; color: var(--dark); font-size: 18px;">Working Hours</div>
-                    <div style="font-size: 14px; color: var(--gray); margin-top: 3px;">10 AM - 7 PM (Mon-Sat)</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Create Ticket -->
-        <div class="premium-card">
-            <h3 style="margin-bottom: 20px; font-size: 20px;">
-                <i class="fas fa-ticket-alt" style="color: var(--secondary); margin-right: 10px;"></i>
-                Create Support Ticket
-            </h3>
-            
-            <form class="form-premium" id="ticketForm">
-                <div class="form-group">
-                    <label>Issue Type</label>
-                    <select class="input-premium" id="ticketType" required>
-                        <option value="">Select issue category</option>
-                        <option value="deposit">💰 Deposit Issue</option>
-                        <option value="withdrawal">💸 Withdrawal Issue</option>
-                        <option value="plan">💎 Plan Issue</option>
-                        <option value="referral">👥 Referral Issue</option>
-                        <option value="technical">🔧 Technical Problem</option>
-                        <option value="other">📋 Other</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Subject</label>
-                    <input type="text" class="input-premium" id="ticketSubject" placeholder="Brief description of your issue" required>
-                </div>
-                <div class="form-group">
-                    <label>Message</label>
-                    <textarea class="input-premium" id="ticketMessage" rows="4" placeholder="Describe your problem in detail..." required></textarea>
-                </div>
-                <button type="submit" class="btn-main btn-main-primary">
-                    <i class="fas fa-paper-plane"></i>
-                    Submit Ticket
-                </button>
-            </form>
-        </div>
-
-        <!-- My Tickets -->
-        <div class="section-title" style="margin-top: 30px;">
-            <h2>My Tickets</h2>
-        </div>
-        <div id="ticketsList" style="margin: 0 20px;">
-            <div class="empty-state">
-                <i class="fas fa-ticket-alt"></i>
-                <h3>No Tickets Yet</h3>
-                <p>Create a ticket if you need help</p>
+            <div style="display: flex; align-items: center; gap: 15px; padding: 20px; cursor: pointer;" onclick="logout()">
+                <div style="width: 45px; height: 45px; background: rgba(239, 68, 68, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--danger); font-size: 20px;"><i class="fas fa-sign-out-alt"></i></div>
+                <div style="flex: 1;"><div style="font-weight: 600; color: var(--danger);">Logout</div></div>
             </div>
         </div>
     </div>
 
-    <!-- JAVASCRIPT PART 4: Firebase Config & Core Functions -->
     <script>
         // ==================== FIREBASE CONFIG ====================
         const firebaseConfig = {
@@ -1662,20 +687,16 @@
             projectId: "solor-energy",
             storageBucket: "solor-energy.firebasestorage.app",
             messagingSenderId: "772737546715",
-            appId: "1:772737546715:web:3736545b464523bdc04ffe",
-            measurementId: "G-ZG0MDB5TTR"
+            appId: "1:772737546715:web:3736545b464523bdc04ffe"
         };
-
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const database = firebase.database();
 
-        // ==================== GLOBAL VARIABLES ====================
         let currentUser = null;
         let confirmationResult = null;
         let tempUserData = {};
-        let otpTimer = null;
-        let selectedWithdrawMethod = null;
+        const ADMIN_UPI_ID = '6395503566@upi'; 
 
         // ==================== PLANS DATA ====================
         const PLANS = [
@@ -1689,1031 +710,305 @@
         ];
 
         // ==================== UTILITY FUNCTIONS ====================
-        function showLoading(text = 'Loading...') {
-            document.querySelector('#loadingScreen p').textContent = text;
-            document.getElementById('loadingScreen').classList.add('active');
-        }
-
-        function hideLoading() {
-            document.getElementById('loadingScreen').classList.remove('active');
-        }
-
-        function showToast(message, type = 'info') {
+        function showLoading(text='Loading...') { document.querySelector('#loadingScreen p').textContent = text; document.getElementById('loadingScreen').classList.add('active'); }
+        function hideLoading() { document.getElementById('loadingScreen').classList.remove('active'); }
+        function showToast(message, type='info') {
             const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = 'toast ' + type;
-            toast.classList.add('show');
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
+            toast.textContent = message; toast.className = 'toast ' + type + ' show';
+            setTimeout(() => toast.classList.remove('show'), 3000);
         }
+        function generateId(prefix) { return prefix + Date.now().toString().slice(-6); }
+        function formatCurrency(amt) { return '₹' + parseInt(amt||0).toLocaleString('en-IN'); }
 
-        function generateId(prefix = 'ID') {
-            return prefix + Date.now().toString().slice(-6) + Math.random().toString(36).substr(2, 4).toUpperCase();
-        }
-
-        function formatCurrency(amount) {
-            return '₹' + parseInt(amount).toLocaleString('en-IN');
-        }
-
-        function formatDate(dateString) {
-            return new Date(dateString).toLocaleDateString('en-IN', {
-                day: 'numeric', month: 'short', year: 'numeric'
-            });
-        }
-
-        // ==================== PAGE NAVIGATION ====================
+        // ==================== NAVIGATION ====================
         function showPage(page) {
-            // Hide all pages
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-            
-            // Show selected page
             document.getElementById(page + 'Page').classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(i => { i.classList.remove('active'); if(i.dataset.page===page) i.classList.add('active'); });
             
-            // Update nav
-            document.querySelectorAll('.nav-item').forEach(item => {
-                item.classList.remove('active');
-                if (item.dataset.page === page) item.classList.add('active');
-            });
+            const noHeader = ['landing', 'login', 'register'];
+            document.getElementById('mainHeader').style.display = noHeader.includes(page) ? 'none' : 'block';
+            document.getElementById('bottomNav').style.display = noHeader.includes(page) ? 'none' : 'flex';
             
-            // Show/hide header and nav
-            const noHeaderPages = ['landing', 'login', 'register', 'forgot'];
-            const header = document.getElementById('mainHeader');
-            const bottomNav = document.getElementById('bottomNav');
+            if(currentUser) document.getElementById('headerBalance').textContent = currentUser.wallet?.mainBalance || 0;
             
-            if (noHeaderPages.includes(page)) {
-                header.style.display = 'none';
-                bottomNav.style.display = 'none';
-            } else {
-                header.style.display = 'block';
-                bottomNav.style.display = 'flex';
-                updateHeaderBalance();
-            }
-            
-            // Load page data
-            if (page === 'home') loadHomeData();
-            if (page === 'plans') loadPlansPage();
-            if (page === 'wallet') loadWalletData();
-            if (page === 'referral') loadReferralData();
-            if (page === 'profile') loadProfileData();
-            if (page === 'support') loadSupportData();
-            
-            window.scrollTo(0, 0);
+            if(page === 'home') updateHomeUI();
+            if(page === 'plans') loadPlansPage();
+            if(page === 'wallet') loadWalletData();
+            if(page === 'referral') loadReferralData();
+            if(page === 'profile') loadProfileData();
+            window.scrollTo(0,0);
         }
 
-        function updateHeaderBalance() {
-            if (currentUser) {
-                document.getElementById('headerBalance').textContent = currentUser.wallet?.mainBalance || 0;
-            }
-        }
-
-        // ==================== INITIALIZATION ====================
         window.onload = function() {
-            // Check URL for referral
-            const urlParams = new URLSearchParams(window.location.search);
-            const refCode = urlParams.get('ref');
-            
-            if (refCode) {
-                localStorage.setItem('pendingReferral', refCode);
-                // If on landing page, show register with pre-filled code
-                if (document.getElementById('landingPage').classList.contains('active')) {
-                    setTimeout(() => {
-                        showPage('register');
-                        document.getElementById('regReferral').value = refCode;
-                        document.getElementById('refBonusText').style.display = 'block';
-                    }, 500);
-                }
+            const refCode = new URLSearchParams(window.location.search).get('ref');
+            if(refCode) {
+                setTimeout(() => { showPage('register'); document.getElementById('regReferral').value = refCode; document.getElementById('refBonusText').style.display = 'block'; }, 500);
             }
-            
-            // Check saved user
             const savedUser = localStorage.getItem('currentUser');
-            if (savedUser) {
-                currentUser = JSON.parse(savedUser);
-                setupUserListener(currentUser.id);
-                showPage('home');
-            }
+            if(savedUser) { currentUser = JSON.parse(savedUser); setupUserListener(currentUser.id); showPage('home'); }
         };
 
-        // Setup real-time listener
         function setupUserListener(userId) {
-            database.ref('users/' + userId).on('value', (snapshot) => {
-                if (snapshot.val()) {
-                    currentUser = snapshot.val();
+            database.ref('users/' + userId).on('value', (snap) => {
+                if(snap.val()) {
+                    currentUser = snap.val();
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    updateHeaderBalance();
-                    
-                    // Update current page if needed
-                    if (document.getElementById('homePage').classList.contains('active')) {
-                        updateHomeUI();
-                    }
+                    if(document.getElementById('homePage').classList.contains('active')) updateHomeUI();
+                    if(document.getElementById('walletPage').classList.contains('active')) loadWalletData();
                 }
             });
         }
 
-        // PART 4 ENDS - Continue to Part 5 for Auth & Core Functions
-    </script>
-
-
-    <!-- CONTINUED FROM PART 4 - JAVASCRIPT FUNCTIONS -->
-
-    <script>
-        // ==================== AUTHENTICATION ====================
-
-        // Login
+        // ==================== AUTH ====================
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            showLoading('Logging in...');
-            
-            const phone = document.getElementById('loginPhone').value;
-            const password = document.getElementById('loginPassword').value;
-
-            try {
-                const snapshot = await database.ref('users').orderByChild('phone').equalTo(phone).once('value');
-                const users = snapshot.val();
-                
-                if (!users) {
-                    hideLoading();
-                    showToast('❌ User not found!', 'error');
-                    return;
-                }
-
-                const user = Object.values(users)[0];
-                
-                if (user.password !== password) {
-                    hideLoading();
-                    showToast('❌ Invalid password!', 'error');
-                    return;
-                }
-
-                if (user.status === 'blocked') {
-                    hideLoading();
-                    showToast('❌ Account blocked!', 'error');
-                    return;
-                }
-
-                currentUser = user;
-                localStorage.setItem('currentUser', JSON.stringify(user));
-                setupUserListener(user.id);
-                
-                hideLoading();
-                showToast('✅ Login successful!', 'success');
-                showPage('home');
-
-            } catch (error) {
-                hideLoading();
-                showToast('❌ Login failed!', 'error');
-            }
+            e.preventDefault(); showLoading('Logging in...');
+            const phone = document.getElementById('loginPhone').value, pass = document.getElementById('loginPassword').value;
+            const snap = await database.ref('users').orderByChild('phone').equalTo(phone).once('value');
+            if(!snap.val()) { hideLoading(); return showToast('User not found!', 'error'); }
+            const user = Object.values(snap.val())[0];
+            if(user.password !== pass) { hideLoading(); return showToast('Invalid password!', 'error'); }
+            if(user.status === 'blocked') { hideLoading(); return showToast('Account blocked!', 'error'); }
+            currentUser = user; localStorage.setItem('currentUser', JSON.stringify(user));
+            setupUserListener(user.id); hideLoading(); showToast('Login successful!', 'success'); showPage('home');
         });
 
-        // Register - Send OTP
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            const name = document.getElementById('regName').value.trim();
-            const phone = document.getElementById('regPhone').value.trim();
-            const password = document.getElementById('regPassword').value;
-            const confirm = document.getElementById('regConfirm').value;
-            const referral = document.getElementById('regReferral').value.trim().toUpperCase();
-
-            if (password !== confirm) {
-                showToast('❌ Passwords do not match!', 'error');
-                return;
-            }
-
-            if (phone.length !== 10) {
-                showToast('❌ Enter valid 10-digit number', 'error');
-                return;
-            }
-
+            const name = document.getElementById('regName').value, phone = document.getElementById('regPhone').value;
+            const pass = document.getElementById('regPassword').value, conf = document.getElementById('regConfirm').value;
+            if(pass !== conf) return showToast('Passwords do not match', 'error');
+            if(phone.length !== 10) return showToast('Invalid phone', 'error');
             showLoading('Sending OTP...');
-
+            const snap = await database.ref('users').orderByChild('phone').equalTo(phone).once('value');
+            if(snap.val()) { hideLoading(); return showToast('Phone already registered', 'error'); }
+            
+            document.getElementById('recaptcha-container').innerHTML = '';
+            const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {size: 'invisible'});
             try {
-                // Check if user exists
-                const snapshot = await database.ref('users').orderByChild('phone').equalTo(phone).once('value');
-                if (snapshot.val()) {
-                    hideLoading();
-                    showToast('❌ Phone already registered!', 'error');
-                    return;
-                }
-
-                // Clear previous recaptcha
-                document.getElementById('recaptcha-container').innerHTML = '';
-
-                // Initialize recaptcha
-                const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-                    size: 'invisible',
-                    callback: () => {
-                        console.log('Recaptcha verified');
-                    }
-                });
-
-                confirmationResult = await auth.signInWithPhoneNumber('+91' + phone, recaptchaVerifier);
-                
-                tempUserData = { name, phone, password, referral };
-                
-                hideLoading();
-                document.getElementById('regStep1').classList.add('hidden');
-                document.getElementById('regStep2').classList.remove('hidden');
+                confirmationResult = await auth.signInWithPhoneNumber('+91'+phone, recaptchaVerifier);
+                tempUserData = {name, phone, pass, ref: document.getElementById('regReferral').value.trim()};
+                hideLoading(); document.getElementById('regStep1').classList.add('hidden'); document.getElementById('regStep2').classList.remove('hidden');
                 document.getElementById('otpPhoneDisplay').textContent = phone;
-                
                 setupOtpInputs();
-                startOtpTimer();
-
-            } catch (error) {
-                hideLoading();
-                console.error('OTP Error:', error);
-                showToast('❌ ' + error.message, 'error');
-            }
+            } catch(e) { hideLoading(); showToast(e.message, 'error'); }
         });
 
-        // Setup OTP inputs
         function setupOtpInputs() {
             const inputs = document.querySelectorAll('.otp-input-premium');
-            inputs.forEach((input, index) => {
-                input.value = '';
-                input.addEventListener('input', (e) => {
-                    if (e.target.value.length === 1 && index < 5) {
-                        inputs[index + 1].focus();
-                    }
-                    updateFullOtp();
-                });
-                
-                input.addEventListener('keydown', (e) => {
-                    if (e.key === 'Backspace' && e.target.value === '' && index > 0) {
-                        inputs[index - 1].focus();
-                    }
+            inputs.forEach((inpt, i) => {
+                inpt.addEventListener('input', (e) => {
+                    if(e.target.value.length===1 && i<5) inputs[i+1].focus();
+                    document.getElementById('fullOtp').value = Array.from(inputs).map(inp=>inp.value).join('');
                 });
             });
         }
 
-        function updateFullOtp() {
-            const inputs = document.querySelectorAll('.otp-input-premium');
-            let otp = '';
-            inputs.forEach(input => otp += input.value);
-            document.getElementById('fullOtp').value = otp;
-        }
-
-        function startOtpTimer() {
-            let timeLeft = 60;
-            const timerEl = document.getElementById('otpTimer');
-            const resendBtn = document.getElementById('resendOtpBtn');
-            
-            clearInterval(otpTimer);
-            resendBtn.classList.add('hidden');
-            
-            otpTimer = setInterval(() => {
-                timeLeft--;
-                timerEl.textContent = timeLeft + 's';
-                
-                if (timeLeft <= 0) {
-                    clearInterval(otpTimer);
-                    timerEl.parentElement.classList.add('hidden');
-                    resendBtn.classList.remove('hidden');
-                }
-            }, 1000);
-        }
-
-        // Verify OTP and Create Account
         async function verifyOtp() {
             const otp = document.getElementById('fullOtp').value;
-            
-            if (otp.length !== 6) {
-                showToast('❌ Enter complete OTP', 'error');
-                return;
-            }
-
+            if(otp.length!==6) return showToast('Enter valid OTP', 'error');
             showLoading('Creating account...');
-
             try {
-                const result = await confirmationResult.confirm(otp);
-                
-                const { name, phone, password, referral } = tempUserData;
-                const myReferralCode = name.substring(0, 4).toUpperCase() + Math.floor(Math.random() * 1000);
-                
-                let bonus = 0;
-                let referredBy = 'ADMIN';
-                
-                // Process referral
-                if (referral) {
-                    const refSnapshot = await database.ref('users').orderByChild('referralCode').equalTo(referral).once('value');
-                    const referrerData = refSnapshot.val();
-                    
-                    if (referrerData) {
-                        const referrerId = Object.keys(referrerData)[0];
-                        const referrer = referrerData[referrerId];
-                        
-                        bonus = 15;
-                        referredBy = referral;
-                        
-                        // Credit referrer
-                        await database.ref(`users/${referrerId}`).update({
-                            'wallet/mainBalance': (referrer.wallet?.mainBalance || 0) + 15,
-                            'referrals/count': (referrer.referrals?.count || 0) + 1,
-                            'referrals/earnings': (referrer.referrals?.earnings || 0) + 15
-                        });
-                        
-                        // Add to referrer's list
-                        await database.ref(`users/${referrerId}/referrals/list`).push({
-                            name: name,
-                            phone: phone,
-                            date: new Date().toISOString()
-                        });
+                const res = await confirmationResult.confirm(otp);
+                let bonus = 0, refBy = 'ADMIN';
+                if(tempUserData.ref) {
+                    const rSnap = await database.ref('users').orderByChild('referralCode').equalTo(tempUserData.ref).once('value');
+                    if(rSnap.val()) {
+                        const rId = Object.keys(rSnap.val())[0], rData = rSnap.val()[rId];
+                        bonus = 15; refBy = tempUserData.ref;
+                        await database.ref(`users/${rId}`).update({ 'wallet/mainBalance': (rData.wallet?.mainBalance||0)+15, 'referrals/count': (rData.referrals?.count||0)+1, 'referrals/earnings': (rData.referrals?.earnings||0)+15 });
                     }
                 }
-
-                // Create user
                 const newUser = {
-                    id: generateId('USER'),
-                    firebaseUid: result.user.uid,
-                    name: name,
-                    phone: phone,
-                    password: password,
-                    referralCode: myReferralCode,
-                    referredBy: referredBy,
-                    joinDate: new Date().toISOString(),
-                    status: 'active',
-                    wallet: {
-                        mainBalance: bonus,
-                        totalWithdrawn: 0
-                    },
-                    referrals: {
-                        count: 0,
-                        list: {},
-                        earnings: 0
-                    },
-                    activePlans: {},
-                    transactions: {
-                        [Date.now()]: {
-                            id: generateId('TXN'),
-                            type: bonus > 0 ? 'referral_bonus' : 'signup',
-                            amount: bonus,
-                            description: bonus > 0 ? 'Referral signup bonus' : 'Account created',
-                            date: new Date().toISOString()
-                        }
-                    },
-                    bankDetails: {
-                        upiId: '',
-                        accountNumber: '',
-                        ifsc: '',
-                        bankName: ''
-                    },
-                    lastClaimDate: null
+                    id: generateId('USER'), name: tempUserData.name, phone: tempUserData.phone, password: tempUserData.pass,
+                    referralCode: tempUserData.name.substring(0,4).toUpperCase()+Math.floor(Math.random()*1000), referredBy: refBy,
+                    joinDate: new Date().toISOString(), status: 'active', wallet: {mainBalance: bonus, totalWithdrawn: 0},
+                    referrals: {count:0, earnings:0}, activePlans: {},
+                    transactions: {[Date.now()]: {id: generateId('TXN'), type: 'signup', amount: bonus, description: 'Signup Bonus', date: new Date().toISOString()}}
                 };
-
                 await database.ref(`users/${newUser.id}`).set(newUser);
-                
-                currentUser = newUser;
-                localStorage.setItem('currentUser', JSON.stringify(newUser));
-                setupUserListener(newUser.id);
-                
-                hideLoading();
-                
-                // Show success step
-                document.getElementById('regStep2').classList.add('hidden');
-                document.getElementById('regStep3').classList.remove('hidden');
-                document.getElementById('bonusMessage').textContent = bonus > 0 
-                    ? `🎉 ₹${bonus} referral bonus credited!` 
-                    : 'Welcome to Solar Energy!';
-                
-            } catch (error) {
-                hideLoading();
-                showToast('❌ Invalid OTP!', 'error');
-            }
+                currentUser = newUser; localStorage.setItem('currentUser', JSON.stringify(newUser)); setupUserListener(newUser.id);
+                hideLoading(); document.getElementById('regStep2').classList.add('hidden'); document.getElementById('regStep3').classList.remove('hidden');
+            } catch(e) { hideLoading(); showToast('Invalid OTP', 'error'); }
         }
 
-        async function resendOtp() {
-            showLoading('Resending OTP...');
-            try {
-                document.getElementById('recaptcha-container').innerHTML = '';
-                const recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
-                    size: 'invisible'
-                });
-                confirmationResult = await auth.signInWithPhoneNumber('+91' + tempUserData.phone, recaptchaVerifier);
-                hideLoading();
-                startOtpTimer();
-                showToast('✅ OTP resent!', 'success');
-            } catch (error) {
-                hideLoading();
-                showToast('❌ Failed to resend', 'error');
-            }
-        }
-
-        function backToReg() {
-            document.getElementById('regStep2').classList.add('hidden');
-            document.getElementById('regStep1').classList.remove('hidden');
-            clearInterval(otpTimer);
-        }
-
-        // ==================== HOME PAGE FUNCTIONS ====================
-        function loadHomeData() {
-            if (!currentUser) return;
-            updateHomeUI();
-            checkDailyClaim();
-        }
-
+        // ==================== HOME ====================
         function updateHomeUI() {
             document.getElementById('homeBalance').textContent = currentUser.wallet?.mainBalance || 0;
             document.getElementById('homeRefers').textContent = currentUser.referrals?.count || 0;
-            document.getElementById('homeEarnings').textContent = '₹' + ((currentUser.referrals?.earnings || 0) + (currentUser.wallet?.mainBalance || 0));
+            document.getElementById('homeEarnings').textContent = '₹'+(currentUser.referrals?.earnings || 0);
             
-            const activePlans = Object.values(currentUser.activePlans || {});
-            document.getElementById('homePlans').textContent = activePlans.length;
+            const plans = Object.values(currentUser.activePlans || {});
+            document.getElementById('homePlans').textContent = plans.length;
             
-            // Show active plans
-            const plansList = document.getElementById('activePlansList');
-            if (activePlans.length > 0) {
-                plansList.innerHTML = activePlans.map(plan => {
-                    const daysLeft = Math.ceil((new Date(plan.expiryDate) - new Date()) / (1000 * 60 * 60 * 24));
-                    return `
-                        <div class="premium-card" style="margin: 0 0 15px 0; border-left: 5px solid var(--success);">
-                            <div style="display: flex; justify-content: space-between; align-items: center;">
-                                <div>
-                                    <div style="font-weight: 700; font-size: 18px;">${plan.planName} Plan</div>
-                                    <div style="color: var(--gray); font-size: 14px; margin-top: 5px;">
-                                        ₹${plan.dailyReturn}/day • ${daysLeft} days left
-                                    </div>
-                                </div>
-                                <div style="text-align: right;">
-                                    <div style="font-weight: 700; color: var(--success);">₹${plan.totalClaimed || 0}</div>
-                                    <div style="font-size: 12px; color: var(--gray);">claimed</div>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                }).join('');
-            }
-            
-            // Load transactions
-            loadTransactions();
-        }
+            document.getElementById('activePlansList').innerHTML = plans.length ? plans.map(p => `
+                <div class="premium-card" style="margin: 0 0 15px; border-left: 5px solid var(--success);">
+                    <div style="font-weight:700;">${p.planName}</div><div style="font-size:12px;color:var(--gray);">₹${p.dailyReturn}/day • Total Claimed: ₹${p.totalClaimed||0}</div>
+                </div>`).join('') : '<p style="text-align:center;color:var(--gray);">No Active Plans</p>';
 
-        function checkDailyClaim() {
-            const activePlans = Object.values(currentUser.activePlans || {}).filter(p => p.status === 'active');
-            if (activePlans.length === 0) {
-                document.getElementById('dailyClaimSection').classList.add('hidden');
-                return;
-            }
-            
-            const totalDaily = activePlans.reduce((sum, plan) => sum + plan.dailyReturn, 0);
-            document.getElementById('claimAmount').textContent = totalDaily;
-            
-            // Check if already claimed today
-            const lastClaim = currentUser.lastClaimDate;
-            const today = new Date().toDateString();
-            
-            const claimBtn = document.getElementById('claimBtn');
-            const claimTimer = document.getElementById('claimTimer');
-            
-            if (lastClaim === today) {
-                claimBtn.disabled = true;
-                claimBtn.classList.add('claimed');
-                claimBtn.innerHTML = '<i class="fas fa-check"></i> Claimed';
-                claimTimer.textContent = 'Come back tomorrow!';
-            } else {
-                claimBtn.disabled = false;
-                claimBtn.classList.remove('claimed');
-                claimBtn.innerHTML = '<i class="fas fa-hand-holding-usd"></i> Claim Now';
-                claimTimer.textContent = 'Tap to claim your daily earnings';
-            }
-            
-            document.getElementById('dailyClaimSection').classList.remove('hidden');
+            const claimSection = document.getElementById('dailyClaimSection');
+            if(plans.length) {
+                const totalDaily = plans.reduce((s,p)=>s+p.dailyReturn, 0);
+                document.getElementById('claimAmount').textContent = totalDaily;
+                const claimed = currentUser.lastClaimDate === new Date().toDateString();
+                const btn = document.getElementById('claimBtn');
+                btn.disabled = claimed; btn.className = claimed ? 'claim-btn claimed' : 'claim-btn';
+                btn.innerHTML = claimed ? 'Claimed' : 'Claim Now';
+                claimSection.classList.remove('hidden');
+            } else claimSection.classList.add('hidden');
+
+            const txns = Object.values(currentUser.transactions || {}).sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5);
+            document.getElementById('homeTransactions').innerHTML = txns.length ? txns.map(tx => `
+                <div class="tx-item">
+                    <div class="tx-icon ${['deposit_pending','withdrawal_pending'].includes(tx.type)?'pending':'credit'}"><i class="fas fa-rupee-sign"></i></div>
+                    <div class="tx-details"><div style="font-weight:600;">${tx.description}</div><div style="font-size:12px;color:gray;">${new Date(tx.date).toLocaleDateString()}</div></div>
+                    <div style="font-weight:bold;">₹${tx.amount}</div>
+                </div>`).join('') : '<p style="text-align:center;">No Activity</p>';
         }
 
         async function claimDailyEarnings() {
-            const activePlans = Object.values(currentUser.activePlans || {}).filter(p => p.status === 'active');
-            if (activePlans.length === 0) return;
-            
-            const totalDaily = activePlans.reduce((sum, plan) => sum + plan.dailyReturn, 0);
-            const newBalance = (currentUser.wallet?.mainBalance || 0) + totalDaily;
-            
+            const plans = Object.values(currentUser.activePlans || {});
+            const total = plans.reduce((s,p)=>s+p.dailyReturn, 0);
             showLoading('Claiming...');
-            
-            try {
-                // Update balance
-                await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set(newBalance);
-                
-                // Update last claim date
-                await database.ref(`users/${currentUser.id}/lastClaimDate`).set(new Date().toDateString());
-                
-                // Add transaction
-                const txn = {
-                    id: generateId('TXN'),
-                    type: 'daily_earning',
-                    amount: totalDaily,
-                    description: `Daily earnings from ${activePlans.length} plan(s)`,
-                    date: new Date().toISOString()
-                };
-                await database.ref(`users/${currentUser.id}/transactions`).push(txn);
-                
-                // Update plan claimed amounts
-                for (const [planId, plan] of Object.entries(currentUser.activePlans)) {
-                    if (plan.status === 'active') {
-                        await database.ref(`users/${currentUser.id}/activePlans/${planId}/totalClaimed`).set((plan.totalClaimed || 0) + plan.dailyReturn);
-                    }
-                }
-                
-                hideLoading();
-                showToast(`✅ ₹${totalDaily} claimed successfully!`, 'success');
-                checkDailyClaim();
-                
-            } catch (error) {
-                hideLoading();
-                showToast('❌ Failed to claim', 'error');
-            }
+            await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set((currentUser.wallet?.mainBalance||0) + total);
+            await database.ref(`users/${currentUser.id}/lastClaimDate`).set(new Date().toDateString());
+            await database.ref(`users/${currentUser.id}/transactions`).push({id: generateId('TXN'), type: 'daily_earning', amount: total, description: 'Daily Earning', date: new Date().toISOString()});
+            for(let key in currentUser.activePlans) { await database.ref(`users/${currentUser.id}/activePlans/${key}/totalClaimed`).set((currentUser.activePlans[key].totalClaimed||0) + currentUser.activePlans[key].dailyReturn); }
+            hideLoading(); showToast(`₹${total} Claimed!`, 'success'); updateHomeUI();
         }
 
-        function loadTransactions() {
-            const container = document.getElementById('homeTransactions');
-            const transactions = currentUser.transactions || {};
-            
-            if (Object.keys(transactions).length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state" style="padding: 40px 20px;">
-                        <i class="fas fa-receipt"></i>
-                        <h3>No Transactions Yet</h3>
-                    </div>
-                `;
-                return;
-            }
-
-            const sortedTxns = Object.values(transactions).sort((a, b) => 
-                new Date(b.date) - new Date(a.date)
-            ).slice(0, 5);
-
-            container.innerHTML = sortedTxns.map(tx => {
-                const isCredit = ['referral_bonus', 'plan_commission', 'daily_earning', 'deposit_approved'].includes(tx.type);
-                const isPending = tx.status === 'pending';
-                
-                return `
-                    <div class="tx-item">
-                        <div class="tx-icon ${isPending ? 'pending' : (isCredit ? 'credit' : 'debit')}">
-                            <i class="fas ${isCredit ? 'fa-arrow-down' : 'fa-arrow-up'}"></i>
-                        </div>
-                        <div class="tx-details">
-                            <div class="tx-title">${tx.description}</div>
-                            <div class="tx-date">${formatDate(tx.date)}</div>
-                        </div>
-                        <div class="tx-amount ${isPending ? 'pending' : (isCredit ? 'credit' : 'debit')}">
-                            ${isCredit ? '+' : '-'}${formatCurrency(tx.amount)}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        // ==================== PLANS PAGE ====================
+        // ==================== PLANS (VERTICAL) ====================
         function loadPlansPage() {
-            const container = document.getElementById('plansContainer');
-            const activePlanIds = Object.values(currentUser.activePlans || {}).map(p => p.planId);
-            const balance = currentUser.wallet?.mainBalance || 0;
-            
-            container.innerHTML = PLANS.filter(p => p.id !== 'free').map(plan => {
-                const hasPlan = activePlanIds.includes(plan.id);
-                const canAfford = balance >= plan.price;
-                
-                return `
-                    <div class="plan-card-premium ${plan.popular ? 'popular' : ''}">
-                        <div class="plan-header-premium ${plan.color} ${plan.popular ? 'popular' : ''}">
-                            ${plan.popular ? '<div class="popular-badge">Popular</div>' : ''}
-                            <div class="plan-icon">${plan.icon}</div>
-                            <div class="plan-name">${plan.name}</div>
-                            <div class="plan-price"><span>₹</span>${plan.price}</div>
-                        </div>
-                        <div class="plan-body-premium">
-                            <ul class="plan-features">
-                                <li><i class="fas fa-check-circle"></i> <span class="highlight">₹${plan.daily}</span> daily return</li>
-                                <li><i class="fas fa-check-circle"></i> <span class="highlight">${plan.days}</span> days duration</li>
-                                <li><i class="fas fa-check-circle"></i> Total <span class="highlight">₹${plan.total}</span> return</li>
-                                <li><i class="fas fa-check-circle"></i> Profit <span class="highlight">₹${plan.total - plan.price}</span></li>
-                            </ul>
-                            ${hasPlan ? 
-                                `<button class="btn-plan btn-plan-success" disabled><i class="fas fa-check"></i> Active</button>` :
-                                canAfford ?
-                                `<button class="btn-plan btn-plan-primary" onclick="buyPlan('${plan.id}')"><i class="fas fa-bolt"></i> Buy Now</button>` :
-                                `<button class="btn-plan" style="background: var(--gray-light); color: white;" onclick="showPage('wallet'); showWalletTab('add');"><i class="fas fa-wallet"></i> Add Money</button>`
-                            }
-                        </div>
+            const activeIds = Object.values(currentUser.activePlans || {}).map(p=>p.planId);
+            const bal = currentUser.wallet?.mainBalance||0;
+            document.getElementById('freePlanBtn').disabled = activeIds.includes('free');
+            document.getElementById('freePlanBtn').textContent = activeIds.includes('free') ? 'Claimed' : 'Claim Free Plan';
+
+            document.getElementById('plansContainer').innerHTML = PLANS.filter(p=>p.id!=='free').map(p => `
+                <div class="plan-card-premium ${p.popular?'popular':''}">
+                    <div class="plan-header-premium ${p.color}">
+                        ${p.popular?'<div class="popular-badge">Popular</div>':''}
+                        <div class="plan-icon">${p.icon}</div>
+                        <div class="plan-name">${p.name}</div>
+                        <div class="plan-price"><span>₹</span>${p.price}</div>
                     </div>
-                `;
-            }).join('');
-            
-            // Update free plan button
-            const hasFreePlan = activePlanIds.includes('free');
-            document.getElementById('freePlanBtn').disabled = hasFreePlan;
-            document.getElementById('freePlanBtn').textContent = hasFreePlan ? 'Already Claimed' : 'Claim Free Plan';
+                    <div class="plan-body-premium">
+                        <ul class="plan-features">
+                            <li><i class="fas fa-check-circle"></i> Daily <span class="highlight">₹${p.daily}</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span class="highlight">${p.days}</span> Days</li>
+                            <li><i class="fas fa-check-circle"></i> Total <span class="highlight">₹${p.total}</span></li>
+                        </ul>
+                        ${activeIds.includes(p.id) ? `<button class="btn-plan btn-plan-success" disabled>Active</button>` : 
+                          bal >= p.price ? `<button class="btn-plan btn-plan-primary" onclick="buyPlan('${p.id}')">Buy Now</button>` :
+                          `<button class="btn-plan" style="background:#cbd5e1;" onclick="showPage('wallet'); showWalletTab('add');">Add Money</button>`}
+                    </div>
+                </div>`).join('');
         }
 
-        async function buyPlan(planId) {
-            const plan = PLANS.find(p => p.id === planId);
-            if (!plan) return;
-            
-            const balance = currentUser.wallet?.mainBalance || 0;
-            if (balance < plan.price) {
-                showToast('❌ Insufficient balance', 'error');
-                showPage('wallet');
-                showWalletTab('add');
-                return;
-            }
-            
+        async function buyPlan(pid) {
+            const plan = PLANS.find(p=>p.id===pid);
+            if(pid!=='free' && (currentUser.wallet?.mainBalance||0) < plan.price) return showToast('Insufficient balance', 'error');
             showLoading('Processing...');
+            if(pid!=='free') await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set(currentUser.wallet.mainBalance - plan.price);
             
-            try {
-                const newBalance = balance - plan.price;
-                const expiryDate = new Date();
-                expiryDate.setDate(expiryDate.getDate() + plan.days);
-                
-                // Deduct balance
-                await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set(newBalance);
-                
-                // Add plan
-                const planData = {
-                    planId: plan.id,
-                    planName: plan.name,
-                    amount: plan.price,
-                    dailyReturn: plan.daily,
-                    purchasedDate: new Date().toISOString(),
-                    expiryDate: expiryDate.toISOString(),
-                    status: 'active',
-                    totalClaimed: 0
-                };
-                await database.ref(`users/${currentUser.id}/activePlans`).push(planData);
-                
-                // Add transaction
-                const txn = {
-                    id: generateId('TXN'),
-                    type: 'plan_purchase',
-                    amount: plan.price,
-                    description: `Purchased ${plan.name} plan`,
-                    date: new Date().toISOString()
-                };
-                await database.ref(`users/${currentUser.id}/transactions`).push(txn);
-                
-                // Referral commission (20%)
-                if (currentUser.referredBy && currentUser.referredBy !== 'ADMIN') {
-                    const refSnapshot = await database.ref('users').orderByChild('referralCode').equalTo(currentUser.referredBy).once('value');
-                    const referrerData = refSnapshot.val();
-                    
-                    if (referrerData) {
-                        const referrerId = Object.keys(referrerData)[0];
-                        const referrer = referrerData[referrerId];
-                        const commission = Math.floor(plan.price * 0.2);
-                        
-                        await database.ref(`users/${referrerId}`).update({
-                            'wallet/mainBalance': (referrer.wallet?.mainBalance || 0) + commission,
-                            'referrals/earnings': (referrer.referrals?.earnings || 0) + commission
-                        });
-                        
-                        const commTxn = {
-                            id: generateId('TXN'),
-                            type: 'plan_commission',
-                            amount: commission,
-                            description: `20% commission from ${currentUser.name}`,
-                            date: new Date().toISOString()
-                        };
-                        await database.ref(`users/${referrerId}/transactions`).push(commTxn);
-                    }
+            const exp = new Date(); exp.setDate(exp.getDate() + plan.days);
+            await database.ref(`users/${currentUser.id}/activePlans`).push({planId: plan.id, planName: plan.name, amount: plan.price, dailyReturn: plan.daily, purchasedDate: new Date().toISOString(), expiryDate: exp.toISOString(), status: 'active', totalClaimed: 0});
+            await database.ref(`users/${currentUser.id}/transactions`).push({id: generateId('TXN'), type: 'plan_purchase', amount: plan.price, description: `Bought ${plan.name}`, date: new Date().toISOString()});
+            
+            // Commission
+            if(currentUser.referredBy && currentUser.referredBy !== 'ADMIN' && pid !== 'free') {
+                const rSnap = await database.ref('users').orderByChild('referralCode').equalTo(currentUser.referredBy).once('value');
+                if(rSnap.val()) {
+                    const rId = Object.keys(rSnap.val())[0], rData = rSnap.val()[rId], comm = Math.floor(plan.price*0.2);
+                    await database.ref(`users/${rId}`).update({'wallet/mainBalance': (rData.wallet?.mainBalance||0)+comm});
+                    await database.ref(`users/${rId}/transactions`).push({id: generateId('TXN'), type: 'commission', amount: comm, description: `Commission from ${currentUser.name}`, date: new Date().toISOString()});
                 }
-                
-                hideLoading();
-                showToast('✅ Plan activated!', 'success');
-                showPage('home');
-                
-            } catch (error) {
-                hideLoading();
-                showToast('❌ Failed to buy plan', 'error');
             }
+            hideLoading(); showToast('Plan Activated!', 'success'); showPage('home');
         }
 
-        // ==================== WALLET FUNCTIONS ====================
+        // ==================== WALLET & AUTO UPI ====================
         function showWalletTab(tab) {
-            document.querySelectorAll('.wallet-tab').forEach(t => t.classList.remove('active'));
-            document.querySelector(`.wallet-tab[data-tab="${tab}"]`)?.classList.add('active');
-            
-            document.querySelectorAll('.wallet-section').forEach(s => s.classList.add('hidden'));
-            document.getElementById('wallet' + tab.charAt(0).toUpperCase() + tab.slice(1) + 'Section').classList.remove('hidden');
-            
-            if (tab === 'history') loadWalletTransactions();
+            document.querySelectorAll('.wallet-tab').forEach(t=>t.classList.remove('active'));
+            document.querySelector(`.wallet-tab[data-tab="${tab}"]`).classList.add('active');
+            document.querySelectorAll('.wallet-section').forEach(s=>s.classList.add('hidden'));
+            document.getElementById('wallet'+tab.charAt(0).toUpperCase()+tab.slice(1)+'Section').classList.remove('hidden');
         }
 
         function loadWalletData() {
-            if (!currentUser) return;
             document.getElementById('walletBalance').textContent = currentUser.wallet?.mainBalance || 0;
-            loadWalletTransactions();
+            const txns = Object.values(currentUser.transactions || {}).sort((a,b)=>new Date(b.date)-new Date(a.date));
+            document.getElementById('walletTransactions').innerHTML = txns.length ? txns.map(tx => `
+                <div class="tx-item">
+                    <div class="tx-details"><div style="font-weight:600;">${tx.description}</div><div style="font-size:12px;color:gray;">${new Date(tx.date).toLocaleString()}</div></div>
+                    <div style="font-weight:bold; color: ${['deposit_pending','withdrawal_pending'].includes(tx.type)?'orange':(tx.description.includes('Bought')||tx.type==='withdrawal_approved')?'red':'green'}">₹${tx.amount}</div>
+                </div>`).join('') : '<p style="text-align:center;">No History</p>';
         }
 
-        function loadWalletTransactions() {
-            const container = document.getElementById('walletTransactions');
-            const transactions = currentUser.transactions || {};
+        function setAmount(amt) { document.getElementById('addAmount').value = amt; }
+
+        // AUTO UPI INTENT SYSTEM
+        function payViaUPI(app) {
+            const amount = document.getElementById('addAmount').value;
+            if(!amount || amount < 100) return showToast('❌ Minimum ₹100 required', 'error');
+
+            const upiString = `pa=${ADMIN_UPI_ID}&pn=Solar%20Energy&am=${amount}&cu=INR`;
+            let intentUrl = '';
             
-            if (Object.keys(transactions).length === 0) {
-                container.innerHTML = `
-                    <div class="empty-state">
-                        <i class="fas fa-receipt"></i>
-                        <h3>No Transactions Yet</h3>
-                    </div>
-                `;
-                return;
-            }
+            if(app === 'gpay') intentUrl = `gpay://upi/pay?${upiString}`;
+            else if(app === 'phonepe') intentUrl = `phonepe://pay?${upiString}`;
+            else if(app === 'paytm') intentUrl = `paytmmp://pay?${upiString}`;
+            else intentUrl = `upi://pay?${upiString}`;
 
-            const sortedTxns = Object.values(transactions).sort((a, b) => 
-                new Date(b.date) - new Date(a.date)
-            );
-
-            container.innerHTML = sortedTxns.map(tx => {
-                const isCredit = ['referral_bonus', 'plan_commission', 'daily_earning', 'deposit_approved'].includes(tx.type);
-                const isPending = tx.status === 'pending';
-                
-                return `
-                    <div class="tx-item">
-                        <div class="tx-icon ${isPending ? 'pending' : (isCredit ? 'credit' : 'debit')}">
-                            <i class="fas ${isCredit ? 'fa-arrow-down' : 'fa-arrow-up'}"></i>
-                        </div>
-                        <div class="tx-details">
-                            <div class="tx-title">${tx.description}</div>
-                            <div class="tx-date">${formatDate(tx.date)}</div>
-                        </div>
-                        <div class="tx-amount ${isPending ? 'pending' : (isCredit ? 'credit' : 'debit')}">
-                            ${isCredit ? '+' : '-'}${formatCurrency(tx.amount)}
-                        </div>
-                    </div>
-                `;
-            }).join('');
-        }
-
-        function setAmount(amount) {
-            document.getElementById('addAmount').value = amount;
-        }
-
-        function copyUpi() {
-            navigator.clipboard.writeText('6395503566@upi').then(() => {
-                showToast('✅ UPI ID copied!', 'success');
-            });
-        }
-
-        function selectMethod(method) {
-            selectedWithdrawMethod = method;
-            document.querySelectorAll('.payment-method').forEach(m => m.classList.remove('selected'));
-            document.getElementById('method' + method.charAt(0).toUpperCase() + method.slice(1)).classList.add('selected');
+            // Set Dropdown automatically based on button clicked
+            document.getElementById('paidVia').value = app === 'gpay' ? 'Google Pay' : (app === 'phonepe' ? 'PhonePe' : (app === 'paytm' ? 'Paytm' : 'Other'));
             
-            document.getElementById('upiFields').classList.toggle('hidden', method !== 'upi');
-            document.getElementById('bankFields').classList.toggle('hidden', method !== 'bank');
+            showToast('Opening payment app...', 'info');
+            window.location.href = intentUrl; // Redirect to UPI App
         }
 
-        // Add Money
         document.getElementById('addMoneyForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            const amount = parseInt(document.getElementById('addAmount').value);
-            const txnId = document.getElementById('upiTxnId').value.trim();
-            const paidVia = document.getElementById('paidVia').value;
-            
-            if (amount < 100) {
-                showToast('❌ Minimum ₹100', 'error');
-                return;
-            }
-            
+            const amt = parseInt(document.getElementById('addAmount').value), utr = document.getElementById('upiTxnId').value, via = document.getElementById('paidVia').value;
+            if(amt < 100) return showToast('Minimum ₹100', 'error');
             showLoading('Submitting...');
-            
-            try {
-                const deposit = {
-                    id: generateId('DEP'),
-                    userId: currentUser.id,
-                    userName: currentUser.name,
-                    userPhone: currentUser.phone,
-                    amount: amount,
-                    transactionId: txnId,
-                    upiApp: paidVia,
-                    status: 'pending',
-                    requestedAt: new Date().toISOString()
-                };
-                
-                await database.ref('deposits').push(deposit);
-                
-                const txn = {
-                    id: deposit.id,
-                    type: 'deposit_pending',
-                    amount: amount,
-                    description: `Deposit pending (Txn: ${txnId})`,
-                    date: new Date().toISOString(),
-                    status: 'pending'
-                };
-                await database.ref(`users/${currentUser.id}/transactions`).push(txn);
-                
-                hideLoading();
-                showToast('✅ Request submitted!', 'success');
-                document.getElementById('addMoneyForm').reset();
-                showWalletTab('history');
-                
-            } catch (error) {
-                hideLoading();
-                showToast('❌ Failed to submit', 'error');
-            }
+            const depId = generateId('DEP');
+            await database.ref('deposits/'+depId).set({id: depId, userId: currentUser.id, userName: currentUser.name, userPhone: currentUser.phone, amount: amt, transactionId: utr, upiApp: via, status: 'pending', requestedAt: new Date().toISOString()});
+            await database.ref(`users/${currentUser.id}/transactions`).push({id: depId, type: 'deposit_pending', amount: amt, description: `Deposit Pending (UTR: ${utr})`, date: new Date().toISOString()});
+            hideLoading(); showToast('Request Sent!', 'success'); document.getElementById('addMoneyForm').reset(); showWalletTab('history');
         });
 
-        // Withdraw
+        function toggleWithdrawMethod() {
+            const m = document.getElementById('withdrawMethod').value;
+            document.getElementById('upiFields').classList.toggle('hidden', m !== 'upi');
+            document.getElementById('bankFields').classList.toggle('hidden', m !== 'bank');
+        }
+
         document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            const amount = parseInt(document.getElementById('withdrawAmount').value);
-            const balance = currentUser.wallet?.mainBalance || 0;
-            
-            if (amount < 200) {
-                showToast('❌ Minimum ₹200', 'error');
-                return;
-            }
-            
-            if (balance < amount) {
-                showToast('❌ Insufficient balance', 'error');
-                return;
-            }
-            
-            if (!selectedWithdrawMethod) {
-                showToast('❌ Select withdrawal method', 'error');
-                return;
-            }
+            const amt = parseInt(document.getElementById('withdrawAmount').value), m = document.getElementById('withdrawMethod').value;
+            if(amt < 200) return showToast('Min ₹200', 'error');
+            if(amt > (currentUser.wallet?.mainBalance||0)) return showToast('Insufficient balance', 'error');
+            let details = m === 'upi' ? document.getElementById('upiIdInput').value : `${document.getElementById('bankHolderName').value}, A/c: ${document.getElementById('bankAccNumber').value}, IFSC: ${document.getElementById('bankIfsc').value}`;
             
             showLoading('Processing...');
-            
-            try {
-                let details = '';
-                if (selectedWithdrawMethod === 'upi') {
-                    details = document.getElementById('upiIdInput').value;
-                    // Save UPI
-                    await database.ref(`users/${currentUser.id}/bankDetails/upiId`).set(details);
-                } else {
-                    const holder = document.getElementById('bankHolderName').value;
-                    const accNum = document.getElementById('bankAccNumber').value;
-                    const ifsc = document.getElementById('bankIfsc').value;
-                    const bank = document.getElementById('bankName').value;
-                    details = `${holder}, ${bank}, A/c: ${accNum}, IFSC: ${ifsc}`;
-                    
-                    // Save bank details
-                    await database.ref(`users/${currentUser.id}/bankDetails`).set({
-                        upiId: currentUser.bankDetails?.upiId || '',
-                        accountHolder: holder,
-                        accountNumber: accNum,
-                        ifsc: ifsc,
-                        bankName: bank
-                    });
-                }
-                
-                // Deduct balance
-                await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set(balance - amount);
-                await database.ref(`users/${currentUser.id}/wallet/totalWithdrawn`).set((currentUser.wallet?.totalWithdrawn || 0) + amount);
-                
-                // Create withdrawal request
-                const withdrawal = {
-                    id: generateId('WID'),
-                    userId: currentUser.id,
-                    userName: currentUser.name,
-                    userPhone: currentUser.phone,
-                    amount: amount,
-                    method: selectedWithdrawMethod,
-                    details: details,
-                    status: 'pending',
-                    requestedAt: new Date().toISOString()
-                };
-                
-                await database.ref('withdrawals').push(withdrawal);
-                
-                const txn = {
-                    id: withdrawal.id,
-                    type: 'withdrawal_pending',
-                    amount: amount,
-                    description: `Withdrawal to ${selectedWithdrawMethod.toUpperCase()}`,
-                    date: new Date().toISOString(),
-                    status: 'pending'
-                };
-                await database.ref(`users/${currentUser.id}/transactions`).push(txn);
-                
-                hideLoading();
-                showToast('✅ Withdrawal requested!', 'success');
-                document.getElementById('withdrawForm').reset();
-                showWalletTab('history');
-                
-            } catch (error) {
-                hideLoading();
-                showToast('❌ Failed to process', 'error');
-            }
+            await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set((currentUser.wallet.mainBalance) - amt);
+            const wId = generateId('WID');
+            await database.ref('withdrawals/'+wId).set({id: wId, userId: currentUser.id, userName: currentUser.name, amount: amt, method: m, details: details, status: 'pending', requestedAt: new Date().toISOString()});
+            await database.ref(`users/${currentUser.id}/transactions`).push({id: wId, type: 'withdrawal_pending', amount: amt, description: `Withdrawal Pending`, date: new Date().toISOString()});
+            hideLoading(); showToast('Withdrawal Requested!', 'success'); document.getElementById('withdrawForm').reset(); showWalletTab('history');
         });
 
-        // ==================== REFERRAL FUNCTIONS ====================
+        // ==================== REFERRAL & PROFILE ====================
         function loadReferralData() {
-            if (!currentUser) return;
-            
-            const link = `${window.location.origin}${window.location.pathname}?ref=${currentUser.referralCode}`;
-            document.getElementById('refLink').textContent = link;
-            
+            document.getElementById('refLink').textContent = `${window.location.origin}${window.location.pathname}?ref=${currentUser.referralCode}`;
             document.getElementById('refTotal').textContent = currentUser.referrals?.count || 0;
-            document.getElementById('refEarned').textContent = '₹' + (currentUser.referrals?.earnings || 0);
-            
-            // Calculate pending
-            const refList = currentUser.referrals?.list || {};
-            document.getElementById('refPending').textContent = Math.max(0, (currentUser.referrals?.count || 0) - Object.keys(refList).length);
+            document.getElementById('refEarned').textContent = '₹'+(currentUser.referrals?.earnings || 0);
         }
+        function copyRefLink() { navigator.clipboard.writeText(document.getElementById('refLink').textContent); showToast('Link Copied!', 'success'); }
+        function loadProfileData() { document.getElementById('profileName').textContent = currentUser.name; document.getElementById('profilePhone').textContent = '+91 '+currentUser.phone; }
+        function logout() { localStorage.removeItem('currentUser'); window.location.reload(); }
 
-        function copyRefLink() {
-            const link = document.getElementById('refLink').textContent;
-            navigator.clipboard.writeText(link).then(() => {
-                showToast('✅ Link copied!', 'success');
-            });
-        }
-
-        function shareWhatsApp() {
-            const link = document.getElementById('refLink').textContent;
-            const text = `🌞 Join Solar Energy!\n\n💰 Get ₹15 instant per referral!\n💎 20% commission on plans!\n🏆 Lifetime passive income!\n\n${link}`;
-            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
-        }
-
-        // ==================== PROFILE & SUPPORT ====================
-        function loadProfileData() {
-            if (!currentUser) return;
-            
-            document.getElementById('profileName').textContent = currentUser.name;
-            document.getElementById('profilePhone').textContent = '+91 ' + currentUser.phone;
-            document.getElementById('profJoinDate').textContent = formatDate(currentUser.joinDate);
-            document.getElementById('profTotalEarn').textContent = '₹' + ((currentUser.referrals?.earnings || 0) + (currentUser.wallet?.mainBalance || 0));
-        }
-
-        function loadSupportData() {
-            if (!currentUser) return;
-            
-            database.ref('tickets').orderByChild('userId').equalTo(currentUser.id).once('value', (snapshot) => {
-                const tickets = snapshot.val() || {};
-                const container = document.getElementById('ticketsList');
-                
-                if (Object.keys(tickets).length === 0) {
-                    container.innerHTML = `
-                        <div class="empty-state">
-                            <i class="fas fa-ticket-alt"></i>
-                            <h3>No Tickets Yet</h3>
-                        </div>
-                    `;
-                    return;
-                }
-
-                container.innerHTML = Object.values(tickets).sort((a, b) => 
-                    new Date(b.createdAt) - new Date(a.createdAt)
-                ).map(ticket => `
-                    <div class="premium-card" style="margin: 0 0 15px 0; border-left: 4px solid ${ticket.status === 'open' ? 'var(--warning)' : 'var(--success)'};">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                            <span class="badge badge-${ticket.status === 'open' ? 'warning' : 'success'}">${ticket.status.toUpperCase()}</span>
-                            <small style="color: var(--gray);">${formatDate(ticket.createdAt)}</small>
-                        </div>
-                        <h4 style="margin-bottom: 8px;">${ticket.subject}</h4>
-                        <p style="color: var(--gray); font-size: 14px;">${ticket.message}</p>
-                    </div>
-                `).join('');
-            });
-        }
-
-        document.getElementById('ticketForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const ticket = {
-                id: generateId('TIC'),
-                userId: currentUser.id,
-                userName: currentUser.name,
-                userPhone: currentUser.phone,
-                type: document.getElementById('ticketType').value,
-                subject: document.getElementById('ticketSubject').value,
-                message: document.getElementById('ticketMessage').value,
-                status: 'open',
-                createdAt: new Date().toISOString()
-            };
-            
-            showLoading('Submitting...');
-            
-            try {
-                await database.ref('tickets').push(ticket);
-                hideLoading();
-                showToast('✅ Ticket created!', 'success');
-                document.getElementById('ticketForm').reset();
-                loadSupportData();
-            } catch (error) {
-                hideLoading();
-                showToast('❌ Failed to create ticket', 'error');
-            }
-        });
-
-        // Forgot password
-        document.getElementById('forgotForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            showToast('📞 Contact support: +91 6395503566', 'info');
-        });
-
-        // Logout
-        function logout() {
-            if (currentUser) {
-                database.ref(`users/${currentUser.id}`).off();
-            }
-            currentUser = null;
-            localStorage.removeItem('currentUser');
-            auth.signOut();
-            showToast('👋 Logged out', 'info');
-            showPage('login');
-        }
     </script>
 </body>
 </html>
