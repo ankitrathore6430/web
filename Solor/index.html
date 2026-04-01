@@ -79,11 +79,12 @@
         
         .plans-vertical { display: flex; flex-direction: column; gap: 20px; padding: 10px 20px 30px; }
         .plan-card-premium { width: 100%; background: var(--white); border-radius: 28px; overflow: hidden; box-shadow: var(--shadow); transition: all 0.3s; border: 2px solid transparent; position: relative;}
-        .plan-card-premium:hover { transform: translateY(-5px); box-shadow: var(--shadow-xl); }
         
         .plan-header-premium { padding: 30px; text-align: center; color: var(--white); position: relative; }
         .plan-header-premium.free { background: var(--gradient-2); }
         .plan-header-premium.paid { background: var(--gradient-1); }
+        /* FIX: Ensure popular plan (500) has distinct color and white text */
+        .plan-header-premium.popular { background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%) !important; color: #ffffff !important; }
         
         .discount-badge { position: absolute; top: 15px; right: -10px; background: #fde047; color: var(--dark); padding: 5px 20px; font-size: 12px; font-weight: 800; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
         .price-strike { text-decoration: line-through; color: rgba(255,255,255,0.7); font-size: 22px; margin-right: 10px; font-weight: 500;}
@@ -175,6 +176,10 @@
         .empty-state { text-align: center; padding: 60px 20px; color: var(--gray); }
         .empty-state i { font-size: 64px; margin-bottom: 20px; opacity: 0.3; }
         .empty-state h3 { font-size: 20px; margin-bottom: 10px; }
+
+        /* Referral Program Specific Classes */
+        .step-circle { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; background: var(--gradient-1); flex-shrink: 0; box-shadow: 0 4px 10px rgba(99,102,241,0.3);}
+        .level-card { display: flex; align-items: center; justify-content: space-between; padding: 15px; border-radius: 16px; margin-bottom: 10px; background: var(--light); border: 1px solid #e2e8f0; }
     </style>
 </head>
 <body>
@@ -385,7 +390,7 @@
             <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 10px;"><i class="fas fa-gem" style="color: var(--secondary); margin-right: 10px;"></i>Investment Plans</h2>
         </div>
 
-        <div class="premium-card" style="background: var(--gradient-2); color: white; margin-bottom: 20px;">
+        <div class="premium-card" id="plan-card-free" style="background: var(--gradient-2); color: white; margin-bottom: 20px;">
             <div style="display: flex; align-items: center; gap: 20px;">
                 <div style="font-size: 50px;">🎁</div>
                 <div style="flex: 1;">
@@ -497,59 +502,100 @@
         </div>
     </div>
 
-    <!-- REFERRAL PAGE -->
+    <!-- REFERRAL PAGE (OPTIMIZED UI) -->
     <div id="referralPage" class="page">
-        <div class="premium-card" style="background: var(--gradient-1); color: white; text-align: center; margin-bottom: 0; border-bottom-left-radius: 0; border-bottom-right-radius: 0;">
-            <h2 style="font-size: 24px; font-weight: 700;">Invite & Earn Massive!</h2>
-            <p style="opacity: 0.9; font-size: 14px;">Build your team and earn lifetime passive income</p>
-            <div style="font-size: 60px; font-weight: 800; margin: 15px 0; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">₹15</div>
-            <div style="font-size: 16px; font-weight: 600; background: rgba(255,255,255,0.2); padding: 8px 15px; border-radius: 20px; display: inline-block;">Instant Per Signup</div>
-        </div>
-        
-        <div class="premium-card" style="margin-top: -10px; z-index: 10; position: relative;">
-            <p style="font-size: 12px; color: var(--gray); margin-bottom: 5px; text-transform: uppercase; font-weight: 700;">Your Referral Link</p>
-            <div style="background: var(--light); padding: 15px; border-radius: 12px; font-family: monospace; word-break: break-all; border: 1px dashed var(--gray-light); color: var(--primary-dark); font-weight: 600; margin-bottom: 15px;" id="refLink">Loading...</div>
+        <!-- Header Banner -->
+        <div class="premium-card" style="background: var(--gradient-1); color: white; text-align: center; margin-bottom: 20px; padding: 35px 20px;">
+            <h2 style="font-size: 26px; font-weight: 800;">Refer & Earn Lifetime!</h2>
+            <p style="opacity: 0.9; margin-bottom: 15px;">Build your team and get passive income</p>
+            
+            <div style="background: rgba(255,255,255,0.15); border-radius: 20px; padding: 20px; margin: 20px 0; border: 1px solid rgba(255,255,255,0.3); backdrop-filter: blur(10px);">
+                <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Instant Bonus</div>
+                <div style="font-size: 55px; font-weight: 800; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">₹15</div>
+                <div style="font-size: 14px; opacity: 0.9;">Per Successful Signup</div>
+            </div>
+
+            <p style="font-size: 13px; opacity: 0.9; margin-bottom: 5px; text-transform: uppercase; font-weight: 700;">Your Referral Link</p>
+            <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; font-family: monospace; word-break: break-all; font-weight: 600; margin-bottom: 15px; border: 1px dashed rgba(255,255,255,0.5);" id="refLink">Loading...</div>
             <div style="display: flex; gap: 10px;">
-                <button class="btn-main btn-main-primary" onclick="copyRefLink()" style="flex: 1;"><i class="fas fa-copy"></i> Copy</button>
-                <button class="btn-main" onclick="shareWhatsApp()" style="flex: 1; background: #25D366; color: white;"><i class="fab fa-whatsapp"></i> Share</button>
+                <button class="btn-main" onclick="copyRefLink()" style="flex: 1; background: white; color: var(--primary);"><i class="fas fa-copy"></i> Copy Link</button>
+                <button class="btn-main" onclick="shareWhatsApp()" style="flex: 1; background: #25D366; color: white; border: none;"><i class="fab fa-whatsapp"></i> Share</button>
             </div>
         </div>
 
-        <div class="section-title"><h2><i class="fas fa-sitemap" style="color: var(--primary); margin-right: 10px;"></i>3-Level Commission</h2></div>
-        
+        <!-- How it Works Guide -->
+        <div class="section-title"><h2><i class="fas fa-info-circle" style="color: var(--warning); margin-right: 10px;"></i>How It Works?</h2></div>
         <div class="premium-card" style="padding: 15px;">
-            <div style="display: flex; align-items: center; gap: 15px; padding: 15px 0; border-bottom: 1px solid var(--light);">
-                <div style="width: 50px; height: 50px; background: rgba(99, 102, 241, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary); font-weight: 800; font-size: 20px;">L1</div>
-                <div style="flex: 1;">
-                    <div style="font-weight: 700; font-size: 16px;">Direct Refers (5%)</div>
-                    <div style="font-size: 12px; color: var(--gray);">Friends who join using your link</div>
+            <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                <div class="step-circle">1</div>
+                <div>
+                    <div style="font-weight: 700; font-size: 15px;">Share Your Link</div>
+                    <div style="font-size: 13px; color: var(--gray);">Send your link to friends via WhatsApp or social media.</div>
                 </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 15px; padding: 15px 0; border-bottom: 1px solid var(--light);">
-                <div style="width: 50px; height: 50px; background: rgba(16, 185, 129, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--success); font-weight: 800; font-size: 20px;">L2</div>
-                <div style="flex: 1;">
-                    <div style="font-weight: 700; font-size: 16px;">Indirect Refers (3%)</div>
-                    <div style="font-size: 12px; color: var(--gray);">Friends of your direct refers</div>
+            <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                <div class="step-circle" style="background: var(--gradient-2);">2</div>
+                <div>
+                    <div style="font-weight: 700; font-size: 15px;">Friend Registers (Earn ₹15)</div>
+                    <div style="font-size: 13px; color: var(--gray);">When your friend signs up, you instantly get ₹15 in your wallet.</div>
                 </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 15px; padding: 15px 0;">
-                <div style="width: 50px; height: 50px; background: rgba(245, 158, 11, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--warning); font-weight: 800; font-size: 20px;">L3</div>
-                <div style="flex: 1;">
-                    <div style="font-weight: 700; font-size: 16px;">Deep Refers (1%)</div>
-                    <div style="font-size: 12px; color: var(--gray);">Friends of level 2 refers</div>
+            <div style="display: flex; gap: 15px;">
+                <div class="step-circle" style="background: var(--gradient-3);">3</div>
+                <div>
+                    <div style="font-weight: 700; font-size: 15px;">Friend Buys Plan (Earn Comm.)</div>
+                    <div style="font-size: 13px; color: var(--gray);">When they invest, you get up to 5% commission immediately!</div>
                 </div>
             </div>
         </div>
 
-        <div class="section-title"><h2><i class="fas fa-chart-line" style="color: var(--success); margin-right: 10px;"></i>Your Team Stats</h2></div>
+        <!-- 3 Level Commission Guide -->
+        <div class="section-title"><h2><i class="fas fa-sitemap" style="color: var(--primary); margin-right: 10px;"></i>Team Commission</h2></div>
+        <div class="premium-card" style="padding: 15px;">
+            <div class="level-card">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 45px; height: 45px; background: rgba(99, 102, 241, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary); font-weight: 800; font-size: 18px;">L1</div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 15px;">Direct Refers</div>
+                        <div style="font-size: 12px; color: var(--gray);">Your direct friends</div>
+                    </div>
+                </div>
+                <div style="font-size: 22px; font-weight: 800; color: var(--primary);">5%</div>
+            </div>
+            
+            <div class="level-card">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 45px; height: 45px; background: rgba(16, 185, 129, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--success); font-weight: 800; font-size: 18px;">L2</div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 15px;">Indirect Refers</div>
+                        <div style="font-size: 12px; color: var(--gray);">Friends of Level 1</div>
+                    </div>
+                </div>
+                <div style="font-size: 22px; font-weight: 800; color: var(--success);">3%</div>
+            </div>
+
+            <div class="level-card" style="margin-bottom: 0;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 45px; height: 45px; background: rgba(245, 158, 11, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--warning); font-weight: 800; font-size: 18px;">L3</div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 15px;">Deep Refers</div>
+                        <div style="font-size: 12px; color: var(--gray);">Friends of Level 2</div>
+                    </div>
+                </div>
+                <div style="font-size: 22px; font-weight: 800; color: var(--warning);">1%</div>
+            </div>
+        </div>
+
+        <!-- Team Stats -->
+        <div class="section-title"><h2><i class="fas fa-chart-line" style="color: var(--success); margin-right: 10px;"></i>Your Earnings</h2></div>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 0 20px 20px;">
             <div class="premium-card" style="margin: 0; padding: 25px; text-align: center;">
                 <div style="font-size: 28px; font-weight: 700; color: var(--dark);" id="refTotal">0</div>
-                <div style="font-size: 12px; color: var(--gray);">Total Refers</div>
+                <div style="font-size: 12px; color: var(--gray);">Total Team</div>
             </div>
             <div class="premium-card" style="margin: 0; padding: 25px; text-align: center;">
                 <div style="font-size: 28px; font-weight: 700; color: var(--success);" id="refEarned">₹0</div>
-                <div style="font-size: 12px; color: var(--gray);">Total Earned</div>
+                <div style="font-size: 12px; color: var(--gray);">Referral Income</div>
             </div>
         </div>
     </div>
@@ -656,7 +702,7 @@
         let confirmationResult = null;
         let tempUserData = {};
         const ADMIN_UPI_ID = '6395503566@upi'; 
-        let activeOffers = {}; // To store discounts dynamically
+        let activeOffers = {}; 
 
         // ==================== PLANS DATA ====================
         const PLANS = [
@@ -701,6 +747,24 @@
             window.scrollTo(0,0);
         }
 
+        // REDIRECT & HIGHLIGHT SPECIFIC PLAN
+        function goToPlan(planId) {
+            showPage('plans');
+            setTimeout(() => {
+                const planCard = document.getElementById('plan-card-' + planId);
+                if(planCard) {
+                    planCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    planCard.style.transition = 'all 0.5s';
+                    planCard.style.transform = 'scale(1.03)';
+                    planCard.style.boxShadow = '0 0 25px rgba(239, 68, 68, 0.6)';
+                    setTimeout(() => {
+                        planCard.style.transform = 'scale(1)';
+                        planCard.style.boxShadow = 'var(--shadow)';
+                    }, 1200);
+                }
+            }, 300);
+        }
+
         window.onload = function() {
             const refCode = new URLSearchParams(window.location.search).get('ref');
             if(refCode) {
@@ -709,7 +773,6 @@
             const savedUser = localStorage.getItem('currentUser');
             if(savedUser) { currentUser = JSON.parse(savedUser); setupUserListener(currentUser.id); showPage('home'); }
             
-            // Listen for offers
             database.ref('settings/offers').on('value', snap => {
                 activeOffers = snap.val() || {};
                 if(document.getElementById('plansPage').classList.contains('active')) loadPlansPage();
@@ -785,7 +848,6 @@
                     if(rSnap.val()) {
                         const rId = Object.keys(rSnap.val())[0], rData = rSnap.val()[rId];
                         bonus = 15; refBy = tempUserData.ref;
-                        // Give 15 Rs to the referrer
                         await database.ref(`users/${rId}`).update({ 'wallet/mainBalance': (rData.wallet?.mainBalance||0)+15, 'referrals/count': (rData.referrals?.count||0)+1, 'referrals/earnings': (rData.referrals?.earnings||0)+15 });
                         await database.ref(`users/${rId}/transactions`).push({id: generateId('TXN'), type: 'referral_bonus', amount: 15, description: `Referral Signup Bonus from ${tempUserData.name}`, date: new Date().toISOString(), status: 'approved'});
                     }
@@ -817,7 +879,6 @@
                     <div style="font-weight:700;">${p.planName}</div><div style="font-size:12px;color:var(--gray);">₹${p.dailyReturn}/day • Total Claimed: ₹${p.totalClaimed||0}</div>
                 </div>`).join('') : '<p style="text-align:center;color:var(--gray);">No Active Plans</p>';
 
-            // Load Offers Section
             const offerContainer = document.getElementById('homeOffers');
             const plansWithOffers = PLANS.filter(p => activeOffers[p.id]);
             if(plansWithOffers.length > 0) {
@@ -836,7 +897,7 @@
                             <div style="text-align: right;">
                                 <div style="text-decoration: line-through; color: var(--gray-light); font-size: 14px;">₹${p.price}</div>
                                 <div style="font-size: 22px; font-weight: 800; color: var(--danger);">₹${newPrice}</div>
-                                <button class="btn-main" style="padding: 6px 12px; font-size: 12px; margin-top: 5px; background: var(--danger); color: white;" onclick="showPage('plans')">View</button>
+                                <button class="btn-main" style="padding: 6px 12px; font-size: 12px; margin-top: 5px; background: var(--danger); color: white;" onclick="goToPlan('${p.id}')">View Offer</button>
                             </div>
                         </div>
                     </div>`;
@@ -888,7 +949,7 @@
             
             updateHomeUI();
             if(document.getElementById('plansPage').classList.contains('active')) {
-                loadPlansPage(); // refresh buttons on plans page if currently there
+                loadPlansPage(); 
             }
         }
 
@@ -898,7 +959,7 @@
             const bal = currentUser.wallet?.mainBalance||0;
             const todayClaimed = currentUser.lastClaimDate === new Date().toDateString();
             
-            // Handle Free Plan Button
+            // Handle Free Plan
             const hasFreePlan = activeIds.includes('free');
             const freePlanDiv = document.getElementById('freePlanAction');
             if(hasFreePlan) {
@@ -906,13 +967,13 @@
                     freePlanDiv.innerHTML = `
                         <div style="display:flex; gap:10px; margin-top: 15px;">
                             <button class="btn-premium" style="flex:1; cursor:default; background:rgba(255,255,255,0.2); color:white; border:none;" disabled><i class="fas fa-check-circle"></i> Active</button>
-                            <button class="btn-premium" style="flex:1; background:rgba(255,255,255,0.4); color:white; border:none;" onclick="showToast('Claim again tomorrow!', 'info')">Claimed</button>
+                            <button class="btn-premium" style="flex:1; background:rgba(255,255,255,0.4); color:white; border:none;" onclick="showToast('Claim again tomorrow!', 'info')"><i class="fas fa-check"></i> Claimed</button>
                         </div>`;
                 } else {
                     freePlanDiv.innerHTML = `
                         <div style="display:flex; gap:10px; margin-top: 15px;">
                             <button class="btn-premium" style="flex:1; cursor:default; background:rgba(255,255,255,0.2); color:white; border:none;" disabled><i class="fas fa-check-circle"></i> Active</button>
-                            <button class="btn-premium" style="flex:1; background:#f59e0b; color:white; border:none;" onclick="claimDailyEarnings()"><i class="fas fa-hand-holding-usd"></i> Claim</button>
+                            <button class="btn-premium" style="flex:1; background:white; color:var(--success); border:none;" onclick="claimDailyEarnings()"><i class="fas fa-hand-holding-usd"></i> Claim Now</button>
                         </div>`;
                 }
             } else {
@@ -932,15 +993,13 @@
                             <div style="display:flex; gap:10px;">
                                 <button class="btn-plan btn-plan-success" style="flex:1; cursor:default;" disabled><i class="fas fa-check-circle"></i> Active</button>
                                 <button class="btn-plan" style="flex:1; background:var(--gray-light); color:white;" onclick="showToast('Claim again tomorrow!', 'info')"><i class="fas fa-check"></i> Claimed</button>
-                            </div>
-                        `;
+                            </div>`;
                     } else {
                         actionButtons = `
                             <div style="display:flex; gap:10px;">
                                 <button class="btn-plan btn-plan-success" style="flex:1; cursor:default;" disabled><i class="fas fa-check-circle"></i> Active</button>
-                                <button class="btn-plan" style="flex:1; background:var(--warning); color:white;" onclick="claimDailyEarnings()"><i class="fas fa-hand-holding-usd"></i> Claim</button>
-                            </div>
-                        `;
+                                <button class="btn-plan" style="flex:1; background:var(--warning); color:white;" onclick="claimDailyEarnings()"><i class="fas fa-hand-holding-usd"></i> Claim Now</button>
+                            </div>`;
                     }
                 } else if (bal >= finalPrice) {
                     actionButtons = `<button class="btn-plan btn-plan-primary" onclick="buyPlan('${p.id}')">Buy Now</button>`;
@@ -949,9 +1008,9 @@
                 }
                 
                 return `
-                <div class="plan-card-premium ${p.popular?'popular':''}">
+                <div class="plan-card-premium ${p.popular?'popular':''}" id="plan-card-${p.id}">
                     ${disc > 0 ? `<div class="discount-badge">${disc}% OFF</div>` : ''}
-                    <div class="plan-header-premium ${p.color}">
+                    <div class="plan-header-premium ${p.color} ${p.popular ? 'popular' : ''}">
                         ${p.popular && !disc ? '<div class="popular-badge">Popular</div>':''}
                         <div class="plan-icon">${p.icon}</div>
                         <div class="plan-name">${p.name}</div>
@@ -973,31 +1032,20 @@
         }
 
         async function distributeCommission(userCode, amount) {
-            const levels = [5, 3, 1]; // Level 1: 5%, Level 2: 3%, Level 3: 1%
+            const levels = [5, 3, 1]; 
             let currentCode = userCode;
             
             for(let i=0; i<levels.length; i++) {
                 if(!currentCode || currentCode === 'ADMIN') break;
-                
                 const rSnap = await database.ref('users').orderByChild('referralCode').equalTo(currentCode).once('value');
                 if(!rSnap.val()) break;
                 
-                const rId = Object.keys(rSnap.val())[0];
-                const rData = rSnap.val()[rId];
-                const comm = Math.floor(amount * levels[i] / 100);
-                
+                const rId = Object.keys(rSnap.val())[0], rData = rSnap.val()[rId], comm = Math.floor(amount * levels[i] / 100);
                 if(comm > 0) {
-                    await database.ref(`users/${rId}`).update({
-                        'wallet/mainBalance': (rData.wallet?.mainBalance||0) + comm,
-                        'referrals/earnings': (rData.referrals?.earnings||0) + comm
-                    });
-                    await database.ref(`users/${rId}/transactions`).push({
-                        id: generateId('TXN'), type: 'commission', amount: comm, 
-                        description: `Level ${i+1} Comm. (${levels[i]}%) from ${currentUser.name}`, 
-                        date: new Date().toISOString(), status: 'approved'
-                    });
+                    await database.ref(`users/${rId}`).update({ 'wallet/mainBalance': (rData.wallet?.mainBalance||0) + comm, 'referrals/earnings': (rData.referrals?.earnings||0) + comm });
+                    await database.ref(`users/${rId}/transactions`).push({ id: generateId('TXN'), type: 'commission', amount: comm, description: `Level ${i+1} Comm. (${levels[i]}%) from ${currentUser.name}`, date: new Date().toISOString(), status: 'approved' });
                 }
-                currentCode = rData.referredBy; // Move to next level parent
+                currentCode = rData.referredBy; 
             }
         }
 
@@ -1015,13 +1063,10 @@
             await database.ref(`users/${currentUser.id}/activePlans`).push({planId: plan.id, planName: plan.name, amount: finalPrice, dailyReturn: plan.daily, purchasedDate: new Date().toISOString(), expiryDate: exp.toISOString(), status: 'active', totalClaimed: 0});
             await database.ref(`users/${currentUser.id}/transactions`).push({id: generateId('TXN'), type: 'plan_purchase', amount: finalPrice, description: `Bought ${plan.name}`, date: new Date().toISOString(), status: 'approved'});
             
-            // Multi-level Commission (5%, 3%, 1%)
-            if(pid !== 'free' && currentUser.referredBy) {
-                await distributeCommission(currentUser.referredBy, finalPrice);
-            }
+            if(pid !== 'free' && currentUser.referredBy) await distributeCommission(currentUser.referredBy, finalPrice);
             
-            hideLoading(); showToast('Plan Activated!', 'success'); 
-            showPage('plans'); // Refresh plans page to show Claim button immediately
+            hideLoading(); showToast('Plan Activated! You can claim now.', 'success'); 
+            showPage('plans'); 
         }
 
         // ==================== WALLET & TRANSACTIONS ====================
@@ -1056,15 +1101,12 @@
         function payViaUPI(app) {
             const amount = document.getElementById('addAmount').value;
             if(!amount || amount < 100) return showToast('❌ Minimum ₹100 required', 'error');
-
             const upiString = `pa=${ADMIN_UPI_ID}&pn=Solor%20Energy&am=${amount}&cu=INR`;
             let intentUrl = '';
-            
             if(app === 'gpay') intentUrl = `gpay://upi/pay?${upiString}`;
             else if(app === 'phonepe') intentUrl = `phonepe://pay?${upiString}`;
             else if(app === 'paytm') intentUrl = `paytmmp://pay?${upiString}`;
             else intentUrl = `upi://pay?${upiString}`;
-
             document.getElementById('paidVia').value = app === 'gpay' ? 'Google Pay' : (app === 'phonepe' ? 'PhonePe' : (app === 'paytm' ? 'Paytm' : 'Other'));
             showToast('Opening payment app...', 'info');
             window.location.href = intentUrl;
