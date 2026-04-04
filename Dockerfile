@@ -1,11 +1,12 @@
 # Base Python image
 FROM python:3.10-slim
 
-# Install system dependencies and Google Chrome directly
+# Install system dependencies, Xvfb (for virtual display), and Google Chrome
 RUN apt-get update && apt-get install -y \
     wget \
     unzip \
     curl \
+    xvfb \
     fonts-liberation \
     libnss3 \
     libatk-bridge2.0-0 \
@@ -30,4 +31,4 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 # Run the Flask app with Gunicorn
-CMD gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 4 
+CMD gunicorn app:app --bind 0.0.0.0:$PORT --workers 1 --threads 4
