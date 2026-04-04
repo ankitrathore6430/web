@@ -84,6 +84,8 @@ HTML_PAGE = """
                 <p style="text-align:center; font-weight:600;">Go to WhatsApp -> Linked Devices -> Link with Phone Number</p>
                 <div class="pairing-code-box" id="pairingCodeDisplay">--------</div>
                 <p style="text-align:center; color:var(--danger); font-size:12px;">Waiting for you to enter code in your phone...</p>
+                <br>
+                <a href="/debug" target="_blank" style="text-decoration: none;"><button class="btn-main btn-debug"><i class="fas fa-camera"></i> Check Screen if Stuck</button></a>
             </div>
         </div>
 
@@ -91,6 +93,11 @@ HTML_PAGE = """
             <div style="font-size: 60px; color: var(--success); margin-bottom: 20px;"><i class="fas fa-check-circle"></i></div>
             <h3>WhatsApp is Connected!</h3>
             <p>Session is saved. OTPs will be sent from this number automatically.</p>
+            <div class="info-box" style="text-align:left;">
+                <strong>API Endpoint:</strong> POST <code>/send-otp</code><br>
+                <strong>Body:</strong> <code>{"phone": "USER_NUMBER"}</code>
+            </div>
+            <a href="/debug" target="_blank" style="text-decoration: none;"><button class="btn-main btn-debug"><i class="fas fa-camera"></i> View Live Screen</button></a>
         </div>
     </div>
 
@@ -105,7 +112,9 @@ HTML_PAGE = """
                 const badge = document.getElementById('statusBadge');
                 const sText = document.getElementById('statusText');
                 
-                sText.innerHTML = data.status_msg.includes('Error') ? `<span class="error-text">${data.status_msg}</span>` : data.status_msg;
+                sText.innerHTML = data.status_msg.includes('Error') || data.status_msg.includes('Failed') 
+                                ? `<span class="error-text">${data.status_msg}</span>` 
+                                : data.status_msg;
 
                 if (data.connected) {
                     badge.textContent = 'Connected';
@@ -308,20 +317,30 @@ def request_pairing():
 
         WHATSAPP_STATUS["status_msg"] = "Clicking Link Button..."
         
-        # --- THE FIX: Looking for 'phone number' regardless of 'Link with' or 'Log in with' ---
+        # --- FIX 1: Use '.' to search inside all nested tags for 'phone number' ---
+        link_btn_xpath = "//*[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'phone number')]"
+        
+        # Wait for the element to just be PRESENT in the HTML, not necessarily "clickable"
         link_btn = WebDriverWait(DRIVER, 20).until(
-            EC.element_to_be_clickable((By.XPATH, "//*[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'phone number')]"))
+            EC.presence_of_element_located((By.XPATH, link_btn_xpath))
         )
-        link_btn.click()
+        
+        # --- FIX 2: Force click using JavaScript (Bypasses overlay/interactability errors) ---
+        DRIVER.execute_script("arguments[0].click();", link_btn)
         
         WHATSAPP_STATUS["status_msg"] = "Entering Phone Number..."
+        
+        # --- FIX 3: Look for the <input> tag directly ---
         phone_input = WebDriverWait(DRIVER, 10).until(
-            EC.presence_of_element_located((By.XPATH, "//input[@type='text']"))
+            EC.presence_of_element_located((By.TAG_NAME, "input"))
         )
+        phone_input.clear()
         phone_input.send_keys(phone)
         
-        next_btn = DRIVER.find_element(By.XPATH, "//*[contains(text(), 'Next')]")
-        next_btn.click()
+        # Click Next using JavaScript click as well
+        next_btn_xpath = "//*[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'next')]"
+        next_btn = DRIVER.find_element(By.XPATH, next_btn_xpath)
+        DRIVER.execute_script("arguments[0].click();", next_btn)
         
         time.sleep(3) 
         WHATSAPP_STATUS["status_msg"] = "Fetching Pairing Code..."
@@ -351,7 +370,9 @@ def request_pairing():
     except Exception as e:
         error_name = e.__class__.__name__
         print(f"Pairing error: {error_name} - {str(e)}")
-        return jsonify({"success": False, "error": f"Failed: {error_name}. Check /debug."})
+        # Send error to UI
+        WHATSAPP_STATUS["status_msg"] = f"Failed: {error_name}. Please check /debug."
+        return jsonify({"success": False, "error": f"Failed: {error_name}. Please check /debug NOW."})
 
 @app.route('/send-otp', methods=['POST'])
 def send_otp():
