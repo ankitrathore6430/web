@@ -317,29 +317,39 @@ def request_pairing():
 
         WHATSAPP_STATUS["status_msg"] = "Clicking Link Button..."
         
-        # --- FIX 1: Use '.' to search inside all nested tags for 'phone number' ---
-        link_btn_xpath = "//*[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'phone number')]"
+        # --- BULLETPROOF FIX 1: [last()] ensures we click the deepest text node, NOT the background body ---
+        link_btn_xpath = "(//*[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'phone number')])[last()]"
         
-        # Wait for the element to just be PRESENT in the HTML, not necessarily "clickable"
         link_btn = WebDriverWait(DRIVER, 20).until(
             EC.presence_of_element_located((By.XPATH, link_btn_xpath))
         )
-        
-        # --- FIX 2: Force click using JavaScript (Bypasses overlay/interactability errors) ---
         DRIVER.execute_script("arguments[0].click();", link_btn)
         
         WHATSAPP_STATUS["status_msg"] = "Entering Phone Number..."
         
-        # --- FIX 3: Look for the <input> tag directly ---
-        phone_input = WebDriverWait(DRIVER, 10).until(
-            EC.presence_of_element_located((By.TAG_NAME, "input"))
-        )
-        phone_input.clear()
+        # --- BULLETPROOF FIX 2: Custom function to ONLY pick inputs that are visible on screen ---
+        def get_visible_input(driver):
+            inputs = driver.find_elements(By.TAG_NAME, "input")
+            for inp in inputs:
+                # Ignore hidden or non-text inputs to avoid InvalidElementStateException
+                if inp.is_displayed() and inp.get_attribute("type") not in ["hidden", "checkbox", "radio", "submit"]:
+                    return inp
+            return False
+
+        phone_input = WebDriverWait(DRIVER, 15).until(get_visible_input)
+        
+        # Safely clear and type
+        try:
+            phone_input.clear()
+        except:
+            pass
         phone_input.send_keys(phone)
         
-        # Click Next using JavaScript click as well
-        next_btn_xpath = "//*[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'next')]"
-        next_btn = DRIVER.find_element(By.XPATH, next_btn_xpath)
+        # --- BULLETPROOF FIX 3: Click 'Next' using the same deep-node technique ---
+        next_btn_xpath = "(//*[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'next')])[last()]"
+        next_btn = WebDriverWait(DRIVER, 10).until(
+            EC.presence_of_element_located((By.XPATH, next_btn_xpath))
+        )
         DRIVER.execute_script("arguments[0].click();", next_btn)
         
         time.sleep(3) 
@@ -370,8 +380,7 @@ def request_pairing():
     except Exception as e:
         error_name = e.__class__.__name__
         print(f"Pairing error: {error_name} - {str(e)}")
-        # Send error to UI
-        WHATSAPP_STATUS["status_msg"] = f"Failed: {error_name}. Please check /debug."
+        WHATSAPP_STATUS["status_msg"] = f"Failed: {error_name}. Check /debug."
         return jsonify({"success": False, "error": f"Failed: {error_name}. Please check /debug NOW."})
 
 @app.route('/send-otp', methods=['POST'])
