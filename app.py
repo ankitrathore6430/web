@@ -77,7 +77,11 @@ HTML_PAGE = """
                     <input type="tel" class="input-premium" id="adminPhone" placeholder="Enter your 10 digit number" maxlength="10">
                 </div>
                 <button class="btn-main btn-whatsapp" onclick="requestPairingCode()" id="reqBtn">Get Pairing Code</button>
-                <a href="/debug" target="_blank" style="text-decoration: none;"><button class="btn-main btn-debug"><i class="fas fa-camera"></i> View Server Screen (Debug)</button></a>
+                
+                <div style="display:flex; gap:10px; margin-top:10px;">
+                    <a href="/debug" target="_blank" style="text-decoration: none; flex:1;"><button type="button" class="btn-main btn-debug" style="width:100%; margin-top:0;"><i class="fas fa-camera"></i> View Screen</button></a>
+                    <a href="/debug-html" target="_blank" style="text-decoration: none; flex:1;"><button type="button" class="btn-main" style="width:100%; background: var(--gray); margin-top:0;"><i class="fas fa-code"></i> View Text</button></a>
+                </div>
             </div>
 
             <div id="codeDisplayArea" class="hidden">
@@ -85,7 +89,7 @@ HTML_PAGE = """
                 <div class="pairing-code-box" id="pairingCodeDisplay">--------</div>
                 <p style="text-align:center; color:var(--danger); font-size:12px;">Waiting for you to enter code in your phone...</p>
                 <br>
-                <a href="/debug" target="_blank" style="text-decoration: none;"><button class="btn-main btn-debug"><i class="fas fa-camera"></i> Check Screen if Stuck</button></a>
+                <a href="/debug" target="_blank" style="text-decoration: none;"><button type="button" class="btn-main btn-debug"><i class="fas fa-camera"></i> Check Screen if Stuck</button></a>
             </div>
         </div>
 
@@ -93,11 +97,6 @@ HTML_PAGE = """
             <div style="font-size: 60px; color: var(--success); margin-bottom: 20px;"><i class="fas fa-check-circle"></i></div>
             <h3>WhatsApp is Connected!</h3>
             <p>Session is saved. OTPs will be sent from this number automatically.</p>
-            <div class="info-box" style="text-align:left;">
-                <strong>API Endpoint:</strong> POST <code>/send-otp</code><br>
-                <strong>Body:</strong> <code>{"phone": "USER_NUMBER"}</code>
-            </div>
-            <a href="/debug" target="_blank" style="text-decoration: none;"><button class="btn-main btn-debug"><i class="fas fa-camera"></i> View Live Screen</button></a>
         </div>
     </div>
 
@@ -202,10 +201,14 @@ def init_whatsapp():
         chrome_options.binary_location = '/usr/bin/chromium'
         
         chrome_options.add_argument('--no-sandbox')
-        chrome_options.add_argument('--disable-dev-shm-usage') # Fixes RAM limits
+        chrome_options.add_argument('--disable-dev-shm-usage') 
         chrome_options.add_argument('--headless=new')
         chrome_options.add_argument('--disable-gpu')
         chrome_options.add_argument('--window-size=1920,1080')
+        
+        # Force English US Language to stop WhatsApp from changing language
+        chrome_options.add_argument('--lang=en-US')
+        chrome_options.add_experimental_option('prefs', {'intl.accept_languages': 'en,en_US'})
         
         user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
         chrome_options.add_argument(f'user-agent={user_agent}')
@@ -217,7 +220,6 @@ def init_whatsapp():
         
         WHATSAPP_STATUS["status_msg"] = "Step 4: Launching Browser Engine..."
         print("Starting WebDriver...")
-        # Pointing to Native Linux ChromeDriver
         service = Service('/usr/bin/chromedriver')
         DRIVER = webdriver.Chrome(service=service, options=chrome_options)
         
@@ -294,6 +296,16 @@ def debug_screen():
             return f"Error taking screenshot: {e}"
     return f"Browser driver has not started yet. Current Status: {WHATSAPP_STATUS['status_msg']}"
 
+@app.route('/debug-html')
+def debug_html():
+    global DRIVER
+    if DRIVER:
+        try:
+            return f"<pre>{DRIVER.page_source}</pre>"
+        except Exception as e:
+            return f"Error getting HTML: {e}"
+    return "Browser driver has not started yet."
+
 @app.route('/request-pairing', methods=['POST'])
 def request_pairing():
     global DRIVER, WHATSAPP_STATUS
@@ -313,72 +325,113 @@ def request_pairing():
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support.ui import WebDriverWait
         from selenium.webdriver.support import expected_conditions as EC
+        from selenium.webdriver.common.keys import Keys
         import time
 
-        WHATSAPP_STATUS["status_msg"] = "Waiting for WhatsApp UI to load..."
-        
-        # Ensures that the page is actually fully loaded (waits for QR code to render)
-        try:
-            WebDriverWait(DRIVER, 20).until(EC.presence_of_element_located((By.TAG_NAME, "canvas")))
-        except:
-            pass # Keep going even if it fails
-
-        WHATSAPP_STATUS["status_msg"] = "Clicking Phone Number option..."
-        
-        # --- ULTIMATE FIX 1: JS Injection backwards loop. Finds deepest element with text ---
-        click_script = """
-        var tags = document.querySelectorAll('span, div, button, a');
-        for (var i = tags.length - 1; i >= 0; i--) {
-            var el = tags[i];
-            var text = el.innerText || el.textContent;
-            if (text && text.toLowerCase().includes('phone number') && el.getBoundingClientRect().height > 0) {
-                el.click();
-                return true;
-            }
-        }
-        return false;
-        """
-        clicked = WebDriverWait(DRIVER, 15).until(lambda d: d.execute_script(click_script))
-        
-        WHATSAPP_STATUS["status_msg"] = "Entering Phone Number..."
-        
-        # --- ULTIMATE FIX 2: Find ONLY visible inputs, ignoring background stuff ---
-        def get_visible_input(driver):
-            inputs = driver.find_elements(By.TAG_NAME, "input")
-            for inp in inputs:
-                if inp.is_displayed() and inp.get_attribute("type") not in ["hidden", "checkbox", "radio", "submit"]:
-                    return inp
-            return False
-
-        phone_input = WebDriverWait(DRIVER, 15).until(get_visible_input)
+        WHATSAPP_STATUS["status_msg"] = "Waiting for WhatsApp UI to fully load..."
         
         try:
-            phone_input.clear()
+            WebDriverWait(DRIVER, 30).until(EC.presence_of_element_located((By.TAG_NAME, "canvas")))
         except:
             pass
-        phone_input.send_keys(phone)
+
+        WHATSAPP_STATUS["status_msg"] = "Locating Phone Number option..."
+        time.sleep(2) 
+        
+        click_script = """
+        function clickPhoneLink() {
+            let elements = document.querySelectorAll('[role="button"], span, div, a');
+            for (let el of elements) {
+                let txt = (el.innerText || el.textContent || '').toLowerCase();
+                if (txt.includes('phone number') || txt.includes('log in with phone') || txt.includes('link with phone')) {
+                    el.click();
+                    return true;
+                }
+            }
+            return false;
+        }
+        return clickPhoneLink();
+        """
+        
+        clicked = False
+        for _ in range(5): 
+            clicked = DRIVER.execute_script(click_script)
+            if clicked:
+                break
+            time.sleep(2)
+            
+        if not clicked:
+            raise Exception("TimeoutException: Couldn't click button. Check /debug-html to see server language.")
+
+        WHATSAPP_STATUS["status_msg"] = "Setting Country Code to India (+91)..."
+        time.sleep(2)
+        
+        # 🟢 ULTIMATE FIX FOR USA COUNTRY CODE (Clear Box and Type 91)
+        def get_visible_inputs(driver):
+            inputs = driver.find_elements(By.TAG_NAME, "input")
+            visible = []
+            for inp in inputs:
+                if inp.is_displayed() and inp.get_attribute("type") not in ["hidden", "checkbox", "radio", "submit"]:
+                    visible.append(inp)
+            return visible if len(visible) > 0 else False
+
+        visible_inputs = WebDriverWait(DRIVER, 20).until(get_visible_inputs)
+        
+        if len(visible_inputs) >= 2:
+            # First input is the Country Code
+            cc_input = visible_inputs[0]
+            DRIVER.execute_script("arguments[0].focus();", cc_input)
+            time.sleep(0.5)
+            # Send 5 backspaces to clear '1' (USA) or any other code
+            cc_input.send_keys(Keys.BACKSPACE)
+            cc_input.send_keys(Keys.BACKSPACE)
+            cc_input.send_keys(Keys.BACKSPACE)
+            cc_input.send_keys(Keys.BACKSPACE)
+            cc_input.send_keys(Keys.BACKSPACE)
+            time.sleep(0.5)
+            # Set to India
+            cc_input.send_keys("91")
+            time.sleep(1)
+            
+            # Second input is the Phone Number
+            phone_input = visible_inputs[1]
+            DRIVER.execute_script("arguments[0].focus();", phone_input)
+            time.sleep(0.5)
+            phone_input.send_keys(Keys.CONTROL, 'a')
+            phone_input.send_keys(Keys.BACKSPACE)
+            phone_input.send_keys(phone)
+        else:
+            # Fallback if only 1 input is found
+            phone_input = visible_inputs[0]
+            DRIVER.execute_script("arguments[0].focus();", phone_input)
+            time.sleep(0.5)
+            phone_input.send_keys(Keys.CONTROL, 'a')
+            phone_input.send_keys(Keys.BACKSPACE)
+            phone_input.send_keys(phone)
         
         WHATSAPP_STATUS["status_msg"] = "Clicking Next..."
+        time.sleep(1)
         
-        # --- ULTIMATE FIX 3: Same JS loop for the Next button ---
         next_script = """
-        var tags = document.querySelectorAll('span, div, button, a');
-        for (var i = tags.length - 1; i >= 0; i--) {
-            var el = tags[i];
-            var text = el.innerText || el.textContent;
-            if (text && text.toLowerCase().trim() === 'next' && el.getBoundingClientRect().height > 0) {
-                el.click();
-                return true;
+        function clickNext() {
+            let elements = document.querySelectorAll('[role="button"], button, span, div');
+            for (let el of elements) {
+                let txt = (el.innerText || el.textContent || '').toLowerCase().trim();
+                if (txt === 'next') {
+                    el.click();
+                    return true;
+                }
             }
+            return false;
         }
-        return false;
+        return clickNext();
         """
-        WebDriverWait(DRIVER, 10).until(lambda d: d.execute_script(next_script))
+        WebDriverWait(DRIVER, 15).until(lambda d: d.execute_script(next_script))
         
         time.sleep(3) 
         WHATSAPP_STATUS["status_msg"] = "Fetching Pairing Code..."
         
-        code_container = WebDriverWait(DRIVER, 15).until(
+        code_container = WebDriverWait(DRIVER, 20).until(
             EC.presence_of_element_located((By.XPATH, "//*[@data-testid='linking-code-container']"))
         )
         
