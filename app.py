@@ -181,6 +181,16 @@ def init_whatsapp():
     global DRIVER, WHATSAPP_STATUS
     
     try:
+        # --- 1. START FAKE DISPLAY FOR DOCKER/RENDER ---
+        try:
+            from pyvirtualdisplay import Display
+            display = Display(visible=0, size=(1920, 1080))
+            display.start()
+            print("✅ Virtual Display Started")
+        except Exception as d_err:
+            print(f"⚠️ Virtual Display Error: {d_err}")
+
+        # --- 2. IMPORT SELENIUM ---
         from selenium import webdriver
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support.ui import WebDriverWait
@@ -192,10 +202,13 @@ def init_whatsapp():
         WHATSAPP_STATUS["status_msg"] = "Starting Chrome..."
         
         chrome_options = Options()
+        
+        # --- DOCKER SPECIFIC FLAGS ---
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--disable-dev-shm-usage')
         chrome_options.add_argument('--headless=new')
         chrome_options.add_argument('--disable-gpu')
+        chrome_options.add_argument('--disable-software-rasterizer')
         chrome_options.add_argument('--window-size=1920,1080')
         
         # --- ANTI BOT BYPASS (Added User Agent) ---
@@ -204,12 +217,12 @@ def init_whatsapp():
         chrome_options.add_argument("--disable-blink-features=AutomationControlled")
         chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
         chrome_options.add_experimental_option('useAutomationExtension', False)
-        # ------------------------------------------
 
         # SESSION SAVE TRICK
         user_data_dir = os.path.join(os.getcwd(), 'whatsapp_session_data')
         chrome_options.add_argument(f'--user-data-dir={user_data_dir}')
         
+        print("Starting WebDriver...")
         DRIVER = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
         
         WHATSAPP_STATUS["status_msg"] = "Opening WhatsApp Web..."
@@ -227,7 +240,8 @@ def init_whatsapp():
             
     except Exception as e:
         print(f"❌ Browser Error: {e}")
-        WHATSAPP_STATUS["status_msg"] = "Browser Error. Restart server."
+        WHATSAPP_STATUS["status_msg"] = "Browser Error: Check Server Logs."
+        DRIVER = None
 
 def process_message_queue():
     """Background loop to send OTP messages one by one"""
@@ -275,7 +289,6 @@ def status():
 # --- DEBUG ROUTE ---
 @app.route('/debug')
 def debug_screen():
-    """This route will show you exactly what the headless browser is seeing."""
     global DRIVER
     if DRIVER:
         try:
@@ -297,6 +310,9 @@ def request_pairing():
     if WHATSAPP_STATUS["connected"]:
         return jsonify({"success": False, "error": "Already connected"})
 
+    if not DRIVER:
+        return jsonify({"success": False, "error": "Browser not initialized. Check server logs or /debug."})
+
     try:
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support.ui import WebDriverWait
@@ -305,12 +321,11 @@ def request_pairing():
 
         WHATSAPP_STATUS["status_msg"] = "Clicking Link Button..."
         
-        # --- CASE INSENSITIVE XPATH UPDATE ---
+        # --- CASE INSENSITIVE XPATH ---
         link_btn = WebDriverWait(DRIVER, 20).until(
             EC.element_to_be_clickable((By.XPATH, "//*[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'link with phone number')]"))
         )
         link_btn.click()
-        # -------------------------------------
         
         WHATSAPP_STATUS["status_msg"] = "Entering Phone Number..."
         phone_input = WebDriverWait(DRIVER, 10).until(
