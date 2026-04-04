@@ -4,13 +4,14 @@ SOLOR ENERGY - WhatsApp OTP Server (Link via Phone Number)
 Session Saved Automatically! Render Docker Ready.
 """
 
-from flask import Flask, request, jsonify, render_template_string
+from flask import Flask, request, jsonify, render_template_string, send_file
 from flask_cors import CORS
 import threading
 import time
 import json
 import os
 import urllib.parse
+import io
 from datetime import datetime
 
 app = Flask(__name__)
@@ -46,6 +47,7 @@ HTML_PAGE = """
         .input-premium:focus { outline: none; border-color: var(--primary); }
         .btn-main { width: 100%; padding: 18px; border-radius: 16px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; color: white; display:flex; justify-content:center; gap:10px; align-items:center;}
         .btn-whatsapp { background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); }
+        .btn-debug { background: var(--dark); margin-top: 10px; }
         .hidden { display: none !important; }
         .status-badge { padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; }
         .status-connected { background: rgba(16, 185, 129, 0.1); color: var(--success); }
@@ -56,7 +58,6 @@ HTML_PAGE = """
 </head>
 <body>
     <div class="container">
-        <!-- Header -->
         <div class="card" style="display: flex; justify-content: space-between; align-items: center;">
             <div>
                 <h2 style="margin: 0;"><i class="fab fa-whatsapp" style="color: #25D366;"></i> Admin WhatsApp</h2>
@@ -65,7 +66,6 @@ HTML_PAGE = """
             <span id="statusBadge" class="status-badge status-disconnected">Checking...</span>
         </div>
 
-        <!-- Login Section -->
         <div class="card" id="loginSection">
             <h3><i class="fas fa-link"></i> Link WhatsApp Number</h3>
             <div class="info-box">
@@ -78,16 +78,18 @@ HTML_PAGE = """
                     <input type="tel" class="input-premium" id="adminPhone" placeholder="Enter your 10 digit number" maxlength="10">
                 </div>
                 <button class="btn-main btn-whatsapp" onclick="requestPairingCode()" id="reqBtn">Get Pairing Code</button>
+                <a href="/debug" target="_blank" style="text-decoration: none;"><button class="btn-main btn-debug"><i class="fas fa-camera"></i> View Server Screen (Debug)</button></a>
             </div>
 
             <div id="codeDisplayArea" class="hidden">
                 <p style="text-align:center; font-weight:600;">Go to WhatsApp -> Linked Devices -> Link with Phone Number</p>
                 <div class="pairing-code-box" id="pairingCodeDisplay">--------</div>
                 <p style="text-align:center; color:var(--danger); font-size:12px;">Waiting for you to enter code in your phone...</p>
+                <br>
+                <a href="/debug" target="_blank" style="text-decoration: none;"><button class="btn-main btn-debug"><i class="fas fa-camera"></i> Check Screen if Stuck</button></a>
             </div>
         </div>
 
-        <!-- Connected Section -->
         <div class="card hidden" id="connectedSection" style="text-align:center;">
             <div style="font-size: 60px; color: var(--success); margin-bottom: 20px;"><i class="fas fa-check-circle"></i></div>
             <h3>WhatsApp is Connected!</h3>
@@ -96,6 +98,7 @@ HTML_PAGE = """
                 <strong>API Endpoint:</strong> POST <code>/send-otp</code><br>
                 <strong>Body:</strong> <code>{"phone": "USER_NUMBER"}</code>
             </div>
+            <a href="/debug" target="_blank" style="text-decoration: none;"><button class="btn-main btn-debug"><i class="fas fa-camera"></i> View Live Screen</button></a>
         </div>
     </div>
 
@@ -195,6 +198,14 @@ def init_whatsapp():
         chrome_options.add_argument('--disable-gpu')
         chrome_options.add_argument('--window-size=1920,1080')
         
+        # --- ANTI BOT BYPASS (Added User Agent) ---
+        user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        chrome_options.add_argument(f'user-agent={user_agent}')
+        chrome_options.add_argument("--disable-blink-features=AutomationControlled")
+        chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
+        chrome_options.add_experimental_option('useAutomationExtension', False)
+        # ------------------------------------------
+
         # SESSION SAVE TRICK
         user_data_dir = os.path.join(os.getcwd(), 'whatsapp_session_data')
         chrome_options.add_argument(f'--user-data-dir={user_data_dir}')
@@ -248,7 +259,6 @@ def process_message_queue():
         time.sleep(2) 
 
 # ============== START BACKGROUND THREADS ==============
-# Gunicorn ke saath chalne ke liye thread bahar start karna zaroori hai
 threading.Thread(target=init_whatsapp, daemon=True).start()
 threading.Thread(target=process_message_queue, daemon=True).start()
 
@@ -261,6 +271,19 @@ def index():
 @app.route('/status')
 def status():
     return jsonify(WHATSAPP_STATUS)
+
+# --- DEBUG ROUTE ---
+@app.route('/debug')
+def debug_screen():
+    """This route will show you exactly what the headless browser is seeing."""
+    global DRIVER
+    if DRIVER:
+        try:
+            screenshot = DRIVER.get_screenshot_as_png()
+            return send_file(io.BytesIO(screenshot), mimetype='image/png')
+        except Exception as e:
+            return f"Error taking screenshot: {e}"
+    return "Browser driver has not started yet. Please wait a few seconds and refresh."
 
 @app.route('/request-pairing', methods=['POST'])
 def request_pairing():
@@ -280,13 +303,16 @@ def request_pairing():
         from selenium.webdriver.support import expected_conditions as EC
         import time
 
-        WHATSAPP_STATUS["status_msg"] = "Generating Code..."
+        WHATSAPP_STATUS["status_msg"] = "Clicking Link Button..."
         
+        # --- CASE INSENSITIVE XPATH UPDATE ---
         link_btn = WebDriverWait(DRIVER, 20).until(
-            EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Link with phone number')]"))
+            EC.element_to_be_clickable((By.XPATH, "//*[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'link with phone number')]"))
         )
         link_btn.click()
+        # -------------------------------------
         
+        WHATSAPP_STATUS["status_msg"] = "Entering Phone Number..."
         phone_input = WebDriverWait(DRIVER, 10).until(
             EC.presence_of_element_located((By.XPATH, "//input[@type='text']"))
         )
@@ -296,6 +322,7 @@ def request_pairing():
         next_btn.click()
         
         time.sleep(3) 
+        WHATSAPP_STATUS["status_msg"] = "Fetching Pairing Code..."
         code_container = WebDriverWait(DRIVER, 15).until(
             EC.presence_of_element_located((By.XPATH, "//*[@data-testid='linking-code-container']"))
         )
@@ -321,7 +348,7 @@ def request_pairing():
         
     except Exception as e:
         print(f"Pairing error: {e}")
-        return jsonify({"success": False, "error": "Failed to generate code. Please try again."})
+        return jsonify({"success": False, "error": f"Failed to generate code. Check /debug route to see the issue."})
 
 @app.route('/send-otp', methods=['POST'])
 def send_otp():
