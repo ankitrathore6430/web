@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 SOLOR ENERGY - WhatsApp OTP Server (Link via Phone Number)
-Session Saved Automatically!
+Session Saved Automatically! Render Docker Ready.
 """
 
 from flask import Flask, request, jsonify, render_template_string
@@ -18,7 +18,7 @@ CORS(app)
 
 # Global storage
 OTP_STORE = {}
-MESSAGE_QUEUE = []
+MESSAGE_QUEUE =[]
 WHATSAPP_STATUS = {"connected": False, "pairing_code": None, "status_msg": "Initializing..."}
 DRIVER = None
 
@@ -127,7 +127,6 @@ HTML_PAGE = """
                         document.getElementById('numberInputArea').classList.add('hidden');
                         document.getElementById('codeDisplayArea').classList.remove('hidden');
                         
-                        // Format code (e.g., A1B2 C3D4)
                         let code = data.pairing_code;
                         if(code.length === 8) code = code.substring(0,4) + ' ' + code.substring(4,8);
                         document.getElementById('pairingCodeDisplay').textContent = code;
@@ -189,14 +188,14 @@ def init_whatsapp():
         
         WHATSAPP_STATUS["status_msg"] = "Starting Chrome..."
         
-        # Chrome Options
         chrome_options = Options()
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--disable-dev-shm-usage')
-        chrome_options.add_argument('--headless') # Run in background
+        chrome_options.add_argument('--headless=new')
         chrome_options.add_argument('--disable-gpu')
+        chrome_options.add_argument('--window-size=1920,1080')
         
-        # SESSION SAVE TRICK: Store Chrome profile locally
+        # SESSION SAVE TRICK
         user_data_dir = os.path.join(os.getcwd(), 'whatsapp_session_data')
         chrome_options.add_argument(f'--user-data-dir={user_data_dir}')
         
@@ -205,7 +204,6 @@ def init_whatsapp():
         WHATSAPP_STATUS["status_msg"] = "Opening WhatsApp Web..."
         DRIVER.get('https://web.whatsapp.com')
         
-        # Check if already logged in (by checking if chat list exists)
         try:
             WebDriverWait(DRIVER, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="chat-list"]')))
             WHATSAPP_STATUS["connected"] = True
@@ -226,7 +224,6 @@ def process_message_queue():
     from selenium.webdriver.common.by import By
     from selenium.webdriver.support.ui import WebDriverWait
     from selenium.webdriver.support import expected_conditions as EC
-    from selenium.webdriver.common.keys import Keys
 
     while True:
         if WHATSAPP_STATUS["connected"] and DRIVER and len(MESSAGE_QUEUE) > 0:
@@ -235,23 +232,25 @@ def process_message_queue():
             text = msg_task['message']
             
             try:
-                # Open Direct Chat Link
                 url = f"https://web.whatsapp.com/send?phone=91{phone}&text={urllib.parse.quote(text)}"
                 DRIVER.get(url)
                 
-                # Wait for Send Button
                 send_btn = WebDriverWait(DRIVER, 30).until(
                     EC.element_to_be_clickable((By.CSS_SELECTOR, '[data-testid="send"]'))
                 )
                 send_btn.click()
-                time.sleep(3) # Wait for message to actually send
+                time.sleep(3) 
                 print(f"✅ OTP Sent to {phone}")
                 
             except Exception as e:
                 print(f"❌ Failed to send OTP to {phone}: {e}")
-                # Optional: Push back to queue if failed
                 
-        time.sleep(2) # Check queue every 2 seconds
+        time.sleep(2) 
+
+# ============== START BACKGROUND THREADS ==============
+# Gunicorn ke saath chalne ke liye thread bahar start karna zaroori hai
+threading.Thread(target=init_whatsapp, daemon=True).start()
+threading.Thread(target=process_message_queue, daemon=True).start()
 
 # ============== FLASK ROUTES ==============
 
@@ -265,7 +264,6 @@ def status():
 
 @app.route('/request-pairing', methods=['POST'])
 def request_pairing():
-    """Trigger WhatsApp Pairing Flow via Selenium"""
     global DRIVER, WHATSAPP_STATUS
     data = request.get_json()
     phone = data.get('phone', '').strip()
@@ -284,24 +282,20 @@ def request_pairing():
 
         WHATSAPP_STATUS["status_msg"] = "Generating Code..."
         
-        # 1. Click "Link with phone number"
         link_btn = WebDriverWait(DRIVER, 20).until(
             EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Link with phone number')]"))
         )
         link_btn.click()
         
-        # 2. Enter Admin Phone Number
         phone_input = WebDriverWait(DRIVER, 10).until(
             EC.presence_of_element_located((By.XPATH, "//input[@type='text']"))
         )
         phone_input.send_keys(phone)
         
-        # 3. Click Next
         next_btn = DRIVER.find_element(By.XPATH, "//*[contains(text(), 'Next')]")
         next_btn.click()
         
-        # 4. Get the 8 Digit Code
-        time.sleep(3) # Wait for code to generate
+        time.sleep(3) 
         code_container = WebDriverWait(DRIVER, 15).until(
             EC.presence_of_element_located((By.XPATH, "//*[@data-testid='linking-code-container']"))
         )
@@ -310,7 +304,6 @@ def request_pairing():
         WHATSAPP_STATUS["pairing_code"] = pairing_code
         WHATSAPP_STATUS["status_msg"] = "Waiting for phone confirmation..."
         
-        # Background thread to check when user completes login on phone
         def wait_for_login():
             try:
                 WebDriverWait(DRIVER, 120).until(EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="chat-list"]')))
@@ -320,7 +313,7 @@ def request_pairing():
             except:
                 WHATSAPP_STATUS["pairing_code"] = None
                 WHATSAPP_STATUS["status_msg"] = "Pairing Timeout. Refresh."
-                DRIVER.get('https://web.whatsapp.com') # Reset
+                DRIVER.get('https://web.whatsapp.com')
                 
         threading.Thread(target=wait_for_login, daemon=True).start()
 
@@ -328,11 +321,10 @@ def request_pairing():
         
     except Exception as e:
         print(f"Pairing error: {e}")
-        return jsonify({"success": False, "error": "Failed to generate code. Refresh page and try again."})
+        return jsonify({"success": False, "error": "Failed to generate code. Please try again."})
 
 @app.route('/send-otp', methods=['POST'])
 def send_otp():
-    """Website se API Call aayegi OTP bhejney ke liye"""
     data = request.get_json()
     phone = data.get('phone', '').strip()
     
@@ -342,7 +334,6 @@ def send_otp():
     if not WHATSAPP_STATUS["connected"]:
         return jsonify({"success": False, "error": "Admin WhatsApp is Offline."}), 503
     
-    # Generate Last 6 digit OTP
     otp = phone[-6:]
     OTP_STORE[phone] = {"otp": otp, "expires_at": time.time() + 300}
     
@@ -355,20 +346,18 @@ Your OTP is: *{otp}*
 
 _Valid for 5 minutes_"""
     
-    # Add to send queue
     MESSAGE_QUEUE.append({"phone": phone, "message": message})
     
     return jsonify({"success": True, "message": "OTP queued for sending"})
 
 @app.route('/verify-otp', methods=['POST'])
 def verify_otp():
-    """Verify OTP endpoint"""
     data = request.get_json()
     phone = data.get('phone', '').strip()
     otp = data.get('otp', '').strip()
     
     if phone not in OTP_STORE:
-        return jsonify({"success": False, "error": "OTP not found"}), 404
+        return jsonify({"success": False, "error": "OTP not found or expired"}), 404
         
     record = OTP_STORE[phone]
     
@@ -382,14 +371,6 @@ def verify_otp():
     else:
         return jsonify({"success": False, "error": "Invalid OTP"}), 400
 
-# ============== STARTUP ==============
-
 if __name__ == '__main__':
-    # Start Chrome Browser Thread
-    threading.Thread(target=init_whatsapp, daemon=True).start()
-    # Start Background Message Sender Thread
-    threading.Thread(target=process_message_queue, daemon=True).start()
-    
-    # Start Flask Server
     port = int(os.environ.get('PORT', 5000))
     app.run(host='0.0.0.0', port=port, debug=False)
