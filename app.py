@@ -315,45 +315,69 @@ def request_pairing():
         from selenium.webdriver.support import expected_conditions as EC
         import time
 
-        WHATSAPP_STATUS["status_msg"] = "Clicking Link Button..."
+        WHATSAPP_STATUS["status_msg"] = "Waiting for WhatsApp UI to load..."
         
-        # --- BULLETPROOF FIX 1: [last()] ensures we click the deepest text node, NOT the background body ---
-        link_btn_xpath = "(//*[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'phone number')])[last()]"
+        # Ensures that the page is actually fully loaded (waits for QR code to render)
+        try:
+            WebDriverWait(DRIVER, 20).until(EC.presence_of_element_located((By.TAG_NAME, "canvas")))
+        except:
+            pass # Keep going even if it fails
+
+        WHATSAPP_STATUS["status_msg"] = "Clicking Phone Number option..."
         
-        link_btn = WebDriverWait(DRIVER, 20).until(
-            EC.presence_of_element_located((By.XPATH, link_btn_xpath))
-        )
-        DRIVER.execute_script("arguments[0].click();", link_btn)
+        # --- ULTIMATE FIX 1: JS Injection backwards loop. Finds deepest element with text ---
+        click_script = """
+        var tags = document.querySelectorAll('span, div, button, a');
+        for (var i = tags.length - 1; i >= 0; i--) {
+            var el = tags[i];
+            var text = el.innerText || el.textContent;
+            if (text && text.toLowerCase().includes('phone number') && el.getBoundingClientRect().height > 0) {
+                el.click();
+                return true;
+            }
+        }
+        return false;
+        """
+        clicked = WebDriverWait(DRIVER, 15).until(lambda d: d.execute_script(click_script))
         
         WHATSAPP_STATUS["status_msg"] = "Entering Phone Number..."
         
-        # --- BULLETPROOF FIX 2: Custom function to ONLY pick inputs that are visible on screen ---
+        # --- ULTIMATE FIX 2: Find ONLY visible inputs, ignoring background stuff ---
         def get_visible_input(driver):
             inputs = driver.find_elements(By.TAG_NAME, "input")
             for inp in inputs:
-                # Ignore hidden or non-text inputs to avoid InvalidElementStateException
                 if inp.is_displayed() and inp.get_attribute("type") not in ["hidden", "checkbox", "radio", "submit"]:
                     return inp
             return False
 
         phone_input = WebDriverWait(DRIVER, 15).until(get_visible_input)
         
-        # Safely clear and type
         try:
             phone_input.clear()
         except:
             pass
         phone_input.send_keys(phone)
         
-        # --- BULLETPROOF FIX 3: Click 'Next' using the same deep-node technique ---
-        next_btn_xpath = "(//*[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'next')])[last()]"
-        next_btn = WebDriverWait(DRIVER, 10).until(
-            EC.presence_of_element_located((By.XPATH, next_btn_xpath))
-        )
-        DRIVER.execute_script("arguments[0].click();", next_btn)
+        WHATSAPP_STATUS["status_msg"] = "Clicking Next..."
+        
+        # --- ULTIMATE FIX 3: Same JS loop for the Next button ---
+        next_script = """
+        var tags = document.querySelectorAll('span, div, button, a');
+        for (var i = tags.length - 1; i >= 0; i--) {
+            var el = tags[i];
+            var text = el.innerText || el.textContent;
+            if (text && text.toLowerCase().trim() === 'next' && el.getBoundingClientRect().height > 0) {
+                el.click();
+                return true;
+            }
+        }
+        return false;
+        """
+        WebDriverWait(DRIVER, 10).until(lambda d: d.execute_script(next_script))
         
         time.sleep(3) 
         WHATSAPP_STATUS["status_msg"] = "Fetching Pairing Code..."
+        
         code_container = WebDriverWait(DRIVER, 15).until(
             EC.presence_of_element_located((By.XPATH, "//*[@data-testid='linking-code-container']"))
         )
