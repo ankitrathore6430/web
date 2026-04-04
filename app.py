@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-SOLOR ENERGY - WhatsApp OTP Server (Link via Phone Number)
+SOLOR ENERGY - WhatsApp OTP Server (Native Chromium)
 Session Saved Automatically! Render Docker Ready.
 """
 
@@ -8,11 +8,9 @@ from flask import Flask, request, jsonify, render_template_string, send_file
 from flask_cors import CORS
 import threading
 import time
-import json
 import os
 import urllib.parse
 import io
-from datetime import datetime
 
 app = Flask(__name__)
 CORS(app)
@@ -20,7 +18,7 @@ CORS(app)
 # Global storage
 OTP_STORE = {}
 MESSAGE_QUEUE =[]
-WHATSAPP_STATUS = {"connected": False, "pairing_code": None, "status_msg": "Initializing..."}
+WHATSAPP_STATUS = {"connected": False, "pairing_code": None, "status_msg": "Initializing Server..."}
 DRIVER = None
 
 # ============== HTML TEMPLATE ==============
@@ -54,6 +52,7 @@ HTML_PAGE = """
         .status-disconnected { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
         .pairing-code-box { background: var(--dark); color: #00ff00; font-size: 32px; letter-spacing: 5px; text-align: center; padding: 20px; border-radius: 16px; font-weight: 800; margin: 20px 0;}
         .info-box { background: rgba(99, 102, 241, 0.1); border-left: 4px solid var(--primary); padding: 15px; border-radius: 0 12px 12px 0; margin-bottom: 20px; font-size: 13px; }
+        .error-text { color: var(--danger); font-weight: bold; font-size: 14px; padding: 10px; border: 1px solid var(--danger); border-radius: 8px; background: #fee2e2; }
     </style>
 </head>
 <body>
@@ -85,8 +84,6 @@ HTML_PAGE = """
                 <p style="text-align:center; font-weight:600;">Go to WhatsApp -> Linked Devices -> Link with Phone Number</p>
                 <div class="pairing-code-box" id="pairingCodeDisplay">--------</div>
                 <p style="text-align:center; color:var(--danger); font-size:12px;">Waiting for you to enter code in your phone...</p>
-                <br>
-                <a href="/debug" target="_blank" style="text-decoration: none;"><button class="btn-main btn-debug"><i class="fas fa-camera"></i> Check Screen if Stuck</button></a>
             </div>
         </div>
 
@@ -94,11 +91,6 @@ HTML_PAGE = """
             <div style="font-size: 60px; color: var(--success); margin-bottom: 20px;"><i class="fas fa-check-circle"></i></div>
             <h3>WhatsApp is Connected!</h3>
             <p>Session is saved. OTPs will be sent from this number automatically.</p>
-            <div class="info-box" style="text-align:left;">
-                <strong>API Endpoint:</strong> POST <code>/send-otp</code><br>
-                <strong>Body:</strong> <code>{"phone": "USER_NUMBER"}</code>
-            </div>
-            <a href="/debug" target="_blank" style="text-decoration: none;"><button class="btn-main btn-debug"><i class="fas fa-camera"></i> View Live Screen</button></a>
         </div>
     </div>
 
@@ -113,7 +105,7 @@ HTML_PAGE = """
                 const badge = document.getElementById('statusBadge');
                 const sText = document.getElementById('statusText');
                 
-                sText.textContent = data.status_msg;
+                sText.innerHTML = data.status_msg.includes('Error') ? `<span class="error-text">${data.status_msg}</span>` : data.status_msg;
 
                 if (data.connected) {
                     badge.textContent = 'Connected';
@@ -129,7 +121,6 @@ HTML_PAGE = """
                     if (data.pairing_code) {
                         document.getElementById('numberInputArea').classList.add('hidden');
                         document.getElementById('codeDisplayArea').classList.remove('hidden');
-                        
                         let code = data.pairing_code;
                         if(code.length === 8) code = code.substring(0,4) + ' ' + code.substring(4,8);
                         document.getElementById('pairingCodeDisplay').textContent = code;
@@ -181,66 +172,64 @@ def init_whatsapp():
     global DRIVER, WHATSAPP_STATUS
     
     try:
-        # --- 1. START FAKE DISPLAY FOR DOCKER/RENDER ---
-        try:
-            from pyvirtualdisplay import Display
-            display = Display(visible=0, size=(1920, 1080))
-            display.start()
-            print("✅ Virtual Display Started")
-        except Exception as d_err:
-            print(f"⚠️ Virtual Display Error: {d_err}")
+        WHATSAPP_STATUS["status_msg"] = "Step 1: Starting Virtual Display..."
+        print("Starting Virtual Display...")
+        from pyvirtualdisplay import Display
+        display = Display(visible=0, size=(1920, 1080))
+        display.start()
 
-        # --- 2. IMPORT SELENIUM ---
+        WHATSAPP_STATUS["status_msg"] = "Step 2: Importing Selenium..."
         from selenium import webdriver
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support.ui import WebDriverWait
         from selenium.webdriver.support import expected_conditions as EC
         from selenium.webdriver.chrome.options import Options
         from selenium.webdriver.chrome.service import Service
-        from webdriver_manager.chrome import ChromeDriverManager
         
-        WHATSAPP_STATUS["status_msg"] = "Starting Chrome..."
-        
+        WHATSAPP_STATUS["status_msg"] = "Step 3: Configuring Chromium..."
         chrome_options = Options()
         
-        # --- DOCKER SPECIFIC FLAGS ---
+        # Pointing to the Native Linux Chromium installed via Docker
+        chrome_options.binary_location = '/usr/bin/chromium'
+        
         chrome_options.add_argument('--no-sandbox')
-        chrome_options.add_argument('--disable-dev-shm-usage')
+        chrome_options.add_argument('--disable-dev-shm-usage') # Fixes RAM limits
         chrome_options.add_argument('--headless=new')
         chrome_options.add_argument('--disable-gpu')
-        chrome_options.add_argument('--disable-software-rasterizer')
         chrome_options.add_argument('--window-size=1920,1080')
         
-        # --- ANTI BOT BYPASS (Added User Agent) ---
         user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
         chrome_options.add_argument(f'user-agent={user_agent}')
-        chrome_options.add_argument("--disable-blink-features=AutomationControlled")
         chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
         chrome_options.add_experimental_option('useAutomationExtension', False)
 
-        # SESSION SAVE TRICK
         user_data_dir = os.path.join(os.getcwd(), 'whatsapp_session_data')
         chrome_options.add_argument(f'--user-data-dir={user_data_dir}')
         
+        WHATSAPP_STATUS["status_msg"] = "Step 4: Launching Browser Engine..."
         print("Starting WebDriver...")
-        DRIVER = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=chrome_options)
+        # Pointing to Native Linux ChromeDriver
+        service = Service('/usr/bin/chromedriver')
+        DRIVER = webdriver.Chrome(service=service, options=chrome_options)
         
-        WHATSAPP_STATUS["status_msg"] = "Opening WhatsApp Web..."
+        WHATSAPP_STATUS["status_msg"] = "Step 5: Loading WhatsApp Web..."
         DRIVER.get('https://web.whatsapp.com')
         
         try:
             WebDriverWait(DRIVER, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="chat-list"]')))
             WHATSAPP_STATUS["connected"] = True
             WHATSAPP_STATUS["status_msg"] = "Ready & Connected!"
-            print("✅ Already Logged In! Session Loaded.")
+            print("✅ Already Logged In!")
         except:
             WHATSAPP_STATUS["connected"] = False
             WHATSAPP_STATUS["status_msg"] = "Waiting for Admin Login..."
-            print("⏳ Need Login. Waiting for Pairing Request.")
+            print("⏳ Need Login.")
             
     except Exception as e:
-        print(f"❌ Browser Error: {e}")
-        WHATSAPP_STATUS["status_msg"] = "Browser Error: Check Server Logs."
+        error_msg = str(e)
+        print(f"❌ CRITICAL ERROR: {error_msg}")
+        # Send exact error to the UI so you don't have to check logs!
+        WHATSAPP_STATUS["status_msg"] = f"Error: {error_msg}"
         DRIVER = None
 
 def process_message_queue():
@@ -286,7 +275,6 @@ def index():
 def status():
     return jsonify(WHATSAPP_STATUS)
 
-# --- DEBUG ROUTE ---
 @app.route('/debug')
 def debug_screen():
     global DRIVER
@@ -296,7 +284,7 @@ def debug_screen():
             return send_file(io.BytesIO(screenshot), mimetype='image/png')
         except Exception as e:
             return f"Error taking screenshot: {e}"
-    return "Browser driver has not started yet. Please wait a few seconds and refresh."
+    return f"Browser driver has not started yet. Current Status: {WHATSAPP_STATUS['status_msg']}"
 
 @app.route('/request-pairing', methods=['POST'])
 def request_pairing():
@@ -311,7 +299,7 @@ def request_pairing():
         return jsonify({"success": False, "error": "Already connected"})
 
     if not DRIVER:
-        return jsonify({"success": False, "error": "Browser not initialized. Check server logs or /debug."})
+        return jsonify({"success": False, "error": f"Browser Error. Status: {WHATSAPP_STATUS['status_msg']}"})
 
     try:
         from selenium.webdriver.common.by import By
@@ -321,7 +309,6 @@ def request_pairing():
 
         WHATSAPP_STATUS["status_msg"] = "Clicking Link Button..."
         
-        # --- CASE INSENSITIVE XPATH ---
         link_btn = WebDriverWait(DRIVER, 20).until(
             EC.element_to_be_clickable((By.XPATH, "//*[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'link with phone number')]"))
         )
@@ -354,7 +341,7 @@ def request_pairing():
                 WHATSAPP_STATUS["status_msg"] = "Ready & Connected!"
             except:
                 WHATSAPP_STATUS["pairing_code"] = None
-                WHATSAPP_STATUS["status_msg"] = "Pairing Timeout. Refresh."
+                WHATSAPP_STATUS["status_msg"] = "Pairing Timeout. Refresh page."
                 DRIVER.get('https://web.whatsapp.com')
                 
         threading.Thread(target=wait_for_login, daemon=True).start()
@@ -362,8 +349,7 @@ def request_pairing():
         return jsonify({"success": True, "message": "Code generated"})
         
     except Exception as e:
-        print(f"Pairing error: {e}")
-        return jsonify({"success": False, "error": f"Failed to generate code. Check /debug route to see the issue."})
+        return jsonify({"success": False, "error": f"Failed: {str(e)[:50]}. Check /debug."})
 
 @app.route('/send-otp', methods=['POST'])
 def send_otp():
@@ -389,7 +375,6 @@ Your OTP is: *{otp}*
 _Valid for 5 minutes_"""
     
     MESSAGE_QUEUE.append({"phone": phone, "message": message})
-    
     return jsonify({"success": True, "message": "OTP queued for sending"})
 
 @app.route('/verify-otp', methods=['POST'])
