@@ -228,7 +228,6 @@ def init_whatsapp():
     except Exception as e:
         error_msg = str(e)
         print(f"❌ CRITICAL ERROR: {error_msg}")
-        # Send exact error to the UI so you don't have to check logs!
         WHATSAPP_STATUS["status_msg"] = f"Error: {error_msg}"
         DRIVER = None
 
@@ -309,8 +308,9 @@ def request_pairing():
 
         WHATSAPP_STATUS["status_msg"] = "Clicking Link Button..."
         
+        # --- THE FIX: Looking for 'phone number' regardless of 'Link with' or 'Log in with' ---
         link_btn = WebDriverWait(DRIVER, 20).until(
-            EC.element_to_be_clickable((By.XPATH, "//*[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'link with phone number')]"))
+            EC.element_to_be_clickable((By.XPATH, "//*[contains(translate(text(), 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'phone number')]"))
         )
         link_btn.click()
         
@@ -349,7 +349,9 @@ def request_pairing():
         return jsonify({"success": True, "message": "Code generated"})
         
     except Exception as e:
-        return jsonify({"success": False, "error": f"Failed: {str(e)[:50]}. Check /debug."})
+        error_name = e.__class__.__name__
+        print(f"Pairing error: {error_name} - {str(e)}")
+        return jsonify({"success": False, "error": f"Failed: {error_name}. Check /debug."})
 
 @app.route('/send-otp', methods=['POST'])
 def send_otp():
