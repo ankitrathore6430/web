@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-SOLOR ENERGY - WhatsApp OTP Server (Direct QR Scan)
+SOLOR ENERGY - WhatsApp OTP Server (Native Chromium)
 Session Saved Automatically! Render Docker Ready.
 """
 
@@ -18,7 +18,7 @@ CORS(app)
 # Global storage
 OTP_STORE = {}
 MESSAGE_QUEUE =[]
-WHATSAPP_STATUS = {"connected": False, "status_msg": "Initializing Server..."}
+WHATSAPP_STATUS = {"connected": False, "pairing_code": None, "status_msg": "Initializing Server..."}
 DRIVER = None
 
 # ============== HTML TEMPLATE ==============
@@ -39,13 +39,20 @@ HTML_PAGE = """
         .card { background: white; border-radius: 24px; padding: 30px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); margin-bottom: 20px; }
         h2 { color: var(--dark); margin-bottom: 10px; font-size: 24px; }
         p { color: var(--gray); font-size: 14px; margin-bottom: 20px; }
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--dark); font-size: 14px; }
+        .input-premium { width: 100%; padding: 16px 20px; border: 2px solid #e2e8f0; border-radius: 16px; font-size: 16px; transition: all 0.3s; }
+        .input-premium:focus { outline: none; border-color: var(--primary); }
+        .btn-main { width: 100%; padding: 18px; border-radius: 16px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; color: white; display:flex; justify-content:center; gap:10px; align-items:center;}
+        .btn-whatsapp { background: linear-gradient(135deg, #25D366 0%, #128C7E 100%); }
+        .btn-debug { background: var(--dark); margin-top: 10px; }
         .hidden { display: none !important; }
         .status-badge { padding: 8px 16px; border-radius: 20px; font-size: 12px; font-weight: 600; }
         .status-connected { background: rgba(16, 185, 129, 0.1); color: var(--success); }
         .status-disconnected { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        .pairing-code-box { background: var(--dark); color: #00ff00; font-size: 32px; letter-spacing: 5px; text-align: center; padding: 20px; border-radius: 16px; font-weight: 800; margin: 20px 0;}
         .info-box { background: rgba(99, 102, 241, 0.1); border-left: 4px solid var(--primary); padding: 15px; border-radius: 0 12px 12px 0; margin-bottom: 20px; font-size: 13px; }
-        .qr-container { border: 4px solid var(--dark); border-radius: 16px; overflow: hidden; background: #000; display: flex; justify-content: center; align-items: center; min-height: 300px; position: relative;}
-        .qr-img { width: 100%; max-height: 450px; object-fit: cover; object-position: center; }
+        .error-text { color: var(--danger); font-weight: bold; font-size: 14px; padding: 10px; border: 1px solid var(--danger); border-radius: 8px; background: #fee2e2; }
     </style>
 </head>
 <body>
@@ -59,34 +66,43 @@ HTML_PAGE = """
         </div>
 
         <div class="card" id="loginSection">
-            <h3><i class="fas fa-qrcode"></i> Scan QR to Login</h3>
+            <h3><i class="fas fa-link"></i> Link WhatsApp Number</h3>
             <div class="info-box">
-                <i class="fas fa-info-circle"></i> Open WhatsApp on your phone -> Tap Menu/Settings -> Linked Devices -> Link a Device -> Scan this screen.
+                <i class="fas fa-info-circle"></i> Enter your WhatsApp number. We will generate an 8-digit code. Put that code in your phone to link.
             </div>
             
-            <div class="qr-container">
-                <img id="liveScreen" class="qr-img" src="/debug" alt="Loading QR Code...">
+            <div id="numberInputArea">
+                <div class="form-group">
+                    <label>Your WhatsApp Number (Without +91)</label>
+                    <input type="tel" class="input-premium" id="adminPhone" placeholder="Enter your 10 digit number" maxlength="10">
+                </div>
+                <button class="btn-main btn-whatsapp" onclick="requestPairingCode()" id="reqBtn">Get Pairing Code</button>
+                <a href="/debug" target="_blank" style="text-decoration: none;"><button class="btn-main btn-debug"><i class="fas fa-camera"></i> View Server Screen (Debug)</button></a>
             </div>
-            <p style="text-align:center; font-size:12px; color:var(--gray); margin-top:15px;">
-                <i class="fas fa-sync fa-spin"></i> Screen auto-refreshes every 3 seconds
-            </p>
+
+            <div id="codeDisplayArea" class="hidden">
+                <p style="text-align:center; font-weight:600;">Go to WhatsApp -> Linked Devices -> Link with Phone Number</p>
+                <div class="pairing-code-box" id="pairingCodeDisplay">--------</div>
+                <p style="text-align:center; color:var(--danger); font-size:12px;">Waiting for you to enter code in your phone...</p>
+                <br>
+                <a href="/debug" target="_blank" style="text-decoration: none;"><button class="btn-main btn-debug"><i class="fas fa-camera"></i> Check Screen if Stuck</button></a>
+            </div>
         </div>
 
         <div class="card hidden" id="connectedSection" style="text-align:center;">
             <div style="font-size: 60px; color: var(--success); margin-bottom: 20px;"><i class="fas fa-check-circle"></i></div>
             <h3>WhatsApp is Connected!</h3>
-            <p>Session is saved. OTPs will be sent automatically.</p>
+            <p>Session is saved. OTPs will be sent from this number automatically.</p>
             <div class="info-box" style="text-align:left;">
                 <strong>API Endpoint:</strong> POST <code>/send-otp</code><br>
                 <strong>Body:</strong> <code>{"phone": "USER_NUMBER"}</code>
             </div>
-            <a href="/debug" target="_blank" style="text-decoration: none;"><button style="padding: 10px 20px; background: var(--dark); color: white; border: none; border-radius: 10px; cursor: pointer;"><i class="fas fa-camera"></i> View Live Screen</button></a>
+            <a href="/debug" target="_blank" style="text-decoration: none;"><button class="btn-main btn-debug"><i class="fas fa-camera"></i> View Live Screen</button></a>
         </div>
     </div>
 
     <script>
         const API = window.location.origin;
-        let isConnected = false;
 
         async function checkStatus() {
             try {
@@ -96,8 +112,9 @@ HTML_PAGE = """
                 const badge = document.getElementById('statusBadge');
                 const sText = document.getElementById('statusText');
                 
-                sText.textContent = data.status_msg;
-                isConnected = data.connected;
+                sText.innerHTML = data.status_msg.includes('Error') || data.status_msg.includes('Failed') 
+                                ? `<span class="error-text">${data.status_msg}</span>` 
+                                : data.status_msg;
 
                 if (data.connected) {
                     badge.textContent = 'Connected';
@@ -109,18 +126,46 @@ HTML_PAGE = """
                     badge.className = 'status-badge status-disconnected';
                     document.getElementById('loginSection').classList.remove('hidden');
                     document.getElementById('connectedSection').classList.add('hidden');
+                    
+                    if (data.pairing_code) {
+                        document.getElementById('numberInputArea').classList.add('hidden');
+                        document.getElementById('codeDisplayArea').classList.remove('hidden');
+                        let code = data.pairing_code;
+                        if(code.length === 8) code = code.substring(0,4) + ' ' + code.substring(4,8);
+                        document.getElementById('pairingCodeDisplay').textContent = code;
+                    }
                 }
             } catch (e) {
                 console.error(e);
             }
         }
 
-        // Auto-refresh the screenshot every 3 seconds if not connected
-        setInterval(() => {
-            if (!isConnected) {
-                document.getElementById('liveScreen').src = API + '/debug?t=' + new Date().getTime();
+        async function requestPairingCode() {
+            const phone = document.getElementById('adminPhone').value;
+            if(phone.length !== 10) return alert('Enter valid 10 digit number');
+            
+            const btn = document.getElementById('reqBtn');
+            btn.innerHTML = 'Generating Code... Please wait';
+            btn.disabled = true;
+
+            try {
+                const res = await fetch(API + '/request-pairing', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ phone: phone })
+                });
+                const data = await res.json();
+                if(!data.success) {
+                    alert(data.error);
+                    btn.innerHTML = 'Get Pairing Code';
+                    btn.disabled = false;
+                }
+            } catch (e) {
+                alert('Error: ' + e.message);
+                btn.innerHTML = 'Get Pairing Code';
+                btn.disabled = false;
             }
-        }, 3000);
+        }
 
         setInterval(checkStatus, 3000);
         checkStatus();
@@ -157,12 +202,11 @@ def init_whatsapp():
         chrome_options.binary_location = '/usr/bin/chromium'
         
         chrome_options.add_argument('--no-sandbox')
-        chrome_options.add_argument('--disable-dev-shm-usage') 
+        chrome_options.add_argument('--disable-dev-shm-usage') # Fixes RAM limits
         chrome_options.add_argument('--headless=new')
         chrome_options.add_argument('--disable-gpu')
         chrome_options.add_argument('--window-size=1920,1080')
         
-        # Default WhatsApp behavior (No need to force language for QR scanning)
         user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
         chrome_options.add_argument(f'user-agent={user_agent}')
         chrome_options.add_experimental_option("excludeSwitches", ["enable-automation"])
@@ -173,26 +217,22 @@ def init_whatsapp():
         
         WHATSAPP_STATUS["status_msg"] = "Step 4: Launching Browser Engine..."
         print("Starting WebDriver...")
+        # Pointing to Native Linux ChromeDriver
         service = Service('/usr/bin/chromedriver')
         DRIVER = webdriver.Chrome(service=service, options=chrome_options)
         
         WHATSAPP_STATUS["status_msg"] = "Step 5: Loading WhatsApp Web..."
         DRIVER.get('https://web.whatsapp.com')
         
-        # Loop to constantly check if chat list appeared (meaning user scanned QR successfully)
-        while True:
-            try:
-                # Agar chat-list mil gaya toh connect ho gaya
-                WebDriverWait(DRIVER, 10).until(EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="chat-list"]')))
-                WHATSAPP_STATUS["connected"] = True
-                WHATSAPP_STATUS["status_msg"] = "Ready & Connected!"
-                print("✅ Logged In & Ready!")
-                break
-            except:
-                WHATSAPP_STATUS["connected"] = False
-                WHATSAPP_STATUS["status_msg"] = "Please Scan the QR Code..."
-                # Reload page only if QR code fails to load entirely, otherwise let user scan
-                pass
+        try:
+            WebDriverWait(DRIVER, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="chat-list"]')))
+            WHATSAPP_STATUS["connected"] = True
+            WHATSAPP_STATUS["status_msg"] = "Ready & Connected!"
+            print("✅ Already Logged In!")
+        except:
+            WHATSAPP_STATUS["connected"] = False
+            WHATSAPP_STATUS["status_msg"] = "Waiting for Admin Login..."
+            print("⏳ Need Login.")
             
     except Exception as e:
         error_msg = str(e)
@@ -239,13 +279,18 @@ threading.Thread(target=process_message_queue, daemon=True).start()
 def index():
     return render_template_string(HTML_PAGE)
 
+# --- UPTIMEROBOT PING ROUTE ---
+@app.route('/ping')
+def ping():
+    """Lightweight route for UptimeRobot to keep the server awake 24/7 without taking extra RAM"""
+    return "OK", 200
+
 @app.route('/status')
 def status():
     return jsonify(WHATSAPP_STATUS)
 
 @app.route('/debug')
 def debug_screen():
-    """Sends the raw screenshot to the frontend for live QR scanning"""
     global DRIVER
     if DRIVER:
         try:
@@ -253,8 +298,91 @@ def debug_screen():
             return send_file(io.BytesIO(screenshot), mimetype='image/png')
         except Exception as e:
             return f"Error taking screenshot: {e}"
-    # Transparent 1x1 pixel if driver not ready
-    return send_file(io.BytesIO(b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\nIDATx\x9cc\x00\x01\x00\x00\x05\x00\x01\r\n-\xb4\x00\x00\x00\x00IEND\xaeB`\x82'), mimetype='image/png')
+    return f"Browser driver has not started yet. Current Status: {WHATSAPP_STATUS['status_msg']}"
+
+@app.route('/request-pairing', methods=['POST'])
+def request_pairing():
+    global DRIVER, WHATSAPP_STATUS
+    data = request.get_json()
+    phone = data.get('phone', '').strip()
+    
+    if not phone or len(phone) != 10:
+        return jsonify({"success": False, "error": "Invalid Phone"})
+        
+    if WHATSAPP_STATUS["connected"]:
+        return jsonify({"success": False, "error": "Already connected"})
+
+    if not DRIVER:
+        return jsonify({"success": False, "error": f"Browser Error. Status: {WHATSAPP_STATUS['status_msg']}"})
+
+    try:
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.support.ui import WebDriverWait
+        from selenium.webdriver.support import expected_conditions as EC
+        import time
+
+        WHATSAPP_STATUS["status_msg"] = "Clicking Link Button..."
+        
+        # Click the link with phone number using JavaScript to bypass tricky UI elements
+        link_btn_xpath = "(//*[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'phone number')])[last()]"
+        link_btn = WebDriverWait(DRIVER, 20).until(
+            EC.presence_of_element_located((By.XPATH, link_btn_xpath))
+        )
+        DRIVER.execute_script("arguments[0].click();", link_btn)
+        
+        WHATSAPP_STATUS["status_msg"] = "Entering Phone Number..."
+        
+        def get_visible_input(driver):
+            inputs = driver.find_elements(By.TAG_NAME, "input")
+            for inp in inputs:
+                if inp.is_displayed() and inp.get_attribute("type") not in ["hidden", "checkbox", "radio", "submit"]:
+                    return inp
+            return False
+
+        phone_input = WebDriverWait(DRIVER, 15).until(get_visible_input)
+        
+        try:
+            phone_input.clear()
+        except:
+            pass
+        phone_input.send_keys(phone)
+        
+        next_btn_xpath = "(//*[contains(translate(., 'ABCDEFGHIJKLMNOPQRSTUVWXYZ', 'abcdefghijklmnopqrstuvwxyz'), 'next')])[last()]"
+        next_btn = WebDriverWait(DRIVER, 10).until(
+            EC.presence_of_element_located((By.XPATH, next_btn_xpath))
+        )
+        DRIVER.execute_script("arguments[0].click();", next_btn)
+        
+        time.sleep(3) 
+        WHATSAPP_STATUS["status_msg"] = "Fetching Pairing Code..."
+        code_container = WebDriverWait(DRIVER, 15).until(
+            EC.presence_of_element_located((By.XPATH, "//*[@data-testid='linking-code-container']"))
+        )
+        
+        pairing_code = code_container.text.replace('\n', '').replace(' ', '')
+        WHATSAPP_STATUS["pairing_code"] = pairing_code
+        WHATSAPP_STATUS["status_msg"] = "Waiting for phone confirmation..."
+        
+        def wait_for_login():
+            try:
+                WebDriverWait(DRIVER, 120).until(EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="chat-list"]')))
+                WHATSAPP_STATUS["connected"] = True
+                WHATSAPP_STATUS["pairing_code"] = None
+                WHATSAPP_STATUS["status_msg"] = "Ready & Connected!"
+            except:
+                WHATSAPP_STATUS["pairing_code"] = None
+                WHATSAPP_STATUS["status_msg"] = "Pairing Timeout. Refresh page."
+                DRIVER.get('https://web.whatsapp.com')
+                
+        threading.Thread(target=wait_for_login, daemon=True).start()
+
+        return jsonify({"success": True, "message": "Code generated"})
+        
+    except Exception as e:
+        error_name = e.__class__.__name__
+        print(f"Pairing error: {error_name} - {str(e)}")
+        WHATSAPP_STATUS["status_msg"] = f"Failed: {error_name}. Check /debug."
+        return jsonify({"success": False, "error": f"Failed: {error_name}. Please check /debug NOW."})
 
 @app.route('/send-otp', methods=['POST'])
 def send_otp():
@@ -285,8 +413,8 @@ _Valid for 5 minutes_"""
 @app.route('/verify-otp', methods=['POST'])
 def verify_otp():
     data = request.get_json()
-    phone = data.get('phone', '').strip()
-    otp = data.get('otp', '').strip()
+    phone = request.get_json().get('phone', '').strip()
+    otp = request.get_json().get('otp', '').strip()
     
     if phone not in OTP_STORE:
         return jsonify({"success": False, "error": "OTP not found or expired"}), 404
