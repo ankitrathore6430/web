@@ -181,13 +181,12 @@ def init_whatsapp():
     global DRIVER, WHATSAPP_STATUS
     
     try:
-        WHATSAPP_STATUS["status_msg"] = "Step 1: Starting Virtual Display..."
-        print("Starting Virtual Display...")
+        WHATSAPP_STATUS["status_msg"] = "Starting Virtual Display..."
         from pyvirtualdisplay import Display
         display = Display(visible=0, size=(1920, 1080))
         display.start()
 
-        WHATSAPP_STATUS["status_msg"] = "Step 2: Importing Selenium..."
+        WHATSAPP_STATUS["status_msg"] = "Starting Chrome..."
         from selenium import webdriver
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support.ui import WebDriverWait
@@ -195,17 +194,17 @@ def init_whatsapp():
         from selenium.webdriver.chrome.options import Options
         from selenium.webdriver.chrome.service import Service
         
-        WHATSAPP_STATUS["status_msg"] = "Step 3: Configuring Chromium..."
         chrome_options = Options()
-        
-        # Pointing to the Native Linux Chromium installed via Docker
         chrome_options.binary_location = '/usr/bin/chromium'
-        
         chrome_options.add_argument('--no-sandbox')
-        chrome_options.add_argument('--disable-dev-shm-usage') # Fixes RAM limits
+        chrome_options.add_argument('--disable-dev-shm-usage')
         chrome_options.add_argument('--headless=new')
         chrome_options.add_argument('--disable-gpu')
         chrome_options.add_argument('--window-size=1920,1080')
+        
+        # WhatsApp ko properly English me force karne ke liye
+        chrome_options.add_argument('--lang=en-US')
+        chrome_options.add_experimental_option('prefs', {'intl.accept_languages': 'en,en_US'})
         
         user_agent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
         chrome_options.add_argument(f'user-agent={user_agent}')
@@ -215,29 +214,23 @@ def init_whatsapp():
         user_data_dir = os.path.join(os.getcwd(), 'whatsapp_session_data')
         chrome_options.add_argument(f'--user-data-dir={user_data_dir}')
         
-        WHATSAPP_STATUS["status_msg"] = "Step 4: Launching Browser Engine..."
-        print("Starting WebDriver...")
-        # Pointing to Native Linux ChromeDriver
         service = Service('/usr/bin/chromedriver')
         DRIVER = webdriver.Chrome(service=service, options=chrome_options)
         
-        WHATSAPP_STATUS["status_msg"] = "Step 5: Loading WhatsApp Web..."
+        WHATSAPP_STATUS["status_msg"] = "Opening WhatsApp Web..."
         DRIVER.get('https://web.whatsapp.com')
         
         try:
             WebDriverWait(DRIVER, 20).until(EC.presence_of_element_located((By.CSS_SELECTOR, '[data-testid="chat-list"]')))
             WHATSAPP_STATUS["connected"] = True
             WHATSAPP_STATUS["status_msg"] = "Ready & Connected!"
-            print("✅ Already Logged In!")
         except:
             WHATSAPP_STATUS["connected"] = False
             WHATSAPP_STATUS["status_msg"] = "Waiting for Admin Login..."
-            print("⏳ Need Login.")
             
     except Exception as e:
-        error_msg = str(e)
-        print(f"❌ CRITICAL ERROR: {error_msg}")
-        WHATSAPP_STATUS["status_msg"] = f"Error: {error_msg}"
+        print(f"❌ Browser Error: {e}")
+        WHATSAPP_STATUS["status_msg"] = f"Browser Error: Check logs."
         DRIVER = None
 
 def process_message_queue():
@@ -262,14 +255,11 @@ def process_message_queue():
                 )
                 send_btn.click()
                 time.sleep(3) 
-                print(f"✅ OTP Sent to {phone}")
-                
             except Exception as e:
                 print(f"❌ Failed to send OTP to {phone}: {e}")
                 
         time.sleep(2) 
 
-# ============== START BACKGROUND THREADS ==============
 threading.Thread(target=init_whatsapp, daemon=True).start()
 threading.Thread(target=process_message_queue, daemon=True).start()
 
@@ -292,7 +282,7 @@ def debug_screen():
             return send_file(io.BytesIO(screenshot), mimetype='image/png')
         except Exception as e:
             return f"Error taking screenshot: {e}"
-    return f"Browser driver has not started yet. Current Status: {WHATSAPP_STATUS['status_msg']}"
+    return f"Browser driver has not started yet. Status: {WHATSAPP_STATUS['status_msg']}"
 
 @app.route('/request-pairing', methods=['POST'])
 def request_pairing():
@@ -306,6 +296,9 @@ def request_pairing():
     if WHATSAPP_STATUS["connected"]:
         return jsonify({"success": False, "error": "Already connected"})
 
+    if not DRIVER:
+        return jsonify({"success": False, "error": f"Browser not ready."})
+
     try:
         from selenium.webdriver.common.by import By
         from selenium.webdriver.support.ui import WebDriverWait
@@ -313,47 +306,61 @@ def request_pairing():
         from selenium.webdriver.common.keys import Keys
         import time
 
-        WHATSAPP_STATUS["status_msg"] = "Generating Code..."
+        WHATSAPP_STATUS["status_msg"] = "Looking for Link/Login Button..."
         
-        # 1. Click "Link with phone number"
-        link_btn = WebDriverWait(DRIVER, 20).until(
-            EC.element_to_be_clickable((By.XPATH, "//*[contains(text(), 'Link with phone number')]"))
-        )
-        link_btn.click()
+        # FIX 1: Dono variations yahan add kar diye gaye hain (Link with... & Log in with...)
+        combined_xpath = "//*[contains(text(), 'Link with phone number') or contains(text(), 'Log in with phone number') or contains(text(), 'Login with phone number')]"
         
-        time.sleep(2) # Give inputs time to load
-        WHATSAPP_STATUS["status_msg"] = "Setting India Country Code (+91)..."
+        try:
+            # Puraane aur sateek tarike se click
+            link_btn = WebDriverWait(DRIVER, 15).until(
+                EC.element_to_be_clickable((By.XPATH, combined_xpath))
+            )
+            link_btn.click()
+        except:
+            # Agar koi issue aaye to JavaScript ke through force click
+            link_btn = DRIVER.find_element(By.XPATH, combined_xpath)
+            DRIVER.execute_script("arguments[0].click();", link_btn)
+        
+        time.sleep(2) # Box aane ka wait karna
+        WHATSAPP_STATUS["status_msg"] = "Setting India (+91) Country Code..."
 
-        # 2. Find all visible text inputs
+        # FIX 2: Country code ko completely clear karke (+91) enter karna
         inputs = WebDriverWait(DRIVER, 10).until(
             EC.presence_of_all_elements_located((By.XPATH, "//input"))
         )
         visible_inputs = [inp for inp in inputs if inp.is_displayed()]
 
         if len(visible_inputs) >= 2:
-            # First input is the Country Code
+            # 1st box (Country code ka dabbi)
             cc_input = visible_inputs[0]
             
-            # Send backspace multiple times to clear '1' (USA) or any other default code
+            # Select all and delete (USA ka +1 remove karne ke liye)
+            cc_input.send_keys(Keys.CONTROL, 'a')
+            cc_input.send_keys(Keys.BACKSPACE)
+            # Extra safety ke liye 5 backspaces
             for _ in range(5):
                 cc_input.send_keys(Keys.BACKSPACE)
             
-            # Enter India Code
+            # India ka 91 enter karna
             cc_input.send_keys("91")
+            time.sleep(1) # Taki WhatsApp 91 ko process kar le
             
-            # Second input is the Phone Number
+            # 2nd box (Phone number)
             phone_input = visible_inputs[1]
             phone_input.send_keys(phone)
+            
         elif len(visible_inputs) == 1:
-            # Fallback if only 1 input is found somehow
             visible_inputs[0].send_keys(phone)
 
-        # 3. Click Next
+        WHATSAPP_STATUS["status_msg"] = "Clicking Next..."
+        
         next_btn = DRIVER.find_element(By.XPATH, "//*[contains(text(), 'Next')]")
         next_btn.click()
         
         time.sleep(3) 
         WHATSAPP_STATUS["status_msg"] = "Fetching Pairing Code..."
+        
         code_container = WebDriverWait(DRIVER, 15).until(
             EC.presence_of_element_located((By.XPATH, "//*[@data-testid='linking-code-container']"))
         )
@@ -370,7 +377,7 @@ def request_pairing():
                 WHATSAPP_STATUS["status_msg"] = "Ready & Connected!"
             except:
                 WHATSAPP_STATUS["pairing_code"] = None
-                WHATSAPP_STATUS["status_msg"] = "Pairing Timeout. Refresh."
+                WHATSAPP_STATUS["status_msg"] = "Pairing Timeout. Refresh page."
                 DRIVER.get('https://web.whatsapp.com')
                 
         threading.Thread(target=wait_for_login, daemon=True).start()
@@ -378,8 +385,10 @@ def request_pairing():
         return jsonify({"success": True, "message": "Code generated"})
         
     except Exception as e:
-        print(f"Pairing error: {e}")
-        return jsonify({"success": False, "error": "Failed to generate code. Please try again."})
+        error_name = e.__class__.__name__
+        print(f"Pairing error: {error_name} - {str(e)}")
+        WHATSAPP_STATUS["status_msg"] = f"Failed: {error_name}. Check /debug."
+        return jsonify({"success": False, "error": f"Failed: {error_name}. Please check /debug."})
 
 @app.route('/send-otp', methods=['POST'])
 def send_otp():
@@ -405,7 +414,6 @@ Your OTP is: *{otp}*
 _Valid for 5 minutes_"""
     
     MESSAGE_QUEUE.append({"phone": phone, "message": message})
-    
     return jsonify({"success": True, "message": "OTP queued for sending"})
 
 @app.route('/verify-otp', methods=['POST'])
