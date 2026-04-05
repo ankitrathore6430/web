@@ -2,20 +2,18 @@ const { default: makeWASocket, useMultiFileAuthState, DisconnectReason } = requi
 const qrcode = require("qrcode-terminal");
 const express = require("express");
 const pino = require("pino");
-const fs = require("fs");
 
 const app = express();
 const PORT = process.env.PORT || 3000;
-const API_KEY = "SOLOR_SECRET_786"; // इसे अपने index.html में इस्तेमाल करें
+const API_KEY = "SOLOR_SECRET_786"; 
 
 async function connectToWhatsApp() {
-    // 'auth_info' फोल्डर में आपकी लॉगिन डिटेल्स सेव होंगी
     const { state, saveCreds } = await useMultiFileAuthState('auth_info');
 
     const sock = makeWASocket({
         auth: state,
-        printQRInTerminal: true, // Render के Logs में QR दिखेगा
-        logger: pino({ level: 'silent' }), // फालतू के लॉग्स बंद ताकि RAM न भरे
+        // printQRInTerminal को यहाँ से हटा दिया गया है क्योंकि यह अब काम नहीं करता
+        logger: pino({ level: 'silent' }),
         browser: ["Solor Energy", "Chrome", "1.0.0"]
     });
 
@@ -24,6 +22,7 @@ async function connectToWhatsApp() {
     sock.ev.on('connection.update', (update) => {
         const { connection, lastDisconnect, qr } = update;
         
+        // QR कोड दिखाने का सही तरीका
         if (qr) {
             console.log("👇 SCAN THIS QR CODE IN YOUR WHATSAPP 👇");
             qrcode.generate(qr, { small: true });
@@ -38,7 +37,7 @@ async function connectToWhatsApp() {
         }
     });
 
-    // OTP भेजने का API Endpoint
+    // OTP भेजने का API (Corrected Parameters)
     app.get('/send-otp', async (req, res) => {
         const { phone, otp, key } = req.query;
 
@@ -46,7 +45,7 @@ async function connectToWhatsApp() {
         if (!phone || !otp) return res.status(400).json({ error: "Missing Parameters" });
 
         try {
-            const jid = `91${phone}@s.whatsapp.net`; // 91 for India
+            const jid = `91${phone}@s.whatsapp.net`;
             const msg = `☀️ *Solor Energy Verification*\n\nYour OTP is: *${otp}*\n\nDo not share this code with anyone.`;
             
             await sock.sendMessage(jid, { text: msg });
@@ -58,12 +57,15 @@ async function connectToWhatsApp() {
         }
     });
 
-    // हेल्थ चेक (ताकि Render सर्वर को बंद न करे)
-    app.get('/', (res) => {
-        res.send("WhatsApp OTP Server is Running!");
+    // Health Check (Fixed: Added req parameter)
+    app.get('/', (req, res) => {
+        res.send("WhatsApp OTP Server is Running and Live!");
     });
 }
 
-// शुरू करें
 connectToWhatsApp();
-app.listen(PORT, () => console.log(`Server is running on port ${PORT}`));
+
+// Error handling for the server
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server is running on port ${PORT}`);
+});
