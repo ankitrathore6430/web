@@ -1,7 +1,7 @@
 {
   "name": "solor-whatsapp-otp",
   "version": "1.0.0",
-  "description": "WhatsApp OTP Gateway with Firebase Sync",
+  "description": "WhatsApp OTP Gateway with Firebase Sync and Full Logs",
   "main": "index.js",
   "scripts": {
     "start": "node index.js"
