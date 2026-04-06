@@ -46,16 +46,14 @@ function addLog(msg) {
 async function clearSession(reason) {
     addLog(`🧹 Cleaning Session: ${reason}`);
     try {
-        // 1. Delete from Firebase
         await remove(ref(db, SESSION_PATH));
-        // 2. Delete Local Folder
         if (fs.existsSync('./auth_info')) {
             fs.rmSync('./auth_info', { recursive: true, force: true });
         }
         connectionStatus = "OFFLINE";
-        addLog("✅ Session wiped. Please login again.");
+        addLog("✅ Session wiped. System ready for new link.");
     } catch (e) {
-        addLog("Error during cleanup: " + e.message);
+        addLog("Cleanup Error: " + e.message);
     }
 }
 
@@ -108,7 +106,6 @@ async function connectToWhatsApp() {
         browser: ["Ubuntu", "Chrome", "20.0.0"],
         printQRInTerminal: false,
         connectTimeoutMs: 60000,
-        defaultQueryTimeoutMs: 0,
     });
 
     sock.ev.on('creds.update', async () => {
@@ -123,14 +120,11 @@ async function connectToWhatsApp() {
 
         if (connection === 'close') {
             const statusCode = lastDisconnect?.error?.output?.statusCode;
-            
-            // Status 401 matlab session expired ya logout ho gaya
             const isLoggedOut = statusCode === DisconnectReason.loggedOut;
             const isSessionCorrupt = statusCode === 401;
 
             if (isLoggedOut || isSessionCorrupt) {
-                await clearSession(isLoggedOut ? "Logged Out" : "Session Expired/Invalid");
-                // Thoda wait karke fresh start karein
+                await clearSession(isLoggedOut ? "Logged Out" : "Session Expired");
                 setTimeout(() => connectToWhatsApp(), 3000);
             } else {
                 addLog("Reconnecting in 5s...");
@@ -156,10 +150,10 @@ async function connectToWhatsApp() {
                     <div style="background:white; padding:40px; border-radius:20px; box-shadow:0 10px 20px rgba(0,0,0,0.05); max-width:500px; margin:auto;">
                         <h1 style="color:#16a34a;">✅ WhatsApp Active</h1>
                         <p>Linked to: <b>${sock.user.id.split(':')[0]}</b></p>
-                        <button onclick="location.href='/logout'" style="background:#ef4444; color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">Reset/Logout</button>
+                        <p style="color:#666; font-size:13px;">Cloud Sync: <span style="color:blue">ON</span></p>
                         <hr style="margin:20px 0;">
-                        <div style="text-align:left; font-size:12px; height:150px; overflow-y:auto; background:#f8fafc; padding:10px;">
-                            ${logHtml}
+                        <div style="text-align:left; font-size:12px; height:200px; overflow-y:auto; background:#f8fafc; padding:10px;">
+                            <b>System Logs:</b><br>${logHtml}
                         </div>
                     </div>
                 </body>
@@ -170,7 +164,7 @@ async function connectToWhatsApp() {
             <body style="font-family:sans-serif; background:#f1f5f9; padding:20px; text-align:center;">
                 <div style="background:white; padding:40px; border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.1); max-width:400px; margin:auto;">
                     <h1 style="color:#6366f1;">Link WhatsApp</h1>
-                    <p id="status_msg">Session expired or not found. Please link again.</p>
+                    <p style="color:#64748b;">Ready to generate pairing code</p>
                     <input type="number" id="p" placeholder="9163955XXXXX" style="width:100%; padding:15px; border:2px solid #e2e8f0; border-radius:12px; margin-bottom:20px; font-size:16px;">
                     <button onclick="getCode()" id="b" style="width:100%; padding:15px; background:#6366f1; color:white; border:none; border-radius:12px; font-weight:bold; cursor:pointer;">Get Pairing Code</button>
                     <div id="c" style="margin-top:20px; font-size:32px; font-weight:800; letter-spacing:5px; color:#ec4899;"></div>
@@ -199,9 +193,10 @@ async function connectToWhatsApp() {
         `);
     });
 
+    // Hidden Logout Route
     app.get('/logout', async (req, res) => {
-        await clearSession("Manual Logout");
-        res.redirect('/');
+        await clearSession("Manual Logout Request");
+        res.send("<h1>Session Cleared. <a href='/'>Go Home</a></h1>");
     });
 
     app.get('/request-code', async (req, res) => {
