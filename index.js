@@ -6,7 +6,6 @@ const fs = require('fs');
 const { initializeApp } = require("firebase/app");
 const { getDatabase, ref, get, set, remove } = require("firebase/database");
 
-// --- FIREBASE CONFIG ---
 const firebaseConfig = {
   apiKey: "AIzaSyDUIEOhBJicrq8YorveBeeYSWZTOj7FvJQ",
   authDomain: "solor-otp.firebaseapp.com",
@@ -32,6 +31,7 @@ app.use(express.json());
 let sock;
 let logs = [];
 let connectionStatus = "OFFLINE";
+let retryCount = 0; // Loop rokne ke liye counter
 
 function addLog(msg) {
     const time = new Date().toLocaleTimeString();
@@ -41,13 +41,11 @@ function addLog(msg) {
     console.log(logEntry);
 }
 
-// --- FIREBASE SESSION LOGIC ---
 async function syncSessionFromFirebase() {
     try {
         const snapshot = await get(ref(db, SESSION_PATH));
         if (snapshot.exists()) {
             if (!fs.existsSync('./auth_info')) fs.mkdirSync('./auth_info', { recursive: true });
-            // Save data to local file for Baileys to use
             fs.writeFileSync('./auth_info/creds.json', JSON.stringify(snapshot.val()));
             addLog("✅ Session loaded from Firebase");
             return true;
@@ -58,9 +56,25 @@ async function syncSessionFromFirebase() {
     return false;
 }
 
+async function clearAllSession() {
+    addLog("🗑️ Cleaning up corrupted session...");
+    await remove(ref(db, SESSION_PATH));
+    if (fs.existsSync('./auth_info')) {
+        fs.rmSync('./auth_info', { recursive: true, force: true });
+    }
+    retryCount = 0;
+    connectionStatus = "OFFLINE";
+}
+
 async function connectToWhatsApp() {
+    // Agar retry bahut zyada ho jaye, toh session clear karo
+    if (retryCount > 5) {
+        addLog("⚠️ Connection loop detected! Resetting...");
+        await clearAllSession();
+    }
+
     addLog("Checking for existing session...");
-    await syncSessionFromFirebase();
+    const hasSession = await syncSessionFromFirebase();
 
     const { state, saveCreds } = await useMultiFileAuthState('auth_info');
     const { version } = await fetchLatestBaileysVersion();
@@ -74,11 +88,9 @@ async function connectToWhatsApp() {
         printQRInTerminal: false
     });
 
-    // Creds update par ab hum direct 'state.creds' use karenge 
     sock.ev.on('creds.update', async () => {
         await saveCreds();
         try {
-            // File read karne ke bajaye direct memory se save karein
             if (state.creds) {
                 await set(ref(db, SESSION_PATH), state.creds);
             }
@@ -97,29 +109,35 @@ async function connectToWhatsApp() {
 
         if (connection === 'close') {
             connectionStatus = "OFFLINE";
+            retryCount++; // Counter badhao
+            
             const statusCode = lastDisconnect?.error?.output?.statusCode;
             const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
             
-            if (statusCode === DisconnectReason.loggedOut) {
-                addLog("❌ Logged Out! Cleaning Firebase...");
-                await remove(ref(db, SESSION_PATH));
-                if (fs.existsSync('./auth_info')) fs.rmSync('./auth_info', { recursive: true, force: true });
-            }
+            addLog(`Closed (Code: ${statusCode}). Retry: ${retryCount}`);
 
-            addLog(`Connection Closed. Reconnecting: ${shouldReconnect}`);
-            if (shouldReconnect) {
+            if (statusCode === DisconnectReason.loggedOut || statusCode === 401) {
+                addLog("❌ Session Expired or Invalid.");
+                await clearAllSession();
+                setTimeout(() => connectToWhatsApp(), 5000);
+            } else if (shouldReconnect) {
+                // Agar session load karne ke baad bhi baar-baar fail ho raha hai
+                if (retryCount > 3 && hasSession) {
+                    addLog("🚨 Session might be corrupted. Clearing...");
+                    await clearAllSession();
+                }
                 setTimeout(() => connectToWhatsApp(), 5000);
             }
         }
 
         if (connection === 'open') {
             connectionStatus = "CONNECTED";
+            retryCount = 0; // Success hone par reset counter
             addLog("✅ SUCCESS: WhatsApp is Linked and Live!");
         }
     });
 
     // --- API ROUTES ---
-
     app.get('/', (req, res) => {
         const logHtml = logs.map(l => `<div style="border-bottom:1px solid #eee;padding:5px;">${l}</div>`).join('');
         if (connectionStatus === "CONNECTED" && sock?.user) {
@@ -128,7 +146,6 @@ async function connectToWhatsApp() {
                     <div style="background:white; padding:40px; border-radius:20px; box-shadow:0 10px 20px rgba(0,0,0,0.05); max-width:500px; margin:auto;">
                         <h1 style="color:#16a34a;">✅ WhatsApp Active</h1>
                         <p>Linked to: <b>${sock.user.id.split(':')[0]}</b></p>
-                        <p style="color:blue">Session Backup: Active</p>
                         <hr>
                         <div style="text-align:left; font-size:12px; height:200px; overflow-y:auto; background:#f8fafc; padding:10px;">
                             <b>System Logs:</b><br>${logHtml}
@@ -142,7 +159,7 @@ async function connectToWhatsApp() {
             <body style="font-family:sans-serif; background:#f1f5f9; padding:20px; text-align:center;">
                 <div style="background:white; padding:40px; border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.1); max-width:400px; margin:auto;">
                     <h1 style="color:#6366f1;">Link WhatsApp</h1>
-                    <p>Firebase Session Sync Enabled</p>
+                    <p style="color:#64748b;">Enter Number with 91</p>
                     <input type="number" id="p" placeholder="9163955XXXXX" style="width:100%; padding:15px; border:2px solid #e2e8f0; border-radius:12px; margin-bottom:20px; font-size:16px;">
                     <button onclick="getCode()" id="b" style="width:100%; padding:15px; background:#6366f1; color:white; border:none; border-radius:12px; font-weight:bold; cursor:pointer;">Get Pairing Code</button>
                     <div id="c" style="margin-top:20px; font-size:32px; font-weight:800; letter-spacing:5px; color:#ec4899;"></div>
