@@ -13,7 +13,7 @@ const app = express();
 const PORT = process.env.PORT || 10000;
 const API_KEY = "SOLOR_SECRET_786";
 
-// Your Firebase Config (Direct)
+// Your Firebase Config - FIXED REGION (asia-southeast1)
 const firebaseConfig = {
   apiKey: "AIzaSyDUIEOhBJicrq8YorveBeeYSWZTOj7FvJQ",
   authDomain: "solor-otp.firebaseapp.com",
@@ -26,8 +26,17 @@ const firebaseConfig = {
 };
 
 // Initialize Firebase
-const firebaseApp = initializeApp(firebaseConfig);
-const db = getDatabase(firebaseApp);
+let db = null;
+let firebaseEnabled = false;
+
+try {
+  const firebaseApp = initializeApp(firebaseConfig);
+  db = getDatabase(firebaseApp);
+  firebaseEnabled = true;
+  console.log("✅ Firebase initialized");
+} catch (err) {
+  console.log("⚠️ Firebase init failed:", err.message);
+}
 
 app.use(cors());
 app.use(express.json());
@@ -48,9 +57,8 @@ function addLog(msg) {
 }
 
 // ==================== 24/7 UPTIME KEEP-ALIVE ====================
-// Self-ping every 10 minutes to prevent Render from sleeping
 const SELF_PING_INTERVAL = 10 * 60 * 1000; // 10 minutes
-const SERVER_URL = process.env.RENDER_EXTERNAL_URL || `http://localhost:${PORT}`;
+const SERVER_URL = process.env.RENDER_EXTERNAL_URL || `http://0.0.0.0:${PORT}`;
 
 function keepAlive() {
     setInterval(() => {
@@ -68,6 +76,10 @@ function keepAlive() {
 
 // Clear session from Firebase
 async function clearSession() {
+    if (!firebaseEnabled) {
+        addLog("⚠️ Firebase not available, skipping session clear");
+        return true;
+    }
     try {
         await remove(ref(db, 'sessions/whatsapp_session'));
         addLog("🗑️ Session cleared from Firebase");
@@ -80,6 +92,7 @@ async function clearSession() {
 
 // Check if session exists
 async function sessionExists() {
+    if (!firebaseEnabled) return false;
     try {
         const snapshot = await get(ref(db, 'sessions/whatsapp_session/creds'));
         return snapshot.exists();
@@ -90,6 +103,10 @@ async function sessionExists() {
 
 // Firebase Auth State for Baileys
 async function useFirebaseAuthState(sessionId = 'whatsapp_session') {
+    if (!firebaseEnabled) {
+        throw new Error("Firebase not enabled");
+    }
+    
     const credsRef = ref(db, `sessions/${sessionId}/creds`);
     const keysRef = ref(db, `sessions/${sessionId}/keys`);
     
@@ -168,20 +185,21 @@ async function connectToWhatsApp() {
     sessionError = null;
     
     let authState;
-    try {
-        authState = await useFirebaseAuthState();
-        addLog("Using Firebase Auth State (Persistent)");
-    } catch (err) {
-        addLog(`❌ Firebase Auth Error: ${err.message}. Clearing session...`);
-        await clearSession();
+    
+    // Try Firebase first, fallback to file
+    if (firebaseEnabled) {
         try {
             authState = await useFirebaseAuthState();
-            addLog("🆕 New session created after error");
-        } catch (err2) {
-            addLog(`❌ Fatal error: ${err2.message}. Using file fallback...`);
+            addLog("Using Firebase Auth State (Persistent)");
+        } catch (err) {
+            addLog(`⚠️ Firebase auth failed: ${err.message}. Using file fallback...`);
             const fileAuth = await useMultiFileAuthState('auth_info');
             authState = fileAuth;
         }
+    } else {
+        addLog("⚠️ Firebase disabled, using file storage");
+        const fileAuth = await useMultiFileAuthState('auth_info');
+        authState = fileAuth;
     }
 
     const { version } = await fetchLatestBaileysVersion();
@@ -227,7 +245,7 @@ async function connectToWhatsApp() {
                 401, 403, 411, 428
             ].includes(statusCode);
             
-            if (isBadSession) {
+            if (isBadSession && firebaseEnabled) {
                 addLog(`❌ Bad session detected (Code: ${statusCode}). Clearing...`);
                 sessionError = `Session invalid (Error ${statusCode}). Please scan QR again.`;
                 await clearSession();
@@ -241,7 +259,7 @@ async function connectToWhatsApp() {
                 setTimeout(() => connectToWhatsApp(), 5000);
             } else {
                 addLog("❌ Logged out - Clearing session");
-                await clearSession();
+                if (firebaseEnabled) await clearSession();
             }
         }
 
@@ -264,7 +282,7 @@ async function connectToWhatsApp() {
 
 // ==================== ROUTES ====================
 
-// Ping endpoint for uptime monitoring (external + self)
+// IMPORTANT: Define routes BEFORE starting server
 app.get('/ping', (req, res) => {
     const uptime = Math.floor(process.uptime());
     const minutes = Math.floor(uptime / 60);
@@ -274,6 +292,7 @@ app.get('/ping', (req, res) => {
         status: "alive", 
         timestamp: new Date().toISOString(),
         whatsapp: connectionStatus,
+        firebase: firebaseEnabled,
         uptime: `${minutes}m ${seconds}s`,
         lastPing: new Date(lastPingTime).toISOString(),
         error: sessionError
@@ -304,7 +323,7 @@ app.get('/', async (req, res) => {
                 <div style="background:white; padding:40px; border-radius:20px; max-width:500px; margin:auto;">
                     <h1 style="color:#16a34a;">✅ WhatsApp Active</h1>
                     <p>Linked to: <b>${sock.user.id.split(':')[0]}</b></p>
-                    <p>Storage: <b>🔥 Firebase</b></p>
+                    <p>Storage: <b>${firebaseEnabled ? '🔥 Firebase' : '⚠️ File'}</b></p>
                     <p>Uptime: <b>${Math.floor(process.uptime()/60)} minutes</b></p>
                     <hr>
                     <div style="text-align:left; font-size:12px; height:200px; overflow-y:auto; background:#f8fafc; padding:10px;">
@@ -338,7 +357,7 @@ app.get('/', async (req, res) => {
         <body style="font-family:sans-serif; background:#f1f5f9; padding:20px; text-align:center;">
             <div style="background:white; padding:40px; border-radius:20px; max-width:400px; margin:auto;">
                 <h1 style="color:#6366f1;">Link WhatsApp</h1>
-                <p>Status: <b>${connectionStatus}</b> | Storage: <b>🔥 Firebase</b></p>
+                <p>Status: <b>${connectionStatus}</b> | Storage: <b>${firebaseEnabled ? '🔥 Firebase' : '⚠️ File'}</b></p>
                 <p style="font-size:12px; color:#64748b;">⏰ Auto-refresh every 10s | 🔄 Self-ping every 10min</p>
                 
                 ${errorHtml}
@@ -425,12 +444,18 @@ app.get('/clear-session', async (req, res) => {
 });
 
 // ==================== START SERVER ====================
-connectToWhatsApp();
-app.listen(PORT, '0.0.0.0', () => {
+// IMPORTANT: Start server FIRST, then connect WhatsApp
+
+const server = app.listen(PORT, '0.0.0.0', () => {
     console.log(`Server live on ${PORT}`);
     addLog(`🚀 Server started on port ${PORT}`);
     addLog(`📊 Dashboard: ${SERVER_URL}`);
     
-    // Start keep-alive mechanism
+    // Start keep-alive
     keepAlive();
+    
+    // Then connect WhatsApp
+    setTimeout(() => {
+        connectToWhatsApp();
+    }, 2000);
 });
