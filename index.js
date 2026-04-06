@@ -4,7 +4,7 @@ const cors = require('cors');
 const pino = require("pino");
 const fs = require('fs');
 const path = require('path');
-const https = require('https'); // Self-ping ke liye
+const https = require('https');
 const { initializeApp } = require("firebase/app");
 const { getDatabase, ref, get, set, remove } = require("firebase/database");
 
@@ -24,7 +24,9 @@ const firebaseApp = initializeApp(firebaseConfig);
 const db = getDatabase(firebaseApp);
 const SESSION_PATH = 'whatsapp_session_v2';
 const API_KEY = "SOLOR_SECRET_786";
-const RENDER_URL = `https://${process.env.RENDER_EXTERNAL_HOSTNAME || 'aapka-app-name.onrender.com'}`; 
+
+// ⚠️ APNA RENDER URL YAHAN DALEIN (e.g., 'https://solor-wa.onrender.com')
+const MY_URL = `https://${process.env.RENDER_EXTERNAL_HOSTNAME || 'solor-otp'}.onrender.com`;
 
 const app = express();
 const PORT = process.env.PORT || 10000;
@@ -40,34 +42,34 @@ function addLog(msg) {
     const time = new Date().toLocaleTimeString();
     const logEntry = `[${time}] ${msg}`;
     logs.unshift(logEntry);
-    if (logs.length > 20) logs.pop();
+    if (logs.length > 15) logs.pop();
     console.log(logEntry);
 }
 
-// --- ANTI-SLEEP SELF PING ---
-function startSelfPing() {
+// --- SAFE ANTI-SLEEP (Self-Ping) ---
+function startSafePing() {
+    // Har 8 minute mein ek baar ping karega
     setInterval(() => {
-        addLog("🛰️ Sending self-ping to keep server awake...");
-        https.get(`${RENDER_URL}/ping`, (res) => {
-            if (res.statusCode === 200) {
-                addLog("✅ Self-ping successful");
-            }
+        if (connectionStatus === "OFFLINE") return; 
+        
+        https.get(`${MY_URL}/ping`, (res) => {
+            // Success
         }).on('error', (e) => {
-            addLog("❌ Self-ping failed: " + e.message);
+            console.log("Ping error, ignored to prevent crash.");
         });
-    }, 600000); // Har 10 minute mein (Render 15 min me sota hai)
+    }, 480000); 
 }
 
-// --- FIREBASE & SESSION LOGIC ---
+// --- WHATSAPP LOGIC ---
 async function clearSession(reason) {
-    addLog(`🧹 Cleaning Session: ${reason}`);
     try {
         await remove(ref(db, SESSION_PATH));
         if (fs.existsSync('./auth_info')) {
             fs.rmSync('./auth_info', { recursive: true, force: true });
         }
+        addLog(`Session Cleared: ${reason}`);
         connectionStatus = "OFFLINE";
-    } catch (e) { addLog("Cleanup Error: " + e.message); }
+    } catch (e) {}
 }
 
 async function syncSessionFromFirebase() {
@@ -80,10 +82,9 @@ async function syncSessionFromFirebase() {
                 const realFilename = filename.replace(/_/g, '.');
                 fs.writeFileSync(path.join('./auth_info', realFilename), content);
             }
-            addLog("✅ Session restored from Cloud");
             return true;
         }
-    } catch (e) { addLog("Firebase Load Error: " + e.message); }
+    } catch (e) { addLog("Cloud Load Error: " + e.message); }
     return false;
 }
 
@@ -98,11 +99,11 @@ async function saveSessionToFirebase() {
             sessionData[safeName] = content;
         });
         await set(ref(db, SESSION_PATH), sessionData);
-    } catch (e) { addLog("Firebase Sync Error: " + e.message); }
+    } catch (e) {}
 }
 
 async function connectToWhatsApp() {
-    addLog("Initializing WhatsApp...");
+    addLog("WhatsApp connecting...");
     await syncSessionFromFirebase();
 
     const { state, saveCreds } = await useMultiFileAuthState('auth_info');
@@ -114,6 +115,7 @@ async function connectToWhatsApp() {
         logger: pino({ level: 'silent' }),
         browser: ["Ubuntu", "Chrome", "20.0.0"],
         printQRInTerminal: false,
+        connectTimeoutMs: 60000,
     });
 
     sock.ev.on('creds.update', async () => {
@@ -127,7 +129,7 @@ async function connectToWhatsApp() {
         if (connection === 'close') {
             const statusCode = lastDisconnect?.error?.output?.statusCode;
             if (statusCode === DisconnectReason.loggedOut || statusCode === 401) {
-                await clearSession("Session Expired");
+                await clearSession("Invalid Session");
                 setTimeout(() => connectToWhatsApp(), 3000);
             } else {
                 setTimeout(() => connectToWhatsApp(), 5000);
@@ -135,30 +137,24 @@ async function connectToWhatsApp() {
         }
         if (connection === 'open') {
             connectionStatus = "CONNECTED";
-            addLog("✅ SUCCESS: WhatsApp is Live!");
+            addLog("✅ SUCCESS: Linked!");
             await saveSessionToFirebase();
         }
     });
 
     // --- ROUTES ---
-
-    // Keep-alive endpoint
-    app.get('/ping', (req, res) => {
-        res.status(200).send("pong");
-    });
+    app.get('/ping', (req, res) => res.send('pong'));
 
     app.get('/', (req, res) => {
-        const logHtml = logs.map(l => `<div style="border-bottom:1px solid #eee;padding:5px;">${l}</div>`).join('');
+        const logHtml = logs.map(l => `<div style="border-bottom:1px solid #eee;padding:4px;">${l}</div>`).join('');
         if (connectionStatus === "CONNECTED" && sock?.user) {
             return res.send(`
                 <body style="font-family:sans-serif; background:#f0fdf4; padding:20px; text-align:center;">
-                    <div style="background:white; padding:40px; border-radius:20px; box-shadow:0 10px 20px rgba(0,0,0,0.05); max-width:500px; margin:auto;">
-                        <h1 style="color:#16a34a;">✅ WhatsApp Active</h1>
-                        <p>Linked to: <b>${sock.user.id.split(':')[0]}</b></p>
-                        <p style="color:blue; font-size:12px;">Keep-Alive: <span style="color:green">ACTIVE</span></p>
-                        <hr style="margin:20px 0;">
-                        <div style="text-align:left; font-size:12px; height:200px; overflow-y:auto; background:#f8fafc; padding:10px;">
-                            <b>System Logs:</b><br>${logHtml}
+                    <div style="background:white; padding:30px; border-radius:15px; box-shadow:0 5px 15px rgba(0,0,0,0.05); max-width:400px; margin:auto;">
+                        <h2 style="color:#16a34a;">✅ WhatsApp Active</h2>
+                        <p style="font-size:14px;">Linked: ${sock.user.id.split(':')[0]}</p>
+                        <div style="text-align:left; font-size:11px; height:150px; overflow-y:auto; background:#f8fafc; padding:10px; border:1px solid #eee;">
+                            ${logHtml}
                         </div>
                     </div>
                 </body>
@@ -166,30 +162,21 @@ async function connectToWhatsApp() {
         }
         res.send(`
             <body style="font-family:sans-serif; background:#f1f5f9; padding:20px; text-align:center;">
-                <div style="background:white; padding:40px; border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.1); max-width:400px; margin:auto;">
-                    <h1 style="color:#6366f1;">Link WhatsApp</h1>
-                    <input type="number" id="p" placeholder="9163955XXXXX" style="width:100%; padding:15px; border:2px solid #e2e8f0; border-radius:12px; margin-bottom:20px; font-size:16px;">
-                    <button onclick="getCode()" id="b" style="width:100%; padding:15px; background:#6366f1; color:white; border:none; border-radius:12px; font-weight:bold; cursor:pointer;">Get Pairing Code</button>
-                    <div id="c" style="margin-top:20px; font-size:32px; font-weight:800; letter-spacing:5px; color:#ec4899;"></div>
-                    <hr style="margin:20px 0;">
-                    <div style="text-align:left; font-size:11px; height:100px; overflow-y:auto; background:#f8fafc; padding:10px;">
-                        <b>Logs:</b><br>${logHtml}
-                    </div>
+                <div style="background:white; padding:30px; border-radius:15px; max-width:400px; margin:auto;">
+                    <h2 style="color:#6366f1;">Link WhatsApp</h2>
+                    <input type="number" id="p" placeholder="9163955XXXXX" style="width:100%; padding:12px; border:1px solid #ddd; border-radius:8px; margin-bottom:15px;">
+                    <button onclick="getCode()" id="b" style="width:100%; padding:12px; background:#6366f1; color:white; border:none; border-radius:8px; cursor:pointer;">Get Pairing Code</button>
+                    <div id="c" style="margin-top:15px; font-size:28px; font-weight:bold; color:#ec4899;"></div>
                 </div>
                 <script>
                     async function getCode(){
                         const num=document.getElementById('p').value;
                         if(!num) return alert('Enter number');
-                        document.getElementById('b').innerText='Requesting Code...';
+                        document.getElementById('b').innerText='Loading...';
                         const r=await fetch('/request-code?phone='+num);
                         const d=await r.json();
-                        if(d.code) {
-                            document.getElementById('c').innerText=d.code;
-                            document.getElementById('b').innerText='Verify in WhatsApp';
-                        } else {
-                            alert('Error: ' + d.message);
-                            document.getElementById('b').innerText='Try Again';
-                        }
+                        document.getElementById('c').innerText = d.code || 'Error';
+                        document.getElementById('b').innerText = 'Get Pairing Code';
                     }
                 </script>
             </body>
@@ -198,7 +185,7 @@ async function connectToWhatsApp() {
 
     app.get('/logout', async (req, res) => {
         await clearSession("Manual Logout");
-        res.send("Session Cleared. <a href='/'>Go Home</a>");
+        res.send("Logged out. <a href='/'>Back</a>");
     });
 
     app.get('/request-code', async (req, res) => {
@@ -206,26 +193,22 @@ async function connectToWhatsApp() {
         try { 
             const code = await sock.requestPairingCode(phone); 
             res.json({ status: "success", code: code }); 
-        } catch (err) { res.json({ status: "error", message: err.message }); }
+        } catch (err) { res.json({ status: "error" }); }
     });
 
     app.get('/send-otp', async (req, res) => {
         const { phone, otp, key } = req.query;
-        if (key !== API_KEY) return res.status(403).json({ status: "error", message: "Invalid Key" });
-        if (connectionStatus !== "CONNECTED") return res.status(500).json({ status: "error", message: "WhatsApp not linked" });
+        if (key !== API_KEY || connectionStatus !== "CONNECTED") return res.status(403).json({ error: "Unauthorized" });
         try {
             await sock.sendMessage(`91${phone}@s.whatsapp.net`, { 
-                text: `☀️ *Solor Energy Verification*\n\nYour OTP is: *${otp}*\n\nDo not share this with anyone.` 
+                text: `☀️ *Solor Energy Verification*\n\nYour OTP is: *${otp}*\n\nDo not share this.` 
             });
-            addLog(`OTP ${otp} sent to ${phone}`);
+            addLog(`Sent to ${phone}`);
             res.json({ status: "success" });
-        } catch (err) {
-            addLog(`Send Error: ${err.message}`);
-            res.status(500).json({ error: err.message });
-        }
+        } catch (err) { res.status(500).json({ error: "Failed" }); }
     });
 }
 
 connectToWhatsApp();
-startSelfPing(); // Start pinging
-app.listen(PORT, '0.0.0.0', () => console.log(`Server live on ${PORT}`));
+startSafePing(); 
+app.listen(PORT, '0.0.0.0', () => console.log(`Live on ${PORT}`));
