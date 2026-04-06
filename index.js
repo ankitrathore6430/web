@@ -3,9 +3,11 @@ const express = require("express");
 const cors = require('cors');
 const pino = require("pino");
 const fs = require('fs');
+const path = require('path');
 const { initializeApp } = require("firebase/app");
 const { getDatabase, ref, get, set, remove } = require("firebase/database");
 
+// --- FIREBASE CONFIG ---
 const firebaseConfig = {
   apiKey: "AIzaSyDUIEOhBJicrq8YorveBeeYSWZTOj7FvJQ",
   authDomain: "solor-otp.firebaseapp.com",
@@ -19,7 +21,7 @@ const firebaseConfig = {
 
 const firebaseApp = initializeApp(firebaseConfig);
 const db = getDatabase(firebaseApp);
-const SESSION_PATH = 'whatsapp_session';
+const SESSION_PATH = 'full_whatsapp_session'; 
 
 const app = express();
 const PORT = process.env.PORT || 10000;
@@ -31,7 +33,8 @@ app.use(express.json());
 let sock;
 let logs = [];
 let connectionStatus = "OFFLINE";
-let retryCount = 0; // Loop rokne ke liye counter
+let retryCount = 0; // Kharab session pakadne ke liye
+const AUTH_DIR = './auth_info';
 
 function addLog(msg) {
     const time = new Date().toLocaleTimeString();
@@ -41,62 +44,79 @@ function addLog(msg) {
     console.log(logEntry);
 }
 
-async function syncSessionFromFirebase() {
+// --- FIREBASE FOLDER SYNC LOGIC ---
+
+async function restoreFolderFromFirebase() {
     try {
         const snapshot = await get(ref(db, SESSION_PATH));
         if (snapshot.exists()) {
-            if (!fs.existsSync('./auth_info')) fs.mkdirSync('./auth_info', { recursive: true });
-            fs.writeFileSync('./auth_info/creds.json', JSON.stringify(snapshot.val()));
-            addLog("✅ Session loaded from Firebase");
+            const files = snapshot.val();
+            if (!fs.existsSync(AUTH_DIR)) fs.mkdirSync(AUTH_DIR, { recursive: true });
+            
+            for (const [fileName, fileContent] of Object.entries(files)) {
+                fs.writeFileSync(path.join(AUTH_DIR, fileName), fileContent);
+            }
+            addLog(`✅ Session Restored (${Object.keys(files).length} files)`);
             return true;
         }
     } catch (e) {
-        addLog("Firebase Load Error: " + e.message);
+        addLog("Firebase Restore Error: " + e.message);
     }
     return false;
 }
 
-async function clearAllSession() {
-    addLog("🗑️ Cleaning up corrupted session...");
-    await remove(ref(db, SESSION_PATH));
-    if (fs.existsSync('./auth_info')) {
-        fs.rmSync('./auth_info', { recursive: true, force: true });
+async function saveFolderToFirebase() {
+    try {
+        if (!fs.existsSync(AUTH_DIR)) return;
+        const files = fs.readdirSync(AUTH_DIR);
+        const sessionData = {};
+        for (const file of files) {
+            const fullPath = path.join(AUTH_DIR, file);
+            if (fs.lstatSync(fullPath).isFile()) {
+                sessionData[file] = fs.readFileSync(fullPath, 'utf-8');
+            }
+        }
+        await set(ref(db, SESSION_PATH), sessionData);
+    } catch (e) {
+        addLog("Firebase Backup Error: " + e.message);
     }
-    retryCount = 0;
-    connectionStatus = "OFFLINE";
+}
+
+async function clearEverything() {
+    addLog("🚨 SESSION CORRUPTED: Cleaning up everything...");
+    try {
+        await remove(ref(db, SESSION_PATH));
+        if (fs.existsSync(AUTH_DIR)) fs.rmSync(AUTH_DIR, { recursive: true, force: true });
+        retryCount = 0;
+        connectionStatus = "OFFLINE";
+        addLog("✅ Cleanup complete. Please login again.");
+    } catch (e) {
+        addLog("Cleanup Error: " + e.message);
+    }
 }
 
 async function connectToWhatsApp() {
-    // Agar retry bahut zyada ho jaye, toh session clear karo
-    if (retryCount > 5) {
-        addLog("⚠️ Connection loop detected! Resetting...");
-        await clearAllSession();
+    // Agar baar-baar fail ho raha hai, toh session delete karo
+    if (retryCount > 4) {
+        await clearEverything();
     }
 
-    addLog("Checking for existing session...");
-    const hasSession = await syncSessionFromFirebase();
+    addLog("Starting session recovery...");
+    const hasBackup = await restoreFolderFromFirebase();
 
-    const { state, saveCreds } = await useMultiFileAuthState('auth_info');
+    const { state, saveCreds } = await useMultiFileAuthState(AUTH_DIR);
     const { version } = await fetchLatestBaileysVersion();
 
     sock = makeWASocket({
         version,
         auth: state,
         logger: pino({ level: 'silent' }),
-        browser: ["Ubuntu", "Chrome", "20.0.0"], 
-        connectTimeoutMs: 60000,
-        printQRInTerminal: false
+        browser: ["Ubuntu", "Chrome", "20.0.0"]
     });
 
     sock.ev.on('creds.update', async () => {
         await saveCreds();
-        try {
-            if (state.creds) {
-                await set(ref(db, SESSION_PATH), state.creds);
-            }
-        } catch (e) {
-            addLog("Firebase Sync Error: " + e.message);
-        }
+        await saveFolderToFirebase(); // Har update par full backup
     });
 
     sock.ev.on('connection.update', async (update) => {
@@ -109,22 +129,22 @@ async function connectToWhatsApp() {
 
         if (connection === 'close') {
             connectionStatus = "OFFLINE";
-            retryCount++; // Counter badhao
-            
+            retryCount++;
             const statusCode = lastDisconnect?.error?.output?.statusCode;
             const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
-            
-            addLog(`Closed (Code: ${statusCode}). Retry: ${retryCount}`);
 
+            addLog(`Disconnected (Code: ${statusCode}). Attempt: ${retryCount}`);
+
+            // Agar user ne manually logout kiya ya session expired (401) ho gaya
             if (statusCode === DisconnectReason.loggedOut || statusCode === 401) {
-                addLog("❌ Session Expired or Invalid.");
-                await clearAllSession();
+                await clearEverything();
                 setTimeout(() => connectToWhatsApp(), 5000);
-            } else if (shouldReconnect) {
-                // Agar session load karne ke baad bhi baar-baar fail ho raha hai
-                if (retryCount > 3 && hasSession) {
-                    addLog("🚨 Session might be corrupted. Clearing...");
-                    await clearAllSession();
+            } 
+            // Agar bina logout ke baar-baar fail ho raha hai (Corrupted Data)
+            else if (shouldReconnect) {
+                if (retryCount > 3 && hasBackup) {
+                    addLog("🚨 Detected corrupted backup files. Resetting...");
+                    await clearEverything();
                 }
                 setTimeout(() => connectToWhatsApp(), 5000);
             }
@@ -132,12 +152,13 @@ async function connectToWhatsApp() {
 
         if (connection === 'open') {
             connectionStatus = "CONNECTED";
-            retryCount = 0; // Success hone par reset counter
-            addLog("✅ SUCCESS: WhatsApp is Linked and Live!");
+            retryCount = 0; // Success hone par counter reset
+            addLog("✅ SUCCESS: Linked and Session Synced!");
+            await saveFolderToFirebase();
         }
     });
 
-    // --- API ROUTES ---
+    // --- API ROUTES --- (Rest of the code remains same)
     app.get('/', (req, res) => {
         const logHtml = logs.map(l => `<div style="border-bottom:1px solid #eee;padding:5px;">${l}</div>`).join('');
         if (connectionStatus === "CONNECTED" && sock?.user) {
@@ -146,6 +167,7 @@ async function connectToWhatsApp() {
                     <div style="background:white; padding:40px; border-radius:20px; box-shadow:0 10px 20px rgba(0,0,0,0.05); max-width:500px; margin:auto;">
                         <h1 style="color:#16a34a;">✅ WhatsApp Active</h1>
                         <p>Linked to: <b>${sock.user.id.split(':')[0]}</b></p>
+                        <p style="color:blue">Cloud Sync: Active (Full Folder)</p>
                         <hr>
                         <div style="text-align:left; font-size:12px; height:200px; overflow-y:auto; background:#f8fafc; padding:10px;">
                             <b>System Logs:</b><br>${logHtml}
@@ -154,12 +176,11 @@ async function connectToWhatsApp() {
                 </body>
             `);
         }
-
         res.send(`
             <body style="font-family:sans-serif; background:#f1f5f9; padding:20px; text-align:center;">
                 <div style="background:white; padding:40px; border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.1); max-width:400px; margin:auto;">
                     <h1 style="color:#6366f1;">Link WhatsApp</h1>
-                    <p style="color:#64748b;">Enter Number with 91</p>
+                    <p style="color:#64748b;">Full Cloud Backup Mode Enabled</p>
                     <input type="number" id="p" placeholder="9163955XXXXX" style="width:100%; padding:15px; border:2px solid #e2e8f0; border-radius:12px; margin-bottom:20px; font-size:16px;">
                     <button onclick="getCode()" id="b" style="width:100%; padding:15px; background:#6366f1; color:white; border:none; border-radius:12px; font-weight:bold; cursor:pointer;">Get Pairing Code</button>
                     <div id="c" style="margin-top:20px; font-size:32px; font-weight:800; letter-spacing:5px; color:#ec4899;"></div>
@@ -202,7 +223,6 @@ async function connectToWhatsApp() {
         const { phone, otp, key } = req.query;
         if (key !== API_KEY) return res.status(403).json({ status: "error", message: "Invalid Key" });
         if (connectionStatus !== "CONNECTED") return res.status(500).json({ status: "error", message: "WhatsApp not linked" });
-
         try {
             await sock.sendMessage(`91${phone}@s.whatsapp.net`, { 
                 text: `☀️ *Solor Energy Verification*\n\nYour OTP is: *${otp}*\n\nDo not share this with anyone.` 
