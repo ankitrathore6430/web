@@ -4,10 +4,11 @@ const cors = require('cors');
 const pino = require("pino");
 const fs = require('fs');
 const path = require('path');
+const https = require('https'); // Self-ping ke liye
 const { initializeApp } = require("firebase/app");
 const { getDatabase, ref, get, set, remove } = require("firebase/database");
 
-// --- FIREBASE CONFIG ---
+// --- CONFIG ---
 const firebaseConfig = {
     apiKey: "AIzaSyDUIEOhBJicrq8YorveBeeYSWZTOj7FvJQ",
     authDomain: "solor-otp.firebaseapp.com",
@@ -22,10 +23,11 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const db = getDatabase(firebaseApp);
 const SESSION_PATH = 'whatsapp_session_v2';
+const API_KEY = "SOLOR_SECRET_786";
+const RENDER_URL = `https://${process.env.RENDER_EXTERNAL_HOSTNAME || 'aapka-app-name.onrender.com'}`; 
 
 const app = express();
 const PORT = process.env.PORT || 10000;
-const API_KEY = "SOLOR_SECRET_786";
 
 app.use(cors());
 app.use(express.json());
@@ -42,7 +44,21 @@ function addLog(msg) {
     console.log(logEntry);
 }
 
-// --- SESSION CLEANUP FUNCTION ---
+// --- ANTI-SLEEP SELF PING ---
+function startSelfPing() {
+    setInterval(() => {
+        addLog("🛰️ Sending self-ping to keep server awake...");
+        https.get(`${RENDER_URL}/ping`, (res) => {
+            if (res.statusCode === 200) {
+                addLog("✅ Self-ping successful");
+            }
+        }).on('error', (e) => {
+            addLog("❌ Self-ping failed: " + e.message);
+        });
+    }, 600000); // Har 10 minute mein (Render 15 min me sota hai)
+}
+
+// --- FIREBASE & SESSION LOGIC ---
 async function clearSession(reason) {
     addLog(`🧹 Cleaning Session: ${reason}`);
     try {
@@ -51,10 +67,7 @@ async function clearSession(reason) {
             fs.rmSync('./auth_info', { recursive: true, force: true });
         }
         connectionStatus = "OFFLINE";
-        addLog("✅ Session wiped. System ready for new link.");
-    } catch (e) {
-        addLog("Cleanup Error: " + e.message);
-    }
+    } catch (e) { addLog("Cleanup Error: " + e.message); }
 }
 
 async function syncSessionFromFirebase() {
@@ -67,12 +80,10 @@ async function syncSessionFromFirebase() {
                 const realFilename = filename.replace(/_/g, '.');
                 fs.writeFileSync(path.join('./auth_info', realFilename), content);
             }
-            addLog("✅ Session loaded from Firebase");
+            addLog("✅ Session restored from Cloud");
             return true;
         }
-    } catch (e) {
-        addLog("Firebase Load Error: " + e.message);
-    }
+    } catch (e) { addLog("Firebase Load Error: " + e.message); }
     return false;
 }
 
@@ -87,9 +98,7 @@ async function saveSessionToFirebase() {
             sessionData[safeName] = content;
         });
         await set(ref(db, SESSION_PATH), sessionData);
-    } catch (e) {
-        addLog("Firebase Sync Error: " + e.message);
-    }
+    } catch (e) { addLog("Firebase Sync Error: " + e.message); }
 }
 
 async function connectToWhatsApp() {
@@ -105,7 +114,6 @@ async function connectToWhatsApp() {
         logger: pino({ level: 'silent' }),
         browser: ["Ubuntu", "Chrome", "20.0.0"],
         printQRInTerminal: false,
-        connectTimeoutMs: 60000,
     });
 
     sock.ev.on('creds.update', async () => {
@@ -115,42 +123,39 @@ async function connectToWhatsApp() {
 
     sock.ev.on('connection.update', async (update) => {
         const { connection, lastDisconnect } = update;
-        
         if (connection === 'connecting') connectionStatus = "CONNECTING";
-
         if (connection === 'close') {
             const statusCode = lastDisconnect?.error?.output?.statusCode;
-            const isLoggedOut = statusCode === DisconnectReason.loggedOut;
-            const isSessionCorrupt = statusCode === 401;
-
-            if (isLoggedOut || isSessionCorrupt) {
-                await clearSession(isLoggedOut ? "Logged Out" : "Session Expired");
+            if (statusCode === DisconnectReason.loggedOut || statusCode === 401) {
+                await clearSession("Session Expired");
                 setTimeout(() => connectToWhatsApp(), 3000);
             } else {
-                addLog("Reconnecting in 5s...");
                 setTimeout(() => connectToWhatsApp(), 5000);
             }
         }
-
         if (connection === 'open') {
             connectionStatus = "CONNECTED";
-            addLog("✅ SUCCESS: Linked to " + sock.user.id.split(':')[0]);
+            addLog("✅ SUCCESS: WhatsApp is Live!");
             await saveSessionToFirebase();
         }
     });
 
-    // --- API ROUTES ---
+    // --- ROUTES ---
+
+    // Keep-alive endpoint
+    app.get('/ping', (req, res) => {
+        res.status(200).send("pong");
+    });
 
     app.get('/', (req, res) => {
         const logHtml = logs.map(l => `<div style="border-bottom:1px solid #eee;padding:5px;">${l}</div>`).join('');
-        
         if (connectionStatus === "CONNECTED" && sock?.user) {
             return res.send(`
                 <body style="font-family:sans-serif; background:#f0fdf4; padding:20px; text-align:center;">
                     <div style="background:white; padding:40px; border-radius:20px; box-shadow:0 10px 20px rgba(0,0,0,0.05); max-width:500px; margin:auto;">
                         <h1 style="color:#16a34a;">✅ WhatsApp Active</h1>
                         <p>Linked to: <b>${sock.user.id.split(':')[0]}</b></p>
-                        <p style="color:#666; font-size:13px;">Cloud Sync: <span style="color:blue">ON</span></p>
+                        <p style="color:blue; font-size:12px;">Keep-Alive: <span style="color:green">ACTIVE</span></p>
                         <hr style="margin:20px 0;">
                         <div style="text-align:left; font-size:12px; height:200px; overflow-y:auto; background:#f8fafc; padding:10px;">
                             <b>System Logs:</b><br>${logHtml}
@@ -159,12 +164,10 @@ async function connectToWhatsApp() {
                 </body>
             `);
         }
-
         res.send(`
             <body style="font-family:sans-serif; background:#f1f5f9; padding:20px; text-align:center;">
                 <div style="background:white; padding:40px; border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.1); max-width:400px; margin:auto;">
                     <h1 style="color:#6366f1;">Link WhatsApp</h1>
-                    <p style="color:#64748b;">Ready to generate pairing code</p>
                     <input type="number" id="p" placeholder="9163955XXXXX" style="width:100%; padding:15px; border:2px solid #e2e8f0; border-radius:12px; margin-bottom:20px; font-size:16px;">
                     <button onclick="getCode()" id="b" style="width:100%; padding:15px; background:#6366f1; color:white; border:none; border-radius:12px; font-weight:bold; cursor:pointer;">Get Pairing Code</button>
                     <div id="c" style="margin-top:20px; font-size:32px; font-weight:800; letter-spacing:5px; color:#ec4899;"></div>
@@ -193,28 +196,23 @@ async function connectToWhatsApp() {
         `);
     });
 
-    // Hidden Logout Route
     app.get('/logout', async (req, res) => {
-        await clearSession("Manual Logout Request");
-        res.send("<h1>Session Cleared. <a href='/'>Go Home</a></h1>");
+        await clearSession("Manual Logout");
+        res.send("Session Cleared. <a href='/'>Go Home</a>");
     });
 
     app.get('/request-code', async (req, res) => {
         const phone = req.query.phone;
-        if (connectionStatus === "CONNECTED") return res.json({ status: "error", message: "Already connected" });
         try { 
             const code = await sock.requestPairingCode(phone); 
             res.json({ status: "success", code: code }); 
-        } catch (err) { 
-            res.json({ status: "error", message: err.message }); 
-        }
+        } catch (err) { res.json({ status: "error", message: err.message }); }
     });
 
     app.get('/send-otp', async (req, res) => {
         const { phone, otp, key } = req.query;
         if (key !== API_KEY) return res.status(403).json({ status: "error", message: "Invalid Key" });
         if (connectionStatus !== "CONNECTED") return res.status(500).json({ status: "error", message: "WhatsApp not linked" });
-
         try {
             await sock.sendMessage(`91${phone}@s.whatsapp.net`, { 
                 text: `☀️ *Solor Energy Verification*\n\nYour OTP is: *${otp}*\n\nDo not share this with anyone.` 
@@ -229,4 +227,5 @@ async function connectToWhatsApp() {
 }
 
 connectToWhatsApp();
+startSelfPing(); // Start pinging
 app.listen(PORT, '0.0.0.0', () => console.log(`Server live on ${PORT}`));
