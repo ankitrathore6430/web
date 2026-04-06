@@ -46,7 +46,8 @@ async function syncSessionFromFirebase() {
     try {
         const snapshot = await get(ref(db, SESSION_PATH));
         if (snapshot.exists()) {
-            if (!fs.existsSync('./auth_info')) fs.mkdirSync('./auth_info');
+            if (!fs.existsSync('./auth_info')) fs.mkdirSync('./auth_info', { recursive: true });
+            // Save data to local file for Baileys to use
             fs.writeFileSync('./auth_info/creds.json', JSON.stringify(snapshot.val()));
             addLog("✅ Session loaded from Firebase");
             return true;
@@ -73,12 +74,14 @@ async function connectToWhatsApp() {
         printQRInTerminal: false
     });
 
+    // Creds update par ab hum direct 'state.creds' use karenge 
     sock.ev.on('creds.update', async () => {
         await saveCreds();
-        // Save to Firebase
         try {
-            const creds = JSON.parse(fs.readFileSync('./auth_info/creds.json'));
-            await set(ref(db, SESSION_PATH), creds);
+            // File read karne ke bajaye direct memory se save karein
+            if (state.creds) {
+                await set(ref(db, SESSION_PATH), state.creds);
+            }
         } catch (e) {
             addLog("Firebase Sync Error: " + e.message);
         }
@@ -94,11 +97,11 @@ async function connectToWhatsApp() {
 
         if (connection === 'close') {
             connectionStatus = "OFFLINE";
-            const statusCode = lastDisconnect.error?.output?.statusCode;
+            const statusCode = lastDisconnect?.error?.output?.statusCode;
             const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
             
             if (statusCode === DisconnectReason.loggedOut) {
-                addLog("❌ Session Logged Out. Clearing Firebase...");
+                addLog("❌ Logged Out! Cleaning Firebase...");
                 await remove(ref(db, SESSION_PATH));
                 if (fs.existsSync('./auth_info')) fs.rmSync('./auth_info', { recursive: true, force: true });
             }
@@ -125,7 +128,7 @@ async function connectToWhatsApp() {
                     <div style="background:white; padding:40px; border-radius:20px; box-shadow:0 10px 20px rgba(0,0,0,0.05); max-width:500px; margin:auto;">
                         <h1 style="color:#16a34a;">✅ WhatsApp Active</h1>
                         <p>Linked to: <b>${sock.user.id.split(':')[0]}</b></p>
-                        <p style="color:blue">Session Saved in Firebase</p>
+                        <p style="color:blue">Session Backup: Active</p>
                         <hr>
                         <div style="text-align:left; font-size:12px; height:200px; overflow-y:auto; background:#f8fafc; padding:10px;">
                             <b>System Logs:</b><br>${logHtml}
@@ -139,6 +142,7 @@ async function connectToWhatsApp() {
             <body style="font-family:sans-serif; background:#f1f5f9; padding:20px; text-align:center;">
                 <div style="background:white; padding:40px; border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.1); max-width:400px; margin:auto;">
                     <h1 style="color:#6366f1;">Link WhatsApp</h1>
+                    <p>Firebase Session Sync Enabled</p>
                     <input type="number" id="p" placeholder="9163955XXXXX" style="width:100%; padding:15px; border:2px solid #e2e8f0; border-radius:12px; margin-bottom:20px; font-size:16px;">
                     <button onclick="getCode()" id="b" style="width:100%; padding:15px; background:#6366f1; color:white; border:none; border-radius:12px; font-weight:bold; cursor:pointer;">Get Pairing Code</button>
                     <div id="c" style="margin-top:20px; font-size:32px; font-weight:800; letter-spacing:5px; color:#ec4899;"></div>
