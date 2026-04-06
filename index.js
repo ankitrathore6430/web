@@ -1,21 +1,12 @@
-const { default: makeWASocket, DisconnectReason, fetchLatestBaileysVersion, BufferJSON } = require("@whiskeysockets/baileys");
+const { default: makeWASocket, useMultiFileAuthState, DisconnectReason, fetchLatestBaileysVersion } = require("@whiskeysockets/baileys");
 const express = require("express");
 const cors = require('cors');
 const pino = require("pino");
-const admin = require('firebase-admin');
+const fs = require('fs');
+const { initializeApp } = require("firebase/app");
+const { getDatabase, ref, get, set, remove } = require("firebase/database");
 
-const app = express();
-const PORT = process.env.PORT || 10000;
-const API_KEY = "SOLOR_SECRET_786"; 
-
-app.use(cors());
-app.use(express.json());
-
-let sock;
-let logs = []; // ब्राउज़र में लॉग्स दिखाने के लिए
-let connectionStatus = "OFFLINE";
-
-// Firebase Configuration
+// --- FIREBASE CONFIG ---
 const firebaseConfig = {
   apiKey: "AIzaSyDUIEOhBJicrq8YorveBeeYSWZTOj7FvJQ",
   authDomain: "solor-otp.firebaseapp.com",
@@ -27,20 +18,20 @@ const firebaseConfig = {
   measurementId: "G-CVT93320BV"
 };
 
-// Initialize Firebase Admin
-if (!admin.apps.length) {
-  admin.initializeApp({
-    credential: admin.credential.cert({
-      projectId: firebaseConfig.projectId,
-      clientEmail: "firebase-adminsdk-fbsvc@solor-otp.iam.gserviceaccount.com",
-      privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n') || ""
-    }),
-    databaseURL: firebaseConfig.databaseURL
-  });
-}
+const firebaseApp = initializeApp(firebaseConfig);
+const db = getDatabase(firebaseApp);
+const SESSION_PATH = 'whatsapp_session';
 
-const db = admin.database();
-const authRef = db.ref('whatsapp_auth');
+const app = express();
+const PORT = process.env.PORT || 10000;
+const API_KEY = "SOLOR_SECRET_786"; 
+
+app.use(cors());
+app.use(express.json());
+
+let sock;
+let logs = [];
+let connectionStatus = "OFFLINE";
 
 function addLog(msg) {
     const time = new Date().toLocaleTimeString();
@@ -50,76 +41,27 @@ function addLog(msg) {
     console.log(logEntry);
 }
 
-// Custom Firebase Auth State
-async function useFirebaseAuthState() {
-    const writeData = async (data, file) => {
-        try {
-            await authRef.child(file).set(JSON.stringify(data, BufferJSON.replacer));
-        } catch (err) {
-            console.error('Firebase write error:', err);
+// --- FIREBASE SESSION LOGIC ---
+async function syncSessionFromFirebase() {
+    try {
+        const snapshot = await get(ref(db, SESSION_PATH));
+        if (snapshot.exists()) {
+            if (!fs.existsSync('./auth_info')) fs.mkdirSync('./auth_info');
+            fs.writeFileSync('./auth_info/creds.json', JSON.stringify(snapshot.val()));
+            addLog("✅ Session loaded from Firebase");
+            return true;
         }
-    };
-
-    const readData = async (file) => {
-        try {
-            const snapshot = await authRef.child(file).once('value');
-            const data = snapshot.val();
-            return data ? JSON.parse(data, BufferJSON.reviver) : null;
-        } catch (err) {
-            console.error('Firebase read error:', err);
-            return null;
-        }
-    };
-
-    const removeData = async (file) => {
-        try {
-            await authRef.child(file).remove();
-        } catch (err) {
-            console.error('Firebase remove error:', err);
-        }
-    };
-
-    let creds = await readData('creds');
-    const keys = {
-        get: async (type, ids) => {
-            const data = {};
-            await Promise.all(ids.map(async (id) => {
-                const value = await readData(`${type}-${id}`);
-                if (value) {
-                    data[id] = value;
-                }
-            }));
-            return data;
-        },
-        set: async (data) => {
-            const tasks = [];
-            for (const [type, ids] of Object.entries(data)) {
-                for (const [id, value] of Object.entries(ids)) {
-                    const file = `${type}-${id}`;
-                    if (value) {
-                        tasks.push(writeData(value, file));
-                    } else {
-                        tasks.push(removeData(file));
-                    }
-                }
-            }
-            await Promise.all(tasks);
-        }
-    };
-
-    return {
-        state: { creds, keys },
-        saveCreds: async () => {
-            if (creds) {
-                await writeData(creds, 'creds');
-            }
-        }
-    };
+    } catch (e) {
+        addLog("Firebase Load Error: " + e.message);
+    }
+    return false;
 }
 
 async function connectToWhatsApp() {
-    addLog("Starting WhatsApp Connection...");
-    const { state, saveCreds } = await useFirebaseAuthState();
+    addLog("Checking for existing session...");
+    await syncSessionFromFirebase();
+
+    const { state, saveCreds } = await useMultiFileAuthState('auth_info');
     const { version } = await fetchLatestBaileysVersion();
 
     sock = makeWASocket({
@@ -131,9 +73,18 @@ async function connectToWhatsApp() {
         printQRInTerminal: false
     });
 
-    sock.ev.on('creds.update', saveCreds);
+    sock.ev.on('creds.update', async () => {
+        await saveCreds();
+        // Save to Firebase
+        try {
+            const creds = JSON.parse(fs.readFileSync('./auth_info/creds.json'));
+            await set(ref(db, SESSION_PATH), creds);
+        } catch (e) {
+            addLog("Firebase Sync Error: " + e.message);
+        }
+    });
 
-    sock.ev.on('connection.update', (update) => {
+    sock.ev.on('connection.update', async (update) => {
         const { connection, lastDisconnect } = update;
         
         if (connection === 'connecting') {
@@ -143,8 +94,16 @@ async function connectToWhatsApp() {
 
         if (connection === 'close') {
             connectionStatus = "OFFLINE";
-            const shouldReconnect = lastDisconnect.error?.output?.statusCode !== DisconnectReason.loggedOut;
-            addLog(`Connection Closed. Reason: ${lastDisconnect.error}. Reconnecting: ${shouldReconnect}`);
+            const statusCode = lastDisconnect.error?.output?.statusCode;
+            const shouldReconnect = statusCode !== DisconnectReason.loggedOut;
+            
+            if (statusCode === DisconnectReason.loggedOut) {
+                addLog("❌ Session Logged Out. Clearing Firebase...");
+                await remove(ref(db, SESSION_PATH));
+                if (fs.existsSync('./auth_info')) fs.rmSync('./auth_info', { recursive: true, force: true });
+            }
+
+            addLog(`Connection Closed. Reconnecting: ${shouldReconnect}`);
             if (shouldReconnect) {
                 setTimeout(() => connectToWhatsApp(), 5000);
             }
@@ -158,21 +117,19 @@ async function connectToWhatsApp() {
 
     // --- API ROUTES ---
 
-    // pairing and status UI
     app.get('/', (req, res) => {
         const logHtml = logs.map(l => `<div style="border-bottom:1px solid #eee;padding:5px;">${l}</div>`).join('');
-        
         if (connectionStatus === "CONNECTED" && sock?.user) {
             return res.send(`
                 <body style="font-family:sans-serif; background:#f0fdf4; padding:20px; text-align:center;">
                     <div style="background:white; padding:40px; border-radius:20px; box-shadow:0 10px 20px rgba(0,0,0,0.05); max-width:500px; margin:auto;">
                         <h1 style="color:#16a34a;">✅ WhatsApp Active</h1>
                         <p>Linked to: <b>${sock.user.id.split(':')[0]}</b></p>
+                        <p style="color:blue">Session Saved in Firebase</p>
                         <hr>
                         <div style="text-align:left; font-size:12px; height:200px; overflow-y:auto; background:#f8fafc; padding:10px;">
                             <b>System Logs:</b><br>${logHtml}
                         </div>
-                        <p style="color:red; font-size:12px; margin-top:10px;">Note: If OTP stops working, refresh this page.</p>
                     </div>
                 </body>
             `);
@@ -182,7 +139,6 @@ async function connectToWhatsApp() {
             <body style="font-family:sans-serif; background:#f1f5f9; padding:20px; text-align:center;">
                 <div style="background:white; padding:40px; border-radius:20px; box-shadow:0 10px 25px rgba(0,0,0,0.1); max-width:400px; margin:auto;">
                     <h1 style="color:#6366f1;">Link WhatsApp</h1>
-                    <p style="color:#64748b;">Enter Admin Number with 91</p>
                     <input type="number" id="p" placeholder="9163955XXXXX" style="width:100%; padding:15px; border:2px solid #e2e8f0; border-radius:12px; margin-bottom:20px; font-size:16px;">
                     <button onclick="getCode()" id="b" style="width:100%; padding:15px; background:#6366f1; color:white; border:none; border-radius:12px; font-weight:bold; cursor:pointer;">Get Pairing Code</button>
                     <div id="c" style="margin-top:20px; font-size:32px; font-weight:800; letter-spacing:5px; color:#ec4899;"></div>
@@ -198,10 +154,10 @@ async function connectToWhatsApp() {
                         document.getElementById('b').innerText='Requesting Code...';
                         const r=await fetch('/request-code?phone='+num);
                         const d=await r.json();
-                        if(d.code){
+                        if(d.code) {
                             document.getElementById('c').innerText=d.code;
                             document.getElementById('b').innerText='Verify in WhatsApp';
-                        }else{
+                        } else {
                             alert('Error: ' + d.message);
                             document.getElementById('b').innerText='Try Again';
                         }
@@ -213,13 +169,10 @@ async function connectToWhatsApp() {
 
     app.get('/request-code', async (req, res) => {
         const phone = req.query.phone;
-        addLog(`Pairing Code Requested for: ${phone}`);
         try { 
             const code = await sock.requestPairingCode(phone); 
             res.json({ status: "success", code: code }); 
-        } 
-        catch (err) { 
-            addLog(`Code Request Error: ${err.message}`);
+        } catch (err) { 
             res.json({ status: "error", message: err.message }); 
         }
     });
