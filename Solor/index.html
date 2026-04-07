@@ -83,6 +83,7 @@
         .plan-header-premium { padding: 30px; text-align: center; color: var(--white); position: relative; }
         .plan-header-premium.free { background: var(--gradient-2); }
         .plan-header-premium.paid { background: var(--gradient-1); }
+        /* FIX: Ensure popular plan (500) has distinct color and white text */
         .plan-header-premium.popular { background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%) !important; color: #ffffff !important; }
         
         .discount-badge { position: absolute; top: 15px; right: -10px; background: #fde047; color: var(--dark); padding: 5px 20px; font-size: 12px; font-weight: 800; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
@@ -112,12 +113,12 @@
         .upi-app-btn.bhim { color: #ff7a00; }
         
         /* Form */
-        .form-premium .form-group { margin-bottom: 20px; }
-        .form-premium label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--dark); font-size: 14px; }
-        .input-premium { width: 100%; padding: 16px 18px; border: 2px solid #e2e8f0; border-radius: 14px; font-size: 16px; transition: all 0.3s; background: var(--white); }
+        .form-premium .form-group { margin-bottom: 25px; }
+        .form-premium label { display: block; margin-bottom: 10px; font-weight: 600; color: var(--dark); font-size: 14px; }
+        .input-premium { width: 100%; padding: 18px 20px; border: 2px solid #e2e8f0; border-radius: 16px; font-size: 16px; transition: all 0.3s; background: var(--white); }
         .input-premium:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
         
-        .btn-main { width: 100%; padding: 16px; border-radius: 14px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
+        .btn-main { width: 100%; padding: 18px; border-radius: 16px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
         .btn-main-primary { background: var(--gradient-1); color: var(--white); box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3); }
         .btn-main-success { background: var(--gradient-2); color: var(--white); box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3); }
         
@@ -144,29 +145,10 @@
         .wallet-tab { flex: 1; padding: 14px; border-radius: 12px; border: none; background: transparent; font-weight: 600; cursor: pointer; transition: all 0.3s; color: var(--gray); }
         .wallet-tab.active { background: var(--gradient-1); color: var(--white); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
         
-        /* FIXED: OTP Inputs - Better Layout */
-        .otp-section { padding: 20px; min-height: 100vh; display: flex; flex-direction: column; }
-        .otp-header { text-align: center; margin-bottom: 30px; }
-        .otp-container { display: flex; gap: 10px; justify-content: center; margin: 25px 0; flex-wrap: nowrap; }
-        .otp-input-premium { 
-            width: 50px; 
-            height: 60px; 
-            border: 2px solid #e2e8f0; 
-            border-radius: 12px; 
-            text-align: center; 
-            font-size: 24px; 
-            font-weight: 700; 
-            transition: all 0.2s;
-            background: white;
-            caret-color: var(--primary);
-        }
-        .otp-input-premium:focus { 
-            border-color: var(--primary); 
-            outline: none; 
-            transform: scale(1.05);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
-        }
-        .otp-input-premium.filled { border-color: var(--success); background: rgba(16, 185, 129, 0.05); }
+        /* OTP Inputs */
+        .otp-container { display: flex; gap: 12px; justify-content: center; margin: 30px 0; }
+        .otp-input-premium { width: 55px; height: 65px; border: 2px solid #e2e8f0; border-radius: 16px; text-align: center; font-size: 24px; font-weight: 700; transition: all 0.3s; }
+        .otp-input-premium:focus { border-color: var(--primary); outline: none; transform: scale(1.1); }
         
         /* Daily Claim */
         .claim-card { background: var(--gradient-2); margin: 20px; border-radius: 30px; padding: 30px; color: var(--white); text-align: center; box-shadow: 0 20px 40px rgba(16, 185, 129, 0.3); }
@@ -200,29 +182,15 @@
         .level-card { display: flex; align-items: center; justify-content: space-between; padding: 15px; border-radius: 16px; margin-bottom: 10px; background: var(--light); border: 1px solid #e2e8f0; }
         
         /* WhatsApp Badge */
-        .whatsapp-badge { background: #25D366; color: white; padding: 6px 16px; border-radius: 20px; font-size: 13px; font-weight: 600; display: inline-flex; align-items: center; gap: 8px; margin-bottom: 20px; box-shadow: 0 4px 10px rgba(37, 211, 102, 0.3); }
+        .whatsapp-badge { background: #25D366; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 15px; }
         
         /* Forgot Password Modal */
-        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 10001; display: none; align-items: center; justify-content: center; padding: 20px; backdrop-filter: blur(5px); }
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10001; display: none; align-items: center; justify-content: center; padding: 20px; }
         .modal-overlay.active { display: flex; }
-        .modal-content { background: white; border-radius: 24px; padding: 30px; width: 100%; max-width: 420px; animation: slideUp 0.3s ease; max-height: 90vh; overflow-y: auto; }
+        .modal-content { background: white; border-radius: 24px; padding: 30px; width: 100%; max-width: 400px; animation: slideUp 0.3s ease; }
         @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .modal-close { background: none; border: none; font-size: 24px; color: var(--gray); cursor: pointer; width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: all 0.3s; }
-        .modal-close:hover { background: var(--light); }
-        
-        /* Register Page Improvements */
-        .register-container { max-width: 480px; margin: 0 auto; padding: 20px; }
-        .register-header { text-align: center; margin-bottom: 25px; padding-top: 20px; }
-        .register-header h2 { font-size: 28px; font-weight: 800; margin-bottom: 8px; }
-        .register-header p { color: var(--gray); font-size: 15px; }
-        
-        /* Timer */
-        .timer-display { font-size: 18px; font-weight: 700; color: var(--primary); margin: 20px 0; }
-        .resend-link { color: var(--primary); font-weight: 600; cursor: pointer; text-decoration: underline; }
-        
-        /* Hero Badge */
-        .hero-badge { display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 50px; font-size: 13px; font-weight: 600; margin-bottom: 20px; backdrop-filter: blur(10px); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-close { background: none; border: none; font-size: 24px; color: var(--gray); cursor: pointer; }
     </style>
 </head>
 <body>
@@ -236,43 +204,33 @@
     <div id="toast" class="toast"></div>
 
     <!-- Forgot Password Modal -->
-    <div id="forgotPasswordModal" class="modal-overlay" onclick="if(event.target===this) closeForgotModal()">
+    <div id="forgotPasswordModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 style="font-size: 22px; font-weight: 700;">Reset Password</h3>
+                <h3 style="font-size: 20px; font-weight: 700;">Reset Password</h3>
                 <button class="modal-close" onclick="closeForgotModal()"><i class="fas fa-times"></i></button>
             </div>
-            <form class="form-premium" id="forgotPasswordForm" onsubmit="handleForgotSubmit(event)">
-                <div class="form-group" id="forgotPhoneGroup">
+            <form class="form-premium" id="forgotPasswordForm">
+                <div class="form-group">
                     <label>Phone Number</label>
                     <input type="tel" class="input-premium" id="forgotPhone" placeholder="9876543210" maxlength="10" inputmode="numeric" pattern="[0-9]*" required>
-                    <p style="font-size: 12px; color: var(--gray); margin-top: 8px;">We'll send OTP to your WhatsApp</p>
                 </div>
-                
-                <div class="form-group hidden" id="forgotOtpGroup">
-                    <label>Enter 6-digit OTP</label>
+                <div class="form-group" id="forgotOtpGroup" style="display: none;">
+                    <label>WhatsApp OTP</label>
                     <div class="otp-container" style="margin: 15px 0;">
-                        <input type="text" class="otp-input-premium forgot-otp" maxlength="1" inputmode="numeric" pattern="[0-9]*">
-                        <input type="text" class="otp-input-premium forgot-otp" maxlength="1" inputmode="numeric" pattern="[0-9]*">
-                        <input type="text" class="otp-input-premium forgot-otp" maxlength="1" inputmode="numeric" pattern="[0-9]*">
-                        <input type="text" class="otp-input-premium forgot-otp" maxlength="1" inputmode="numeric" pattern="[0-9]*">
-                        <input type="text" class="otp-input-premium forgot-otp" maxlength="1" inputmode="numeric" pattern="[0-9]*">
-                        <input type="text" class="otp-input-premium forgot-otp" maxlength="1" inputmode="numeric" pattern="[0-9]*">
+                        <input type="text" class="otp-input-premium forgot-otp" maxlength="1" data-index="0" inputmode="numeric" pattern="[0-9]*">
+                        <input type="text" class="otp-input-premium forgot-otp" maxlength="1" data-index="1" inputmode="numeric" pattern="[0-9]*">
+                        <input type="text" class="otp-input-premium forgot-otp" maxlength="1" data-index="2" inputmode="numeric" pattern="[0-9]*">
+                        <input type="text" class="otp-input-premium forgot-otp" maxlength="1" data-index="3" inputmode="numeric" pattern="[0-9]*">
+                        <input type="text" class="otp-input-premium forgot-otp" maxlength="1" data-index="4" inputmode="numeric" pattern="[0-9]*">
+                        <input type="text" class="otp-input-premium forgot-otp" maxlength="1" data-index="5" inputmode="numeric" pattern="[0-9]*">
                     </div>
                     <input type="hidden" id="forgotFullOtp">
-                    <div style="text-align: center; margin-top: 15px;">
-                        <span id="forgotTimer" class="timer-display">60s</span>
-                        <span id="forgotResend" class="resend-link hidden" onclick="resendForgotOtp()">Resend OTP</span>
-                    </div>
                 </div>
-                
-                <div class="form-group hidden" id="newPasswordGroup">
+                <div class="form-group" id="newPasswordGroup" style="display: none;">
                     <label>New Password</label>
                     <input type="password" class="input-premium" id="newPassword" placeholder="Min 6 characters" minlength="6">
-                    <label style="margin-top: 15px;">Confirm Password</label>
-                    <input type="password" class="input-premium" id="confirmNewPassword" placeholder="Confirm new password" minlength="6">
                 </div>
-                
                 <button type="submit" class="btn-main btn-main-primary" id="forgotBtn">Send OTP</button>
             </form>
         </div>
@@ -325,143 +283,101 @@
         </div>
         <div style="padding: 20px;">
             <button class="btn-main btn-main-primary" onclick="showPage('register')"><i class="fas fa-rocket"></i> Start Earning Now - It's FREE!</button>
-            <button class="btn-main" style="background: transparent; color: var(--primary); border: 2px solid var(--primary); margin-top: 15px;" onclick="showPage('login')"><i class="fas fa-sign-in-alt"></i> Already have an account? Login</button>
-        </div>
-        
-        <!-- Features -->
-        <div style="padding: 20px; margin-top: 20px;">
-            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; text-align: center;">
-                <div class="premium-card" style="margin: 0; padding: 20px;">
-                    <div style="font-size: 30px; margin-bottom: 10px;">🎁</div>
-                    <div style="font-size: 13px; font-weight: 600;">Free Plan</div>
-                </div>
-                <div class="premium-card" style="margin: 0; padding: 20px;">
-                    <div style="font-size: 30px; margin-bottom: 10px;">💰</div>
-                    <div style="font-size: 13px; font-weight: 600;">Daily Earnings</div>
-                </div>
-                <div class="premium-card" style="margin: 0; padding: 20px;">
-                    <div style="font-size: 30px; margin-bottom: 10px;">👥</div>
-                    <div style="font-size: 13px; font-weight: 600;">Refer & Earn</div>
-                </div>
-            </div>
+            <button class="btn-main" style="background: transparent; color: var(--primary); border: 2px solid var(--primary);" onclick="showPage('login')"><i class="fas fa-sign-in-alt"></i> Already have an account? Login</button>
         </div>
     </div>
 
     <!-- LOGIN PAGE -->
     <div id="loginPage" class="page">
-        <div class="register-container">
-            <div class="register-header">
-                <h2>Welcome Back! 👋</h2>
-                <p>Login to continue your earning journey</p>
-            </div>
-            <div class="premium-card" style="margin: 0;">
-                <form class="form-premium" id="loginForm" onsubmit="handleLogin(event)">
-                    <div class="form-group">
-                        <label><i class="fas fa-phone-alt" style="margin-right: 8px; color: var(--primary);"></i>Phone Number</label>
-                        <input type="tel" class="input-premium" id="loginPhone" placeholder="9876543210" maxlength="10" inputmode="numeric" pattern="[0-9]*" required>
-                    </div>
-                    <div class="form-group">
-                        <label><i class="fas fa-lock" style="margin-right: 8px; color: var(--primary);"></i>Password</label>
-                        <input type="password" class="input-premium" id="loginPassword" placeholder="Enter your password" required>
-                    </div>
-                    <div style="text-align: right; margin-bottom: 20px;">
-                        <a href="#" onclick="openForgotModal(); return false;" style="color: var(--primary); font-size: 14px; font-weight: 600; text-decoration: none;">Forgot Password?</a>
-                    </div>
-                    <button type="submit" class="btn-main btn-main-primary"><i class="fas fa-sign-in-alt"></i> Login</button>
-                </form>
-                <div style="text-align: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--light);">
-                    <p style="color: var(--gray); font-size: 15px;">Don't have an account? <a href="#" onclick="showPage('register'); return false;" style="color: var(--primary); font-weight: 700; text-decoration: none;">Register Now</a></p>
+        <div style="padding: 40px 20px; text-align: center;">
+            <h2 style="font-size: 28px; font-weight: 700;">Welcome Back!</h2>
+            <p style="color: var(--gray);">Login to continue earning</p>
+        </div>
+        <div class="premium-card">
+            <form class="form-premium" id="loginForm">
+                <div class="form-group">
+                    <label><i class="fas fa-phone-alt" style="margin-right: 8px; color: var(--primary);"></i>Phone Number</label>
+                    <input type="tel" class="input-premium" id="loginPhone" placeholder="9876543210" maxlength="10" inputmode="numeric" pattern="[0-9]*" required>
                 </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock" style="margin-right: 8px; color: var(--primary);"></i>Password</label>
+                    <input type="password" class="input-premium" id="loginPassword" placeholder="Enter password" required>
+                </div>
+                <div style="text-align: right; margin-bottom: 15px;">
+                    <a href="#" onclick="openForgotModal()" style="color: var(--primary); font-size: 14px; font-weight: 600; text-decoration: none;">Forgot Password?</a>
+                </div>
+                <button type="submit" class="btn-main btn-main-primary"><i class="fas fa-sign-in-alt"></i> Login</button>
+            </form>
+            <div style="text-align: center; margin-top: 20px;">
+                <p style="color: var(--gray);">Don't have an account? <a href="#" onclick="showPage('register')" style="color: var(--primary); font-weight: 700; text-decoration: none;">Register Now</a></p>
             </div>
         </div>
     </div>
 
     <!-- REGISTER PAGE -->
     <div id="registerPage" class="page">
-        <div class="register-container">
-            <!-- Step 1: Registration Form -->
+        <div class="premium-card" style="margin-top:40px;">
             <div id="regStep1">
-                <div class="register-header">
-                    <h2>Create Account 🚀</h2>
-                    <p>Start your earning journey today</p>
-                </div>
-                <div class="premium-card" style="margin: 0;">
-                    <form class="form-premium" id="registerForm" onsubmit="handleRegister(event)">
-                        <div class="form-group">
-                            <label>Full Name *</label>
-                            <input type="text" class="input-premium" id="regName" placeholder="Enter your full name" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Phone Number *</label>
-                            <input type="tel" class="input-premium" id="regPhone" placeholder="9876543210" maxlength="10" inputmode="numeric" pattern="[0-9]*" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Password *</label>
-                            <input type="password" class="input-premium" id="regPassword" placeholder="Create password (min 6 chars)" minlength="6" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Confirm Password *</label>
-                            <input type="password" class="input-premium" id="regConfirm" placeholder="Confirm your password" minlength="6" required>
-                        </div>
-                        <div class="form-group">
-                            <label>Referral Code (Optional)</label>
-                            <input type="text" class="input-premium" id="regReferral" placeholder="Friend's referral code" style="text-transform: uppercase;">
-                            <p style="font-size: 12px; color: var(--success); margin-top: 8px; display:none; font-weight: 600;" id="refBonusText">
-                                <i class="fas fa-gift"></i> You were invited! Get ₹15 bonus on signup!
-                            </p>
-                        </div>
-                        <button type="submit" class="btn-main btn-main-success" style="margin-top: 10px;">
-                            <i class="fab fa-whatsapp"></i> Send OTP via WhatsApp
-                        </button>
-                    </form>
-                    <div style="text-align: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--light);">
-                        <p style="color: var(--gray); font-size: 15px;">Already have an account? <a href="#" onclick="showPage('login'); return false;" style="color: var(--primary); font-weight: 700; text-decoration: none;">Login Now</a></p>
+                <h2 style="text-align:center; margin-bottom: 20px;">Create Account</h2>
+                <form class="form-premium" id="registerForm">
+                    <div class="form-group">
+                        <label>Full Name *</label>
+                        <input type="text" class="input-premium" id="regName" placeholder="Your full name" required>
                     </div>
+                    <div class="form-group">
+                        <label>Phone Number *</label>
+                        <input type="tel" class="input-premium" id="regPhone" placeholder="9876543210" maxlength="10" inputmode="numeric" pattern="[0-9]*" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password *</label>
+                        <input type="password" class="input-premium" id="regPassword" placeholder="Min 6 characters" minlength="6" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password *</label>
+                        <input type="password" class="input-premium" id="regConfirm" placeholder="Confirm password" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Referral Code (Optional)</label>
+                        <input type="text" class="input-premium" id="regReferral" placeholder="Friend's code">
+                        <p style="font-size: 12px; color: var(--secondary); margin-top: 8px; display:none;" id="refBonusText">
+                            <i class="fas fa-info-circle"></i> You were invited! Get ₹15 bonus!
+                        </p>
+                    </div>
+                    <button type="submit" class="btn-main btn-main-success"><i class="fab fa-whatsapp"></i> Send OTP via WhatsApp</button>
+                </form>
+                <div style="text-align: center; margin-top: 20px;">
+                    <p style="color: var(--gray);">Already have an account? <a href="#" onclick="showPage('login')" style="color: var(--primary); font-weight: 700; text-decoration: none;">Login Now</a></p>
                 </div>
             </div>
 
-            <!-- Step 2: OTP Verification - FIXED LAYOUT -->
-            <div id="regStep2" class="hidden otp-section">
-                <div class="otp-header">
-                    <div class="whatsapp-badge"><i class="fab fa-whatsapp"></i> WhatsApp OTP</div>
-                    <h2 style="font-size: 26px; font-weight: 700; margin-bottom: 10px;">Verify OTP</h2>
-                    <p style="color: var(--gray); font-size: 15px;">Enter 6-digit code sent to<br><strong style="color: var(--dark); font-size: 18px;" id="otpPhoneDisplay"></strong></p>
+            <!-- OTP Step -->
+            <div id="regStep2" class="hidden text-center">
+                <div class="whatsapp-badge"><i class="fab fa-whatsapp"></i> WhatsApp OTP</div>
+                <h3>Verify OTP</h3>
+                <p style="color: var(--gray); font-size: 14px;">Sent to <strong id="otpPhoneDisplay"></strong> via WhatsApp</p>
+                <div class="otp-container">
+                    <input type="text" class="otp-input-premium" maxlength="1" data-index="0" inputmode="numeric" pattern="[0-9]*">
+                    <input type="text" class="otp-input-premium" maxlength="1" data-index="1" inputmode="numeric" pattern="[0-9]*">
+                    <input type="text" class="otp-input-premium" maxlength="1" data-index="2" inputmode="numeric" pattern="[0-9]*">
+                    <input type="text" class="otp-input-premium" maxlength="1" data-index="3" inputmode="numeric" pattern="[0-9]*">
+                    <input type="text" class="otp-input-premium" maxlength="1" data-index="4" inputmode="numeric" pattern="[0-9]*">
+                    <input type="text" class="otp-input-premium" maxlength="1" data-index="5" inputmode="numeric" pattern="[0-9]*">
                 </div>
-                
-                <div style="flex: 1; display: flex; flex-direction: column; justify-content: center; padding: 20px 0;">
-                    <div class="otp-container" id="regOtpContainer">
-                        <input type="text" class="otp-input-premium" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="0">
-                        <input type="text" class="otp-input-premium" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="1">
-                        <input type="text" class="otp-input-premium" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="2">
-                        <input type="text" class="otp-input-premium" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="3">
-                        <input type="text" class="otp-input-premium" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="4">
-                        <input type="text" class="otp-input-premium" maxlength="1" inputmode="numeric" pattern="[0-9]*" data-index="5">
-                    </div>
-                    <input type="hidden" id="fullOtp">
-                    
-                    <div style="text-align: center; margin: 20px 0;">
-                        <span id="otpTimer" class="timer-display">60s</span>
-                        <span id="resendOtpBtn" class="resend-link hidden" onclick="resendOtp()">Resend OTP</span>
-                    </div>
-                    
-                    <button class="btn-main btn-main-primary" onclick="verifyOtp()" style="margin: 20px 0;">
-                        Verify & Create Account
-                    </button>
-                    
-                    <button class="btn-main" onclick="backToReg()" style="background: transparent; color: var(--gray); border: 2px solid var(--gray-light);">
-                        <i class="fas fa-arrow-left"></i> Change Number
-                    </button>
+                <input type="hidden" id="fullOtp">
+                <button class="btn-main btn-main-primary" onclick="verifyOtp()">Verify & Create Account</button>
+                <div style="margin-top: 20px;">
+                    <span id="otpTimer" style="color: var(--primary); font-weight: 600;">60s</span>
+                    <button class="btn-main hidden" id="resendOtpBtn" onclick="resendOtp()" style="background: transparent; color: var(--primary);">Resend OTP</button>
                 </div>
+                <button class="btn-main" onclick="backToReg()" style="background: transparent; color: var(--gray); margin-top: 5px;">Change Number</button>
             </div>
 
-            <!-- Step 3: Success -->
-            <div id="regStep3" class="hidden" style="text-align: center; padding: 40px 20px;">
-                <div style="font-size: 80px; margin-bottom: 20px; animation: bounce 0.5s;">🎉</div>
-                <h2 style="font-size: 32px; font-weight: 800; margin-bottom: 15px;">Welcome!</h2>
+            <!-- Success Step -->
+            <div id="regStep3" class="hidden text-center">
+                <div style="font-size: 50px; margin-bottom:15px;">🎉</div>
+                <h2 style="font-size: 28px; margin-bottom: 15px;">Welcome!</h2>
                 <p id="bonusMessage" style="color: var(--success); font-weight: 700; font-size: 18px; margin-bottom: 30px;"></p>
-                <button class="btn-main btn-main-primary" onclick="showPage('home')" style="max-width: 300px; margin: 0 auto;">
-                    Go to Dashboard <i class="fas fa-arrow-right"></i>
-                </button>
+                <button class="btn-main btn-main-primary" onclick="showPage('home')">Go to Dashboard</button>
             </div>
         </div>
     </div>
@@ -513,7 +429,7 @@
         <div class="tx-list" id="homeTransactions"></div>
     </div>
 
-    <!-- PLANS PAGE -->
+    <!-- PLANS PAGE (VERTICAL POST LAYOUT WITH CLAIM SYSTEM) -->
     <div id="plansPage" class="page">
         <div style="padding: 30px 20px;">
             <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 10px;"><i class="fas fa-gem" style="color: var(--secondary); margin-right: 10px;"></i>Investment Plans</h2>
@@ -527,13 +443,16 @@
                     <p style="opacity: 0.9; margin-bottom: 15px;">Earn ₹10/day for 7 days - No investment!</p>
                 </div>
             </div>
-            <div id="freePlanAction"></div>
+            <div id="freePlanAction">
+                <!-- Action Buttons will load dynamically here -->
+            </div>
         </div>
 
+        <!-- Plans will load vertically here with offers & claim buttons -->
         <div class="plans-vertical" id="plansContainer"></div>
     </div>
 
-    <!-- WALLET PAGE -->
+    <!-- WALLET PAGE WITH AUTO UPI REDIRECT -->
     <div id="walletPage" class="page">
         <div class="balance-premium" style="background: var(--gradient-1);">
             <div class="balance-content">
@@ -548,17 +467,18 @@
             <button class="wallet-tab" onclick="showWalletTab('history')" data-tab="history">History</button>
         </div>
 
+        <!-- Add Money Auto UPI -->
         <div id="walletAddSection" class="wallet-section">
             <div class="premium-card">
                 <h3 style="margin-bottom: 20px; font-size: 20px;"><i class="fas fa-plus-circle" style="color: var(--success); margin-right: 10px;"></i>Add Money</h3>
                 
-                <form class="form-premium" id="addMoneyForm" onsubmit="handleAddMoney(event)">
+                <form class="form-premium" id="addMoneyForm">
                     <div class="form-group">
                         <label>1. Enter Amount (Min ₹100)</label>
                         <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
-                            <button type="button" onclick="setAmount(100)" style="padding: 10px 20px; border: 2px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer; font-weight: 600;">₹100</button>
-                            <button type="button" onclick="setAmount(500)" style="padding: 10px 20px; border: 2px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer; font-weight: 600;">₹500</button>
-                            <button type="button" onclick="setAmount(1000)" style="padding: 10px 20px; border: 2px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer; font-weight: 600;">₹1000</button>
+                            <button type="button" onclick="setAmount(100)" style="padding: 10px 20px; border: 2px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer;">₹100</button>
+                            <button type="button" onclick="setAmount(500)" style="padding: 10px 20px; border: 2px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer;">₹500</button>
+                            <button type="button" onclick="setAmount(1000)" style="padding: 10px 20px; border: 2px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer;">₹1000</button>
                         </div>
                         <input type="number" class="input-premium" id="addAmount" placeholder="Enter Amount" min="100" required>
                     </div>
@@ -592,29 +512,30 @@
         </div>
 
         <div id="walletWithdrawSection" class="wallet-section hidden">
+            <!-- Withdraw form remains same layout -->
             <div class="premium-card">
                 <h3 style="margin-bottom: 20px; font-size: 20px;"><i class="fas fa-minus-circle" style="color: var(--danger); margin-right: 10px;"></i>Withdraw</h3>
-                <form class="form-premium" id="withdrawForm" onsubmit="handleWithdraw(event)">
+                <form class="form-premium" id="withdrawForm">
                     <div class="form-group">
                         <label>Amount (Min ₹200)</label>
-                        <input type="number" class="input-premium" id="withdrawAmount" placeholder="Enter amount" min="200" required>
+                        <input type="number" class="input-premium" id="withdrawAmount" placeholder="Amount" min="200" required>
                     </div>
                     <div class="form-group">
                         <label>Select Method</label>
                         <select class="input-premium" id="withdrawMethod" onchange="toggleWithdrawMethod()" required>
-                            <option value="">Select payment method</option>
+                            <option value="">Select</option>
                             <option value="upi">UPI ID</option>
                             <option value="bank">Bank Account</option>
                         </select>
                     </div>
                     <div id="upiFields" class="hidden">
-                        <div class="form-group"><label>UPI ID</label><input type="text" class="input-premium" id="upiIdInput" placeholder="name@upi"></div>
+                        <div class="form-group"><label>UPI ID</label><input type="text" class="input-premium" id="upiIdInput"></div>
                     </div>
                     <div id="bankFields" class="hidden">
-                        <div class="form-group"><label>Account Holder Name</label><input type="text" class="input-premium" id="bankHolderName" placeholder="Full name"></div>
-                        <div class="form-group"><label>Account Number</label><input type="text" class="input-premium" id="bankAccNumber" placeholder="Account number"></div>
-                        <div class="form-group"><label>IFSC Code</label><input type="text" class="input-premium" id="bankIfsc" placeholder="SBIN0001234"></div>
-                        <div class="form-group"><label>Bank Name</label><input type="text" class="input-premium" id="bankName" placeholder="State Bank of India"></div>
+                        <div class="form-group"><label>Account Holder</label><input type="text" class="input-premium" id="bankHolderName"></div>
+                        <div class="form-group"><label>Account No</label><input type="text" class="input-premium" id="bankAccNumber"></div>
+                        <div class="form-group"><label>IFSC Code</label><input type="text" class="input-premium" id="bankIfsc"></div>
+                        <div class="form-group"><label>Bank Name</label><input type="text" class="input-premium" id="bankName"></div>
                     </div>
                     <button type="submit" class="btn-main" style="background: var(--gradient-4); color: white;">Request Withdrawal</button>
                 </form>
@@ -626,8 +547,9 @@
         </div>
     </div>
 
-    <!-- REFERRAL PAGE -->
+    <!-- REFERRAL PAGE (OPTIMIZED UI) -->
     <div id="referralPage" class="page">
+        <!-- Header Banner -->
         <div class="premium-card" style="background: var(--gradient-1); color: white; text-align: center; margin-bottom: 20px; padding: 35px 20px;">
             <h2 style="font-size: 26px; font-weight: 800;">Refer & Earn Lifetime!</h2>
             <p style="opacity: 0.9; margin-bottom: 15px;">Build your team and get passive income</p>
@@ -641,36 +563,38 @@
             <p style="font-size: 13px; opacity: 0.9; margin-bottom: 5px; text-transform: uppercase; font-weight: 700;">Your Referral Link</p>
             <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; font-family: monospace; word-break: break-all; font-weight: 600; margin-bottom: 15px; border: 1px dashed rgba(255,255,255,0.5);" id="refLink">Loading...</div>
             <div style="display: flex; gap: 10px;">
-                <button class="btn-main" onclick="copyRefLink()" style="flex: 1; background: white; color: var(--primary);"><i class="fas fa-copy"></i> Copy</button>
+                <button class="btn-main" onclick="copyRefLink()" style="flex: 1; background: white; color: var(--primary);"><i class="fas fa-copy"></i> Copy Link</button>
                 <button class="btn-main" onclick="shareWhatsApp()" style="flex: 1; background: #25D366; color: white; border: none;"><i class="fab fa-whatsapp"></i> Share</button>
             </div>
         </div>
 
+        <!-- How it Works Guide -->
         <div class="section-title"><h2><i class="fas fa-info-circle" style="color: var(--warning); margin-right: 10px;"></i>How It Works?</h2></div>
         <div class="premium-card" style="padding: 15px;">
             <div style="display: flex; gap: 15px; margin-bottom: 20px;">
                 <div class="step-circle">1</div>
                 <div>
                     <div style="font-weight: 700; font-size: 15px;">Share Your Link</div>
-                    <div style="font-size: 13px; color: var(--gray);">Send your link to friends via WhatsApp</div>
+                    <div style="font-size: 13px; color: var(--gray);">Send your link to friends via WhatsApp or social media.</div>
                 </div>
             </div>
             <div style="display: flex; gap: 15px; margin-bottom: 20px;">
                 <div class="step-circle" style="background: var(--gradient-2);">2</div>
                 <div>
-                    <div style="font-weight: 700; font-size: 15px;">Friend Registers</div>
-                    <div style="font-size: 13px; color: var(--gray);">You get ₹15 instantly in wallet</div>
+                    <div style="font-weight: 700; font-size: 15px;">Friend Registers (Earn ₹15)</div>
+                    <div style="font-size: 13px; color: var(--gray);">When your friend signs up, you instantly get ₹15 in your wallet.</div>
                 </div>
             </div>
             <div style="display: flex; gap: 15px;">
                 <div class="step-circle" style="background: var(--gradient-3);">3</div>
                 <div>
-                    <div style="font-weight: 700; font-size: 15px;">They Buy Plan</div>
-                    <div style="font-size: 13px; color: var(--gray);">Earn up to 5% commission!</div>
+                    <div style="font-weight: 700; font-size: 15px;">Friend Buys Plan (Earn Comm.)</div>
+                    <div style="font-size: 13px; color: var(--gray);">When they invest, you get up to 5% commission immediately!</div>
                 </div>
             </div>
         </div>
 
+        <!-- 3 Level Commission Guide -->
         <div class="section-title"><h2><i class="fas fa-sitemap" style="color: var(--primary); margin-right: 10px;"></i>Team Commission</h2></div>
         <div class="premium-card" style="padding: 15px;">
             <div class="level-card">
@@ -707,6 +631,7 @@
             </div>
         </div>
 
+        <!-- Team Stats -->
         <div class="section-title"><h2><i class="fas fa-chart-line" style="color: var(--success); margin-right: 10px;"></i>Your Earnings</h2></div>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 0 20px 20px;">
             <div class="premium-card" style="margin: 0; padding: 25px; text-align: center;">
@@ -722,6 +647,7 @@
 
     <!-- PROFILE PAGE -->
     <div id="profilePage" class="page">
+        <!-- Profile Header -->
         <div style="background: var(--gradient-1); padding: 40px 20px; text-align: center; color: white; position: relative;">
             <div style="width: 100px; height: 100px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 50px; border: 4px solid rgba(255,255,255,0.3);">👤</div>
             <h2 id="profileName" style="font-size: 28px; font-weight: 700; margin-bottom: 5px;">User Name</h2>
@@ -731,6 +657,7 @@
             </div>
         </div>
 
+        <!-- Stats -->
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 20px;">
             <div class="premium-card" style="margin: 0; padding: 25px; text-align: center;">
                 <div style="font-size: 32px; font-weight: 700; color: var(--primary);" id="profTotalEarn">₹0</div>
@@ -742,6 +669,7 @@
             </div>
         </div>
 
+        <!-- Menu Items -->
         <div class="premium-card" style="padding: 10px;">
             <div style="display: flex; align-items: center; gap: 15px; padding: 20px; cursor: pointer;" onclick="showPage('wallet')">
                 <div style="width: 45px; height: 45px; background: rgba(99, 102, 241, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 20px;"><i class="fas fa-wallet"></i></div>
@@ -781,18 +709,17 @@
         
         <div class="premium-card">
             <h3 style="margin-bottom: 20px; font-size: 20px;"><i class="fas fa-ticket-alt" style="color: var(--secondary); margin-right: 10px;"></i>Create Ticket</h3>
-            <form class="form-premium" id="ticketForm" onsubmit="handleTicket(event)">
+            <form class="form-premium" id="ticketForm">
                 <div class="form-group">
                     <label>Issue Type</label>
                     <select class="input-premium" id="ticketType" required>
                         <option value="deposit">Deposit Issue</option>
                         <option value="withdrawal">Withdrawal Issue</option>
-                        <option value="plan">Plan Issue</option>
                         <option value="other">Other</option>
                     </select>
                 </div>
-                <div class="form-group"><label>Subject</label><input type="text" class="input-premium" id="ticketSubject" placeholder="Brief description" required></div>
-                <div class="form-group"><label>Message</label><textarea class="input-premium" id="ticketMessage" rows="4" placeholder="Describe your issue in detail..." required></textarea></div>
+                <div class="form-group"><label>Subject</label><input type="text" class="input-premium" id="ticketSubject" required></div>
+                <div class="form-group"><label>Message</label><textarea class="input-premium" id="ticketMessage" rows="3" required></textarea></div>
                 <button type="submit" class="btn-main btn-main-primary">Submit Ticket</button>
             </form>
         </div>
@@ -813,6 +740,7 @@
             appId: "1:772737546715:web:3736545b464523bdc04ffe"
         };
         firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
         const database = firebase.database();
 
         let currentUser = null;
@@ -837,17 +765,11 @@
         ];
 
         // ==================== UTILITY FUNCTIONS ====================
-        function showLoading(text='Loading...') { 
-            document.querySelector('#loadingScreen p').textContent = text; 
-            document.getElementById('loadingScreen').classList.add('active'); 
-        }
-        function hideLoading() { 
-            document.getElementById('loadingScreen').classList.remove('active'); 
-        }
+        function showLoading(text='Loading...') { document.querySelector('#loadingScreen p').textContent = text; document.getElementById('loadingScreen').classList.add('active'); }
+        function hideLoading() { document.getElementById('loadingScreen').classList.remove('active'); }
         function showToast(message, type='info') {
             const toast = document.getElementById('toast');
-            toast.textContent = message; 
-            toast.className = 'toast ' + type + ' show';
+            toast.textContent = message; toast.className = 'toast ' + type + ' show';
             setTimeout(() => toast.classList.remove('show'), 3000);
         }
         function generateId(prefix) { return prefix + Date.now().toString().slice(-6); }
@@ -857,10 +779,7 @@
         function showPage(page) {
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(page + 'Page').classList.add('active');
-            document.querySelectorAll('.nav-item').forEach(i => { 
-                i.classList.remove('active'); 
-                if(i.dataset.page===page) i.classList.add('active'); 
-            });
+            document.querySelectorAll('.nav-item').forEach(i => { i.classList.remove('active'); if(i.dataset.page===page) i.classList.add('active'); });
             
             const noHeader = ['landing', 'login', 'register'];
             document.getElementById('mainHeader').style.display = noHeader.includes(page) ? 'none' : 'block';
@@ -877,6 +796,7 @@
             window.scrollTo(0,0);
         }
 
+        // REDIRECT & HIGHLIGHT SPECIFIC PLAN
         function goToPlan(planId) {
             showPage('plans');
             setTimeout(() => {
@@ -894,27 +814,32 @@
             }, 300);
         }
 
-        // ==================== FIXED: REFER LINK FLOW ====================
+        // ==================== FIXED: CHECK LOGIN STATUS FIRST ====================
         window.onload = function() {
             const savedUser = localStorage.getItem('currentUser');
-            const refCode = new URLSearchParams(window.location.search).get('ref');
             
-            // If user is logged in, always go to home
+            // If user is already logged in, go to home regardless of URL
             if(savedUser) {
                 currentUser = JSON.parse(savedUser);
                 setupUserListener(currentUser.id);
+                
+                // Check for ref code but don't go to register if logged in
+                const refCode = new URLSearchParams(window.location.search).get('ref');
+                if(refCode) {
+                    showToast('You are already logged in!', 'info');
+                }
                 showPage('home');
-                return;
+            } else {
+                // User not logged in - check for ref code
+                const refCode = new URLSearchParams(window.location.search).get('ref');
+                if(refCode) {
+                    setTimeout(() => { 
+                        showPage('register'); 
+                        document.getElementById('regReferral').value = refCode; 
+                        document.getElementById('refBonusText').style.display = 'block'; 
+                    }, 500);
+                }
             }
-            
-            // User not logged in
-            if(refCode) {
-                // Store ref code in sessionStorage for later use
-                sessionStorage.setItem('pendingRefCode', refCode);
-            }
-            
-            // Always show landing page first if not logged in
-            showPage('landing');
             
             database.ref('settings/offers').on('value', snap => {
                 activeOffers = snap.val() || {};
@@ -935,66 +860,40 @@
             });
         }
 
-        // ==================== AUTH FUNCTIONS ====================
-        async function handleLogin(e) {
-            e.preventDefault(); 
-            showLoading('Logging in...');
-            const phone = document.getElementById('loginPhone').value;
-            const pass = document.getElementById('loginPassword').value;
-            
-            try {
-                const snap = await database.ref('users').orderByChild('phone').equalTo(phone).once('value');
-                if(!snap.val()) { 
-                    hideLoading(); 
-                    return showToast('User not found!', 'error'); 
-                }
-                const user = Object.values(snap.val())[0];
-                if(user.password !== pass) { 
-                    hideLoading(); 
-                    return showToast('Invalid password!', 'error'); 
-                }
-                if(user.status === 'blocked') { 
-                    hideLoading(); 
-                    return showToast('Account blocked!', 'error'); 
-                }
-                currentUser = user; 
-                localStorage.setItem('currentUser', JSON.stringify(user));
-                setupUserListener(user.id); 
-                hideLoading(); 
-                showToast('Login successful!', 'success'); 
-                showPage('home');
-            } catch(e) {
-                hideLoading();
-                showToast('Error: ' + e.message, 'error');
-            }
-        }
+        // ==================== AUTH (WHATSAPP OTP) ====================
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault(); showLoading('Logging in...');
+            const phone = document.getElementById('loginPhone').value, pass = document.getElementById('loginPassword').value;
+            const snap = await database.ref('users').orderByChild('phone').equalTo(phone).once('value');
+            if(!snap.val()) { hideLoading(); return showToast('User not found!', 'error'); }
+            const user = Object.values(snap.val())[0];
+            if(user.password !== pass) { hideLoading(); return showToast('Invalid password!', 'error'); }
+            if(user.status === 'blocked') { hideLoading(); return showToast('Account blocked!', 'error'); }
+            currentUser = user; localStorage.setItem('currentUser', JSON.stringify(user));
+            setupUserListener(user.id); hideLoading(); showToast('Login successful!', 'success'); showPage('home');
+        });
 
-        // ==================== FIXED: REGISTRATION WITH REF CODE ====================
-        async function handleRegister(e) {
+        // ==================== WHATSAPP OTP REGISTRATION ====================
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const name = document.getElementById('regName').value.trim();
-            const phone = document.getElementById('regPhone').value.trim();
-            const pass = document.getElementById('regPassword').value;
-            const conf = document.getElementById('regConfirm').value;
-            const ref = document.getElementById('regReferral').value.trim().toUpperCase();
-            
+            const name = document.getElementById('regName').value, phone = document.getElementById('regPhone').value;
+            const pass = document.getElementById('regPassword').value, conf = document.getElementById('regConfirm').value;
             if(pass !== conf) return showToast('Passwords do not match', 'error');
-            if(phone.length !== 10) return showToast('Invalid phone number', 'error');
-            if(name.length < 2) return showToast('Enter valid name', 'error');
+            if(phone.length !== 10) return showToast('Invalid phone', 'error');
             
             showLoading('Sending OTP via WhatsApp...');
             
+            // Check if phone already registered
+            const snap = await database.ref('users').orderByChild('phone').equalTo(phone).once('value');
+            if(snap.val()) { 
+                hideLoading(); 
+                return showToast('Phone already registered', 'error'); 
+            }
+            
+            // Generate 6-digit OTP
+            const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+            
             try {
-                // Check if phone already registered
-                const snap = await database.ref('users').orderByChild('phone').equalTo(phone).once('value');
-                if(snap.val()) { 
-                    hideLoading(); 
-                    return showToast('Phone already registered', 'error'); 
-                }
-                
-                // Generate 6-digit OTP
-                const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-                
                 // Send OTP via WhatsApp server
                 const response = await fetch(`${WHATSAPP_OTP_SERVER}/send-otp?phone=${phone}&otp=${generatedOtp}&key=${WHATSAPP_API_KEY}`);
                 const result = await response.json();
@@ -1005,14 +904,18 @@
                 }
                 
                 // Store data for later use
-                tempUserData = { name, phone, pass, ref, generatedOtp };
+                tempUserData = {
+                    name, 
+                    phone, 
+                    pass, 
+                    ref: document.getElementById('regReferral').value.trim(),
+                    generatedOtp: generatedOtp // Store OTP for verification
+                };
                 
                 hideLoading(); 
                 document.getElementById('regStep1').classList.add('hidden'); 
                 document.getElementById('regStep2').classList.remove('hidden');
-                document.getElementById('otpPhoneDisplay').textContent = '+91 ' + phone;
-                
-                // Setup OTP inputs with improved handling
+                document.getElementById('otpPhoneDisplay').textContent = phone;
                 setupOtpInputs();
                 startOtpTimer();
                 
@@ -1020,98 +923,37 @@
                 hideLoading(); 
                 showToast('Error: ' + e.message, 'error'); 
             }
-        }
+        });
 
-        // ==================== FIXED: OTP INPUT HANDLING ====================
         function setupOtpInputs() {
-            const inputs = document.querySelectorAll('#regOtpContainer .otp-input-premium');
-            
-            inputs.forEach((input, index) => {
-                // Clear previous event listeners
-                const newInput = input.cloneNode(true);
-                input.parentNode.replaceChild(newInput, input);
-                
-                newInput.addEventListener('input', function(e) {
+            const inputs = document.querySelectorAll('.otp-input-premium');
+            inputs.forEach((inpt, i) => {
+                inpt.addEventListener('input', (e) => {
                     // Only allow numbers
-                    this.value = this.value.replace(/[^0-9]/g, '');
-                    
-                    if(this.value.length === 1) {
-                        this.classList.add('filled');
-                        // Move to next input
-                        if(index < 5) {
-                            document.querySelectorAll('#regOtpContainer .otp-input-premium')[index + 1].focus();
-                        }
-                    } else {
-                        this.classList.remove('filled');
-                    }
-                    
-                    updateFullOtp();
+                    e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                    if(e.target.value.length===1 && i<5) inputs[i+1].focus();
+                    document.getElementById('fullOtp').value = Array.from(inputs).map(inp=>inp.value).join('');
                 });
-                
-                newInput.addEventListener('keydown', function(e) {
-                    // Handle backspace
-                    if(e.key === 'Backspace') {
-                        if(this.value === '' && index > 0) {
-                            // Move to previous input
-                            const prevInput = document.querySelectorAll('#regOtpContainer .otp-input-premium')[index - 1];
-                            prevInput.focus();
-                            prevInput.value = '';
-                            prevInput.classList.remove('filled');
-                            updateFullOtp();
-                        } else if(this.value !== '') {
-                            this.value = '';
-                            this.classList.remove('filled');
-                            updateFullOtp();
-                        }
-                        e.preventDefault();
+                // Handle backspace
+                inpt.addEventListener('keydown', (e) => {
+                    if(e.key === 'Backspace' && !e.target.value && i>0) {
+                        inputs[i-1].focus();
                     }
-                    // Handle arrow keys
-                    else if(e.key === 'ArrowLeft' && index > 0) {
-                        document.querySelectorAll('#regOtpContainer .otp-input-premium')[index - 1].focus();
-                    }
-                    else if(e.key === 'ArrowRight' && index < 5) {
-                        document.querySelectorAll('#regOtpContainer .otp-input-premium')[index + 1].focus();
-                    }
-                });
-                
-                // Handle paste
-                newInput.addEventListener('paste', function(e) {
-                    e.preventDefault();
-                    const pastedData = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, 6);
-                    const allInputs = document.querySelectorAll('#regOtpContainer .otp-input-premium');
-                    
-                    pastedData.split('').forEach((char, i) => {
-                        if(allInputs[i]) {
-                            allInputs[i].value = char;
-                            allInputs[i].classList.add('filled');
-                        }
-                    });
-                    
-                    updateFullOtp();
-                    
-                    // Focus on next empty input or last
-                    const nextEmpty = Array.from(allInputs).find(inp => !inp.value);
-                    if(nextEmpty) nextEmpty.focus();
-                    else allInputs[5].focus();
                 });
             });
         }
 
-        function updateFullOtp() {
-            const inputs = document.querySelectorAll('#regOtpContainer .otp-input-premium');
-            document.getElementById('fullOtp').value = Array.from(inputs).map(inp => inp.value).join('');
-        }
-
         async function verifyOtp() {
             const otp = document.getElementById('fullOtp').value;
-            if(otp.length !== 6) return showToast('Enter complete 6-digit OTP', 'error');
+            if(otp.length!==6) return showToast('Enter valid 6-digit OTP', 'error');
             
             showLoading('Creating account...');
             
             try {
+                // Verify OTP locally (compare with stored OTP)
                 if(otp !== tempUserData.generatedOtp) {
                     hideLoading();
-                    return showToast('Invalid OTP. Please try again.', 'error');
+                    return showToast('Invalid OTP', 'error');
                 }
                 
                 // OTP verified - Create account
@@ -1119,23 +961,18 @@
                 if(tempUserData.ref) {
                     const rSnap = await database.ref('users').orderByChild('referralCode').equalTo(tempUserData.ref).once('value');
                     if(rSnap.val()) {
-                        const rId = Object.keys(rSnap.val())[0];
-                        const rData = rSnap.val()[rId];
-                        bonus = 15; 
-                        refBy = tempUserData.ref;
-                        
-                        // Update referrer's data
+                        const rId = Object.keys(rSnap.val())[0], rData = rSnap.val()[rId];
+                        bonus = 15; refBy = tempUserData.ref;
                         await database.ref(`users/${rId}`).update({ 
-                            'wallet/mainBalance': (rData.wallet?.mainBalance||0) + 15, 
-                            'referrals/count': (rData.referrals?.count||0) + 1, 
-                            'referrals/earnings': (rData.referrals?.earnings||0) + 15 
+                            'wallet/mainBalance': (rData.wallet?.mainBalance||0)+15, 
+                            'referrals/count': (rData.referrals?.count||0)+1, 
+                            'referrals/earnings': (rData.referrals?.earnings||0)+15 
                         });
-                        
                         await database.ref(`users/${rId}/transactions`).push({
                             id: generateId('TXN'), 
                             type: 'referral_bonus', 
                             amount: 15, 
-                            description: `Referral bonus from ${tempUserData.name}`, 
+                            description: `Referral Signup Bonus from ${tempUserData.name}`, 
                             date: new Date().toISOString(), 
                             status: 'approved'
                         });
@@ -1147,12 +984,12 @@
                     name: tempUserData.name, 
                     phone: tempUserData.phone, 
                     password: tempUserData.pass,
-                    referralCode: tempUserData.name.substring(0,4).toUpperCase() + Math.floor(Math.random()*1000), 
+                    referralCode: tempUserData.name.substring(0,4).toUpperCase()+Math.floor(Math.random()*1000), 
                     referredBy: refBy,
                     joinDate: new Date().toISOString(), 
                     status: 'active', 
                     wallet: {mainBalance: bonus, totalWithdrawn: 0},
-                    referrals: {count: 0, earnings: 0}, 
+                    referrals: {count:0, earnings:0}, 
                     activePlans: {},
                     transactions: {
                         [Date.now()]: {
@@ -1171,13 +1008,10 @@
                 localStorage.setItem('currentUser', JSON.stringify(newUser)); 
                 setupUserListener(newUser.id);
                 
-                // Clear pending ref code
-                sessionStorage.removeItem('pendingRefCode');
-                
                 hideLoading(); 
                 document.getElementById('regStep2').classList.add('hidden'); 
                 document.getElementById('regStep3').classList.remove('hidden');
-                document.getElementById('bonusMessage').textContent = bonus > 0 ? `🎉 You received ₹${bonus} signup bonus!` : 'Your account has been created successfully!';
+                document.getElementById('bonusMessage').textContent = bonus > 0 ? `🎉 You received ₹${bonus} signup bonus!` : '';
                 
             } catch(e) { 
                 hideLoading(); 
@@ -1210,168 +1044,81 @@
             }
         }
 
-        let otpTimerInterval;
         function startOtpTimer() {
-            clearInterval(otpTimerInterval);
             let time = 60;
-            const timerEl = document.getElementById('otpTimer');
-            const resendEl = document.getElementById('resendOtpBtn');
+            document.getElementById('otpTimer').classList.remove('hidden');
+            document.getElementById('resendOtpBtn').classList.add('hidden');
             
-            timerEl.classList.remove('hidden');
-            resendEl.classList.add('hidden');
-            timerEl.textContent = time + 's';
-            
-            otpTimerInterval = setInterval(() => {
+            const timer = setInterval(() => {
                 time--;
-                timerEl.textContent = time + 's';
+                document.getElementById('otpTimer').textContent = time + 's';
                 if(time <= 0) {
-                    clearInterval(otpTimerInterval);
-                    timerEl.classList.add('hidden');
-                    resendEl.classList.remove('hidden');
+                    clearInterval(timer);
+                    document.getElementById('otpTimer').classList.add('hidden');
+                    document.getElementById('resendOtpBtn').classList.remove('hidden');
                 }
             }, 1000);
         }
 
         function backToReg() {
-            clearInterval(otpTimerInterval);
             document.getElementById('regStep2').classList.add('hidden');
             document.getElementById('regStep1').classList.remove('hidden');
-            // Clear OTP inputs
-            document.querySelectorAll('#regOtpContainer .otp-input-premium').forEach(inp => {
-                inp.value = '';
-                inp.classList.remove('filled');
-            });
-            document.getElementById('fullOtp').value = '';
             tempUserData = {};
         }
 
-        // ==================== FIXED: FORGOT PASSWORD ====================
+        // ==================== FORGOT PASSWORD ====================
         function openForgotModal() {
             document.getElementById('forgotPasswordModal').classList.add('active');
-            forgotPasswordData = { step: 'phone' };
-            // Setup forgot OTP inputs
-            setupForgotOtpInputs();
+            forgotPasswordData = {};
         }
 
         function closeForgotModal() {
             document.getElementById('forgotPasswordModal').classList.remove('active');
-            setTimeout(() => {
-                document.getElementById('forgotPasswordForm').reset();
-                document.getElementById('forgotPhoneGroup').classList.remove('hidden');
-                document.getElementById('forgotOtpGroup').classList.add('hidden');
-                document.getElementById('newPasswordGroup').classList.add('hidden');
-                document.getElementById('forgotBtn').textContent = 'Send OTP';
-                forgotPasswordData = {};
-                // Clear OTP inputs
-                document.querySelectorAll('.forgot-otp').forEach(inp => inp.value = '');
-                document.getElementById('forgotFullOtp').value = '';
-                clearInterval(forgotTimerInterval);
-            }, 300);
+            document.getElementById('forgotPasswordForm').reset();
+            document.getElementById('forgotOtpGroup').style.display = 'none';
+            document.getElementById('newPasswordGroup').style.display = 'none';
+            document.getElementById('forgotBtn').textContent = 'Send OTP';
+            forgotPasswordData = {};
         }
 
-        let forgotTimerInterval;
-        function startForgotTimer() {
-            clearInterval(forgotTimerInterval);
-            let time = 60;
-            const timerEl = document.getElementById('forgotTimer');
-            const resendEl = document.getElementById('forgotResend');
-            
-            timerEl.classList.remove('hidden');
-            resendEl.classList.add('hidden');
-            timerEl.textContent = time + 's';
-            
-            forgotTimerInterval = setInterval(() => {
-                time--;
-                timerEl.textContent = time + 's';
-                if(time <= 0) {
-                    clearInterval(forgotTimerInterval);
-                    timerEl.classList.add('hidden');
-                    resendEl.classList.remove('hidden');
-                }
-            }, 1000);
-        }
-
-        function setupForgotOtpInputs() {
-            const inputs = document.querySelectorAll('.forgot-otp');
-            
-            inputs.forEach((input, index) => {
-                const newInput = input.cloneNode(true);
-                input.parentNode.replaceChild(newInput, input);
-                
-                newInput.addEventListener('input', function(e) {
-                    this.value = this.value.replace(/[^0-9]/g, '');
-                    
-                    if(this.value.length === 1 && index < 5) {
-                        document.querySelectorAll('.forgot-otp')[index + 1].focus();
-                    }
-                    updateForgotFullOtp();
-                });
-                
-                newInput.addEventListener('keydown', function(e) {
-                    if(e.key === 'Backspace') {
-                        if(this.value === '' && index > 0) {
-                            const prevInput = document.querySelectorAll('.forgot-otp')[index - 1];
-                            prevInput.focus();
-                            prevInput.value = '';
-                            updateForgotFullOtp();
-                        } else if(this.value !== '') {
-                            this.value = '';
-                            updateForgotFullOtp();
-                        }
-                        e.preventDefault();
-                    }
-                });
+        // Setup forgot password OTP inputs
+        document.querySelectorAll('.forgot-otp').forEach((inpt, i) => {
+            inpt.addEventListener('input', (e) => {
+                e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                if(e.target.value.length===1 && i<5) document.querySelectorAll('.forgot-otp')[i+1].focus();
+                document.getElementById('forgotFullOtp').value = Array.from(document.querySelectorAll('.forgot-otp')).map(inp=>inp.value).join('');
             });
-        }
-
-        function updateForgotFullOtp() {
-            document.getElementById('forgotFullOtp').value = Array.from(document.querySelectorAll('.forgot-otp')).map(inp => inp.value).join('');
-        }
-
-        async function resendForgotOtp() {
-            const phone = forgotPasswordData.phone;
-            const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-            forgotPasswordData.generatedOtp = generatedOtp;
-            
-            showLoading('Resending OTP...');
-            
-            try {
-                const response = await fetch(`${WHATSAPP_OTP_SERVER}/send-otp?phone=${phone}&otp=${generatedOtp}&key=${WHATSAPP_API_KEY}`);
-                const result = await response.json();
-                
-                if(result.status === "success") {
-                    hideLoading();
-                    showToast('OTP resent!', 'success');
-                    startForgotTimer();
-                } else {
-                    hideLoading();
-                    showToast('Failed to resend', 'error');
+            inpt.addEventListener('keydown', (e) => {
+                if(e.key === 'Backspace' && !e.target.value && i>0) {
+                    document.querySelectorAll('.forgot-otp')[i-1].focus();
                 }
-            } catch(e) {
-                hideLoading();
-                showToast('Error: ' + e.message, 'error');
-            }
-        }
+            });
+        });
 
-        async function handleForgotSubmit(e) {
+        document.getElementById('forgotPasswordForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            if(forgotPasswordData.step === 'phone') {
+            // Step 1: Send OTP
+            if(!forgotPasswordData.step) {
                 const phone = document.getElementById('forgotPhone').value;
                 if(phone.length !== 10) return showToast('Invalid phone number', 'error');
                 
                 showLoading('Sending OTP...');
                 
+                // Check if user exists
+                const snap = await database.ref('users').orderByChild('phone').equalTo(phone).once('value');
+                if(!snap.val()) {
+                    hideLoading();
+                    return showToast('Phone number not registered', 'error');
+                }
+                
+                const userData = Object.values(snap.val())[0];
+                const userId = Object.keys(snap.val())[0];
+                
+                // Generate and send OTP
+                const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+                
                 try {
-                    const snap = await database.ref('users').orderByChild('phone').equalTo(phone).once('value');
-                    if(!snap.val()) {
-                        hideLoading();
-                        return showToast('Phone number not registered', 'error');
-                    }
-                    
-                    const userId = Object.keys(snap.val())[0];
-                    const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-                    
                     const response = await fetch(`${WHATSAPP_OTP_SERVER}/send-otp?phone=${phone}&otp=${generatedOtp}&key=${WHATSAPP_API_KEY}`);
                     const result = await response.json();
                     
@@ -1380,41 +1127,41 @@
                         return showToast('Failed to send OTP', 'error');
                     }
                     
-                    forgotPasswordData = { step: 'otp', phone, userId, generatedOtp };
+                    forgotPasswordData = {
+                        step: 'verify',
+                        phone: phone,
+                        userId: userId,
+                        generatedOtp: generatedOtp
+                    };
                     
                     hideLoading();
-                    document.getElementById('forgotPhoneGroup').classList.add('hidden');
-                    document.getElementById('forgotOtpGroup').classList.remove('hidden');
+                    document.getElementById('forgotOtpGroup').style.display = 'block';
                     document.getElementById('forgotBtn').textContent = 'Verify OTP';
-                    showToast('OTP sent to WhatsApp!', 'success');
-                    startForgotTimer();
+                    showToast('OTP sent via WhatsApp!', 'success');
                     
                 } catch(e) {
                     hideLoading();
                     showToast('Error: ' + e.message, 'error');
                 }
             }
-            else if(forgotPasswordData.step === 'otp') {
+            // Step 2: Verify OTP
+            else if(forgotPasswordData.step === 'verify') {
                 const otp = document.getElementById('forgotFullOtp').value;
-                if(otp.length !== 6) return showToast('Enter complete OTP', 'error');
+                if(otp.length !== 6) return showToast('Enter valid 6-digit OTP', 'error');
                 
                 if(otp !== forgotPasswordData.generatedOtp) {
                     return showToast('Invalid OTP', 'error');
                 }
                 
                 forgotPasswordData.step = 'reset';
-                document.getElementById('forgotOtpGroup').classList.add('hidden');
-                document.getElementById('newPasswordGroup').classList.remove('hidden');
+                document.getElementById('newPasswordGroup').style.display = 'block';
                 document.getElementById('forgotBtn').textContent = 'Reset Password';
-                showToast('OTP verified! Set new password', 'success');
-                clearInterval(forgotTimerInterval);
+                showToast('OTP verified! Enter new password', 'success');
             }
+            // Step 3: Reset Password
             else if(forgotPasswordData.step === 'reset') {
                 const newPass = document.getElementById('newPassword').value;
-                const confirmPass = document.getElementById('confirmNewPassword').value;
-                
-                if(newPass.length < 6) return showToast('Password must be 6+ characters', 'error');
-                if(newPass !== confirmPass) return showToast('Passwords do not match', 'error');
+                if(newPass.length < 6) return showToast('Password must be at least 6 characters', 'error');
                 
                 showLoading('Resetting password...');
                 
@@ -1428,26 +1175,22 @@
                     showToast('Error resetting password', 'error');
                 }
             }
-        }
+        });
 
         // ==================== HOME ====================
         function updateHomeUI() {
-            if(!currentUser) return;
-            
             document.getElementById('homeBalance').textContent = currentUser.wallet?.mainBalance || 0;
             document.getElementById('homeRefers').textContent = currentUser.referrals?.count || 0;
-            document.getElementById('homeEarnings').textContent = '₹' + (currentUser.referrals?.earnings || 0);
+            document.getElementById('homeEarnings').textContent = '₹'+(currentUser.referrals?.earnings || 0);
             
             const plans = Object.values(currentUser.activePlans || {});
             document.getElementById('homePlans').textContent = plans.length;
             
             document.getElementById('activePlansList').innerHTML = plans.length ? plans.map(p => `
                 <div class="premium-card" style="margin: 0 0 15px; border-left: 5px solid var(--success);">
-                    <div style="font-weight:700;">${p.planName}</div>
-                    <div style="font-size:12px;color:var(--gray);">₹${p.dailyReturn}/day • Total Claimed: ₹${p.totalClaimed||0}</div>
-                </div>`).join('') : '<p style="text-align:center;color:var(--gray);padding:20px;">No Active Plans</p>';
+                    <div style="font-weight:700;">${p.planName}</div><div style="font-size:12px;color:var(--gray);">₹${p.dailyReturn}/day • Total Claimed: ₹${p.totalClaimed||0}</div>
+                </div>`).join('') : '<p style="text-align:center;color:var(--gray);">No Active Plans</p>';
 
-            // Offers section
             const offerContainer = document.getElementById('homeOffers');
             const plansWithOffers = PLANS.filter(p => activeOffers[p.id]);
             if(plansWithOffers.length > 0) {
@@ -1476,160 +1219,111 @@
                 offerContainer.classList.add('hidden');
             }
 
-            // Daily claim section
             const claimSection = document.getElementById('dailyClaimSection');
             if(plans.length) {
-                const totalDaily = plans.reduce((s,p) => s + p.dailyReturn, 0);
+                const totalDaily = plans.reduce((s,p)=>s+p.dailyReturn, 0);
                 document.getElementById('claimAmount').textContent = totalDaily;
-                
-                // Check if already claimed today
-                const today = new Date().toDateString();
-                const lastClaim = currentUser.lastClaimDate;
-                const isClaimed = (lastClaim === today);
-                
+                const claimed = currentUser.lastClaimDate === new Date().toDateString();
                 const btn = document.getElementById('claimBtn');
-                btn.disabled = isClaimed;
-                btn.className = isClaimed ? 'claim-btn claimed' : 'claim-btn';
-                btn.innerHTML = isClaimed ? '<i class="fas fa-check"></i> Claimed for Today' : '<i class="fas fa-hand-holding-usd"></i> Claim Now';
-                
+                btn.disabled = claimed; btn.className = claimed ? 'claim-btn claimed' : 'claim-btn';
+                btn.innerHTML = claimed ? 'Claimed' : 'Claim Now';
                 claimSection.classList.remove('hidden');
-            } else {
-                claimSection.classList.add('hidden');
-            }
+            } else claimSection.classList.add('hidden');
 
-            // Recent transactions
-            const txns = Object.values(currentUser.transactions || {})
-                .sort((a,b) => new Date(b.date) - new Date(a.date))
-                .slice(0, 5);
-                
+            const txns = Object.values(currentUser.transactions || {}).sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5);
             document.getElementById('homeTransactions').innerHTML = txns.length ? txns.map(tx => {
-                let status = tx.status || 'approved';
-                let iconClass = 'credit';
-                let amountColor = 'var(--success)';
-                
-                if(tx.type.includes('pending')) {
-                    status = 'pending';
-                    iconClass = 'pending';
-                    amountColor = 'var(--warning)';
-                } else if(tx.type.includes('withdrawal') || tx.type.includes('purchase')) {
-                    iconClass = 'debit';
-                    amountColor = 'var(--danger)';
-                }
-                
+                let status = tx.status || 'approved'; 
+                if(tx.type.includes('pending')) status = 'pending';
+                if(tx.type.includes('rejected')) status = 'rejected';
                 return `
-                <div class="tx-item" style="margin: 0 20px 12px;">
-                    <div class="tx-icon ${iconClass}"><i class="fas fa-rupee-sign"></i></div>
+                <div class="tx-item">
+                    <div class="tx-icon ${status==='pending'?'pending':(tx.type.includes('withdrawal')||tx.type.includes('purchase')?'debit':'credit')}"><i class="fas fa-rupee-sign"></i></div>
                     <div class="tx-details">
                         <div style="font-weight:600; font-size:14px;">${tx.description}</div>
                         <div style="font-size:11px;color:gray;">${new Date(tx.date).toLocaleDateString()} <span class="status-badge status-${status}">${status}</span></div>
+                        ${tx.adminReason ? `<div style="font-size:11px; color:var(--danger); margin-top:3px;">Reason: ${tx.adminReason}</div>` : ''}
                     </div>
-                    <div style="font-weight:bold; color: ${amountColor};">₹${tx.amount}</div>
+                    <div style="font-weight:bold; color: ${status==='pending'?'#b45309':(status==='rejected'||tx.type.includes('withdrawal')||tx.type.includes('purchase')?'#ef4444':'#10b981')}">₹${tx.amount}</div>
                 </div>`;
-            }).join('') : '<p style="text-align:center; color:var(--gray); padding:20px;">No transactions yet</p>';
+            }).join('') : '<p style="text-align:center;">No Activity</p>';
         }
 
         async function claimDailyEarnings() {
             const plans = Object.values(currentUser.activePlans || {});
             if(plans.length === 0) return;
+            const total = plans.reduce((s,p)=>s+p.dailyReturn, 0);
+            showLoading('Claiming...');
+            await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set((currentUser.wallet?.mainBalance||0) + total);
+            await database.ref(`users/${currentUser.id}/lastClaimDate`).set(new Date().toDateString());
+            await database.ref(`users/${currentUser.id}/transactions`).push({id: generateId('TXN'), type: 'daily_earning', amount: total, description: 'Daily Earning', date: new Date().toISOString(), status: 'approved'});
+            for(let key in currentUser.activePlans) { await database.ref(`users/${currentUser.id}/activePlans/${key}/totalClaimed`).set((currentUser.activePlans[key].totalClaimed||0) + currentUser.activePlans[key].dailyReturn); }
+            hideLoading(); showToast(`₹${total} Claimed!`, 'success'); 
             
-            const total = plans.reduce((s,p) => s + p.dailyReturn, 0);
-            showLoading('Claiming your earnings...');
-            
-            try {
-                const newBalance = (currentUser.wallet?.mainBalance || 0) + total;
-                const today = new Date().toDateString();
-                
-                await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set(newBalance);
-                await database.ref(`users/${currentUser.id}/lastClaimDate`).set(today);
-                
-                await database.ref(`users/${currentUser.id}/transactions`).push({
-                    id: generateId('TXN'), 
-                    type: 'daily_earning', 
-                    amount: total, 
-                    description: 'Daily Earning Claimed', 
-                    date: new Date().toISOString(), 
-                    status: 'approved'
-                });
-                
-                // Update total claimed for each plan
-                for(let key in currentUser.activePlans) {
-                    const plan = currentUser.activePlans[key];
-                    await database.ref(`users/${currentUser.id}/activePlans/${key}/totalClaimed`).set((plan.totalClaimed || 0) + plan.dailyReturn);
-                }
-                
-                hideLoading();
-                showToast(`₹${total} added to wallet!`, 'success');
-                updateHomeUI();
-                
-            } catch(e) {
-                hideLoading();
-                showToast('Error claiming earnings', 'error');
+            updateHomeUI();
+            if(document.getElementById('plansPage').classList.contains('active')) {
+                loadPlansPage(); 
             }
         }
 
-        // ==================== PLANS PAGE ====================
+        // ==================== PLANS (VERTICAL + OFFERS + CLAIM SYSTEM) ====================
         function loadPlansPage() {
-            if(!currentUser) return;
+            const activeIds = Object.values(currentUser.activePlans || {}).map(p=>p.planId);
+            const bal = currentUser.wallet?.mainBalance||0;
+            const todayClaimed = currentUser.lastClaimDate === new Date().toDateString();
             
-            const activeIds = Object.values(currentUser.activePlans || {}).map(p => p.planId);
-            const bal = currentUser.wallet?.mainBalance || 0;
-            const today = new Date().toDateString();
-            const todayClaimed = (currentUser.lastClaimDate === today);
-            
-            // Free Plan
+            // Handle Free Plan
             const hasFreePlan = activeIds.includes('free');
             const freePlanDiv = document.getElementById('freePlanAction');
-            
             if(hasFreePlan) {
-                const plan = Object.values(currentUser.activePlans).find(p => p.planId === 'free');
-                const canClaim = !todayClaimed;
-                
-                freePlanDiv.innerHTML = `
-                    <div style="display:flex; gap:10px; margin-top: 15px;">
-                        <button class="btn-premium" style="flex:1; cursor:default; background:rgba(255,255,255,0.2); color:white; border:none;" disabled>
-                            <i class="fas fa-check-circle"></i> Active
-                        </button>
-                        <button class="btn-premium" style="flex:1; ${canClaim ? 'background:white; color:var(--success);' : 'background:rgba(255,255,255,0.4); color:white; cursor:default;'}" 
-                            ${!canClaim ? 'disabled' : 'onclick="claimDailyEarnings()"'}>
-                            ${canClaim ? '<i class="fas fa-hand-holding-usd"></i> Claim ₹10' : '<i class="fas fa-check"></i> Claimed'}
-                        </button>
-                    </div>`;
+                if(todayClaimed) {
+                    freePlanDiv.innerHTML = `
+                        <div style="display:flex; gap:10px; margin-top: 15px;">
+                            <button class="btn-premium" style="flex:1; cursor:default; background:rgba(255,255,255,0.2); color:white; border:none;" disabled><i class="fas fa-check-circle"></i> Active</button>
+                            <button class="btn-premium" style="flex:1; background:rgba(255,255,255,0.4); color:white; border:none;" onclick="showToast('Claim again tomorrow!', 'info')"><i class="fas fa-check"></i> Claimed</button>
+                        </div>`;
+                } else {
+                    freePlanDiv.innerHTML = `
+                        <div style="display:flex; gap:10px; margin-top: 15px;">
+                            <button class="btn-premium" style="flex:1; cursor:default; background:rgba(255,255,255,0.2); color:white; border:none;" disabled><i class="fas fa-check-circle"></i> Active</button>
+                            <button class="btn-premium" style="flex:1; background:white; color:var(--success); border:none;" onclick="claimDailyEarnings()"><i class="fas fa-hand-holding-usd"></i> Claim Now</button>
+                        </div>`;
+                }
             } else {
-                freePlanDiv.innerHTML = `
-                    <button class="btn-premium btn-premium-primary" onclick="buyPlan('free')" style="margin-top: 20px; width:100%;">
-                        <i class="fas fa-gift"></i> Claim Free Plan
-                    </button>`;
+                freePlanDiv.innerHTML = `<button class="btn-premium btn-premium-primary" onclick="buyPlan('free')" style="margin-top: 20px; width:100%;">Claim Free Plan</button>`;
             }
 
-            // Other Plans
-            document.getElementById('plansContainer').innerHTML = PLANS.filter(p => p.id !== 'free').map(p => {
+            // Handle Other Plans
+            document.getElementById('plansContainer').innerHTML = PLANS.filter(p=>p.id!=='free').map(p => {
                 const disc = activeOffers[p.id] || 0;
                 const finalPrice = disc > 0 ? p.price - (p.price * disc / 100) : p.price;
                 const isActive = activeIds.includes(p.id);
                 
                 let actionButtons = '';
-                if(isActive) {
-                    const canClaim = !todayClaimed;
-                    actionButtons = `
-                        <div style="display:flex; gap:10px;">
-                            <button class="btn-plan btn-plan-success" style="flex:1; cursor:default;" disabled>
-                                <i class="fas fa-check-circle"></i> Active
-                            </button>
-                            <button class="btn-plan" style="flex:1; ${canClaim ? 'background:var(--warning); color:white;' : 'background:var(--gray-light); color:white; cursor:default;'}" 
-                                ${!canClaim ? 'disabled' : 'onclick="claimDailyEarnings()"'}>
-                                ${canClaim ? '<i class="fas fa-hand-holding-usd"></i> Claim' : '<i class="fas fa-check"></i> Claimed'}
-                            </button>
-                        </div>`;
-                } else if(bal >= finalPrice) {
+                if (isActive) {
+                    if (todayClaimed) {
+                        actionButtons = `
+                            <div style="display:flex; gap:10px;">
+                                <button class="btn-plan btn-plan-success" style="flex:1; cursor:default;" disabled><i class="fas fa-check-circle"></i> Active</button>
+                                <button class="btn-plan" style="flex:1; background:var(--gray-light); color:white;" onclick="showToast('Claim again tomorrow!', 'info')"><i class="fas fa-check"></i> Claimed</button>
+                            </div>`;
+                    } else {
+                        actionButtons = `
+                            <div style="display:flex; gap:10px;">
+                                <button class="btn-plan btn-plan-success" style="flex:1; cursor:default;" disabled><i class="fas fa-check-circle"></i> Active</button>
+                                <button class="btn-plan" style="flex:1; background:var(--warning); color:white;" onclick="claimDailyEarnings()"><i class="fas fa-hand-holding-usd"></i> Claim Now</button>
+                            </div>`;
+                    }
+                } else if (bal >= finalPrice) {
                     actionButtons = `<button class="btn-plan btn-plan-primary" onclick="buyPlan('${p.id}')">Buy Now</button>`;
                 } else {
                     actionButtons = `<button class="btn-plan" style="background:#cbd5e1;" onclick="showPage('wallet'); showWalletTab('add');">Add Money</button>`;
                 }
                 
                 return `
-                <div class="plan-card-premium ${p.popular ? 'popular' : ''}" id="plan-card-${p.id}">
+                <div class="plan-card-premium ${p.popular?'popular':''}" id="plan-card-${p.id}">
                     ${disc > 0 ? `<div class="discount-badge">${disc}% OFF</div>` : ''}
                     <div class="plan-header-premium ${p.color} ${p.popular ? 'popular' : ''}">
+                        ${p.popular && !disc ? '<div class="popular-badge">Popular</div>':''}
                         <div class="plan-icon">${p.icon}</div>
                         <div class="plan-name">${p.name}</div>
                         <div class="plan-price">
@@ -1639,9 +1333,9 @@
                     </div>
                     <div class="plan-body-premium">
                         <ul class="plan-features">
-                            <li><i class="fas fa-check-circle"></i> Daily Return: <strong>₹${p.daily}</strong></li>
-                            <li><i class="fas fa-check-circle"></i> Duration: <strong>${p.days} Days</strong></li>
-                            <li><i class="fas fa-check-circle"></i> Total Return: <strong>₹${p.total}</strong></li>
+                            <li><i class="fas fa-check-circle"></i> Daily <span class="highlight">₹${p.daily}</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span class="highlight">${p.days}</span> Days</li>
+                            <li><i class="fas fa-check-circle"></i> Total <span class="highlight">₹${p.total}</span></li>
                         </ul>
                         ${actionButtons}
                     </div>
@@ -1653,194 +1347,93 @@
             const levels = [5, 3, 1]; 
             let currentCode = userCode;
             
-            for(let i = 0; i < levels.length; i++) {
+            for(let i=0; i<levels.length; i++) {
                 if(!currentCode || currentCode === 'ADMIN') break;
-                
                 const rSnap = await database.ref('users').orderByChild('referralCode').equalTo(currentCode).once('value');
                 if(!rSnap.val()) break;
                 
-                const rId = Object.keys(rSnap.val())[0];
-                const rData = rSnap.val()[rId];
-                const comm = Math.floor(amount * levels[i] / 100);
-                
+                const rId = Object.keys(rSnap.val())[0], rData = rSnap.val()[rId], comm = Math.floor(amount * levels[i] / 100);
                 if(comm > 0) {
-                    await database.ref(`users/${rId}`).update({ 
-                        'wallet/mainBalance': (rData.wallet?.mainBalance || 0) + comm, 
-                        'referrals/earnings': (rData.referrals?.earnings || 0) + comm 
-                    });
-                    
-                    await database.ref(`users/${rId}/transactions`).push({ 
-                        id: generateId('TXN'), 
-                        type: 'commission', 
-                        amount: comm, 
-                        description: `Level ${i+1} Commission (${levels[i]}%)`, 
-                        date: new Date().toISOString(), 
-                        status: 'approved' 
-                    });
+                    await database.ref(`users/${rId}`).update({ 'wallet/mainBalance': (rData.wallet?.mainBalance||0) + comm, 'referrals/earnings': (rData.referrals?.earnings||0) + comm });
+                    await database.ref(`users/${rId}/transactions`).push({ id: generateId('TXN'), type: 'commission', amount: comm, description: `Level ${i+1} Comm. (${levels[i]}%) from ${currentUser.name}`, date: new Date().toISOString(), status: 'approved' });
                 }
                 currentCode = rData.referredBy; 
             }
         }
 
         async function buyPlan(pid) {
-            const plan = PLANS.find(p => p.id === pid);
+            const plan = PLANS.find(p=>p.id===pid);
             const disc = activeOffers[pid] || 0;
             const finalPrice = disc > 0 ? plan.price - (plan.price * disc / 100) : plan.price;
             
-            if(pid !== 'free' && (currentUser.wallet?.mainBalance || 0) < finalPrice) {
-                return showToast('Insufficient balance', 'error');
-            }
+            if(pid!=='free' && (currentUser.wallet?.mainBalance||0) < finalPrice) return showToast('Insufficient balance', 'error');
             
             showLoading('Processing...');
+            if(pid!=='free') await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set(currentUser.wallet.mainBalance - finalPrice);
             
-            try {
-                if(pid !== 'free') {
-                    await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set(currentUser.wallet.mainBalance - finalPrice);
-                }
-                
-                const exp = new Date();
-                exp.setDate(exp.getDate() + plan.days);
-                
-                const planData = {
-                    planId: plan.id, 
-                    planName: plan.name, 
-                    amount: finalPrice, 
-                    dailyReturn: plan.daily, 
-                    purchasedDate: new Date().toISOString(), 
-                    expiryDate: exp.toISOString(), 
-                    status: 'active', 
-                    totalClaimed: 0
-                };
-                
-                await database.ref(`users/${currentUser.id}/activePlans`).push(planData);
-                
-                await database.ref(`users/${currentUser.id}/transactions`).push({
-                    id: generateId('TXN'), 
-                    type: 'plan_purchase', 
-                    amount: finalPrice, 
-                    description: `Purchased ${plan.name}`, 
-                    date: new Date().toISOString(), 
-                    status: 'approved'
-                });
-                
-                if(pid !== 'free' && currentUser.referredBy) {
-                    await distributeCommission(currentUser.referredBy, finalPrice);
-                }
-                
-                hideLoading();
-                showToast('Plan activated! Claim your first earning now.', 'success');
-                showPage('plans');
-                
-            } catch(e) {
-                hideLoading();
-                showToast('Error purchasing plan', 'error');
-            }
+            const exp = new Date(); exp.setDate(exp.getDate() + plan.days);
+            await database.ref(`users/${currentUser.id}/activePlans`).push({planId: plan.id, planName: plan.name, amount: finalPrice, dailyReturn: plan.daily, purchasedDate: new Date().toISOString(), expiryDate: exp.toISOString(), status: 'active', totalClaimed: 0});
+            await database.ref(`users/${currentUser.id}/transactions`).push({id: generateId('TXN'), type: 'plan_purchase', amount: finalPrice, description: `Bought ${plan.name}`, date: new Date().toISOString(), status: 'approved'});
+            
+            if(pid !== 'free' && currentUser.referredBy) await distributeCommission(currentUser.referredBy, finalPrice);
+            
+            hideLoading(); showToast('Plan Activated! You can claim now.', 'success'); 
+            showPage('plans'); 
         }
 
-        // ==================== WALLET ====================
+        // ==================== WALLET & TRANSACTIONS ====================
         function showWalletTab(tab) {
-            document.querySelectorAll('.wallet-tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.wallet-tab').forEach(t=>t.classList.remove('active'));
             document.querySelector(`.wallet-tab[data-tab="${tab}"]`).classList.add('active');
-            document.querySelectorAll('.wallet-section').forEach(s => s.classList.add('hidden'));
-            document.getElementById('wallet' + tab.charAt(0).toUpperCase() + tab.slice(1) + 'Section').classList.remove('hidden');
+            document.querySelectorAll('.wallet-section').forEach(s=>s.classList.add('hidden'));
+            document.getElementById('wallet'+tab.charAt(0).toUpperCase()+tab.slice(1)+'Section').classList.remove('hidden');
         }
 
         function loadWalletData() {
-            if(!currentUser) return;
-            
             document.getElementById('walletBalance').textContent = currentUser.wallet?.mainBalance || 0;
-            
-            const txns = Object.values(currentUser.transactions || {})
-                .sort((a,b) => new Date(b.date) - new Date(a.date));
-                
+            const txns = Object.values(currentUser.transactions || {}).sort((a,b)=>new Date(b.date)-new Date(a.date));
             document.getElementById('walletTransactions').innerHTML = txns.length ? txns.map(tx => {
-                let status = tx.status || 'approved';
-                let amountColor = 'var(--success)';
-                
-                if(tx.type.includes('pending')) {
-                    amountColor = 'var(--warning)';
-                } else if(tx.type.includes('withdrawal') || tx.type.includes('purchase')) {
-                    amountColor = 'var(--danger)';
-                }
-                
+                let status = tx.status || 'approved'; 
+                if(tx.type.includes('pending')) status = 'pending';
+                if(tx.type.includes('rejected')) status = 'rejected';
                 return `
-                <div class="tx-item" style="margin: 0 0 12px;">
+                <div class="tx-item">
                     <div class="tx-details">
                         <div style="font-weight:600;">${tx.description}</div>
                         <div style="font-size:12px;color:gray;">${new Date(tx.date).toLocaleDateString()} <span class="status-badge status-${status}">${status}</span></div>
+                        ${tx.adminReason ? `<div style="font-size:11px; color:var(--danger); margin-top:3px;">Reason: ${tx.adminReason}</div>` : ''}
                     </div>
-                    <div style="font-weight:bold; color: ${amountColor};">₹${tx.amount}</div>
+                    <div style="font-weight:bold; color: ${status==='pending'?'#b45309':(status==='rejected'||tx.type.includes('withdrawal')||tx.type.includes('purchase')?'#ef4444':'#10b981')}">₹${tx.amount}</div>
                 </div>`;
-            }).join('') : '<p style="text-align:center; color:var(--gray); padding:40px;">No transactions yet</p>';
+            }).join('') : '<p style="text-align:center;">No History</p>';
         }
 
-        function setAmount(amt) { 
-            document.getElementById('addAmount').value = amt; 
-        }
+        function setAmount(amt) { document.getElementById('addAmount').value = amt; }
 
         function payViaUPI(app) {
             const amount = document.getElementById('addAmount').value;
-            if(!amount || amount < 100) return showToast('Minimum ₹100 required', 'error');
-            
+            if(!amount || amount < 100) return showToast('❌ Minimum ₹100 required', 'error');
             const upiString = `pa=${ADMIN_UPI_ID}&pn=Solor%20Energy&am=${amount}&cu=INR`;
             let intentUrl = '';
-            
             if(app === 'gpay') intentUrl = `gpay://upi/pay?${upiString}`;
             else if(app === 'phonepe') intentUrl = `phonepe://pay?${upiString}`;
             else if(app === 'paytm') intentUrl = `paytmmp://pay?${upiString}`;
             else intentUrl = `upi://pay?${upiString}`;
-            
             document.getElementById('paidVia').value = app === 'gpay' ? 'Google Pay' : (app === 'phonepe' ? 'PhonePe' : (app === 'paytm' ? 'Paytm' : 'Other'));
-            
             showToast('Opening payment app...', 'info');
             window.location.href = intentUrl;
         }
 
-        async function handleAddMoney(e) {
+        document.getElementById('addMoneyForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const amt = parseInt(document.getElementById('addAmount').value);
-            const utr = document.getElementById('upiTxnId').value.trim();
-            const via = document.getElementById('paidVia').value;
-            
+            const amt = parseInt(document.getElementById('addAmount').value), utr = document.getElementById('upiTxnId').value, via = document.getElementById('paidVia').value;
             if(amt < 100) return showToast('Minimum ₹100', 'error');
-            if(utr.length < 8) return showToast('Enter valid UTR number', 'error');
-            
             showLoading('Submitting...');
-            
-            try {
-                const depId = generateId('DEP');
-                
-                await database.ref('deposits/' + depId).set({
-                    id: depId, 
-                    userId: currentUser.id, 
-                    userName: currentUser.name, 
-                    userPhone: currentUser.phone, 
-                    amount: amt, 
-                    transactionId: utr, 
-                    upiApp: via, 
-                    status: 'pending', 
-                    requestedAt: new Date().toISOString()
-                });
-                
-                await database.ref(`users/${currentUser.id}/transactions/${depId}`).set({
-                    id: depId, 
-                    type: 'deposit_pending', 
-                    amount: amt, 
-                    description: `Deposit (UTR: ${utr})`, 
-                    date: new Date().toISOString(), 
-                    status: 'pending'
-                });
-                
-                hideLoading();
-                showToast('Deposit request submitted!', 'success');
-                document.getElementById('addMoneyForm').reset();
-                showWalletTab('history');
-                
-            } catch(e) {
-                hideLoading();
-                showToast('Error submitting request', 'error');
-            }
-        }
+            const depId = generateId('DEP');
+            await database.ref('deposits/'+depId).set({id: depId, userId: currentUser.id, userName: currentUser.name, userPhone: currentUser.phone, amount: amt, transactionId: utr, upiApp: via, status: 'pending', requestedAt: new Date().toISOString()});
+            await database.ref(`users/${currentUser.id}/transactions/${depId}`).set({id: depId, type: 'deposit_pending', amount: amt, description: `Deposit (UTR: ${utr})`, date: new Date().toISOString(), status: 'pending'});
+            hideLoading(); showToast('Request Sent!', 'success'); document.getElementById('addMoneyForm').reset(); showWalletTab('history');
+        });
 
         function toggleWithdrawMethod() {
             const m = document.getElementById('withdrawMethod').value;
@@ -1848,81 +1441,29 @@
             document.getElementById('bankFields').classList.toggle('hidden', m !== 'bank');
         }
 
-        async function handleWithdraw(e) {
+        document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const amt = parseInt(document.getElementById('withdrawAmount').value);
-            const m = document.getElementById('withdrawMethod').value;
-            
-            if(amt < 200) return showToast('Minimum ₹200', 'error');
-            if(amt > (currentUser.wallet?.mainBalance || 0)) return showToast('Insufficient balance', 'error');
-            
-            let details = '';
-            if(m === 'upi') {
-                details = document.getElementById('upiIdInput').value;
-                if(!details.includes('@')) return showToast('Enter valid UPI ID', 'error');
-            } else {
-                const holder = document.getElementById('bankHolderName').value;
-                const acc = document.getElementById('bankAccNumber').value;
-                const ifsc = document.getElementById('bankIfsc').value;
-                const bank = document.getElementById('bankName').value;
-                
-                if(!holder || !acc || !ifsc || !bank) return showToast('Fill all bank details', 'error');
-                details = `${holder}, A/c: ${acc}, IFSC: ${ifsc}, Bank: ${bank}`;
-            }
+            const amt = parseInt(document.getElementById('withdrawAmount').value), m = document.getElementById('withdrawMethod').value;
+            if(amt < 200) return showToast('Min ₹200', 'error');
+            if(amt > (currentUser.wallet?.mainBalance||0)) return showToast('Insufficient balance', 'error');
+            let details = m === 'upi' ? document.getElementById('upiIdInput').value : `${document.getElementById('bankHolderName').value}, A/c: ${document.getElementById('bankAccNumber').value}, IFSC: ${document.getElementById('bankIfsc').value}`;
             
             showLoading('Processing...');
-            
-            try {
-                const newBalance = currentUser.wallet.mainBalance - amt;
-                await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set(newBalance);
-                
-                const wId = generateId('WID');
-                
-                await database.ref('withdrawals/' + wId).set({
-                    id: wId, 
-                    userId: currentUser.id, 
-                    userName: currentUser.name, 
-                    amount: amt, 
-                    method: m, 
-                    details: details, 
-                    status: 'pending', 
-                    requestedAt: new Date().toISOString()
-                });
-                
-                await database.ref(`users/${currentUser.id}/transactions/${wId}`).set({
-                    id: wId, 
-                    type: 'withdrawal_pending', 
-                    amount: amt, 
-                    description: `Withdrawal Request`, 
-                    date: new Date().toISOString(), 
-                    status: 'pending'
-                });
-                
-                hideLoading();
-                showToast('Withdrawal requested!', 'success');
-                document.getElementById('withdrawForm').reset();
-                showWalletTab('history');
-                
-            } catch(e) {
-                hideLoading();
-                showToast('Error processing request', 'error');
-            }
-        }
+            await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set((currentUser.wallet.mainBalance) - amt);
+            const wId = generateId('WID');
+            await database.ref('withdrawals/'+wId).set({id: wId, userId: currentUser.id, userName: currentUser.name, amount: amt, method: m, details: details, status: 'pending', requestedAt: new Date().toISOString()});
+            await database.ref(`users/${currentUser.id}/transactions/${wId}`).set({id: wId, type: 'withdrawal_pending', amount: amt, description: `Withdrawal Requested`, date: new Date().toISOString(), status: 'pending'});
+            hideLoading(); showToast('Withdrawal Requested!', 'success'); document.getElementById('withdrawForm').reset(); showWalletTab('history');
+        });
 
         // ==================== REFERRAL & PROFILE ====================
         function loadReferralData() {
-            if(!currentUser) return;
-            
             document.getElementById('refLink').textContent = `${window.location.origin}${window.location.pathname}?ref=${currentUser.referralCode}`;
             document.getElementById('refTotal').textContent = currentUser.referrals?.count || 0;
-            document.getElementById('refEarned').textContent = '₹' + (currentUser.referrals?.earnings || 0);
+            document.getElementById('refEarned').textContent = '₹'+(currentUser.referrals?.earnings || 0);
         }
-
-        function copyRefLink() { 
-            navigator.clipboard.writeText(document.getElementById('refLink').textContent); 
-            showToast('Link copied!', 'success'); 
-        }
-
+        function copyRefLink() { navigator.clipboard.writeText(document.getElementById('refLink').textContent); showToast('Link Copied!', 'success'); }
+        
         function shareWhatsApp() {
             const link = document.getElementById('refLink').textContent;
             const text = `☀️ Start Earning with Solor Energy!\n\n🎁 Get ₹15 Instant Bonus per refer!\n💵 Earn up to 5%-3%-1% daily commissions!\n\nJoin now: ${link}`;
@@ -1931,37 +1472,25 @@
 
         function loadProfileData() { 
             if(!currentUser) return;
-            
             document.getElementById('profileName').textContent = currentUser.name; 
-            document.getElementById('profilePhone').textContent = '+91 ' + currentUser.phone; 
+            document.getElementById('profilePhone').textContent = '+91 '+currentUser.phone; 
             document.getElementById('profJoinDate').textContent = new Date(currentUser.joinDate).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
-            
-            const totalEarnings = (currentUser.referrals?.earnings || 0) + (currentUser.wallet?.totalWithdrawn || 0);
-            document.getElementById('profTotalEarn').textContent = '₹' + totalEarnings;
+            document.getElementById('profTotalEarn').textContent = '₹' + ((currentUser.referrals?.earnings || 0) + (currentUser.wallet?.mainBalance || 0));
         }
+        
+        function logout() { localStorage.removeItem('currentUser'); window.location.reload(); }
 
-        function logout() { 
-            localStorage.removeItem('currentUser');
-            sessionStorage.removeItem('pendingRefCode');
-            window.location.href = window.location.pathname; // Clear URL params
-        }
-
-        // ==================== SUPPORT ====================
+        // ==================== SUPPORT TICKETS ====================
         function loadSupportData() {
-            if(!currentUser) return;
-            
+            if (!currentUser) return;
             database.ref('tickets').orderByChild('userId').equalTo(currentUser.id).once('value', (snapshot) => {
                 const tickets = snapshot.val() || {};
                 const container = document.getElementById('ticketsList');
-                
-                if(Object.keys(tickets).length === 0) {
-                    container.innerHTML = `<div class="empty-state"><i class="fas fa-ticket-alt"></i><h3>No Tickets Yet</h3><p>Create a ticket if you need help</p></div>`;
+                if (Object.keys(tickets).length === 0) {
+                    container.innerHTML = `<div class="empty-state"><i class="fas fa-ticket-alt"></i><h3>No Tickets Yet</h3></div>`;
                     return;
                 }
-                
-                container.innerHTML = Object.values(tickets)
-                    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
-                    .map(ticket => `
+                container.innerHTML = Object.values(tickets).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map(ticket => `
                     <div class="premium-card" style="margin: 0 0 15px 0; border-left: 4px solid ${ticket.status === 'open' ? 'var(--warning)' : 'var(--success)'};">
                         <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
                             <span style="background:${ticket.status === 'open' ? 'var(--warning)' : 'var(--success)'}; color:white; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:bold;">${ticket.status.toUpperCase()}</span>
@@ -1969,58 +1498,19 @@
                         </div>
                         <h4 style="margin-bottom: 8px;">${ticket.subject}</h4>
                         <p style="color: var(--gray); font-size: 14px;">${ticket.message}</p>
-                        ${ticket.reply ? `<div style="background: rgba(99, 102, 241, 0.1); padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 13px;"><strong style="color:var(--primary);">Admin Reply:</strong> ${ticket.reply}</div>` : ''}
+                        ${ticket.reply ? `<div style="background: rgba(99, 102, 241, 0.1); padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 13px;"><strong style="color:var(--primary);">Admin:</strong> ${ticket.reply}</div>` : ''}
                     </div>
                 `).join('');
             });
         }
 
-        async function handleTicket(e) {
+        document.getElementById('ticketForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            const ticket = { 
-                id: generateId('TIC'), 
-                userId: currentUser.id, 
-                userName: currentUser.name, 
-                userPhone: currentUser.phone, 
-                type: document.getElementById('ticketType').value, 
-                subject: document.getElementById('ticketSubject').value, 
-                message: document.getElementById('ticketMessage').value, 
-                status: 'open', 
-                createdAt: new Date().toISOString() 
-            };
-            
+            const ticket = { id: generateId('TIC'), userId: currentUser.id, userName: currentUser.name, userPhone: currentUser.phone, type: document.getElementById('ticketType').value, subject: document.getElementById('ticketSubject').value, message: document.getElementById('ticketMessage').value, status: 'open', createdAt: new Date().toISOString() };
             showLoading('Submitting...');
-            
-            try { 
-                await database.ref('tickets').push(ticket); 
-                hideLoading(); 
-                showToast('Ticket created!', 'success'); 
-                document.getElementById('ticketForm').reset(); 
-                loadSupportData(); 
-            } catch(error) { 
-                hideLoading(); 
-                showToast('Failed to create ticket', 'error'); 
-            }
-        }
-
-        // Check for pending ref code when going to register
-        function checkPendingRefCode() {
-            const pendingRef = sessionStorage.getItem('pendingRefCode');
-            if(pendingRef) {
-                document.getElementById('regReferral').value = pendingRef;
-                document.getElementById('refBonusText').style.display = 'block';
-            }
-        }
-
-        // Call this when register page is shown
-        const originalShowPage = showPage;
-        showPage = function(page) {
-            originalShowPage(page);
-            if(page === 'register') {
-                checkPendingRefCode();
-            }
-        };
+            try { await database.ref('tickets').push(ticket); hideLoading(); showToast('Ticket created!', 'success'); document.getElementById('ticketForm').reset(); loadSupportData(); } 
+            catch (error) { hideLoading(); showToast('Failed to create ticket', 'error'); }
+        });
     </script>
 </body>
 </html>
