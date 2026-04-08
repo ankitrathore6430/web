@@ -145,8 +145,17 @@
         .wallet-tab { flex: 1; padding: 14px; border-radius: 12px; border: none; background: transparent; font-weight: 600; cursor: pointer; transition: all 0.3s; color: var(--gray); }
         .wallet-tab.active { background: var(--gradient-1); color: var(--white); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
         
-        /* OTP Inputs - FIXED */
-        .otp-container { display: flex; gap: 10px; justify-content: center; margin: 25px 0; flex-wrap: nowrap; }
+        /* OTP Inputs - FIXED CENTERED LAYOUT */
+        .otp-container { 
+            display: flex; 
+            gap: 8px; 
+            justify-content: center; 
+            margin: 30px 0; 
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            padding: 10px 0;
+            -webkit-overflow-scrolling: touch;
+        }
         .otp-input-premium { 
             width: 45px; 
             height: 55px; 
@@ -155,17 +164,14 @@
             text-align: center; 
             font-size: 20px; 
             font-weight: 700; 
-            transition: all 0.3s;
-            -webkit-appearance: none;
-            -moz-appearance: textfield;
+            transition: all 0.3s; 
+            flex-shrink: 0;
         }
-        .otp-input-premium::-webkit-outer-spin-button,
-        .otp-input-premium::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         .otp-input-premium:focus { 
             border-color: var(--primary); 
             outline: none; 
-            transform: scale(1.05);
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+            transform: scale(1.05); 
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
         }
         
         /* Daily Claim */
@@ -205,55 +211,20 @@
         /* Forgot Password Modal - FIXED */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10001; display: none; align-items: center; justify-content: center; padding: 20px; }
         .modal-overlay.active { display: flex; }
-        .modal-content { background: white; border-radius: 24px; padding: 25px; width: 100%; max-width: 380px; animation: slideUp 0.3s ease; max-height: 90vh; overflow-y: auto; }
+        .modal-content { background: white; border-radius: 24px; padding: 30px; width: 100%; max-width: 400px; animation: slideUp 0.3s ease; max-height: 90vh; overflow-y: auto; }
         @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .modal-close { background: none; border: none; font-size: 24px; color: var(--gray); cursor: pointer; }
         
-        /* Registration Page Improvements */
-        .reg-step { display: none; }
-        .reg-step.active { display: block; animation: fadeIn 0.4s ease; }
-        
-        /* Mobile Responsive OTP */
+        /* Responsive OTP Fix */
         @media (max-width: 380px) {
-            .otp-container { gap: 6px; }
             .otp-input-premium { width: 40px; height: 50px; font-size: 18px; }
+            .otp-container { gap: 6px; }
         }
         
-        /* Back Button Style */
-        .back-btn { 
-            background: transparent; 
-            color: var(--gray); 
-            border: 2px solid #e2e8f0; 
-            padding: 12px 20px; 
-            border-radius: 12px; 
-            cursor: pointer; 
-            font-weight: 600; 
-            display: inline-flex; 
-            align-items: center; 
-            gap: 8px; 
-            margin-top: 15px;
-            transition: all 0.3s;
-        }
-        .back-btn:hover { border-color: var(--primary); color: var(--primary); }
-        
-        /* Timer Style */
-        .timer-text { 
-            color: var(--primary); 
-            font-weight: 700; 
-            font-size: 16px; 
-            margin: 15px 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        /* Referral Input Highlight */
-        .ref-filled { 
-            background: rgba(16, 185, 129, 0.1) !important; 
-            border-color: var(--success) !important; 
-            color: var(--success) !important;
+        @media (min-width: 768px) {
+            .otp-input-premium { width: 55px; height: 65px; font-size: 24px; }
+            .otp-container { gap: 12px; }
         }
     </style>
 </head>
@@ -275,12 +246,10 @@
                 <button class="modal-close" onclick="closeForgotModal()"><i class="fas fa-times"></i></button>
             </div>
             <form class="form-premium" id="forgotPasswordForm">
-                <div class="form-group" id="forgotPhoneGroup">
+                <div class="form-group">
                     <label>Phone Number</label>
                     <input type="tel" class="input-premium" id="forgotPhone" placeholder="9876543210" maxlength="10" inputmode="numeric" pattern="[0-9]*" required>
                 </div>
-                
-                <!-- OTP Section - FIXED -->
                 <div class="form-group" id="forgotOtpGroup" style="display: none;">
                     <label>WhatsApp OTP</label>
                     <div class="otp-container" style="margin: 15px 0;">
@@ -292,28 +261,12 @@
                         <input type="text" class="otp-input-premium forgot-otp" maxlength="1" data-index="5" inputmode="numeric" pattern="[0-9]*">
                     </div>
                     <input type="hidden" id="forgotFullOtp">
-                    
-                    <div class="timer-text" id="forgotTimerBox">
-                        <i class="fas fa-clock"></i> <span id="forgotTimer">60</span>s
-                    </div>
-                    
-                    <button type="button" class="btn-main hidden" id="forgotResendBtn" onclick="resendForgotOtp()" style="background: transparent; color: var(--primary); border: 2px solid var(--primary);">
-                        <i class="fas fa-redo"></i> Resend OTP
-                    </button>
                 </div>
-                
                 <div class="form-group" id="newPasswordGroup" style="display: none;">
                     <label>New Password</label>
                     <input type="password" class="input-premium" id="newPassword" placeholder="Min 6 characters" minlength="6">
                 </div>
-                
-                <button type="submit" class="btn-main btn-main-primary" id="forgotBtn">
-                    <i class="fab fa-whatsapp"></i> Send OTP via WhatsApp
-                </button>
-                
-                <button type="button" class="back-btn hidden" id="forgotBackBtn" onclick="resetForgotForm()">
-                    <i class="fas fa-arrow-left"></i> Back
-                </button>
+                <button type="submit" class="btn-main btn-main-primary" id="forgotBtn">Send OTP</button>
             </form>
         </div>
     </div>
@@ -354,7 +307,7 @@
         </button>
     </nav>
 
-    <!-- LANDING PAGE - FIXED: Always show first for new users -->
+    <!-- LANDING PAGE -->
     <div id="landingPage" class="page active">
         <div class="hero-section">
             <div class="hero-content">
@@ -364,8 +317,8 @@
             </div>
         </div>
         <div style="padding: 20px;">
-            <button class="btn-main btn-main-primary" onclick="goToRegister()"><i class="fas fa-rocket"></i> Start Earning Now - It's FREE!</button>
-            <button class="btn-main" style="background: transparent; color: var(--primary); border: 2px solid var(--primary); margin-top: 10px;" onclick="showPage('login')"><i class="fas fa-sign-in-alt"></i> Already have an account? Login</button>
+            <button class="btn-main btn-main-primary" onclick="showPage('register')"><i class="fas fa-rocket"></i> Start Earning Now - It's FREE!</button>
+            <button class="btn-main" style="background: transparent; color: var(--primary); border: 2px solid var(--primary);" onclick="showPage('login')"><i class="fas fa-sign-in-alt"></i> Already have an account? Login</button>
         </div>
     </div>
 
@@ -391,103 +344,78 @@
                 <button type="submit" class="btn-main btn-main-primary"><i class="fas fa-sign-in-alt"></i> Login</button>
             </form>
             <div style="text-align: center; margin-top: 20px;">
-                <p style="color: var(--gray);">Don't have an account? <a href="#" onclick="goToRegister()" style="color: var(--primary); font-weight: 700; text-decoration: none;">Register Now</a></p>
+                <p style="color: var(--gray);">Don't have an account? <a href="#" onclick="showPage('register')" style="color: var(--primary); font-weight: 700; text-decoration: none;">Register Now</a></p>
             </div>
         </div>
     </div>
 
     <!-- REGISTER PAGE - FIXED -->
     <div id="registerPage" class="page">
-        <div class="premium-card" style="margin-top: 20px;">
-            
-            <!-- Step 1: Registration Form -->
-            <div id="regStep1" class="reg-step active">
-                <div style="text-align: center; margin-bottom: 25px;">
-                    <div style="font-size: 50px; margin-bottom: 10px;">🚀</div>
-                    <h2 style="font-size: 26px; font-weight: 700;">Create Account</h2>
-                    <p style="color: var(--gray); font-size: 14px;">Start your earning journey today</p>
-                </div>
-                
+        <div class="premium-card" style="margin-top:20px;">
+            <div id="regStep1">
+                <h2 style="text-align:center; margin-bottom: 20px;">Create Account</h2>
                 <form class="form-premium" id="registerForm">
                     <div class="form-group">
-                        <label><i class="fas fa-user" style="margin-right: 8px; color: var(--primary);"></i>Full Name *</label>
+                        <label>Full Name *</label>
                         <input type="text" class="input-premium" id="regName" placeholder="Your full name" required>
                     </div>
                     <div class="form-group">
-                        <label><i class="fas fa-phone-alt" style="margin-right: 8px; color: var(--primary);"></i>Phone Number *</label>
+                        <label>Phone Number *</label>
                         <input type="tel" class="input-premium" id="regPhone" placeholder="9876543210" maxlength="10" inputmode="numeric" pattern="[0-9]*" required>
                     </div>
                     <div class="form-group">
-                        <label><i class="fas fa-lock" style="margin-right: 8px; color: var(--primary);"></i>Password *</label>
+                        <label>Password *</label>
                         <input type="password" class="input-premium" id="regPassword" placeholder="Min 6 characters" minlength="6" required>
                     </div>
                     <div class="form-group">
-                        <label><i class="fas fa-lock" style="margin-right: 8px; color: var(--primary);"></i>Confirm Password *</label>
+                        <label>Confirm Password *</label>
                         <input type="password" class="input-premium" id="regConfirm" placeholder="Confirm password" required>
                     </div>
                     <div class="form-group">
-                        <label><i class="fas fa-gift" style="margin-right: 8px; color: var(--success);"></i>Referral Code (Optional)</label>
-                        <input type="text" class="input-premium" id="regReferral" placeholder="Friend's code (auto-filled if available)">
-                        <p style="font-size: 12px; color: var(--success); margin-top: 8px; display:none;" id="refBonusText">
-                            <i class="fas fa-check-circle"></i> <strong>Referral code applied!</strong> You'll get ₹15 bonus!
+                        <label>Referral Code (Optional)</label>
+                        <input type="text" class="input-premium" id="regReferral" placeholder="Friend's code">
+                        <p style="font-size: 12px; color: var(--secondary); margin-top: 8px; display:none;" id="refBonusText">
+                            <i class="fas fa-info-circle"></i> You were invited! Get ₹15 bonus!
                         </p>
                     </div>
-                    <button type="submit" class="btn-main btn-main-success">
-                        <i class="fab fa-whatsapp"></i> Send OTP via WhatsApp
-                    </button>
+                    <button type="submit" class="btn-main btn-main-success"><i class="fab fa-whatsapp"></i> Send OTP via WhatsApp</button>
                 </form>
                 <div style="text-align: center; margin-top: 20px;">
                     <p style="color: var(--gray);">Already have an account? <a href="#" onclick="showPage('login')" style="color: var(--primary); font-weight: 700; text-decoration: none;">Login Now</a></p>
                 </div>
             </div>
 
-            <!-- Step 2: OTP Verification - FIXED -->
-            <div id="regStep2" class="reg-step hidden text-center">
-                <div style="margin-bottom: 20px;">
-                    <div class="whatsapp-badge"><i class="fab fa-whatsapp"></i> WhatsApp OTP</div>
-                </div>
-                
-                <div style="background: rgba(99, 102, 241, 0.1); padding: 20px; border-radius: 20px; margin-bottom: 20px;">
-                    <h3 style="margin-bottom: 10px;">Verify OTP</h3>
-                    <p style="color: var(--gray); font-size: 14px;">Enter 6-digit code sent to</p>
-                    <p style="font-weight: 700; color: var(--primary); font-size: 18px; margin-top: 5px;">+91 <span id="otpPhoneDisplay"></span></p>
-                </div>
+            <!-- OTP Step - FIXED CENTERED -->
+            <div id="regStep2" class="hidden" style="text-align: center;">
+                <div class="whatsapp-badge"><i class="fab fa-whatsapp"></i> WhatsApp OTP</div>
+                <h3 style="margin-bottom: 10px;">Verify OTP</h3>
+                <p style="color: var(--gray); font-size: 14px; margin-bottom: 20px;">Sent to <strong id="otpPhoneDisplay"></strong> via WhatsApp</p>
                 
                 <div class="otp-container">
-                    <input type="text" class="otp-input-premium" maxlength="1" data-index="0" inputmode="numeric" pattern="[0-9]*">
-                    <input type="text" class="otp-input-premium" maxlength="1" data-index="1" inputmode="numeric" pattern="[0-9]*">
-                    <input type="text" class="otp-input-premium" maxlength="1" data-index="2" inputmode="numeric" pattern="[0-9]*">
-                    <input type="text" class="otp-input-premium" maxlength="1" data-index="3" inputmode="numeric" pattern="[0-9]*">
-                    <input type="text" class="otp-input-premium" maxlength="1" data-index="4" inputmode="numeric" pattern="[0-9]*">
-                    <input type="text" class="otp-input-premium" maxlength="1" data-index="5" inputmode="numeric" pattern="[0-9]*">
+                    <input type="text" class="otp-input-premium reg-otp" maxlength="1" data-index="0" inputmode="numeric" pattern="[0-9]*">
+                    <input type="text" class="otp-input-premium reg-otp" maxlength="1" data-index="1" inputmode="numeric" pattern="[0-9]*">
+                    <input type="text" class="otp-input-premium reg-otp" maxlength="1" data-index="2" inputmode="numeric" pattern="[0-9]*">
+                    <input type="text" class="otp-input-premium reg-otp" maxlength="1" data-index="3" inputmode="numeric" pattern="[0-9]*">
+                    <input type="text" class="otp-input-premium reg-otp" maxlength="1" data-index="4" inputmode="numeric" pattern="[0-9]*">
+                    <input type="text" class="otp-input-premium reg-otp" maxlength="1" data-index="5" inputmode="numeric" pattern="[0-9]*">
                 </div>
                 <input type="hidden" id="fullOtp">
                 
-                <div class="timer-text" id="regTimerBox">
-                    <i class="fas fa-clock"></i> <span id="otpTimer">60</span>s
+                <button class="btn-main btn-main-primary" onclick="verifyOtp()" style="margin-top: 20px;">Verify & Create Account</button>
+                
+                <div style="margin-top: 20px;">
+                    <span id="otpTimer" style="color: var(--primary); font-weight: 600;">60s</span>
+                    <button class="btn-main hidden" id="resendOtpBtn" onclick="resendOtp()" style="background: transparent; color: var(--primary);">Resend OTP</button>
                 </div>
-                
-                <button class="btn-main btn-main-primary" onclick="verifyOtp()">
-                    <i class="fas fa-check-circle"></i> Verify & Create Account
-                </button>
-                
-                <button class="btn-main hidden" id="resendOtpBtn" onclick="resendOtp()" style="background: transparent; color: var(--primary); border: 2px solid var(--primary);">
-                    <i class="fas fa-redo"></i> Resend OTP
-                </button>
-                
-                <button class="back-btn" onclick="backToReg()">
-                    <i class="fas fa-arrow-left"></i> Change Number
-                </button>
+                <button class="btn-main" onclick="backToReg()" style="background: transparent; color: var(--gray); margin-top: 5px;">Change Number</button>
             </div>
 
-            <!-- Step 3: Success -->
-            <div id="regStep3" class="reg-step hidden text-center">
-                <div style="font-size: 60px; margin-bottom: 15px; animation: bounce 0.5s;">🎉</div>
-                <h2 style="font-size: 28px; margin-bottom: 15px; color: var(--success);">Welcome!</h2>
+            <!-- Success Step -->
+            <div id="regStep3" class="hidden text-center">
+                <div style="font-size: 50px; margin-bottom:15px;">🎉</div>
+                <h2 style="font-size: 28px; margin-bottom: 15px;">Welcome!</h2>
                 <p id="bonusMessage" style="color: var(--success); font-weight: 700; font-size: 18px; margin-bottom: 30px;"></p>
-                <button class="btn-main btn-main-primary" onclick="showPage('home')">
-                    <i class="fas fa-rocket"></i> Go to Dashboard
-                </button>
+                <button class="btn-main btn-main-primary" onclick="showPage('home')">Go to Dashboard</button>
             </div>
         </div>
     </div>
@@ -627,7 +555,7 @@
                 <h3 style="margin-bottom: 20px; font-size: 20px;"><i class="fas fa-minus-circle" style="color: var(--danger); margin-right: 10px;"></i>Withdraw</h3>
                 <form class="form-premium" id="withdrawForm">
                     <div class="form-group">
-                        <label>Amount (Min ₹200)</label>
+                        <label>Amount (Min ₹<span id="minWithdrawDisplay">200</span>)</label>
                         <input type="number" class="input-premium" id="withdrawAmount" placeholder="Amount" min="200" required>
                     </div>
                     <div class="form-group">
@@ -856,7 +784,9 @@
         let currentUser = null;
         let tempUserData = {};
         let forgotPasswordData = {};
-        const ADMIN_UPI_ID = '6395503566@upi'; 
+        let appSettings = {};
+        let ADMIN_UPI_ID = '6395503566@upi'; 
+        let MIN_WITHDRAWAL = 200;
         let activeOffers = {}; 
 
         // WhatsApp OTP Server Config
@@ -906,19 +836,6 @@
             window.scrollTo(0,0);
         }
 
-        // FIXED: Go to register with referral code handling
-        function goToRegister() {
-            showPage('register');
-            // Check for referral code in URL
-            const urlParams = new URLSearchParams(window.location.search);
-            const refCode = urlParams.get('ref');
-            if(refCode) {
-                document.getElementById('regReferral').value = refCode;
-                document.getElementById('regReferral').classList.add('ref-filled');
-                document.getElementById('refBonusText').style.display = 'block';
-            }
-        }
-
         // REDIRECT & HIGHLIGHT SPECIFIC PLAN
         function goToPlan(planId) {
             showPage('plans');
@@ -939,6 +856,24 @@
 
         // ==================== FIXED: CHECK LOGIN STATUS FIRST ====================
         window.onload = function() {
+            // Load settings first
+            database.ref('settings').on('value', snap => {
+                appSettings = snap.val() || {};
+                ADMIN_UPI_ID = appSettings.upiId || '6395503566@upi';
+                MIN_WITHDRAWAL = appSettings.minWithdrawal || 200;
+                document.getElementById('minWithdrawDisplay').textContent = MIN_WITHDRAWAL;
+                document.getElementById('withdrawAmount').min = MIN_WITHDRAWAL;
+            });
+
+            // Check for referral code in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const refCode = urlParams.get('ref');
+            
+            // Store ref code in session if exists
+            if(refCode) {
+                sessionStorage.setItem('pendingRefCode', refCode);
+            }
+
             const savedUser = localStorage.getItem('currentUser');
             
             // If user is already logged in, go to home regardless of URL
@@ -947,20 +882,17 @@
                 setupUserListener(currentUser.id);
                 
                 // Check for ref code but don't go to register if logged in
-                const refCode = new URLSearchParams(window.location.search).get('ref');
                 if(refCode) {
                     showToast('You are already logged in!', 'info');
                 }
                 showPage('home');
             } else {
-                // User not logged in - ALWAYS show landing page first
-                showPage('landing');
-                
-                // Store referral code if present for later use
-                const refCode = new URLSearchParams(window.location.search).get('ref');
-                if(refCode) {
-                    // Store in session so it's available when they click register
-                    sessionStorage.setItem('pendingRefCode', refCode);
+                // User not logged in - check for ref code
+                const pendingRef = sessionStorage.getItem('pendingRefCode');
+                if(pendingRef) {
+                    // Fill referral code in register form
+                    document.getElementById('regReferral').value = pendingRef;
+                    document.getElementById('refBonusText').style.display = 'block';
                 }
             }
             
@@ -1036,10 +968,10 @@
                 };
                 
                 hideLoading(); 
-                document.getElementById('regStep1').classList.remove('active'); 
-                document.getElementById('regStep2').classList.add('active');
+                document.getElementById('regStep1').classList.add('hidden'); 
+                document.getElementById('regStep2').classList.remove('hidden');
                 document.getElementById('otpPhoneDisplay').textContent = phone;
-                setupOtpInputs();
+                setupRegOtpInputs();
                 startOtpTimer();
                 
             } catch(e) { 
@@ -1048,74 +980,30 @@
             }
         });
 
-        // FIXED: OTP Input Handling with proper backspace support
-        function setupOtpInputs() {
-            const inputs = document.querySelectorAll('#regStep2 .otp-input-premium');
-            inputs.forEach((input, index) => {
-                // Clear previous values
-                input.value = '';
-                
-                input.addEventListener('input', (e) => {
+        function setupRegOtpInputs() {
+            const inputs = document.querySelectorAll('.reg-otp');
+            inputs.forEach((inpt, i) => {
+                inpt.value = ''; // Clear previous values
+                inpt.addEventListener('input', (e) => {
                     // Only allow numbers
                     e.target.value = e.target.value.replace(/[^0-9]/g, '');
-                    
-                    if(e.target.value.length === 1) {
-                        // Move to next input
-                        if(index < inputs.length - 1) {
-                            inputs[index + 1].focus();
-                        }
-                    }
-                    updateFullOtp();
+                    if(e.target.value.length===1 && i<5) inputs[i+1].focus();
+                    document.getElementById('fullOtp').value = Array.from(inputs).map(inp=>inp.value).join('');
                 });
-                
-                // Handle backspace and navigation
-                input.addEventListener('keydown', (e) => {
-                    if(e.key === 'Backspace') {
-                        if(input.value === '' && index > 0) {
-                            // Move to previous input if current is empty
-                            inputs[index - 1].focus();
-                            inputs[index - 1].value = '';
-                        } else {
-                            // Clear current input
-                            input.value = '';
-                        }
-                        updateFullOtp();
-                    } else if(e.key === 'ArrowLeft' && index > 0) {
-                        inputs[index - 1].focus();
-                    } else if(e.key === 'ArrowRight' && index < inputs.length - 1) {
-                        inputs[index + 1].focus();
-                    }
-                });
-                
-                // Handle paste
-                input.addEventListener('paste', (e) => {
-                    e.preventDefault();
-                    const pasteData = e.clipboardData.getData('text').replace(/[^0-9]/g, '').slice(0, 6);
-                    if(pasteData) {
-                        inputs.forEach((inp, i) => {
-                            if(pasteData[i]) inp.value = pasteData[i];
-                        });
-                        // Focus last filled or last input
-                        const lastIndex = Math.min(pasteData.length, inputs.length - 1);
-                        inputs[lastIndex].focus();
-                        updateFullOtp();
+                // Handle backspace
+                inpt.addEventListener('keydown', (e) => {
+                    if(e.key === 'Backspace' && !e.target.value && i>0) {
+                        inputs[i-1].focus();
                     }
                 });
             });
-            
             // Focus first input
             if(inputs.length > 0) inputs[0].focus();
         }
 
-        function updateFullOtp() {
-            const inputs = document.querySelectorAll('#regStep2 .otp-input-premium');
-            const otp = Array.from(inputs).map(inp => inp.value).join('');
-            document.getElementById('fullOtp').value = otp;
-        }
-
         async function verifyOtp() {
             const otp = document.getElementById('fullOtp').value;
-            if(otp.length !== 6) return showToast('Enter valid 6-digit OTP', 'error');
+            if(otp.length!==6) return showToast('Enter valid 6-digit OTP', 'error');
             
             showLoading('Creating account...');
             
@@ -1178,9 +1066,12 @@
                 localStorage.setItem('currentUser', JSON.stringify(newUser)); 
                 setupUserListener(newUser.id);
                 
+                // Clear pending ref code
+                sessionStorage.removeItem('pendingRefCode');
+                
                 hideLoading(); 
-                document.getElementById('regStep2').classList.remove('active'); 
-                document.getElementById('regStep3').classList.add('active');
+                document.getElementById('regStep2').classList.add('hidden'); 
+                document.getElementById('regStep3').classList.remove('hidden');
                 document.getElementById('bonusMessage').textContent = bonus > 0 ? `🎉 You received ₹${bonus} signup bonus!` : '';
                 
             } catch(e) { 
@@ -1216,106 +1107,66 @@
 
         function startOtpTimer() {
             let time = 60;
-            const timerBox = document.getElementById('regTimerBox');
-            const timerSpan = document.getElementById('otpTimer');
-            const resendBtn = document.getElementById('resendOtpBtn');
+            document.getElementById('otpTimer').classList.remove('hidden');
+            document.getElementById('resendOtpBtn').classList.add('hidden');
             
-            timerBox.classList.remove('hidden');
-            resendBtn.classList.add('hidden');
-            timerSpan.textContent = time;
-            
-            // Clear any existing timer
-            if(window.otpTimerInterval) clearInterval(window.otpTimerInterval);
-            
-            window.otpTimerInterval = setInterval(() => {
+            const timer = setInterval(() => {
                 time--;
-                timerSpan.textContent = time;
+                document.getElementById('otpTimer').textContent = time + 's';
                 if(time <= 0) {
-                    clearInterval(window.otpTimerInterval);
-                    timerBox.classList.add('hidden');
-                    resendBtn.classList.remove('hidden');
+                    clearInterval(timer);
+                    document.getElementById('otpTimer').classList.add('hidden');
+                    document.getElementById('resendOtpBtn').classList.remove('hidden');
                 }
             }, 1000);
         }
 
-        // FIXED: Back button properly resets form
         function backToReg() {
             // Clear OTP inputs
-            document.querySelectorAll('#regStep2 .otp-input-premium').forEach(input => input.value = '');
+            document.querySelectorAll('.reg-otp').forEach(inp => inp.value = '');
             document.getElementById('fullOtp').value = '';
             
-            // Stop timer
-            if(window.otpTimerInterval) clearInterval(window.otpTimerInterval);
-            
-            // Show step 1
-            document.getElementById('regStep2').classList.remove('active');
-            document.getElementById('regStep1').classList.add('active');
-            
-            // Clear temp data
-            tempUserData = {};
+            document.getElementById('regStep2').classList.add('hidden');
+            document.getElementById('regStep1').classList.remove('hidden');
+            // Don't clear tempUserData completely, keep phone for convenience
         }
 
         // ==================== FORGOT PASSWORD - FIXED ====================
         function openForgotModal() {
             document.getElementById('forgotPasswordModal').classList.add('active');
-            resetForgotForm();
+            forgotPasswordData = {};
+            // Reset form
+            document.getElementById('forgotPasswordForm').reset();
+            document.getElementById('forgotOtpGroup').style.display = 'none';
+            document.getElementById('newPasswordGroup').style.display = 'none';
+            document.getElementById('forgotBtn').textContent = 'Send OTP';
+            // Clear OTP inputs
+            document.querySelectorAll('.forgot-otp').forEach(inp => inp.value = '');
+            document.getElementById('forgotFullOtp').value = '';
         }
 
         function closeForgotModal() {
             document.getElementById('forgotPasswordModal').classList.remove('active');
-            resetForgotForm();
         }
 
-        function resetForgotForm() {
-            // Reset all fields
-            document.getElementById('forgotPasswordForm').reset();
-            document.getElementById('forgotPhoneGroup').style.display = 'block';
-            document.getElementById('forgotOtpGroup').style.display = 'none';
-            document.getElementById('newPasswordGroup').style.display = 'none';
-            document.getElementById('forgotBtn').innerHTML = '<i class="fab fa-whatsapp"></i> Send OTP via WhatsApp';
-            document.getElementById('forgotBackBtn').classList.add('hidden');
-            
-            // Clear OTP inputs
-            document.querySelectorAll('.forgot-otp').forEach(input => input.value = '');
-            document.getElementById('forgotFullOtp').value = '';
-            
-            // Stop timer if running
-            if(window.forgotTimerInterval) clearInterval(window.forgotTimerInterval);
-            
-            forgotPasswordData = {};
-        }
-
-        // Setup forgot password OTP inputs - FIXED
-        document.querySelectorAll('.forgot-otp').forEach((input, index) => {
-            input.addEventListener('input', (e) => {
-                e.target.value = e.target.value.replace(/[^0-9]/g, '');
-                
-                if(e.target.value.length === 1) {
-                    if(index < 5) document.querySelectorAll('.forgot-otp')[index + 1].focus();
-                }
-                updateForgotOtp();
-            });
-            
-            input.addEventListener('keydown', (e) => {
-                if(e.key === 'Backspace') {
-                    if(input.value === '' && index > 0) {
-                        document.querySelectorAll('.forgot-otp')[index - 1].focus();
-                        document.querySelectorAll('.forgot-otp')[index - 1].value = '';
-                    } else {
-                        input.value = '';
+        // Setup forgot password OTP inputs
+        function setupForgotOtpInputs() {
+            const inputs = document.querySelectorAll('.forgot-otp');
+            inputs.forEach((inpt, i) => {
+                inpt.value = ''; // Clear previous
+                inpt.addEventListener('input', (e) => {
+                    e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                    if(e.target.value.length===1 && i<5) inputs[i+1].focus();
+                    document.getElementById('forgotFullOtp').value = Array.from(inputs).map(inp=>inp.value).join('');
+                });
+                inpt.addEventListener('keydown', (e) => {
+                    if(e.key === 'Backspace' && !e.target.value && i>0) {
+                        inputs[i-1].focus();
                     }
-                    updateForgotOtp();
-                } else if(e.key === 'ArrowLeft' && index > 0) {
-                    document.querySelectorAll('.forgot-otp')[index - 1].focus();
-                } else if(e.key === 'ArrowRight' && index < 5) {
-                    document.querySelectorAll('.forgot-otp')[index + 1].focus();
-                }
+                });
             });
-        });
-
-        function updateForgotOtp() {
-            const otp = Array.from(document.querySelectorAll('.forgot-otp')).map(inp => inp.value).join('');
-            document.getElementById('forgotFullOtp').value = otp;
+            // Focus first input
+            if(inputs.length > 0) inputs[0].focus();
         }
 
         document.getElementById('forgotPasswordForm').addEventListener('submit', async (e) => {
@@ -1358,16 +1209,10 @@
                     };
                     
                     hideLoading();
-                    document.getElementById('forgotPhoneGroup').style.display = 'none';
                     document.getElementById('forgotOtpGroup').style.display = 'block';
-                    document.getElementById('forgotBtn').innerHTML = '<i class="fas fa-check-circle"></i> Verify OTP';
-                    document.getElementById('forgotBackBtn').classList.remove('hidden');
-                    
-                    // Focus first OTP input
-                    document.querySelector('.forgot-otp').focus();
-                    
-                    startForgotTimer();
+                    document.getElementById('forgotBtn').textContent = 'Verify OTP';
                     showToast('OTP sent via WhatsApp!', 'success');
+                    setupForgotOtpInputs();
                     
                 } catch(e) {
                     hideLoading();
@@ -1384,9 +1229,8 @@
                 }
                 
                 forgotPasswordData.step = 'reset';
-                document.getElementById('forgotOtpGroup').style.display = 'none';
                 document.getElementById('newPasswordGroup').style.display = 'block';
-                document.getElementById('forgotBtn').innerHTML = '<i class="fas fa-lock"></i> Reset Password';
+                document.getElementById('forgotBtn').textContent = 'Reset Password';
                 showToast('OTP verified! Enter new password', 'success');
             }
             // Step 3: Reset Password
@@ -1407,54 +1251,6 @@
                 }
             }
         });
-
-        function startForgotTimer() {
-            let time = 60;
-            const timerBox = document.getElementById('forgotTimerBox');
-            const timerSpan = document.getElementById('forgotTimer');
-            const resendBtn = document.getElementById('forgotResendBtn');
-            
-            timerBox.classList.remove('hidden');
-            resendBtn.classList.add('hidden');
-            timerSpan.textContent = time;
-            
-            if(window.forgotTimerInterval) clearInterval(window.forgotTimerInterval);
-            
-            window.forgotTimerInterval = setInterval(() => {
-                time--;
-                timerSpan.textContent = time;
-                if(time <= 0) {
-                    clearInterval(window.forgotTimerInterval);
-                    timerBox.classList.add('hidden');
-                    resendBtn.classList.remove('hidden');
-                }
-            }, 1000);
-        }
-
-        async function resendForgotOtp() {
-            const phone = forgotPasswordData.phone;
-            const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-            forgotPasswordData.generatedOtp = generatedOtp;
-            
-            showLoading('Resending OTP...');
-            
-            try {
-                const response = await fetch(`${WHATSAPP_OTP_SERVER}/send-otp?phone=${phone}&otp=${generatedOtp}&key=${WHATSAPP_API_KEY}`);
-                const result = await response.json();
-                
-                if(result.status === "success") {
-                    hideLoading();
-                    showToast('OTP resent via WhatsApp!', 'success');
-                    startForgotTimer();
-                } else {
-                    hideLoading();
-                    showToast('Failed to resend OTP', 'error');
-                }
-            } catch(e) {
-                hideLoading();
-                showToast('Error: ' + e.message, 'error');
-            }
-        }
 
         // ==================== HOME ====================
         function updateHomeUI() {
@@ -1505,7 +1301,7 @@
                 const claimed = currentUser.lastClaimDate === new Date().toDateString();
                 const btn = document.getElementById('claimBtn');
                 btn.disabled = claimed; btn.className = claimed ? 'claim-btn claimed' : 'claim-btn';
-                btn.innerHTML = claimed ? 'Claimed' : '<i class="fas fa-hand-holding-usd"></i> Claim Now';
+                btn.innerHTML = claimed ? 'Claimed' : 'Claim Now';
                 claimSection.classList.remove('hidden');
             } else claimSection.classList.add('hidden');
 
@@ -1524,59 +1320,23 @@
                     </div>
                     <div style="font-weight:bold; color: ${status==='pending'?'#b45309':(status==='rejected'||tx.type.includes('withdrawal')||tx.type.includes('purchase')?'#ef4444':'#10b981')}">₹${tx.amount}</div>
                 </div>`;
-            }).join('') : '<p style="text-align:center; padding: 20px; color: var(--gray);">No Activity</p>';
+            }).join('') : '<p style="text-align:center;">No Activity</p>';
         }
 
-        // FIXED: Claim function now works immediately after purchase
         async function claimDailyEarnings() {
             const plans = Object.values(currentUser.activePlans || {});
             if(plans.length === 0) return;
-            
-            const today = new Date().toDateString();
-            
-            // Check if already claimed today
-            if(currentUser.lastClaimDate === today) {
-                return showToast('You have already claimed today!', 'info');
-            }
-            
             const total = plans.reduce((s,p)=>s+p.dailyReturn, 0);
             showLoading('Claiming...');
+            await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set((currentUser.wallet?.mainBalance||0) + total);
+            await database.ref(`users/${currentUser.id}/lastClaimDate`).set(new Date().toDateString());
+            await database.ref(`users/${currentUser.id}/transactions`).push({id: generateId('TXN'), type: 'daily_earning', amount: total, description: 'Daily Earning', date: new Date().toISOString(), status: 'approved'});
+            for(let key in currentUser.activePlans) { await database.ref(`users/${currentUser.id}/activePlans/${key}/totalClaimed`).set((currentUser.activePlans[key].totalClaimed||0) + currentUser.activePlans[key].dailyReturn); }
+            hideLoading(); showToast(`₹${total} Claimed!`, 'success'); 
             
-            try {
-                // Update balance
-                const newBalance = (currentUser.wallet?.mainBalance || 0) + total;
-                await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set(newBalance);
-                
-                // Update last claim date
-                await database.ref(`users/${currentUser.id}/lastClaimDate`).set(today);
-                
-                // Add transaction
-                await database.ref(`users/${currentUser.id}/transactions`).push({
-                    id: generateId('TXN'), 
-                    type: 'daily_earning', 
-                    amount: total, 
-                    description: 'Daily Earning', 
-                    date: new Date().toISOString(), 
-                    status: 'approved'
-                });
-                
-                // Update total claimed for each plan
-                for(let key in currentUser.activePlans) { 
-                    const plan = currentUser.activePlans[key];
-                    await database.ref(`users/${currentUser.id}/activePlans/${key}/totalClaimed`).set((plan.totalClaimed||0) + plan.dailyReturn); 
-                }
-                
-                hideLoading(); 
-                showToast(`₹${total} added to wallet!`, 'success'); 
-                
-                // Refresh UI
-                updateHomeUI();
-                if(document.getElementById('plansPage').classList.contains('active')) {
-                    loadPlansPage(); 
-                }
-            } catch(e) {
-                hideLoading();
-                showToast('Error claiming: ' + e.message, 'error');
+            updateHomeUI();
+            if(document.getElementById('plansPage').classList.contains('active')) {
+                loadPlansPage(); 
             }
         }
 
@@ -1604,7 +1364,7 @@
                         </div>`;
                 }
             } else {
-                freePlanDiv.innerHTML = `<button class="btn-premium btn-premium-primary" onclick="buyPlan('free')" style="margin-top: 20px; width:100%;"><i class="fas fa-gift"></i> Claim Free Plan</button>`;
+                freePlanDiv.innerHTML = `<button class="btn-premium btn-premium-primary" onclick="buyPlan('free')" style="margin-top: 20px; width:100%;">Claim Free Plan</button>`;
             }
 
             // Handle Other Plans
@@ -1629,16 +1389,16 @@
                             </div>`;
                     }
                 } else if (bal >= finalPrice) {
-                    actionButtons = `<button class="btn-plan btn-plan-primary" onclick="buyPlan('${p.id}')"><i class="fas fa-shopping-cart"></i> Buy Now</button>`;
+                    actionButtons = `<button class="btn-plan btn-plan-primary" onclick="buyPlan('${p.id}')">Buy Now</button>`;
                 } else {
-                    actionButtons = `<button class="btn-plan" style="background:#cbd5e1;" onclick="showPage('wallet'); showWalletTab('add');"><i class="fas fa-wallet"></i> Add Money</button>`;
+                    actionButtons = `<button class="btn-plan" style="background:#cbd5e1;" onclick="showPage('wallet'); showWalletTab('add');">Add Money</button>`;
                 }
                 
                 return `
                 <div class="plan-card-premium ${p.popular?'popular':''}" id="plan-card-${p.id}">
                     ${disc > 0 ? `<div class="discount-badge">${disc}% OFF</div>` : ''}
                     <div class="plan-header-premium ${p.color} ${p.popular ? 'popular' : ''}">
-                        ${p.popular && !disc ? '<div style="position:absolute; top:15px; left:15px; background:rgba(255,255,255,0.3); padding:3px 12px; border-radius:20px; font-size:11px; font-weight:700;">POPULAR</div>':''}
+                        ${p.popular && !disc ? '<div class="popular-badge">Popular</div>':''}
                         <div class="plan-icon">${p.icon}</div>
                         <div class="plan-name">${p.name}</div>
                         <div class="plan-price">
@@ -1648,9 +1408,9 @@
                     </div>
                     <div class="plan-body-premium">
                         <ul class="plan-features">
-                            <li><i class="fas fa-check-circle"></i> Daily <span style="font-weight:700; color:var(--dark);">₹${p.daily}</span></li>
-                            <li><i class="fas fa-check-circle"></i> <span style="font-weight:700; color:var(--dark);">${p.days}</span> Days</li>
-                            <li><i class="fas fa-check-circle"></i> Total <span style="font-weight:700; color:var(--dark);">₹${p.total}</span></li>
+                            <li><i class="fas fa-check-circle"></i> Daily <span class="highlight">₹${p.daily}</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span class="highlight">${p.days}</span> Days</li>
+                            <li><i class="fas fa-check-circle"></i> Total <span class="highlight">₹${p.total}</span></li>
                         </ul>
                         ${actionButtons}
                     </div>
@@ -1676,7 +1436,7 @@
             }
         }
 
-        // FIXED: Buy plan now allows immediate claiming
+        // ==================== FIXED: FIRST DAY CLAIM BALANCE ====================
         async function buyPlan(pid) {
             const plan = PLANS.find(p=>p.id===pid);
             const disc = activeOffers[pid] || 0;
@@ -1686,47 +1446,69 @@
             
             showLoading('Processing...');
             
-            try {
-                if(pid!=='free') {
-                    await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set(currentUser.wallet.mainBalance - finalPrice);
-                }
-                
-                const exp = new Date(); 
-                exp.setDate(exp.getDate() + plan.days);
-                
-                const planData = {
-                    planId: plan.id, 
-                    planName: plan.name, 
-                    amount: finalPrice, 
-                    dailyReturn: plan.daily, 
-                    purchasedDate: new Date().toISOString(), 
-                    expiryDate: exp.toISOString(), 
-                    status: 'active', 
-                    totalClaimed: 0
-                };
-                
-                await database.ref(`users/${currentUser.id}/activePlans`).push(planData);
-                
-                await database.ref(`users/${currentUser.id}/transactions`).push({
-                    id: generateId('TXN'), 
-                    type: 'plan_purchase', 
-                    amount: finalPrice, 
-                    description: `Bought ${plan.name}`, 
-                    date: new Date().toISOString(), 
-                    status: 'approved'
-                });
-                
-                if(pid !== 'free' && currentUser.referredBy) {
-                    await distributeCommission(currentUser.referredBy, finalPrice);
-                }
-                
-                hideLoading(); 
-                showToast('Plan Activated! Claim your first earning now.', 'success'); 
-                showPage('plans');
-            } catch(e) {
-                hideLoading();
-                showToast('Error: ' + e.message, 'error');
+            // Calculate expiry date
+            const exp = new Date(); 
+            exp.setDate(exp.getDate() + plan.days);
+            
+            // Deduct balance for paid plans
+            if(pid !== 'free') {
+                await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set(currentUser.wallet.mainBalance - finalPrice);
             }
+            
+            // Add plan to active plans
+            await database.ref(`users/${currentUser.id}/activePlans`).push({
+                planId: plan.id, 
+                planName: plan.name, 
+                amount: finalPrice, 
+                dailyReturn: plan.daily, 
+                purchasedDate: new Date().toISOString(), 
+                expiryDate: exp.toISOString(), 
+                status: 'active', 
+                totalClaimed: 0
+            });
+            
+            // Add transaction record
+            await database.ref(`users/${currentUser.id}/transactions`).push({
+                id: generateId('TXN'), 
+                type: 'plan_purchase', 
+                amount: finalPrice, 
+                description: `Bought ${plan.name}`, 
+                date: new Date().toISOString(), 
+                status: 'approved'
+            });
+            
+            // ==================== FIX: CREDIT FIRST DAY EARNING IMMEDIATELY ====================
+            // Add first day earning to wallet immediately
+            await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set((currentUser.wallet?.mainBalance||0) + plan.daily);
+            
+            // Add first day earning transaction
+            await database.ref(`users/${currentUser.id}/transactions`).push({
+                id: generateId('TXN'), 
+                type: 'daily_earning', 
+                amount: plan.daily, 
+                description: `First Day Earning - ${plan.name}`, 
+                date: new Date().toISOString(), 
+                status: 'approved'
+            });
+            
+            // Set last claim date to today so they can claim again tomorrow
+            await database.ref(`users/${currentUser.id}/lastClaimDate`).set(new Date().toDateString());
+            
+            // Update total claimed for the plan
+            const plansSnapshot = await database.ref(`users/${currentUser.id}/activePlans`).orderByChild('planId').equalTo(pid).once('value');
+            if(plansSnapshot.val()) {
+                const planKey = Object.keys(plansSnapshot.val()).pop();
+                await database.ref(`users/${currentUser.id}/activePlans/${planKey}/totalClaimed`).set(plan.daily);
+            }
+            
+            // Distribute commission if applicable
+            if(pid !== 'free' && currentUser.referredBy) {
+                await distributeCommission(currentUser.referredBy, finalPrice);
+            }
+            
+            hideLoading(); 
+            showToast(`Plan Activated! ₹${plan.daily} credited to wallet!`, 'success'); 
+            showPage('plans'); 
         }
 
         // ==================== WALLET & TRANSACTIONS ====================
@@ -1753,7 +1535,7 @@
                     </div>
                     <div style="font-weight:bold; color: ${status==='pending'?'#b45309':(status==='rejected'||tx.type.includes('withdrawal')||tx.type.includes('purchase')?'#ef4444':'#10b981')}">₹${tx.amount}</div>
                 </div>`;
-            }).join('') : '<p style="text-align:center; padding: 20px; color: var(--gray);">No History</p>';
+            }).join('') : '<p style="text-align:center;">No History</p>';
         }
 
         function setAmount(amt) { document.getElementById('addAmount').value = amt; }
@@ -1792,7 +1574,7 @@
         document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const amt = parseInt(document.getElementById('withdrawAmount').value), m = document.getElementById('withdrawMethod').value;
-            if(amt < 200) return showToast('Min ₹200', 'error');
+            if(amt < MIN_WITHDRAWAL) return showToast(`Min ₹${MIN_WITHDRAWAL}`, 'error');
             if(amt > (currentUser.wallet?.mainBalance||0)) return showToast('Insufficient balance', 'error');
             let details = m === 'upi' ? document.getElementById('upiIdInput').value : `${document.getElementById('bankHolderName').value}, A/c: ${document.getElementById('bankAccNumber').value}, IFSC: ${document.getElementById('bankIfsc').value}`;
             
