@@ -226,133 +226,6 @@
             .otp-input-premium { width: 55px; height: 65px; font-size: 24px; }
             .otp-container { gap: 12px; }
         }
-
-        /* ==================== LANDING PAGE STATS ==================== */
-        .stats-container {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin: 20px;
-        }
-        .stat-box {
-            background: var(--white);
-            border-radius: 20px;
-            padding: 20px;
-            text-align: center;
-            box-shadow: var(--shadow);
-            border: 2px solid transparent;
-            transition: all 0.3s;
-        }
-        .stat-box:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-lg);
-            border-color: var(--primary-light);
-        }
-        .stat-box .icon {
-            width: 50px;
-            height: 50px;
-            border-radius: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 10px;
-            font-size: 24px;
-        }
-        .stat-box.earn .icon { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
-        .stat-box.withdraw .icon { background: rgba(16, 185, 129, 0.1); color: var(--success); }
-        .stat-box.users .icon { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
-        .stat-box.rating .icon { background: rgba(236, 72, 153, 0.1); color: var(--secondary); }
-        
-        .stat-box .value {
-            font-size: 24px;
-            font-weight: 800;
-            color: var(--dark);
-            margin-bottom: 5px;
-        }
-        .stat-box .label {
-            font-size: 12px;
-            color: var(--gray);
-            font-weight: 600;
-        }
-
-        /* ==================== BLOCKED USER SCREEN ==================== */
-        #blockedPage {
-            background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            padding: 40px 20px;
-            text-align: center;
-        }
-        .blocked-icon {
-            width: 120px;
-            height: 120px;
-            background: var(--danger);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 60px;
-            color: white;
-            margin-bottom: 30px;
-            box-shadow: 0 20px 40px rgba(239, 68, 68, 0.3);
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-        .blocked-title {
-            font-size: 28px;
-            font-weight: 800;
-            color: var(--danger);
-            margin-bottom: 15px;
-        }
-        .blocked-message {
-            font-size: 16px;
-            color: var(--gray);
-            margin-bottom: 30px;
-            line-height: 1.6;
-        }
-        .blocked-card {
-            background: white;
-            border-radius: 24px;
-            padding: 30px;
-            width: 100%;
-            max-width: 400px;
-            box-shadow: var(--shadow-lg);
-            margin-top: 20px;
-        }
-        .support-btn {
-            background: var(--gradient-1);
-            color: white;
-            border: none;
-            padding: 16px 40px;
-            border-radius: 16px;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-            margin-top: 10px;
-            width: 100%;
-            justify-content: center;
-        }
-        .logout-btn-blocked {
-            background: transparent;
-            color: var(--gray);
-            border: 2px solid var(--gray-light);
-            padding: 14px 40px;
-            border-radius: 16px;
-            font-size: 14px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 15px;
-            width: 100%;
-        }
     </style>
 </head>
 <body>
@@ -398,50 +271,6 @@
         </div>
     </div>
 
-    <!-- ==================== BLOCKED USER PAGE ==================== -->
-    <div id="blockedPage" class="page">
-        <div class="blocked-icon">
-            <i class="fas fa-ban"></i>
-        </div>
-        <h1 class="blocked-title">Account Blocked</h1>
-        <p class="blocked-message">
-            Your account has been blocked by the administrator.<br>
-            Please contact support for more information.
-        </p>
-        
-        <div class="blocked-card">
-            <h3 style="margin-bottom: 20px; color: var(--dark);"><i class="fas fa-headset" style="color: var(--primary); margin-right: 10px;"></i>Contact Support</h3>
-            <p style="color: var(--gray); font-size: 14px; margin-bottom: 20px;">
-                If you believe this is a mistake, please create a support ticket.
-            </p>
-            <button class="support-btn" onclick="showBlockedSupport()">
-                <i class="fas fa-ticket-alt"></i> Create Support Ticket
-            </button>
-            <button class="logout-btn-blocked" onclick="logout()">
-                <i class="fas fa-sign-out-alt"></i> Logout
-            </button>
-        </div>
-
-        <!-- Hidden Support Form for Blocked Users -->
-        <div id="blockedSupportForm" style="display: none; width: 100%; max-width: 400px; margin-top: 20px;">
-            <div class="blocked-card">
-                <h3 style="margin-bottom: 20px;">Submit Ticket</h3>
-                <form id="blockedTicketForm">
-                    <div class="form-group" style="text-align: left;">
-                        <label style="font-size: 14px; margin-bottom: 8px; display: block;">Subject</label>
-                        <input type="text" class="input-premium" id="blockedTicketSubject" placeholder="Why was my account blocked?" required>
-                    </div>
-                    <div class="form-group" style="text-align: left;">
-                        <label style="font-size: 14px; margin-bottom: 8px; display: block;">Message</label>
-                        <textarea class="input-premium" id="blockedTicketMessage" rows="3" placeholder="Explain your issue..." required></textarea>
-                    </div>
-                    <button type="submit" class="btn-main btn-main-primary">Submit Ticket</button>
-                    <button type="button" class="logout-btn-blocked" onclick="hideBlockedSupport()" style="margin-top: 10px;">Cancel</button>
-                </form>
-            </div>
-        </div>
-    </div>
-
     <!-- HEADER -->
     <header class="premium-header" id="mainHeader" style="display: none;">
         <div class="header-content">
@@ -478,81 +307,18 @@
         </button>
     </nav>
 
-    <!-- ==================== LANDING PAGE WITH STATS ==================== -->
+    <!-- LANDING PAGE -->
     <div id="landingPage" class="page active">
         <div class="hero-section">
             <div class="hero-content">
                 <div class="hero-badge"><i class="fas fa-fire"></i> India's #1 Earning App</div>
-                <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 15px;">Earn <span style="color:#fde047;">₹50,000</span> Monthly!</h1>
+                <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 15px;">Earn <span style="color:#fde047;">₹15</span> Per Referral Instantly!</h1>
                 <p style="opacity: 0.9; margin-bottom: 25px;">Join 50,000+ users earning daily. Start with FREE plan!</p>
             </div>
         </div>
-
-        <!-- Stats Section -->
-        <div class="stats-container">
-            <div class="stat-box earn">
-                <div class="icon"><i class="fas fa-rupee-sign"></i></div>
-                <div class="value">₹50K+</div>
-                <div class="label">Monthly Earning</div>
-            </div>
-            <div class="stat-box withdraw">
-                <div class="icon"><i class="fas fa-bolt"></i></div>
-                <div class="value">Instant</div>
-                <div class="label">Withdrawal</div>
-            </div>
-            <div class="stat-box users">
-                <div class="icon"><i class="fas fa-users"></i></div>
-                <div class="value" id="activeUsersCount">50K+</div>
-                <div class="label">Active Users</div>
-            </div>
-            <div class="stat-box rating">
-                <div class="icon"><i class="fas fa-star"></i></div>
-                <div class="value">4.8★</div>
-                <div class="label">App Rating</div>
-            </div>
-        </div>
-
-        <!-- Features List -->
-        <div class="premium-card" style="margin-top: 10px;">
-            <h3 style="margin-bottom: 20px; font-size: 18px;"><i class="fas fa-check-circle" style="color: var(--success); margin-right: 10px;"></i>Why Choose Us?</h3>
-            <div style="display: flex; flex-direction: column; gap: 15px;">
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div style="width: 40px; height: 40px; background: rgba(99, 102, 241, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--primary);">
-                        <i class="fas fa-gift"></i>
-                    </div>
-                    <div>
-                        <div style="font-weight: 600;">₹15 Per Referral</div>
-                        <div style="font-size: 12px; color: var(--gray);">Instant bonus on every signup</div>
-                    </div>
-                </div>
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div style="width: 40px; height: 40px; background: rgba(16, 185, 129, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--success);">
-                        <i class="fas fa-percentage"></i>
-                    </div>
-                    <div>
-                        <div style="font-weight: 600;">Up to 5% Commission</div>
-                        <div style="font-size: 12px; color: var(--gray);">3-level referral commission</div>
-                    </div>
-                </div>
-                <div style="display: flex; align-items: center; gap: 15px;">
-                    <div style="width: 40px; height: 40px; background: rgba(245, 158, 11, 0.1); border-radius: 10px; display: flex; align-items: center; justify-content: center; color: var(--warning);">
-                        <i class="fas fa-shield-alt"></i>
-                    </div>
-                    <div>
-                        <div style="font-weight: 600;">100% Secure</div>
-                        <div style="font-size: 12px; color: var(--gray);">Trusted by 50,000+ users</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
         <div style="padding: 20px;">
-            <button class="btn-main btn-main-primary" onclick="showPage('register')" style="margin-bottom: 15px;">
-                <i class="fas fa-rocket"></i> Start Earning Now - It's FREE!
-            </button>
-            <button class="btn-main" style="background: transparent; color: var(--primary); border: 2px solid var(--primary);" onclick="showPage('login')">
-                <i class="fas fa-sign-in-alt"></i> Already have an account? Login
-            </button>
+            <button class="btn-main btn-main-primary" onclick="showPage('register')"><i class="fas fa-rocket"></i> Start Earning Now - It's FREE!</button>
+            <button class="btn-main" style="background: transparent; color: var(--primary); border: 2px solid var(--primary);" onclick="showPage('login')"><i class="fas fa-sign-in-alt"></i> Already have an account? Login</button>
         </div>
     </div>
 
@@ -1051,16 +817,11 @@
 
         // ==================== NAVIGATION ====================
         function showPage(page) {
-            // Don't allow navigation if blocked
-            if(currentUser && currentUser.status === 'blocked' && page !== 'blocked') {
-                return;
-            }
-
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(page + 'Page').classList.add('active');
             document.querySelectorAll('.nav-item').forEach(i => { i.classList.remove('active'); if(i.dataset.page===page) i.classList.add('active'); });
             
-            const noHeader = ['landing', 'login', 'register', 'blocked'];
+            const noHeader = ['landing', 'login', 'register'];
             document.getElementById('mainHeader').style.display = noHeader.includes(page) ? 'none' : 'block';
             document.getElementById('bottomNav').style.display = noHeader.includes(page) ? 'none' : 'flex';
             
@@ -1093,25 +854,15 @@
             }, 300);
         }
 
-        // ==================== LOAD ACTIVE USERS COUNT ====================
-        function loadActiveUsersCount() {
-            database.ref('users').once('value', (snap) => {
-                const count = snap.numChildren();
-                document.getElementById('activeUsersCount').textContent = (count > 1000 ? (count/1000).toFixed(1) + 'K+' : count + '+');
-            });
-        }
-
         // ==================== FIXED: CHECK LOGIN STATUS FIRST ====================
         window.onload = function() {
-            // Load active users count for landing page
-            loadActiveUsersCount();
-
             // Load settings first
             database.ref('settings').on('value', snap => {
                 appSettings = snap.val() || {};
                 ADMIN_UPI_ID = appSettings.upiId || '6395503566@upi';
                 MIN_WITHDRAWAL = appSettings.minWithdrawal || 200;
                 document.getElementById('minWithdrawDisplay').textContent = MIN_WITHDRAWAL;
+                document.getElementById('withdrawAmount').min = MIN_WITHDRAWAL;
             });
 
             // Check for referral code in URL
@@ -1128,13 +879,6 @@
             // If user is already logged in, go to home regardless of URL
             if(savedUser) {
                 currentUser = JSON.parse(savedUser);
-                
-                // Check if user is blocked
-                if(currentUser.status === 'blocked') {
-                    showPage('blocked');
-                    return;
-                }
-                
                 setupUserListener(currentUser.id);
                 
                 // Check for ref code but don't go to register if logged in
@@ -1164,26 +908,12 @@
                 if(snap.val()) {
                     currentUser = snap.val();
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    
-                    // Check if user got blocked while using app
-                    if(currentUser.status === 'blocked') {
-                        showPage('blocked');
-                        return;
-                    }
-                    
                     if(document.getElementById('homePage').classList.contains('active')) updateHomeUI();
                     if(document.getElementById('plansPage').classList.contains('active')) loadPlansPage();
                     if(document.getElementById('walletPage').classList.contains('active')) loadWalletData();
                 }
             });
         }
-
-        // Update last online timestamp periodically
-        setInterval(() => {
-            if(currentUser && currentUser.id && currentUser.status !== 'blocked') {
-                database.ref(`users/${currentUser.id}/lastOnline`).set(new Date().toISOString());
-            }
-        }, 60000); // Every minute
 
         // ==================== AUTH (WHATSAPP OTP) ====================
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -1193,26 +923,9 @@
             if(!snap.val()) { hideLoading(); return showToast('User not found!', 'error'); }
             const user = Object.values(snap.val())[0];
             if(user.password !== pass) { hideLoading(); return showToast('Invalid password!', 'error'); }
-            
-            // Check if blocked
-            if(user.status === 'blocked') {
-                currentUser = user;
-                localStorage.setItem('currentUser', JSON.stringify(user));
-                hideLoading();
-                showPage('blocked');
-                return;
-            }
-            
-            currentUser = user; 
-            localStorage.setItem('currentUser', JSON.stringify(user));
-            
-            // Update last online
-            await database.ref(`users/${user.id}/lastOnline`).set(new Date().toISOString());
-            
-            setupUserListener(user.id); 
-            hideLoading(); 
-            showToast('Login successful!', 'success'); 
-            showPage('home');
+            if(user.status === 'blocked') { hideLoading(); return showToast('Account blocked!', 'error'); }
+            currentUser = user; localStorage.setItem('currentUser', JSON.stringify(user));
+            setupUserListener(user.id); hideLoading(); showToast('Login successful!', 'success'); showPage('home');
         });
 
         // ==================== WHATSAPP OTP REGISTRATION ====================
@@ -1336,7 +1049,6 @@
                     wallet: {mainBalance: bonus, totalWithdrawn: 0},
                     referrals: {count:0, earnings:0}, 
                     activePlans: {},
-                    lastOnline: new Date().toISOString(),
                     transactions: {
                         [Date.now()]: {
                             id: generateId('TXN'), 
@@ -1477,12 +1189,6 @@
                 const userData = Object.values(snap.val())[0];
                 const userId = Object.keys(snap.val())[0];
                 
-                // Check if blocked
-                if(userData.status === 'blocked') {
-                    hideLoading();
-                    return showToast('This account has been blocked. Contact support.', 'error');
-                }
-                
                 // Generate and send OTP
                 const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
                 
@@ -1543,46 +1249,6 @@
                     hideLoading();
                     showToast('Error resetting password', 'error');
                 }
-            }
-        });
-
-        // ==================== BLOCKED USER SUPPORT ====================
-        function showBlockedSupport() {
-            document.getElementById('blockedSupportForm').style.display = 'block';
-            document.getElementById('blockedTicketSubject').value = 'Account Blocked - Need Help';
-            document.getElementById('blockedTicketMessage').value = 'My account has been blocked. Please review and unblock my account. Reason: ';
-        }
-
-        function hideBlockedSupport() {
-            document.getElementById('blockedSupportForm').style.display = 'none';
-        }
-
-        document.getElementById('blockedTicketForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            if(!currentUser) return showToast('Please login first', 'error');
-            
-            const ticket = { 
-                id: generateId('TIC'), 
-                userId: currentUser.id, 
-                userName: currentUser.name, 
-                userPhone: currentUser.phone, 
-                type: 'account_blocked', 
-                subject: document.getElementById('blockedTicketSubject').value, 
-                message: document.getElementById('blockedTicketMessage').value, 
-                status: 'open', 
-                createdAt: new Date().toISOString() 
-            };
-            
-            showLoading('Submitting...');
-            try { 
-                await database.ref('tickets').push(ticket); 
-                hideLoading(); 
-                showToast('Ticket created! We will review soon.', 'success'); 
-                hideBlockedSupport();
-            } 
-            catch (error) { 
-                hideLoading(); 
-                showToast('Failed to create ticket', 'error'); 
             }
         });
 
@@ -1942,14 +1608,7 @@
             document.getElementById('profTotalEarn').textContent = '₹' + ((currentUser.referrals?.earnings || 0) + (currentUser.wallet?.mainBalance || 0));
         }
         
-        function logout() { 
-            // Update last online before logout
-            if(currentUser && currentUser.id) {
-                database.ref(`users/${currentUser.id}/lastOnline`).set(new Date().toISOString());
-            }
-            localStorage.removeItem('currentUser'); 
-            window.location.reload(); 
-        }
+        function logout() { localStorage.removeItem('currentUser'); window.location.reload(); }
 
         // ==================== SUPPORT TICKETS ====================
         function loadSupportData() {
