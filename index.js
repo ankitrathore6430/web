@@ -34,8 +34,9 @@ let sock;
 let logs = [];
 let connectionStatus = "OFFLINE";
 
+// --- UPDATED FOR INDIAN TIME ---
 function addLog(msg) {
-    const time = new Date().toLocaleTimeString();
+    const time = new Date().toLocaleTimeString('en-IN', { timeZone: 'Asia/Kolkata' });
     const logEntry = `[${time}] ${msg}`;
     logs.unshift(logEntry);
     if (logs.length > 20) logs.pop();
