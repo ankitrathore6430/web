@@ -226,9 +226,130 @@
             .otp-input-premium { width: 55px; height: 65px; font-size: 24px; }
             .otp-container { gap: 12px; }
         }
+
+        /* Blocked Screen Styles */
+        .blocked-screen { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); 
+            z-index: 99999; 
+            display: none; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 40px 20px; 
+            text-align: center; 
+            color: white;
+        }
+        .blocked-screen.active { display: flex; }
+        .blocked-icon { font-size: 80px; margin-bottom: 30px; color: var(--danger); }
+        .blocked-title { font-size: 28px; font-weight: 800; margin-bottom: 15px; }
+        .blocked-text { font-size: 16px; opacity: 0.8; margin-bottom: 40px; max-width: 300px; }
+        .blocked-btn { 
+            width: 100%; 
+            max-width: 300px; 
+            padding: 16px; 
+            border-radius: 16px; 
+            border: none; 
+            font-size: 16px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .blocked-btn-support { background: var(--warning); color: white; }
+        .blocked-btn-logout { background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.3); }
+
+        /* Profile Edit Styles */
+        .profile-name-edit { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            justify-content: center; 
+            margin-bottom: 5px;
+        }
+        .edit-name-btn { 
+            background: rgba(255,255,255,0.2); 
+            border: none; 
+            width: 32px; 
+            height: 32px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            color: white;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .edit-name-btn:hover { background: rgba(255,255,255,0.3); transform: scale(1.1); }
+        
+        .name-edit-input { 
+            background: rgba(255,255,255,0.2); 
+            border: 2px solid rgba(255,255,255,0.3); 
+            color: white; 
+            padding: 8px 15px; 
+            border-radius: 25px; 
+            font-size: 18px; 
+            font-weight: 700; 
+            text-align: center; 
+            width: 200px;
+            outline: none;
+        }
+        .name-edit-input::placeholder { color: rgba(255,255,255,0.6); }
+        
+        .save-name-btn { 
+            background: var(--success); 
+            border: none; 
+            width: 32px; 
+            height: 32px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            color: white;
+            font-size: 14px;
+        }
+
+        /* Landing Page Text Styles */
+        .landing-text-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .landing-main-text {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        .landing-sub-text {
+            font-size: 18px;
+            opacity: 0.95;
+            font-weight: 600;
+        }
     </style>
 </head>
 <body>
+    <!-- Blocked Screen -->
+    <div id="blockedScreen" class="blocked-screen">
+        <div class="blocked-icon">🚫</div>
+        <h2 class="blocked-title">Blocked by Admin</h2>
+        <p class="blocked-text">Your account has been blocked by the administrator. Please contact support for assistance.</p>
+        <button class="blocked-btn blocked-btn-support" onclick="showPage('support')">
+            <i class="fas fa-headset"></i> Support Ticket
+        </button>
+        <button class="blocked-btn blocked-btn-logout" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+    </div>
+
     <!-- Loading Screen -->
     <div id="loadingScreen" class="loading-screen">
         <div class="loader"></div>
@@ -312,8 +433,10 @@
         <div class="hero-section">
             <div class="hero-content">
                 <div class="hero-badge"><i class="fas fa-fire"></i> India's #1 Earning App</div>
-                <h1 style="font-size: 32px; font-weight: 800; margin-bottom: 15px;">Earn <span style="color:#fde047;">₹15</span> Per Referral Instantly!</h1>
-                <p style="opacity: 0.9; margin-bottom: 25px;">Join 50,000+ users earning daily. Start with FREE plan!</p>
+                <div class="landing-text-container">
+                    <h1 class="landing-main-text">Earn monthly <span style="color:#fde047;">₹50000</span></h1>
+                    <p class="landing-sub-text">Instant withdrawal • Unlimited refer</p>
+                </div>
             </div>
         </div>
         <div style="padding: 20px;">
@@ -375,7 +498,7 @@
                         <label>Referral Code (Optional)</label>
                         <input type="text" class="input-premium" id="regReferral" placeholder="Friend's code">
                         <p style="font-size: 12px; color: var(--secondary); margin-top: 8px; display:none;" id="refBonusText">
-                            <i class="fas fa-info-circle"></i> You were invited! Get ₹15 bonus!
+                            <i class="fas fa-info-circle"></i> You were invited! Get ₹<span class="refer-amount-display">15</span> bonus!
                         </p>
                     </div>
                     <button type="submit" class="btn-main btn-main-success"><i class="fab fa-whatsapp"></i> Send OTP via WhatsApp</button>
@@ -594,7 +717,7 @@
             
             <div style="background: rgba(255,255,255,0.15); border-radius: 20px; padding: 20px; margin: 20px 0; border: 1px solid rgba(255,255,255,0.3); backdrop-filter: blur(10px);">
                 <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Instant Bonus</div>
-                <div style="font-size: 55px; font-weight: 800; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">₹15</div>
+                <div style="font-size: 55px; font-weight: 800; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">₹<span class="refer-amount-display">15</span></div>
                 <div style="font-size: 14px; opacity: 0.9;">Per Successful Signup</div>
             </div>
 
@@ -619,8 +742,8 @@
             <div style="display: flex; gap: 15px; margin-bottom: 20px;">
                 <div class="step-circle" style="background: var(--gradient-2);">2</div>
                 <div>
-                    <div style="font-weight: 700; font-size: 15px;">Friend Registers (Earn ₹15)</div>
-                    <div style="font-size: 13px; color: var(--gray);">When your friend signs up, you instantly get ₹15 in your wallet.</div>
+                    <div style="font-weight: 700; font-size: 15px;">Friend Registers (Earn ₹<span class="refer-amount-display">15</span>)</div>
+                    <div style="font-size: 13px; color: var(--gray);">When your friend signs up, you instantly get ₹<span class="refer-amount-display">15</span> in your wallet.</div>
                 </div>
             </div>
             <div style="display: flex; gap: 15px;">
@@ -688,7 +811,23 @@
         <!-- Profile Header -->
         <div style="background: var(--gradient-1); padding: 40px 20px; text-align: center; color: white; position: relative;">
             <div style="width: 100px; height: 100px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 50px; border: 4px solid rgba(255,255,255,0.3);">👤</div>
-            <h2 id="profileName" style="font-size: 28px; font-weight: 700; margin-bottom: 5px;">User Name</h2>
+            
+            <!-- Editable Name with Pencil Icon -->
+            <div class="profile-name-edit" id="nameDisplayContainer">
+                <h2 id="profileName" style="font-size: 28px; font-weight: 700;">User Name</h2>
+                <button class="edit-name-btn" onclick="enableNameEdit()" title="Edit Name">
+                    <i class="fas fa-pencil-alt"></i>
+                </button>
+            </div>
+            
+            <!-- Name Edit Input (Hidden by default) -->
+            <div class="profile-name-edit hidden" id="nameEditContainer">
+                <input type="text" class="name-edit-input" id="nameEditInput" maxlength="30">
+                <button class="save-name-btn" onclick="saveProfileName()" title="Save">
+                    <i class="fas fa-check"></i>
+                </button>
+            </div>
+            
             <p id="profilePhone" style="opacity: 0.9; font-size: 16px;">+91 ---</p>
             <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.2); padding: 8px 20px; border-radius: 50px; margin-top: 15px; font-size: 14px;">
                 <i class="fas fa-check-circle"></i> Verified Account
@@ -753,6 +892,7 @@
                     <select class="input-premium" id="ticketType" required>
                         <option value="deposit">Deposit Issue</option>
                         <option value="withdrawal">Withdrawal Issue</option>
+                        <option value="account">Account Issue</option>
                         <option value="other">Other</option>
                     </select>
                 </div>
@@ -787,22 +927,17 @@
         let appSettings = {};
         let ADMIN_UPI_ID = '6395503566@upi'; 
         let MIN_WITHDRAWAL = 200;
+        let REFER_AMOUNT = 15;
         let activeOffers = {}; 
+        let userStatusListener = null;
+        let lastSeenInterval = null;
 
         // WhatsApp OTP Server Config
         const WHATSAPP_OTP_SERVER = 'https://we-aobe.onrender.com';
         const WHATSAPP_API_KEY = 'SOLOR_SECRET_786';
 
         // ==================== PLANS DATA ====================
-        const PLANS = [
-            { id: 'free', name: 'Free Trial', price: 0, daily: 10, days: 7, total: 70, popular: false, icon: '🎁', color: 'free' },
-            { id: 'nano', name: 'Nano', price: 100, daily: 20, days: 30, total: 600, popular: false, icon: '⚡', color: 'paid' },
-            { id: 'micro', name: 'Micro', price: 200, daily: 45, days: 30, total: 1350, popular: false, icon: '💎', color: 'paid' },
-            { id: 'mini', name: 'Mini', price: 300, daily: 75, days: 30, total: 2250, popular: false, icon: '🚀', color: 'paid' },
-            { id: 'basic', name: 'Basic', price: 500, daily: 150, days: 30, total: 4500, popular: true, icon: '👑', color: 'paid' },
-            { id: 'standard', name: 'Standard', price: 1000, daily: 350, days: 30, total: 10500, popular: false, icon: '💰', color: 'paid' },
-            { id: 'pro', name: 'Pro', price: 2000, daily: 800, days: 30, total: 24000, popular: false, icon: '🏆', color: 'paid' }
-        ];
+        let PLANS = [];
 
         // ==================== UTILITY FUNCTIONS ====================
         function showLoading(text='Loading...') { document.querySelector('#loadingScreen p').textContent = text; document.getElementById('loadingScreen').classList.add('active'); }
@@ -815,8 +950,25 @@
         function generateId(prefix) { return prefix + Date.now().toString().slice(-6); }
         function formatCurrency(amt) { return '₹' + parseInt(amt||0).toLocaleString('en-IN'); }
 
+        // Update all refer amount displays
+        function updateReferDisplays() {
+            document.querySelectorAll('.refer-amount-display').forEach(el => {
+                el.textContent = REFER_AMOUNT;
+            });
+        }
+
         // ==================== NAVIGATION ====================
         function showPage(page) {
+            // Check if user is blocked before showing any page
+            if(currentUser && currentUser.status === 'blocked' && page !== 'support') {
+                document.getElementById('blockedScreen').classList.add('active');
+                document.getElementById('mainHeader').style.display = 'none';
+                document.getElementById('bottomNav').style.display = 'none';
+                return;
+            } else {
+                document.getElementById('blockedScreen').classList.remove('active');
+            }
+
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(page + 'Page').classList.add('active');
             document.querySelectorAll('.nav-item').forEach(i => { i.classList.remove('active'); if(i.dataset.page===page) i.classList.add('active'); });
@@ -861,8 +1013,21 @@
                 appSettings = snap.val() || {};
                 ADMIN_UPI_ID = appSettings.upiId || '6395503566@upi';
                 MIN_WITHDRAWAL = appSettings.minWithdrawal || 200;
+                REFER_AMOUNT = appSettings.referAmount || 15;
                 document.getElementById('minWithdrawDisplay').textContent = MIN_WITHDRAWAL;
                 document.getElementById('withdrawAmount').min = MIN_WITHDRAWAL;
+                updateReferDisplays();
+            });
+
+            // Load plans from database
+            database.ref('plans').on('value', snap => {
+                const plansData = snap.val();
+                if(plansData) {
+                    PLANS = Object.values(plansData).sort((a,b) => a.price - b.price);
+                }
+                if(document.getElementById('plansPage').classList.contains('active')) {
+                    loadPlansPage();
+                }
             });
 
             // Check for referral code in URL
@@ -904,15 +1069,45 @@
         };
 
         function setupUserListener(userId) {
-            database.ref('users/' + userId).on('value', (snap) => {
+            // Remove existing listener if any
+            if(userStatusListener) {
+                userStatusListener.off();
+            }
+
+            // Setup real-time listener for user data
+            userStatusListener = database.ref('users/' + userId);
+            userStatusListener.on('value', (snap) => {
                 if(snap.val()) {
                     currentUser = snap.val();
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    // Check if user is blocked
+                    if(currentUser.status === 'blocked') {
+                        document.getElementById('blockedScreen').classList.add('active');
+                        document.getElementById('mainHeader').style.display = 'none';
+                        document.getElementById('bottomNav').style.display = 'none';
+                        return;
+                    } else {
+                        document.getElementById('blockedScreen').classList.remove('active');
+                    }
+                    
                     if(document.getElementById('homePage').classList.contains('active')) updateHomeUI();
                     if(document.getElementById('plansPage').classList.contains('active')) loadPlansPage();
                     if(document.getElementById('walletPage').classList.contains('active')) loadWalletData();
+                    if(document.getElementById('profilePage').classList.contains('active')) loadProfileData();
                 }
             });
+
+            // Update last seen every 30 seconds when app is active
+            if(lastSeenInterval) clearInterval(lastSeenInterval);
+            lastSeenInterval = setInterval(() => {
+                if(currentUser && currentUser.status !== 'blocked') {
+                    database.ref(`users/${userId}/lastSeen`).set(Date.now());
+                }
+            }, 30000);
+
+            // Set last seen immediately on login
+            database.ref(`users/${userId}/lastSeen`).set(Date.now());
         }
 
         // ==================== AUTH (WHATSAPP OTP) ====================
@@ -923,7 +1118,16 @@
             if(!snap.val()) { hideLoading(); return showToast('User not found!', 'error'); }
             const user = Object.values(snap.val())[0];
             if(user.password !== pass) { hideLoading(); return showToast('Invalid password!', 'error'); }
-            if(user.status === 'blocked') { hideLoading(); return showToast('Account blocked!', 'error'); }
+            if(user.status === 'blocked') { 
+                hideLoading(); 
+                currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                setupUserListener(user.id);
+                document.getElementById('blockedScreen').classList.add('active');
+                document.getElementById('mainHeader').style.display = 'none';
+                document.getElementById('bottomNav').style.display = 'none';
+                return; 
+            }
             currentUser = user; localStorage.setItem('currentUser', JSON.stringify(user));
             setupUserListener(user.id); hideLoading(); showToast('Login successful!', 'success'); showPage('home');
         });
@@ -1020,16 +1224,16 @@
                     const rSnap = await database.ref('users').orderByChild('referralCode').equalTo(tempUserData.ref).once('value');
                     if(rSnap.val()) {
                         const rId = Object.keys(rSnap.val())[0], rData = rSnap.val()[rId];
-                        bonus = 15; refBy = tempUserData.ref;
+                        bonus = REFER_AMOUNT; refBy = tempUserData.ref;
                         await database.ref(`users/${rId}`).update({ 
-                            'wallet/mainBalance': (rData.wallet?.mainBalance||0)+15, 
+                            'wallet/mainBalance': (rData.wallet?.mainBalance||0)+REFER_AMOUNT, 
                             'referrals/count': (rData.referrals?.count||0)+1, 
-                            'referrals/earnings': (rData.referrals?.earnings||0)+15 
+                            'referrals/earnings': (rData.referrals?.earnings||0)+REFER_AMOUNT 
                         });
                         await database.ref(`users/${rId}/transactions`).push({
                             id: generateId('TXN'), 
                             type: 'referral_bonus', 
-                            amount: 15, 
+                            amount: REFER_AMOUNT, 
                             description: `Referral Signup Bonus from ${tempUserData.name}`, 
                             date: new Date().toISOString(), 
                             status: 'approved'
@@ -1058,7 +1262,8 @@
                             date: new Date().toISOString(), 
                             status: 'approved'
                         }
-                    }
+                    },
+                    lastSeen: Date.now()
                 };
                 
                 await database.ref(`users/${newUser.id}`).set(newUser);
@@ -1596,19 +1801,66 @@
         
         function shareWhatsApp() {
             const link = document.getElementById('refLink').textContent;
-            const text = `☀️ Start Earning with Solor Energy!\n\n🎁 Get ₹15 Instant Bonus per refer!\n💵 Earn up to 5%-3%-1% daily commissions!\n\nJoin now: ${link}`;
+            const text = `☀️ Start Earning with Solor Energy!\n\n🎁 Get ₹${REFER_AMOUNT} Instant Bonus per refer!\n💵 Earn up to 5%-3%-1% daily commissions!\n\nJoin now: ${link}`;
             window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
         }
 
+        // Profile Name Edit Functions
         function loadProfileData() { 
             if(!currentUser) return;
             document.getElementById('profileName').textContent = currentUser.name; 
             document.getElementById('profilePhone').textContent = '+91 '+currentUser.phone; 
             document.getElementById('profJoinDate').textContent = new Date(currentUser.joinDate).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
             document.getElementById('profTotalEarn').textContent = '₹' + ((currentUser.referrals?.earnings || 0) + (currentUser.wallet?.mainBalance || 0));
+            
+            // Reset edit mode
+            document.getElementById('nameDisplayContainer').classList.remove('hidden');
+            document.getElementById('nameEditContainer').classList.add('hidden');
         }
         
-        function logout() { localStorage.removeItem('currentUser'); window.location.reload(); }
+        function enableNameEdit() {
+            document.getElementById('nameDisplayContainer').classList.add('hidden');
+            document.getElementById('nameEditContainer').classList.remove('hidden');
+            document.getElementById('nameEditInput').value = currentUser.name;
+            document.getElementById('nameEditInput').focus();
+        }
+        
+        async function saveProfileName() {
+            const newName = document.getElementById('nameEditInput').value.trim();
+            if(!newName) {
+                showToast('Please enter a valid name', 'error');
+                return;
+            }
+            if(newName === currentUser.name) {
+                document.getElementById('nameDisplayContainer').classList.remove('hidden');
+                document.getElementById('nameEditContainer').classList.add('hidden');
+                return;
+            }
+            
+            showLoading('Updating...');
+            try {
+                await database.ref(`users/${currentUser.id}/name`).set(newName);
+                currentUser.name = newName;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                document.getElementById('profileName').textContent = newName;
+                document.getElementById('nameDisplayContainer').classList.remove('hidden');
+                document.getElementById('nameEditContainer').classList.add('hidden');
+                
+                hideLoading();
+                showToast('Profile name updated!', 'success');
+            } catch(e) {
+                hideLoading();
+                showToast('Error updating name', 'error');
+            }
+        }
+        
+        function logout() { 
+            if(lastSeenInterval) clearInterval(lastSeenInterval);
+            if(userStatusListener) userStatusListener.off();
+            localStorage.removeItem('currentUser'); 
+            window.location.reload(); 
+        }
 
         // ==================== SUPPORT TICKETS ====================
         function loadSupportData() {
