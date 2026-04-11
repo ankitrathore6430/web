@@ -1,3 +1,4 @@
+<!-- REPLACE THE ENTIRE admin.html WITH THIS FIXED VERSION -->
 <!DOCTYPE html>
 <html lang="hi">
 <head>
@@ -84,6 +85,12 @@
         .status-rejected { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
         .status-active { background: rgba(16, 185, 129, 0.1); color: var(--success); }
         .status-blocked { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        
+        /* Online/Offline Indicators */
+        .online-indicator { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; }
+        .online-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: pulse 2s infinite; }
+        .offline-dot { width: 8px; height: 8px; background: var(--gray-light); border-radius: 50%; }
+        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
         
         /* Buttons */
         .btn-main { padding: 12px 24px; border-radius: 12px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s; }
@@ -686,7 +693,15 @@
         function initData() {
             showLoading();
             db.ref().on('value', snap => {
-                appData = snap.val() || { users:{}, deposits:{}, withdrawals:{}, tickets:{}, settings:{}, plans:{} };
+                const data = snap.val() || {};
+                appData = {
+                    users: data.users || {},
+                    deposits: data.deposits || {},
+                    withdrawals: data.withdrawals || {},
+                    tickets: data.tickets || {},
+                    settings: data.settings || {},
+                    plans: data.plans || {}
+                };
                 updateDashboard();
                 if(document.getElementById('usersPage').classList.contains('active')) loadUsers();
                 if(document.getElementById('plansPage').classList.contains('active')) loadPlansPage();
@@ -738,23 +753,56 @@
             }
         }
 
-        // USERS with Last Seen, Join Date, and Delete
+        // FIXED: USERS with Last Seen, Join Date, and Delete
         function loadUsers() {
-            const q = document.getElementById('searchUsers').value.toLowerCase();
-            const users = Object.entries(appData.users || {})
-                .map(([id, u]) => ({...u, id}))
-                .filter(u => u.phone.includes(q) || u.name.toLowerCase().includes(q));
+            const searchQuery = document.getElementById('searchUsers').value.toLowerCase().trim();
             
-            document.getElementById('usersTableBody').innerHTML = users.map(u => {
+            // Get users from appData.users (which is now always an object)
+            const usersData = appData.users || {};
+            let users = Object.entries(usersData).map(([id, userData]) => {
+                return { ...userData, id: id };
+            });
+            
+            // Filter by search query if provided
+            if(searchQuery) {
+                users = users.filter(u => {
+                    const phone = (u.phone || '').toString().toLowerCase();
+                    const name = (u.name || '').toLowerCase();
+                    return phone.includes(searchQuery) || name.includes(searchQuery);
+                });
+            }
+            
+            // Sort by join date (newest first)
+            users.sort((a, b) => {
+                const dateA = a.joinDate ? new Date(a.joinDate) : new Date(0);
+                const dateB = b.joinDate ? new Date(b.joinDate) : new Date(0);
+                return dateB - dateA;
+            });
+            
+            const tbody = document.getElementById('usersTableBody');
+            
+            if(users.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 40px; color: var(--gray);">No users found</td></tr>';
+                return;
+            }
+            
+            tbody.innerHTML = users.map(u => {
                 const joinDate = u.joinDate ? new Date(u.joinDate).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : '--';
+                const balance = u.wallet?.mainBalance || 0;
+                const refers = u.referrals?.count || 0;
+                const status = u.status || 'active';
+                
                 return `
                 <tr>
-                    <td><strong>${u.name}</strong><br><small>${u.phone}</small></td>
-                    <td style="font-weight:bold; color:var(--success);">₹${u.wallet?.mainBalance||0}</td>
-                    <td>${u.referrals?.count||0}</td>
+                    <td>
+                        <div style="font-weight: 600;">${u.name || 'Unknown'}</div>
+                        <div style="font-size: 12px; color: var(--gray);">${u.phone || '--'}</div>
+                    </td>
+                    <td style="font-weight: bold; color: var(--success);">₹${balance}</td>
+                    <td>${refers}</td>
                     <td>${joinDate}</td>
                     <td>${getLastSeenText(u.lastSeen)}</td>
-                    <td><span class="status-badge status-${u.status||'active'}">${u.status||'active'}</span></td>
+                    <td><span class="status-badge status-${status}">${status}</span></td>
                     <td>
                         <button class="btn-icon view" onclick="manageUser('${u.id}')" title="Manage"><i class="fas fa-edit"></i></button>
                         <button class="btn-icon delete" onclick="deleteUser('${u.id}')" title="Delete Permanently"><i class="fas fa-trash"></i></button>
@@ -766,15 +814,42 @@
         function manageUser(uid) {
             currentUserId = uid;
             const u = appData.users[uid];
+            if(!u) {
+                showToast('User not found', 'error');
+                return;
+            }
+            
             const joinDate = u.joinDate ? new Date(u.joinDate).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : '--';
             
             document.getElementById('userModalBody').innerHTML = `
                 <div style="text-align:center; margin-bottom:15px;">
-                    <h4>${u.name} (${u.phone})</h4>
-                    <p>Balance: <strong style="color:var(--success); font-size:18px;">₹${u.wallet?.mainBalance||0}</strong></p>
-                    <p>Join Date: <strong>${joinDate}</strong></p>
-                    <p>Last Seen: ${getLastSeenText(u.lastSeen)}</p>
-                    <p>Status: <strong class="status-${u.status||'active'}">${(u.status||'active').toUpperCase()}</strong></p>
+                    <div style="width: 80px; height: 80px; background: var(--gradient-1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 36px; color: white;">👤</div>
+                    <h4 style="font-size: 20px; margin-bottom: 5px;">${u.name || 'Unknown'}</h4>
+                    <p style="color: var(--gray); font-size: 14px;">${u.phone || '--'}</p>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+                    <div style="background: var(--light); padding: 15px; border-radius: 12px; text-align: center;">
+                        <div style="font-size: 20px; font-weight: 700; color: var(--success);">₹${u.wallet?.mainBalance || 0}</div>
+                        <div style="font-size: 12px; color: var(--gray);">Balance</div>
+                    </div>
+                    <div style="background: var(--light); padding: 15px; border-radius: 12px; text-align: center;">
+                        <div style="font-size: 20px; font-weight: 700; color: var(--primary);">${u.referrals?.count || 0}</div>
+                        <div style="font-size: 12px; color: var(--gray);">Refers</div>
+                    </div>
+                </div>
+                <div style="background: var(--light); padding: 15px; border-radius: 12px; margin-bottom: 20px;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: var(--gray);">Join Date:</span>
+                        <span style="font-weight: 600;">${joinDate}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                        <span style="color: var(--gray);">Last Seen:</span>
+                        <span style="font-weight: 600;">${getLastSeenText(u.lastSeen)}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between;">
+                        <span style="color: var(--gray);">Status:</span>
+                        <span class="status-badge status-${u.status || 'active'}">${(u.status || 'active').toUpperCase()}</span>
+                    </div>
                 </div>
                 <hr style="border:0; border-top:1px solid #e2e8f0; margin:15px 0;">
                 <div style="display:flex; gap:10px; margin-bottom:15px;">
@@ -784,7 +859,7 @@
                 </div>
                 <div style="margin-top:15px;">
                     <button class="btn-main ${u.status==='blocked'?'btn-success':'btn-danger'}" style="width:100%" onclick="toggleBlock('${uid}', '${u.status}')">
-                        ${u.status==='blocked'?'Unblock User':'Block User'}
+                        <i class="fas fa-${u.status==='blocked'?'check-circle':'ban'}"></i> ${u.status==='blocked'?'Unblock User':'Block User'}
                     </button>
                 </div>
             `;
@@ -792,9 +867,14 @@
         }
 
         function deleteUser(uid) {
-            userToDelete = uid;
             const u = appData.users[uid];
-            document.getElementById('deleteUserName').textContent = u.name + ' (' + u.phone + ')';
+            if(!u) {
+                showToast('User not found', 'error');
+                return;
+            }
+            
+            userToDelete = uid;
+            document.getElementById('deleteUserName').textContent = (u.name || 'Unknown') + ' (' + (u.phone || '--') + ')';
             openModal('deleteUserModal');
         }
 
@@ -830,13 +910,20 @@
                     await db.ref(`tickets/${ticId}`).remove();
                 }
                 
+                // Remove from local appData to prevent UI issues
+                delete appData.users[userToDelete];
+                
                 hideLoading();
                 closeModal('deleteUserModal');
                 showToast('User deleted permanently', 'success');
+                
+                // Refresh users list
+                loadUsers();
                 userToDelete = null;
             } catch(e) {
                 hideLoading();
                 showToast('Error deleting user: ' + e.message, 'error');
+                console.error('Delete error:', e);
             }
         }
 
@@ -845,6 +932,8 @@
             if(!amt || amt <= 0) return showToast('Invalid amount', 'error');
             
             const u = appData.users[currentUserId];
+            if(!u) return showToast('User not found', 'error');
+            
             let newBal = u.wallet?.mainBalance || 0;
             
             if(type === 'deduct') {
@@ -855,19 +944,34 @@
             }
             
             showLoading();
-            await db.ref(`users/${currentUserId}/wallet/mainBalance`).set(newBal);
-            await db.ref(`users/${currentUserId}/transactions/${Date.now()}`).set({
-                id: Date.now().toString(), type: type==='add'?'admin_credit':'admin_debit',
-                amount: amt, description: type==='add'?'Added by Admin':'Deducted by Admin',
-                date: new Date().toISOString(), status: 'approved'
-            });
-            hideLoading(); closeModal('userModal'); showToast('Fund updated successfully');
+            try {
+                await db.ref(`users/${currentUserId}/wallet/mainBalance`).set(newBal);
+                await db.ref(`users/${currentUserId}/transactions/${Date.now()}`).set({
+                    id: Date.now().toString(), 
+                    type: type==='add'?'admin_credit':'admin_debit',
+                    amount: amt, 
+                    description: type==='add'?'Added by Admin':'Deducted by Admin',
+                    date: new Date().toISOString(), 
+                    status: 'approved'
+                });
+                hideLoading(); 
+                closeModal('userModal'); 
+                showToast('Fund updated successfully');
+            } catch(e) {
+                hideLoading();
+                showToast('Error updating fund: ' + e.message, 'error');
+            }
         }
 
         async function toggleBlock(uid, currentStatus) {
             const newStatus = currentStatus === 'blocked' ? 'active' : 'blocked';
-            await db.ref(`users/${uid}/status`).set(newStatus);
-            closeModal('userModal'); showToast('User status updated');
+            try {
+                await db.ref(`users/${uid}/status`).set(newStatus);
+                closeModal('userModal'); 
+                showToast('User status updated');
+            } catch(e) {
+                showToast('Error updating status: ' + e.message, 'error');
+            }
         }
 
         // PLANS MANAGEMENT
@@ -878,7 +982,13 @@
             // Sort by price
             planArray.sort((a, b) => a.price - b.price);
             
-            document.getElementById('plansEditGrid').innerHTML = planArray.map(p => `
+            const container = document.getElementById('plansEditGrid');
+            if(planArray.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color: var(--gray);">No plans found. Click "Add New Plan" to create one.</p>';
+                return;
+            }
+            
+            container.innerHTML = planArray.map(p => `
                 <div class="plan-edit-card ${p.popular ? 'popular' : ''}" onclick="openEditPlanModal('${p.id}')" style="cursor: pointer;">
                     <div class="plan-header-row">
                         <div style="display: flex; align-items: center; gap: 10px;">
@@ -972,10 +1082,15 @@
             };
             
             showLoading();
-            await db.ref(`plans/${planId}`).set(planData);
-            hideLoading();
-            closeModal('planModal');
-            showToast(isAddingNewPlan ? 'Plan added successfully!' : 'Plan updated successfully!');
+            try {
+                await db.ref(`plans/${planId}`).set(planData);
+                hideLoading();
+                closeModal('planModal');
+                showToast(isAddingNewPlan ? 'Plan added successfully!' : 'Plan updated successfully!');
+            } catch(e) {
+                hideLoading();
+                showToast('Error saving plan: ' + e.message, 'error');
+            }
         }
 
         async function deletePlan() {
@@ -985,51 +1100,60 @@
             if(!confirm('Are you sure you want to delete this plan? This cannot be undone.')) return;
             
             showLoading();
-            await db.ref(`plans/${id}`).remove();
-            hideLoading();
-            closeModal('planModal');
-            showToast('Plan deleted successfully');
+            try {
+                await db.ref(`plans/${id}`).remove();
+                hideLoading();
+                closeModal('planModal');
+                showToast('Plan deleted successfully');
+            } catch(e) {
+                hideLoading();
+                showToast('Error deleting plan: ' + e.message, 'error');
+            }
         }
 
         // DEPOSITS with Pending and History
         function loadDeposits() {
-            const allDeps = Object.values(appData.deposits || {});
+            const allDeps = Object.entries(appData.deposits || {}).map(([id, d]) => ({...d, id}));
             
             // Pending Deposits
             const pendingDeps = allDeps.filter(d=>d.status==='pending').sort((a,b)=>new Date(a.requestedAt)-new Date(b.requestedAt));
             document.getElementById('depositsPendingTableBody').innerHTML = pendingDeps.length ? pendingDeps.map(d => `
                 <tr>
-                    <td>${d.userName}<br><small>${d.userPhone}</small></td>
+                    <td>${d.userName || '--'}<br><small>${d.userPhone || '--'}</small></td>
                     <td style="font-weight:bold; color:var(--success);">₹${d.amount}</td>
-                    <td>${d.transactionId}<br><small>${d.upiApp}</small></td>
-                    <td style="font-size:12px;">${new Date(d.requestedAt).toLocaleString()}</td>
+                    <td>${d.transactionId || '--'}<br><small>${d.upiApp || '--'}</small></td>
+                    <td style="font-size:12px;">${d.requestedAt ? new Date(d.requestedAt).toLocaleString() : '--'}</td>
                     <td><button class="btn-main btn-primary" style="padding: 6px 12px; font-size:12px;" onclick="openDeposit('${d.id}')">Review</button></td>
                 </tr>
-            `).join('') : '<tr><td colspan="5" style="text-align:center;">No pending deposits</td></tr>';
+            `).join('') : '<tr><td colspan="5" style="text-align:center; padding: 40px;">No pending deposits</td></tr>';
             
             // All History (approved and rejected)
             const historyDeps = allDeps.filter(d=>d.status!=='pending').sort((a,b)=>new Date(b.requestedAt)-new Date(a.requestedAt));
             document.getElementById('depositsHistoryTableBody').innerHTML = historyDeps.length ? historyDeps.map(d => `
                 <tr>
-                    <td>${d.userName}<br><small>${d.userPhone}</small></td>
+                    <td>${d.userName || '--'}<br><small>${d.userPhone || '--'}</small></td>
                     <td style="font-weight:bold; color:var(--success);">₹${d.amount}</td>
-                    <td>${d.transactionId}<br><small>${d.upiApp}</small></td>
+                    <td>${d.transactionId || '--'}<br><small>${d.upiApp || '--'}</small></td>
                     <td><span class="status-badge status-${d.status}">${d.status}</span></td>
-                    <td style="font-size:12px;">${new Date(d.requestedAt).toLocaleString()}</td>
+                    <td style="font-size:12px;">${d.requestedAt ? new Date(d.requestedAt).toLocaleString() : '--'}</td>
                     <td>
                         <button class="btn-icon ${d.status==='approved'?'success':'edit'}" onclick="reopenDeposit('${d.id}')" title="Change Status">
                             <i class="fas fa-${d.status==='approved'?'check':'times'}"></i>
                         </button>
                     </td>
                 </tr>
-            `).join('') : '<tr><td colspan="6" style="text-align:center;">No history</td></tr>';
+            `).join('') : '<tr><td colspan="6" style="text-align:center; padding: 40px;">No history</td></tr>';
         }
 
         function openDeposit(did) {
             currentActionId = did;
             const d = appData.deposits[did];
+            if(!d) {
+                showToast('Deposit not found', 'error');
+                return;
+            }
             currentUserId = d.userId;
-            document.getElementById('depositDetails').innerHTML = `User: <b>${d.userName}</b><br>Amount: <b>₹${d.amount}</b><br>UTR: <b>${d.transactionId}</b>`;
+            document.getElementById('depositDetails').innerHTML = `User: <b>${d.userName || '--'}</b><br>Amount: <b>₹${d.amount}</b><br>UTR: <b>${d.transactionId || '--'}</b>`;
             document.getElementById('depReason').value = d.adminReason || 'Payment Verified';
             document.getElementById('depAction').value = 'approved';
             openModal('depositModal');
@@ -1038,13 +1162,16 @@
         function reopenDeposit(did) {
             currentActionId = did;
             const d = appData.deposits[did];
+            if(!d) {
+                showToast('Deposit not found', 'error');
+                return;
+            }
             currentUserId = d.userId;
             document.getElementById('depositDetails').innerHTML = `
                 <div style="color: var(--warning); margin-bottom: 10px;"><i class="fas fa-exclamation-circle"></i> Changing status from <b>${d.status.toUpperCase()}</b></div>
-                User: <b>${d.userName}</b><br>Amount: <b>₹${d.amount}</b><br>UTR: <b>${d.transactionId}</b>
+                User: <b>${d.userName || '--'}</b><br>Amount: <b>₹${d.amount}</b><br>UTR: <b>${d.transactionId || '--'}</b>
             `;
             document.getElementById('depReason').value = d.adminReason || '';
-            // Set opposite action
             document.getElementById('depAction').value = d.status === 'approved' ? 'rejected' : 'approved';
             openModal('depositModal');
         }
@@ -1053,79 +1180,92 @@
             const action = document.getElementById('depAction').value;
             const reason = document.getElementById('depReason').value || (action==='approved'?'Payment Verified':'Invalid Details');
             const d = appData.deposits[currentActionId];
+            if(!d) {
+                showToast('Deposit not found', 'error');
+                return;
+            }
             const previousStatus = d.status;
             
             showLoading();
-            const updates = {};
-            
-            // Update deposit node
-            updates[`deposits/${currentActionId}/status`] = action;
-            updates[`deposits/${currentActionId}/adminReason`] = reason;
-            
-            const newType = action === 'approved' ? 'deposit_approved' : 'deposit_rejected';
-            updates[`users/${currentUserId}/transactions/${currentActionId}/status`] = action;
-            updates[`users/${currentUserId}/transactions/${currentActionId}/adminReason`] = reason;
-            updates[`users/${currentUserId}/transactions/${currentActionId}/type`] = newType; 
-            
-            // Handle balance changes
-            const u = appData.users[currentUserId];
-            const currentBalance = u.wallet?.mainBalance || 0;
-            
-            if(action === 'approved') {
-                // If previously rejected or pending, add balance
-                if(previousStatus !== 'approved') {
-                    updates[`users/${currentUserId}/wallet/mainBalance`] = currentBalance + d.amount;
+            try {
+                const updates = {};
+                
+                // Update deposit node
+                updates[`deposits/${currentActionId}/status`] = action;
+                updates[`deposits/${currentActionId}/adminReason`] = reason;
+                
+                const newType = action === 'approved' ? 'deposit_approved' : 'deposit_rejected';
+                updates[`users/${currentUserId}/transactions/${currentActionId}/status`] = action;
+                updates[`users/${currentUserId}/transactions/${currentActionId}/adminReason`] = reason;
+                updates[`users/${currentUserId}/transactions/${currentActionId}/type`] = newType; 
+                
+                // Handle balance changes
+                const u = appData.users[currentUserId];
+                const currentBalance = u?.wallet?.mainBalance || 0;
+                
+                if(action === 'approved') {
+                    if(previousStatus !== 'approved') {
+                        updates[`users/${currentUserId}/wallet/mainBalance`] = currentBalance + d.amount;
+                    }
+                } else if(action === 'rejected') {
+                    if(previousStatus === 'approved') {
+                        updates[`users/${currentUserId}/wallet/mainBalance`] = Math.max(0, currentBalance - d.amount);
+                    }
                 }
-            } else if(action === 'rejected') {
-                // If previously approved, deduct balance
-                if(previousStatus === 'approved') {
-                    updates[`users/${currentUserId}/wallet/mainBalance`] = Math.max(0, currentBalance - d.amount);
-                }
+                
+                await db.ref().update(updates);
+                hideLoading(); 
+                closeModal('depositModal'); 
+                showToast('Deposit status updated successfully');
+            } catch(e) {
+                hideLoading();
+                showToast('Error updating deposit: ' + e.message, 'error');
             }
-            
-            await db.ref().update(updates);
-            hideLoading(); closeModal('depositModal'); showToast('Deposit status updated successfully');
         }
 
         // WITHDRAWALS with Pending and History
         function loadWithdrawals() {
-            const allWiths = Object.values(appData.withdrawals || {});
+            const allWiths = Object.entries(appData.withdrawals || {}).map(([id, w]) => ({...w, id}));
             
             // Pending Withdrawals
             const pendingWiths = allWiths.filter(w=>w.status==='pending').sort((a,b)=>new Date(a.requestedAt)-new Date(b.requestedAt));
             document.getElementById('withdrawalsPendingTableBody').innerHTML = pendingWiths.length ? pendingWiths.map(w => `
                 <tr>
-                    <td>${w.userName}<br><small>${w.userPhone}</small></td>
+                    <td>${w.userName || '--'}<br><small>${w.userPhone || '--'}</small></td>
                     <td style="font-weight:bold; color:var(--danger);">₹${w.amount}</td>
-                    <td style="font-size:12px;"><b>${w.method.toUpperCase()}</b><br>${w.details}</td>
-                    <td style="font-size:12px;">${new Date(w.requestedAt).toLocaleString()}</td>
+                    <td style="font-size:12px;"><b>${(w.method || '').toUpperCase()}</b><br>${w.details || '--'}</td>
+                    <td style="font-size:12px;">${w.requestedAt ? new Date(w.requestedAt).toLocaleString() : '--'}</td>
                     <td><button class="btn-main btn-primary" style="padding: 6px 12px; font-size:12px;" onclick="openWithdraw('${w.id}')">Review</button></td>
                 </tr>
-            `).join('') : '<tr><td colspan="5" style="text-align:center;">No pending withdrawals</td></tr>';
+            `).join('') : '<tr><td colspan="5" style="text-align:center; padding: 40px;">No pending withdrawals</td></tr>';
             
             // All History
             const historyWiths = allWiths.filter(w=>w.status!=='pending').sort((a,b)=>new Date(b.requestedAt)-new Date(a.requestedAt));
             document.getElementById('withdrawalsHistoryTableBody').innerHTML = historyWiths.length ? historyWiths.map(w => `
                 <tr>
-                    <td>${w.userName}<br><small>${w.userPhone}</small></td>
+                    <td>${w.userName || '--'}<br><small>${w.userPhone || '--'}</small></td>
                     <td style="font-weight:bold; color:var(--danger);">₹${w.amount}</td>
-                    <td style="font-size:12px;"><b>${w.method.toUpperCase()}</b><br>${w.details}</td>
+                    <td style="font-size:12px;"><b>${(w.method || '').toUpperCase()}</b><br>${w.details || '--'}</td>
                     <td><span class="status-badge status-${w.status}">${w.status}</span></td>
-                    <td style="font-size:12px;">${new Date(w.requestedAt).toLocaleString()}</td>
+                    <td style="font-size:12px;">${w.requestedAt ? new Date(w.requestedAt).toLocaleString() : '--'}</td>
                     <td>
                         <button class="btn-icon ${w.status==='approved'?'success':'edit'}" onclick="reopenWithdraw('${w.id}')" title="Change Status">
                             <i class="fas fa-${w.status==='approved'?'check':'times'}"></i>
                         </button>
                     </td>
                 </tr>
-            `).join('') : '<tr><td colspan="6" style="text-align:center;">No history</td></tr>';
+            `).join('') : '<tr><td colspan="6" style="text-align:center; padding: 40px;">No history</td></tr>';
         }
 
         function openWithdraw(wid) {
             currentActionId = wid;
             const w = appData.withdrawals[wid];
+            if(!w) {
+                showToast('Withdrawal not found', 'error');
+                return;
+            }
             currentUserId = w.userId;
-            document.getElementById('withdrawDetails').innerHTML = `Amount: <b>₹${w.amount}</b><br>Method: <b>${w.method.toUpperCase()}</b><br>Details: ${w.details}`;
+            document.getElementById('withdrawDetails').innerHTML = `Amount: <b>₹${w.amount}</b><br>Method: <b>${(w.method || '').toUpperCase()}</b><br>Details: ${w.details || '--'}`;
             document.getElementById('withReason').value = w.adminReason || '';
             document.getElementById('withAction').value = 'approved';
             openModal('withdrawModal');
@@ -1134,10 +1274,14 @@
         function reopenWithdraw(wid) {
             currentActionId = wid;
             const w = appData.withdrawals[wid];
+            if(!w) {
+                showToast('Withdrawal not found', 'error');
+                return;
+            }
             currentUserId = w.userId;
             document.getElementById('withdrawDetails').innerHTML = `
                 <div style="color: var(--warning); margin-bottom: 10px;"><i class="fas fa-exclamation-circle"></i> Changing status from <b>${w.status.toUpperCase()}</b></div>
-                Amount: <b>₹${w.amount}</b><br>Method: <b>${w.method.toUpperCase()}</b><br>Details: ${w.details}
+                Amount: <b>₹${w.amount}</b><br>Method: <b>${(w.method || '').toUpperCase()}</b><br>Details: ${w.details || '--'}
             `;
             document.getElementById('withReason').value = w.adminReason || '';
             document.getElementById('withAction').value = w.status === 'approved' ? 'rejected' : 'approved';
@@ -1148,42 +1292,50 @@
             const action = document.getElementById('withAction').value;
             const reason = document.getElementById('withReason').value || (action==='approved'?'Payment Sent':'Rejected');
             const w = appData.withdrawals[currentActionId];
+            if(!w) {
+                showToast('Withdrawal not found', 'error');
+                return;
+            }
             const previousStatus = w.status;
             
             showLoading();
-            const updates = {};
-            
-            updates[`withdrawals/${currentActionId}/status`] = action;
-            updates[`withdrawals/${currentActionId}/adminReason`] = reason;
-            
-            const newType = action === 'approved' ? 'withdrawal_approved' : 'withdrawal_rejected';
-            updates[`users/${currentUserId}/transactions/${currentActionId}/status`] = action;
-            updates[`users/${currentUserId}/transactions/${currentActionId}/adminReason`] = reason;
-            updates[`users/${currentUserId}/transactions/${currentActionId}/type`] = newType;
-            
-            // Handle balance changes
-            const u = appData.users[currentUserId];
-            const currentBalance = u.wallet?.mainBalance || 0;
-            const currentWithdrawn = u.wallet?.totalWithdrawn || 0;
-            
-            if(action === 'approved') {
-                // If previously rejected or pending
-                if(previousStatus !== 'approved') {
-                    updates[`users/${currentUserId}/wallet/totalWithdrawn`] = currentWithdrawn + w.amount;
-                    // Balance already deducted when request was made, no change needed
-                }
-            } else if(action === 'rejected') {
-                // Refund balance if previously approved or pending
-                if(previousStatus !== 'rejected') {
-                    updates[`users/${currentUserId}/wallet/mainBalance`] = currentBalance + w.amount;
-                    if(previousStatus === 'approved') {
-                        updates[`users/${currentUserId}/wallet/totalWithdrawn`] = Math.max(0, currentWithdrawn - w.amount);
+            try {
+                const updates = {};
+                
+                updates[`withdrawals/${currentActionId}/status`] = action;
+                updates[`withdrawals/${currentActionId}/adminReason`] = reason;
+                
+                const newType = action === 'approved' ? 'withdrawal_approved' : 'withdrawal_rejected';
+                updates[`users/${currentUserId}/transactions/${currentActionId}/status`] = action;
+                updates[`users/${currentUserId}/transactions/${currentActionId}/adminReason`] = reason;
+                updates[`users/${currentUserId}/transactions/${currentActionId}/type`] = newType;
+                
+                // Handle balance changes
+                const u = appData.users[currentUserId];
+                const currentBalance = u?.wallet?.mainBalance || 0;
+                const currentWithdrawn = u?.wallet?.totalWithdrawn || 0;
+                
+                if(action === 'approved') {
+                    if(previousStatus !== 'approved') {
+                        updates[`users/${currentUserId}/wallet/totalWithdrawn`] = currentWithdrawn + w.amount;
+                    }
+                } else if(action === 'rejected') {
+                    if(previousStatus !== 'rejected') {
+                        updates[`users/${currentUserId}/wallet/mainBalance`] = currentBalance + w.amount;
+                        if(previousStatus === 'approved') {
+                            updates[`users/${currentUserId}/wallet/totalWithdrawn`] = Math.max(0, currentWithdrawn - w.amount);
+                        }
                     }
                 }
+                
+                await db.ref().update(updates);
+                hideLoading(); 
+                closeModal('withdrawModal'); 
+                showToast('Withdrawal status updated successfully');
+            } catch(e) {
+                hideLoading();
+                showToast('Error updating withdrawal: ' + e.message, 'error');
             }
-            
-            await db.ref().update(updates);
-            hideLoading(); closeModal('withdrawModal'); showToast('Withdrawal status updated successfully');
         }
 
         // OFFERS SYSTEM
@@ -1191,7 +1343,13 @@
             const plans = appData.plans || {};
             const offers = appData.settings?.offers || {};
             
-            document.getElementById('offersGrid').innerHTML = Object.values(plans).map(p => `
+            const planList = Object.values(plans);
+            if(planList.length === 0) {
+                document.getElementById('offersGrid').innerHTML = '<p style="text-align:center; color: var(--gray);">No plans available to set offers.</p>';
+                return;
+            }
+            
+            document.getElementById('offersGrid').innerHTML = planList.map(p => `
                 <div style="background: var(--light); padding: 15px; border-radius: 12px; border: 1px solid #e2e8f0;">
                     <div style="font-weight: 600; margin-bottom: 10px;">${p.icon || '📦'} ${p.name} Plan</div>
                     <label style="font-size: 12px; color: var(--gray);">Discount (%)</label>
@@ -1210,8 +1368,14 @@
                 if(val && parseInt(val) > 0) updates[p.id] = parseInt(val);
             });
             
-            await db.ref('settings/offers').set(updates);
-            hideLoading(); showToast('Offers updated on website!', 'success');
+            try {
+                await db.ref('settings/offers').set(updates);
+                hideLoading(); 
+                showToast('Offers updated on website!', 'success');
+            } catch(e) {
+                hideLoading();
+                showToast('Error saving offers: ' + e.message, 'error');
+            }
         }
 
         // TICKETS with Open, Closed, and All tabs
@@ -1222,29 +1386,29 @@
             
             // Open Tickets
             const openTicks = allTickets.filter(t => t.status === 'open');
-            document.getElementById('ticketsOpenList').innerHTML = openTicks.length ? openTicks.map(t => renderTicketCard(t, true)).join('') : '<p style="text-align:center;">No open tickets</p>';
+            document.getElementById('ticketsOpenList').innerHTML = openTicks.length ? openTicks.map(t => renderTicketCard(t, true)).join('') : '<p style="text-align:center; color: var(--gray);">No open tickets</p>';
             
             // Closed Tickets
             const closedTicks = allTickets.filter(t => t.status === 'closed');
-            document.getElementById('ticketsClosedList').innerHTML = closedTicks.length ? closedTicks.map(t => renderTicketCard(t, false)).join('') : '<p style="text-align:center;">No closed tickets</p>';
+            document.getElementById('ticketsClosedList').innerHTML = closedTicks.length ? closedTicks.map(t => renderTicketCard(t, false)).join('') : '<p style="text-align:center; color: var(--gray);">No closed tickets</p>';
             
             // All Tickets
-            document.getElementById('ticketsAllList').innerHTML = allTickets.length ? allTickets.map(t => renderTicketCard(t, t.status === 'open')).join('') : '<p style="text-align:center;">No tickets</p>';
+            document.getElementById('ticketsAllList').innerHTML = allTickets.length ? allTickets.map(t => renderTicketCard(t, t.status === 'open')).join('') : '<p style="text-align:center; color: var(--gray);">No tickets</p>';
         }
 
         function renderTicketCard(t, isOpen) {
             return `
                 <div style="background: var(--light); padding: 15px; border-radius: 12px; margin-bottom: 15px;">
                     <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
-                        <strong>${t.userName} (${t.userPhone})</strong>
+                        <strong>${t.userName || '--'} (${t.userPhone || '--'})</strong>
                         <span class="status-badge status-${t.status}">${t.status.toUpperCase()}</span>
                     </div>
                     <div style="font-size: 12px; color: var(--gray); margin-bottom: 5px;">
-                        <span style="background: var(--primary); color: white; padding: 2px 8px; border-radius: 10px; margin-right: 5px;">${t.type.toUpperCase()}</span>
-                        ${new Date(t.createdAt).toLocaleString()}
+                        <span style="background: var(--primary); color: white; padding: 2px 8px; border-radius: 10px; margin-right: 5px;">${(t.type || 'OTHER').toUpperCase()}</span>
+                        ${t.createdAt ? new Date(t.createdAt).toLocaleString() : '--'}
                     </div>
-                    <h4 style="margin: 10px 0;">${t.subject}</h4>
-                    <p style="font-size:14px; color:var(--gray); margin:10px 0;">${t.message}</p>
+                    <h4 style="margin: 10px 0;">${t.subject || '--'}</h4>
+                    <p style="font-size:14px; color:var(--gray); margin:10px 0;">${t.message || '--'}</p>
                     ${t.reply ? `
                         <div style="background: rgba(99, 102, 241, 0.1); padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 13px;">
                             <strong style="color:var(--primary);">Admin Reply:</strong> ${t.reply}
@@ -1268,9 +1432,13 @@
         function openTicket(fbKey) {
             currentFirebaseKey = fbKey; 
             const t = appData.tickets[fbKey];
+            if(!t) {
+                showToast('Ticket not found', 'error');
+                return;
+            }
             document.getElementById('ticketDetails').innerHTML = `
-                <p><strong>Subject:</strong> ${t.subject}</p>
-                <p><strong>User Message:</strong> ${t.message}</p>
+                <p><strong>Subject:</strong> ${t.subject || '--'}</p>
+                <p><strong>User Message:</strong> ${t.message || '--'}</p>
                 ${t.reply ? `<p style="color: var(--gray);"><strong>Current Reply:</strong> ${t.reply}</p>` : ''}
             `;
             document.getElementById('ticketReply').value = t.reply || '';
@@ -1282,24 +1450,34 @@
             if(!reply) return showToast('Please enter a reply', 'error');
             
             showLoading();
-            await db.ref(`tickets/${currentFirebaseKey}`).update({ 
-                status: 'closed', 
-                reply: reply, 
-                repliedAt: new Date().toISOString() 
-            });
-            hideLoading(); 
-            closeModal('ticketModal'); 
-            showToast('Reply sent successfully');
+            try {
+                await db.ref(`tickets/${currentFirebaseKey}`).update({ 
+                    status: 'closed', 
+                    reply: reply, 
+                    repliedAt: new Date().toISOString() 
+                });
+                hideLoading(); 
+                closeModal('ticketModal'); 
+                showToast('Reply sent successfully');
+            } catch(e) {
+                hideLoading();
+                showToast('Error sending reply: ' + e.message, 'error');
+            }
         }
 
         async function reopenTicketStatus(fbKey) {
             showLoading();
-            await db.ref(`tickets/${fbKey}`).update({ 
-                status: 'open',
-                reopenedAt: new Date().toISOString()
-            });
-            hideLoading();
-            showToast('Ticket reopened');
+            try {
+                await db.ref(`tickets/${fbKey}`).update({ 
+                    status: 'open',
+                    reopenedAt: new Date().toISOString()
+                });
+                hideLoading();
+                showToast('Ticket reopened');
+            } catch(e) {
+                hideLoading();
+                showToast('Error reopening ticket: ' + e.message, 'error');
+            }
         }
 
         // SETTINGS with Refer Amount
