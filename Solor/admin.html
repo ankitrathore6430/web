@@ -85,12 +85,6 @@
         .status-active { background: rgba(16, 185, 129, 0.1); color: var(--success); }
         .status-blocked { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
         
-        /* Online Status */
-        .online-indicator { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; }
-        .online-dot { width: 8px; height: 8px; background: var(--success); border-radius: 50%; animation: pulse 2s infinite; }
-        .offline-dot { width: 8px; height: 8px; background: var(--gray-light); border-radius: 50%; }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        
         /* Buttons */
         .btn-main { padding: 12px 24px; border-radius: 12px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s; }
         .btn-primary { background: var(--gradient-1); color: var(--white); }
@@ -219,7 +213,7 @@
                     </div>
                     <div class="table-container">
                         <table class="data-table">
-                            <thead><tr><th>Name/Phone</th><th>Status</th><th>Last Seen</th><th>Balance</th><th>Refers</th><th>Actions</th></tr></thead>
+                            <thead><tr><th>Name/Phone</th><th>Balance</th><th>Refers</th><th>Status</th><th>Actions</th></tr></thead>
                             <tbody id="usersTableBody"></tbody>
                         </table>
                     </div>
@@ -273,7 +267,7 @@
                 </div>
             </div>
 
-            <!-- Settings Page -->
+            <!-- Settings Page - IMPLEMENTED -->
             <div id="settingsPage" class="admin-page">
                 <div class="content-card" style="max-width: 500px;">
                     <h3 class="card-title" style="margin-bottom: 20px;"><i class="fas fa-cog"></i> App Settings</h3>
@@ -288,11 +282,6 @@
                             <input type="number" class="form-input" id="setMinWith" placeholder="e.g., 200" min="100" required>
                             <p style="font-size: 12px; color: var(--gray); margin-top: 5px;">Minimum amount users can withdraw</p>
                         </div>
-                        <div class="form-group">
-                            <label class="form-label">Referral Bonus Amount (₹)</label>
-                            <input type="number" class="form-input" id="setReferAmount" placeholder="e.g., 15" min="0" required>
-                            <p style="font-size: 12px; color: var(--gray); margin-top: 5px;">Amount given to referrer when new user signs up</p>
-                        </div>
                         <button type="submit" class="btn-main btn-success" style="width: 100%;"><i class="fas fa-save"></i> Save Settings</button>
                     </form>
                     
@@ -300,8 +289,7 @@
                         <h4 style="margin-bottom: 15px; font-size: 16px;">Current Settings</h4>
                         <div style="background: var(--light); padding: 15px; border-radius: 12px;">
                             <div style="margin-bottom: 10px;"><strong>UPI ID:</strong> <span id="currentUpiId" style="color: var(--primary);">Loading...</span></div>
-                            <div style="margin-bottom: 10px;"><strong>Min Withdrawal:</strong> ₹<span id="currentMinWith" style="color: var(--primary);">Loading...</span></div>
-                            <div><strong>Referral Bonus:</strong> ₹<span id="currentReferAmount" style="color: var(--primary);">Loading...</span></div>
+                            <div><strong>Min Withdrawal:</strong> ₹<span id="currentMinWith" style="color: var(--primary);">Loading...</span></div>
                         </div>
                     </div>
                 </div>
@@ -413,7 +401,7 @@
         let appData = { users: {}, deposits: {}, withdrawals: {}, tickets: {}, settings: {} };
         let currentActionId = null;
         let currentUserId = null;
-        let currentFirebaseKey = null;
+        let currentFirebaseKey = null; // Important for Tickets
 
         const PLANS = [
             { id: 'nano', name: 'Nano' }, { id: 'micro', name: 'Micro' }, 
@@ -505,34 +493,7 @@
             document.getElementById('badgeTickets').textContent = ticks.length;
         }
 
-        // Format last seen time
-        function formatLastSeen(lastSeen) {
-            if (!lastSeen) return '<span class="online-indicator"><span class="offline-dot"></span>Never</span>';
-            
-            const now = Date.now();
-            const diff = now - lastSeen;
-            
-            // Online if last seen within 2 minutes
-            if (diff < 120000) {
-                return '<span class="online-indicator"><span class="online-dot"></span>Online</span>';
-            }
-            
-            // Last seen format
-            const seconds = Math.floor(diff / 1000);
-            const minutes = Math.floor(seconds / 60);
-            const hours = Math.floor(minutes / 60);
-            const days = Math.floor(hours / 24);
-            
-            let text = '';
-            if (days > 0) text = days + ' day' + (days > 1 ? 's' : '') + ' ago';
-            else if (hours > 0) text = hours + ' hour' + (hours > 1 ? 's' : '') + ' ago';
-            else if (minutes > 0) text = minutes + ' min' + (minutes > 1 ? 's' : '') + ' ago';
-            else text = 'Just now';
-            
-            return '<span class="online-indicator"><span class="offline-dot"></span>' + text + '</span>';
-        }
-
-        // USERS with Last Seen
+        // USERS
         function loadUsers() {
             const q = document.getElementById('searchUsers').value.toLowerCase();
             const users = Object.values(appData.users || {}).filter(u => u.phone.includes(q) || u.name.toLowerCase().includes(q));
@@ -540,10 +501,9 @@
             document.getElementById('usersTableBody').innerHTML = users.map(u => `
                 <tr>
                     <td><strong>${u.name}</strong><br><small>${u.phone}</small></td>
-                    <td><span class="status-badge status-${u.status||'active'}">${u.status||'active'}</span></td>
-                    <td>${formatLastSeen(u.lastSeen)}</td>
                     <td style="font-weight:bold; color:var(--success);">₹${u.wallet?.mainBalance||0}</td>
                     <td>${u.referrals?.count||0}</td>
+                    <td><span class="status-badge status-${u.status||'active'}">${u.status||'active'}</span></td>
                     <td><button class="btn-icon view" onclick="manageUser('${u.id}')"><i class="fas fa-edit"></i></button></td>
                 </tr>
             `).join('');
@@ -557,7 +517,6 @@
                     <h4>${u.name} (${u.phone})</h4>
                     <p>Balance: <strong style="color:var(--success); font-size:18px;">₹${u.wallet?.mainBalance||0}</strong></p>
                     <p>Status: <strong class="status-${u.status||'active'}">${(u.status||'active').toUpperCase()}</strong></p>
-                    <p style="font-size:12px; color:var(--gray); margin-top:5px;">Last Seen: ${formatLastSeen(u.lastSeen)}</p>
                 </div>
                 <hr style="border:0; border-top:1px solid #e2e8f0; margin:15px 0;">
                 <div style="display:flex; gap:10px;">
@@ -604,7 +563,7 @@
             closeModal('userModal'); showToast('User status updated');
         }
 
-        // DEPOSITS
+        // DEPOSITS (Fixed Sync & Reason)
         function loadDeposits() {
             const deps = Object.values(appData.deposits || {}).filter(d=>d.status==='pending').sort((a,b)=>new Date(a.requestedAt)-new Date(b.requestedAt));
             document.getElementById('depositsTableBody').innerHTML = deps.length ? deps.map(d => `
@@ -628,21 +587,24 @@
         }
 
         async function submitDeposit() {
-            const action = document.getElementById('depAction').value;
+            const action = document.getElementById('depAction').value; // 'approved' or 'rejected'
             const reason = document.getElementById('depReason').value || (action==='approved'?'Payment Verified':'Invalid Details');
             const d = appData.deposits[currentActionId];
             
             showLoading();
             const updates = {};
             
+            // 1. Update deposit node
             updates[`deposits/${currentActionId}/status`] = action;
             updates[`deposits/${currentActionId}/adminReason`] = reason;
             
+            // 2. OVERRIDE type to remove 'pending' word from User App + set status
             const newType = action === 'approved' ? 'deposit_approved' : 'deposit_rejected';
             updates[`users/${currentUserId}/transactions/${currentActionId}/status`] = action;
             updates[`users/${currentUserId}/transactions/${currentActionId}/adminReason`] = reason;
             updates[`users/${currentUserId}/transactions/${currentActionId}/type`] = newType; 
             
+            // 3. Add balance if approved
             if(action === 'approved') {
                 const u = appData.users[currentUserId];
                 updates[`users/${currentUserId}/wallet/mainBalance`] = (u.wallet?.mainBalance || 0) + d.amount;
@@ -652,7 +614,7 @@
             hideLoading(); closeModal('depositModal'); showToast('Deposit processed successfully');
         }
 
-        // WITHDRAWALS
+        // WITHDRAWALS (Fixed Sync, Reason & Refund Math)
         function loadWithdrawals() {
             const withs = Object.values(appData.withdrawals || {}).filter(w=>w.status==='pending').sort((a,b)=>new Date(a.requestedAt)-new Date(b.requestedAt));
             document.getElementById('withdrawalsTableBody').innerHTML = withs.length ? withs.map(w => `
@@ -676,21 +638,24 @@
         }
 
         async function submitWithdraw() {
-            const action = document.getElementById('withAction').value;
+            const action = document.getElementById('withAction').value; // 'approved' or 'rejected'
             const reason = document.getElementById('withReason').value || (action==='approved'?'Payment Sent':'Rejected');
             const w = appData.withdrawals[currentActionId];
             
             showLoading();
             const updates = {};
             
+            // 1. Update withdrawal node
             updates[`withdrawals/${currentActionId}/status`] = action;
             updates[`withdrawals/${currentActionId}/adminReason`] = reason;
             
+            // 2. OVERRIDE type to remove 'pending' word from User App + set status
             const newType = action === 'approved' ? 'withdrawal_approved' : 'withdrawal_rejected';
             updates[`users/${currentUserId}/transactions/${currentActionId}/status`] = action;
             updates[`users/${currentUserId}/transactions/${currentActionId}/adminReason`] = reason;
             updates[`users/${currentUserId}/transactions/${currentActionId}/type`] = newType;
             
+            // 3. REFUND balance if rejected OR ADD to Total Withdrawn if approved
             const u = appData.users[currentUserId];
             if(action === 'approved') {
                 updates[`users/${currentUserId}/wallet/totalWithdrawn`] = (u.wallet?.totalWithdrawn || 0) + w.amount;
@@ -721,12 +686,13 @@
                 const val = document.getElementById('off_'+p.id).value;
                 if(val && parseInt(val) > 0) updates[p.id] = parseInt(val);
             });
-            await db.ref('settings/offers').set(updates);
+            await db.ref('settings/offers').set(updates); // Replacing the whole offers node
             hideLoading(); showToast('Offers updated on website!', 'success');
         }
 
-        // TICKETS
+        // TICKETS (Fixed Push ID Issue)
         function loadTickets() {
+            // Mapping Firebase PUSH keys directly so we can reply to the exact node
             const ticks = Object.entries(appData.tickets || {})
                                 .map(([fbKey, tData]) => ({ ...tData, fbKey: fbKey }))
                                 .filter(t => t.status === 'open')
@@ -761,6 +727,7 @@
             if(!reply) return showToast('Please enter a reply', 'error');
             
             showLoading();
+            // Updaing exactly using the Firebase push key
             await db.ref(`tickets/${currentFirebaseKey}`).update({ 
                 status: 'closed', 
                 reply: reply, 
@@ -771,16 +738,15 @@
             showToast('Reply sent successfully');
         }
 
-        // SETTINGS with Referral Amount
+        // ==================== SETTINGS - IMPLEMENTED ====================
         function loadSettings() {
             const settings = appData.settings || {};
             document.getElementById('setUpiId').value = settings.upiId || '6395503566@upi';
             document.getElementById('setMinWith').value = settings.minWithdrawal || 200;
-            document.getElementById('setReferAmount').value = settings.referAmount || 15;
             
+            // Update current settings display
             document.getElementById('currentUpiId').textContent = settings.upiId || 'Not set';
             document.getElementById('currentMinWith').textContent = settings.minWithdrawal || 200;
-            document.getElementById('currentReferAmount').textContent = settings.referAmount || 15;
         }
 
         async function saveSettings(e) {
@@ -789,7 +755,6 @@
             
             const upiId = document.getElementById('setUpiId').value.trim();
             const minWithdrawal = parseInt(document.getElementById('setMinWith').value);
-            const referAmount = parseInt(document.getElementById('setReferAmount').value);
             
             if(!upiId) {
                 hideLoading();
@@ -804,15 +769,14 @@
             try {
                 await db.ref('settings').update({
                     upiId: upiId,
-                    minWithdrawal: minWithdrawal,
-                    referAmount: referAmount
+                    minWithdrawal: minWithdrawal
                 });
                 hideLoading();
                 showToast('Settings saved successfully!');
                 
+                // Update current display
                 document.getElementById('currentUpiId').textContent = upiId;
                 document.getElementById('currentMinWith').textContent = minWithdrawal;
-                document.getElementById('currentReferAmount').textContent = referAmount;
             } catch(e) {
                 hideLoading();
                 showToast('Error saving settings: ' + e.message, 'error');

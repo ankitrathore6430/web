@@ -83,6 +83,7 @@
         .plan-header-premium { padding: 30px; text-align: center; color: var(--white); position: relative; }
         .plan-header-premium.free { background: var(--gradient-2); }
         .plan-header-premium.paid { background: var(--gradient-1); }
+        /* FIX: Ensure popular plan (500) has distinct color and white text */
         .plan-header-premium.popular { background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%) !important; color: #ffffff !important; }
         
         .discount-badge { position: absolute; top: 15px; right: -10px; background: #fde047; color: var(--dark); padding: 5px 20px; font-size: 12px; font-weight: 800; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
@@ -215,61 +216,6 @@
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .modal-close { background: none; border: none; font-size: 24px; color: var(--gray); cursor: pointer; }
         
-        /* Blocked Screen */
-        .blocked-screen { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: var(--gradient-4); 
-            z-index: 100000; 
-            display: none; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            padding: 40px 20px; 
-            text-align: center; 
-            color: white;
-        }
-        .blocked-screen.active { display: flex; }
-        .blocked-icon { font-size: 80px; margin-bottom: 20px; }
-        .blocked-title { font-size: 28px; font-weight: 800; margin-bottom: 10px; }
-        .blocked-text { font-size: 16px; opacity: 0.9; margin-bottom: 30px; }
-        .blocked-btn { 
-            width: 100%; 
-            max-width: 300px; 
-            padding: 18px; 
-            border-radius: 16px; 
-            border: none; 
-            font-size: 16px; 
-            font-weight: 700; 
-            cursor: pointer; 
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-        .blocked-btn-primary { background: white; color: var(--danger); }
-        .blocked-btn-secondary { background: rgba(255,255,255,0.2); color: white; border: 2px solid rgba(255,255,255,0.3); }
-        
-        /* Edit Name Modal */
-        .edit-name-modal { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: rgba(0,0,0,0.5); 
-            z-index: 10002; 
-            display: none; 
-            align-items: center; 
-            justify-content: center; 
-            padding: 20px; 
-        }
-        .edit-name-modal.active { display: flex; }
-        
         /* Responsive OTP Fix */
         @media (max-width: 380px) {
             .otp-input-premium { width: 40px; height: 50px; font-size: 18px; }
@@ -291,36 +237,6 @@
 
     <!-- Toast -->
     <div id="toast" class="toast"></div>
-
-    <!-- Blocked Screen -->
-    <div id="blockedScreen" class="blocked-screen">
-        <div class="blocked-icon">🚫</div>
-        <div class="blocked-title">Account Blocked</div>
-        <div class="blocked-text">Your account has been blocked by the administrator. Please contact support for assistance.</div>
-        <button class="blocked-btn blocked-btn-primary" onclick="showPage('support')">
-            <i class="fas fa-ticket-alt"></i> Create Support Ticket
-        </button>
-        <button class="blocked-btn blocked-btn-secondary" onclick="logout()">
-            <i class="fas fa-sign-out-alt"></i> Logout
-        </button>
-    </div>
-
-    <!-- Edit Name Modal -->
-    <div id="editNameModal" class="edit-name-modal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3 style="font-size: 20px; font-weight: 700;">Edit Profile Name</h3>
-                <button class="modal-close" onclick="closeEditNameModal()"><i class="fas fa-times"></i></button>
-            </div>
-            <form class="form-premium" id="editNameForm" onsubmit="saveProfileName(event)">
-                <div class="form-group">
-                    <label>New Name</label>
-                    <input type="text" class="input-premium" id="newProfileName" placeholder="Enter your name" required>
-                </div>
-                <button type="submit" class="btn-main btn-main-primary">Save Changes</button>
-            </form>
-        </div>
-    </div>
 
     <!-- Forgot Password Modal - FIXED -->
     <div id="forgotPasswordModal" class="modal-overlay">
@@ -678,7 +594,7 @@
             
             <div style="background: rgba(255,255,255,0.15); border-radius: 20px; padding: 20px; margin: 20px 0; border: 1px solid rgba(255,255,255,0.3); backdrop-filter: blur(10px);">
                 <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Instant Bonus</div>
-                <div style="font-size: 55px; font-weight: 800; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">₹<span id="referBonusAmount">15</span></div>
+                <div style="font-size: 55px; font-weight: 800; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">₹15</div>
                 <div style="font-size: 14px; opacity: 0.9;">Per Successful Signup</div>
             </div>
 
@@ -703,8 +619,8 @@
             <div style="display: flex; gap: 15px; margin-bottom: 20px;">
                 <div class="step-circle" style="background: var(--gradient-2);">2</div>
                 <div>
-                    <div style="font-weight: 700; font-size: 15px;">Friend Registers (Earn ₹<span class="refBonusDisplay">15</span>)</div>
-                    <div style="font-size: 13px; color: var(--gray);">When your friend signs up, you instantly get ₹<span class="refBonusDisplay">15</span> in your wallet.</div>
+                    <div style="font-weight: 700; font-size: 15px;">Friend Registers (Earn ₹15)</div>
+                    <div style="font-size: 13px; color: var(--gray);">When your friend signs up, you instantly get ₹15 in your wallet.</div>
                 </div>
             </div>
             <div style="display: flex; gap: 15px;">
@@ -774,10 +690,7 @@
             <div style="width: 100px; height: 100px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 50px; border: 4px solid rgba(255,255,255,0.3);">👤</div>
             <h2 id="profileName" style="font-size: 28px; font-weight: 700; margin-bottom: 5px;">User Name</h2>
             <p id="profilePhone" style="opacity: 0.9; font-size: 16px;">+91 ---</p>
-            <button onclick="openEditNameModal()" style="background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 20px; border-radius: 20px; margin-top: 15px; cursor: pointer; font-size: 14px;">
-                <i class="fas fa-edit"></i> Edit Name
-            </button>
-            <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.2); padding: 8px 20px; border-radius: 50px; margin-top: 10px; font-size: 14px;">
+            <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.2); padding: 8px 20px; border-radius: 50px; margin-top: 15px; font-size: 14px;">
                 <i class="fas fa-check-circle"></i> Verified Account
             </div>
         </div>
@@ -840,7 +753,6 @@
                     <select class="input-premium" id="ticketType" required>
                         <option value="deposit">Deposit Issue</option>
                         <option value="withdrawal">Withdrawal Issue</option>
-                        <option value="account_blocked">Account Blocked</option>
                         <option value="other">Other</option>
                     </select>
                 </div>
@@ -875,9 +787,7 @@
         let appSettings = {};
         let ADMIN_UPI_ID = '6395503566@upi'; 
         let MIN_WITHDRAWAL = 200;
-        let REFER_AMOUNT = 15;
         let activeOffers = {}; 
-        let lastSeenInterval = null;
 
         // WhatsApp OTP Server Config
         const WHATSAPP_OTP_SERVER = 'https://we-aobe.onrender.com';
@@ -905,62 +815,8 @@
         function generateId(prefix) { return prefix + Date.now().toString().slice(-6); }
         function formatCurrency(amt) { return '₹' + parseInt(amt||0).toLocaleString('en-IN'); }
 
-        // ==================== UPDATE LAST SEEN ====================
-        function updateLastSeen() {
-            if (currentUser && currentUser.id) {
-                database.ref(`users/${currentUser.id}/lastSeen`).set(Date.now());
-            }
-        }
-
-        function startLastSeenTracker() {
-            // Update immediately
-            updateLastSeen();
-            // Update every 30 seconds
-            if (lastSeenInterval) clearInterval(lastSeenInterval);
-            lastSeenInterval = setInterval(updateLastSeen, 30000);
-            
-            // Update on page visibility change
-            document.addEventListener('visibilitychange', () => {
-                if (!document.hidden) updateLastSeen();
-            });
-        }
-
-        function stopLastSeenTracker() {
-            if (lastSeenInterval) {
-                clearInterval(lastSeenInterval);
-                lastSeenInterval = null;
-            }
-        }
-
-        // ==================== CHECK BLOCK STATUS ====================
-        function checkBlockStatus() {
-            if (!currentUser) return;
-            
-            database.ref(`users/${currentUser.id}/status`).on('value', (snap) => {
-                const status = snap.val();
-                if (status === 'blocked') {
-                    document.getElementById('blockedScreen').classList.add('active');
-                    document.getElementById('mainHeader').style.display = 'none';
-                    document.getElementById('bottomNav').style.display = 'none';
-                    stopLastSeenTracker();
-                } else {
-                    document.getElementById('blockedScreen').classList.remove('active');
-                    if (currentUser) {
-                        document.getElementById('mainHeader').style.display = 'block';
-                        document.getElementById('bottomNav').style.display = 'flex';
-                        startLastSeenTracker();
-                    }
-                }
-            });
-        }
-
         // ==================== NAVIGATION ====================
         function showPage(page) {
-            // Check if blocked
-            if (currentUser && document.getElementById('blockedScreen').classList.contains('active')) {
-                if (page !== 'support') return; // Only allow support page when blocked
-            }
-            
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
             document.getElementById(page + 'Page').classList.add('active');
             document.querySelectorAll('.nav-item').forEach(i => { i.classList.remove('active'); if(i.dataset.page===page) i.classList.add('active'); });
@@ -1005,13 +861,8 @@
                 appSettings = snap.val() || {};
                 ADMIN_UPI_ID = appSettings.upiId || '6395503566@upi';
                 MIN_WITHDRAWAL = appSettings.minWithdrawal || 200;
-                REFER_AMOUNT = appSettings.referAmount || 15;
                 document.getElementById('minWithdrawDisplay').textContent = MIN_WITHDRAWAL;
                 document.getElementById('withdrawAmount').min = MIN_WITHDRAWAL;
-                
-                // Update referral amounts in UI
-                document.getElementById('referBonusAmount').textContent = REFER_AMOUNT;
-                document.querySelectorAll('.refBonusDisplay').forEach(el => el.textContent = REFER_AMOUNT);
             });
 
             // Check for referral code in URL
@@ -1057,15 +908,6 @@
                 if(snap.val()) {
                     currentUser = snap.val();
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                    
-                    // Check block status
-                    checkBlockStatus();
-                    
-                    // Start last seen tracker if not blocked
-                    if (currentUser.status !== 'blocked') {
-                        startLastSeenTracker();
-                    }
-                    
                     if(document.getElementById('homePage').classList.contains('active')) updateHomeUI();
                     if(document.getElementById('plansPage').classList.contains('active')) loadPlansPage();
                     if(document.getElementById('walletPage').classList.contains('active')) loadWalletData();
@@ -1178,17 +1020,16 @@
                     const rSnap = await database.ref('users').orderByChild('referralCode').equalTo(tempUserData.ref).once('value');
                     if(rSnap.val()) {
                         const rId = Object.keys(rSnap.val())[0], rData = rSnap.val()[rId];
-                        bonus = REFER_AMOUNT; 
-                        refBy = tempUserData.ref;
+                        bonus = 15; refBy = tempUserData.ref;
                         await database.ref(`users/${rId}`).update({ 
-                            'wallet/mainBalance': (rData.wallet?.mainBalance||0)+REFER_AMOUNT, 
+                            'wallet/mainBalance': (rData.wallet?.mainBalance||0)+15, 
                             'referrals/count': (rData.referrals?.count||0)+1, 
-                            'referrals/earnings': (rData.referrals?.earnings||0)+REFER_AMOUNT 
+                            'referrals/earnings': (rData.referrals?.earnings||0)+15 
                         });
                         await database.ref(`users/${rId}/transactions`).push({
                             id: generateId('TXN'), 
                             type: 'referral_bonus', 
-                            amount: REFER_AMOUNT, 
+                            amount: 15, 
                             description: `Referral Signup Bonus from ${tempUserData.name}`, 
                             date: new Date().toISOString(), 
                             status: 'approved'
@@ -1205,7 +1046,6 @@
                     referredBy: refBy,
                     joinDate: new Date().toISOString(), 
                     status: 'active', 
-                    lastSeen: Date.now(),
                     wallet: {mainBalance: bonus, totalWithdrawn: 0},
                     referrals: {count:0, earnings:0}, 
                     activePlans: {},
@@ -1411,39 +1251,6 @@
                 }
             }
         });
-
-        // ==================== EDIT PROFILE NAME ====================
-        function openEditNameModal() {
-            document.getElementById('newProfileName').value = currentUser.name || '';
-            document.getElementById('editNameModal').classList.add('active');
-        }
-
-        function closeEditNameModal() {
-            document.getElementById('editNameModal').classList.remove('active');
-        }
-
-        async function saveProfileName(e) {
-            e.preventDefault();
-            const newName = document.getElementById('newProfileName').value.trim();
-            
-            if(!newName) return showToast('Please enter a name', 'error');
-            if(newName.length < 2) return showToast('Name too short', 'error');
-            
-            showLoading('Updating...');
-            
-            try {
-                await database.ref(`users/${currentUser.id}/name`).set(newName);
-                currentUser.name = newName;
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                hideLoading();
-                closeEditNameModal();
-                showToast('Profile name updated!', 'success');
-                loadProfileData();
-            } catch(e) {
-                hideLoading();
-                showToast('Error updating name', 'error');
-            }
-        }
 
         // ==================== HOME ====================
         function updateHomeUI() {
@@ -1789,7 +1596,7 @@
         
         function shareWhatsApp() {
             const link = document.getElementById('refLink').textContent;
-            const text = `☀️ Start Earning with Solor Energy!\n\n🎁 Get ₹${REFER_AMOUNT} Instant Bonus per refer!\n💵 Earn up to 5%-3%-1% daily commissions!\n\nJoin now: ${link}`;
+            const text = `☀️ Start Earning with Solor Energy!\n\n🎁 Get ₹15 Instant Bonus per refer!\n💵 Earn up to 5%-3%-1% daily commissions!\n\nJoin now: ${link}`;
             window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
         }
 
@@ -1801,11 +1608,7 @@
             document.getElementById('profTotalEarn').textContent = '₹' + ((currentUser.referrals?.earnings || 0) + (currentUser.wallet?.mainBalance || 0));
         }
         
-        function logout() { 
-            stopLastSeenTracker();
-            localStorage.removeItem('currentUser'); 
-            window.location.reload(); 
-        }
+        function logout() { localStorage.removeItem('currentUser'); window.location.reload(); }
 
         // ==================== SUPPORT TICKETS ====================
         function loadSupportData() {
