@@ -1,0 +1,81 @@
+{
+  "plans": {
+    "free": {
+      "id": "free",
+      "name": "Free Trial",
+      "price": 0,
+      "daily": 10,
+      "days": 7,
+      "total": 70,
+      "popular": false,
+      "icon": "🎁",
+      "color": "free"
+    },
+    "nano": {
+      "id": "nano",
+      "name": "Nano",
+      "price": 100,
+      "daily": 20,
+      "days": 30,
+      "total": 600,
+      "popular": false,
+      "icon": "⚡",
+      "color": "paid"
+    },
+    "micro": {
+      "id": "micro",
+      "name": "Micro",
+      "price": 200,
+      "daily": 45,
+      "days": 30,
+      "total": 1350,
+      "popular": false,
+      "icon": "💎",
+      "color": "paid"
+    },
+    "mini": {
+      "id": "mini",
+      "name": "Mini",
+      "price": 300,
+      "daily": 75,
+      "days": 30,
+      "total": 2250,
+      "popular": false,
+      "icon": "🚀",
+      "color": "paid"
+    },
+    "basic": {
+      "id": "basic",
+      "name": "Basic",
+      "price": 500,
+      "daily": 150,
+      "days": 30,
+      "total": 4500,
+      "popular": true,
+      "icon": "👑",
+      "color": "paid"
+    },
+    "standard": {
+      "id": "standard",
+      "name": "Standard",
+      "price": 1000,
+      "daily": 350,
+      "days": 30,
+      "total": 10500,
+      "popular": false,
+      "icon": "💰",
+      "color": "paid"
+    },
+    "pro": {
+      "id": "pro",
+      "name": "Pro",
+      "price": 2000,
+      "daily": 800,
+      "days": 30,
+      "total": 24000,
+      "popular": false,
+      "icon": "🏆",
+      "color": "paid"
+    }
+  }
+}
