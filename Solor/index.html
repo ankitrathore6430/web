@@ -334,9 +334,57 @@
             opacity: 0.95;
             font-weight: 600;
         }
+
+        /* Account Deleted Screen */
+        .deleted-screen { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); 
+            z-index: 99999; 
+            display: none; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 40px 20px; 
+            text-align: center; 
+            color: white;
+        }
+        .deleted-screen.active { display: flex; }
+        .deleted-icon { font-size: 80px; margin-bottom: 30px; color: var(--danger); }
+        .deleted-title { font-size: 28px; font-weight: 800; margin-bottom: 15px; }
+        .deleted-text { font-size: 16px; opacity: 0.8; margin-bottom: 40px; max-width: 300px; }
+        .deleted-btn { 
+            width: 100%; 
+            max-width: 300px; 
+            padding: 16px; 
+            border-radius: 16px; 
+            border: none; 
+            font-size: 16px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            background: var(--gradient-1); 
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
     </style>
 </head>
 <body>
+    <!-- Account Deleted Screen -->
+    <div id="deletedScreen" class="deleted-screen">
+        <div class="deleted-icon">🗑️</div>
+        <h2 class="deleted-title">Account Deleted</h2>
+        <p class="deleted-text">Your account has been permanently deleted by the administrator.</p>
+        <button class="deleted-btn" onclick="forceLogout()">
+            <i class="fas fa-sign-in-alt"></i> Back to Login
+        </button>
+    </div>
+
     <!-- Blocked Screen -->
     <div id="blockedScreen" class="blocked-screen">
         <div class="blocked-icon">🚫</div>
@@ -931,6 +979,7 @@
         let activeOffers = {}; 
         let userStatusListener = null;
         let lastSeenInterval = null;
+        let isAccountDeleted = false;
 
         // WhatsApp OTP Server Config
         const WHATSAPP_OTP_SERVER = 'https://we-aobe.onrender.com';
@@ -1077,8 +1126,18 @@
             // Setup real-time listener for user data
             userStatusListener = database.ref('users/' + userId);
             userStatusListener.on('value', (snap) => {
-                if(snap.val()) {
-                    currentUser = snap.val();
+                const userData = snap.val();
+                
+                // Check if user has been deleted
+                if(!userData && currentUser && !isAccountDeleted) {
+                    // User data no longer exists - account was deleted
+                    isAccountDeleted = true;
+                    handleAccountDeleted();
+                    return;
+                }
+                
+                if(userData) {
+                    currentUser = userData;
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
                     
                     // Check if user is blocked
@@ -1101,13 +1160,47 @@
             // Update last seen every 30 seconds when app is active
             if(lastSeenInterval) clearInterval(lastSeenInterval);
             lastSeenInterval = setInterval(() => {
-                if(currentUser && currentUser.status !== 'blocked') {
+                if(currentUser && currentUser.status !== 'blocked' && !isAccountDeleted) {
                     database.ref(`users/${userId}/lastSeen`).set(Date.now());
                 }
             }, 30000);
 
             // Set last seen immediately on login
             database.ref(`users/${userId}/lastSeen`).set(Date.now());
+        }
+
+        // Handle account deletion
+        function handleAccountDeleted() {
+            // Clear all intervals
+            if(lastSeenInterval) {
+                clearInterval(lastSeenInterval);
+                lastSeenInterval = null;
+            }
+            
+            // Remove listener
+            if(userStatusListener) {
+                userStatusListener.off();
+                userStatusListener = null;
+            }
+            
+            // Clear local storage
+            localStorage.removeItem('currentUser');
+            currentUser = null;
+            
+            // Show deleted screen
+            document.getElementById('deletedScreen').classList.add('active');
+            document.getElementById('mainHeader').style.display = 'none';
+            document.getElementById('bottomNav').style.display = 'none';
+            
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        }
+
+        // Force logout function for deleted screen
+        function forceLogout() {
+            isAccountDeleted = false;
+            document.getElementById('deletedScreen').classList.remove('active');
+            window.location.reload();
         }
 
         // ==================== AUTH (WHATSAPP OTP) ====================
