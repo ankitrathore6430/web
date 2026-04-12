@@ -883,34 +883,34 @@
             
             showLoading();
             try {
-                // Delete user from users node
-                await db.ref(`users/${userToDelete}`).remove();
-                
-                // Delete user's deposits
+                // Step 1: Get all user's deposits and delete them
                 const userDeposits = Object.entries(appData.deposits || {})
-                    .filter(([id, d]) => d.userId === userToDelete)
-                    .map(([id]) => id);
-                for(const depId of userDeposits) {
+                    .filter(([id, d]) => d.userId === userToDelete);
+                
+                for(const [depId] of userDeposits) {
                     await db.ref(`deposits/${depId}`).remove();
                 }
                 
-                // Delete user's withdrawals
+                // Step 2: Get all user's withdrawals and delete them
                 const userWithdrawals = Object.entries(appData.withdrawals || {})
-                    .filter(([id, w]) => w.userId === userToDelete)
-                    .map(([id]) => id);
-                for(const withId of userWithdrawals) {
+                    .filter(([id, w]) => w.userId === userToDelete);
+                
+                for(const [withId] of userWithdrawals) {
                     await db.ref(`withdrawals/${withId}`).remove();
                 }
                 
-                // Delete user's tickets
+                // Step 3: Get all user's tickets and delete them
                 const userTickets = Object.entries(appData.tickets || {})
-                    .filter(([id, t]) => t.userId === userToDelete)
-                    .map(([id]) => id);
-                for(const ticId of userTickets) {
+                    .filter(([id, t]) => t.userId === userToDelete);
+                
+                for(const [ticId] of userTickets) {
                     await db.ref(`tickets/${ticId}`).remove();
                 }
                 
-                // Remove from local appData to prevent UI issues
+                // Step 4: Finally delete the user
+                await db.ref(`users/${userToDelete}`).remove();
+                
+                // Step 5: Update local appData to remove user
                 delete appData.users[userToDelete];
                 
                 hideLoading();
@@ -919,6 +919,8 @@
                 
                 // Refresh users list
                 loadUsers();
+                updateDashboard();
+                
                 userToDelete = null;
             } catch(e) {
                 hideLoading();
