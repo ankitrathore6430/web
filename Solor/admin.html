@@ -1725,24 +1725,26 @@
             });
         }
 
-        // Generic function to send OneSignal notification (VIA CLOUDFLARE WORKER)
+        // 1. Main Function with Alert Error Catcher
         async function sendOneSignalNotification(notificationData) {
-            // YAHAN AAPKA CLOUDFLARE WORKER URL HAI 👇
             const CLOUDFLARE_URL = "https://summer-wave-af78.ankitrathore6430.workers.dev/"; 
 
             try {
                 const response = await fetch(CLOUDFLARE_URL, {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
+                    headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(notificationData)
                 });
                 
                 const data = await response.json();
                 
-                if (response.ok && !data.errors) {
-                    // Save to notification history
+                // Agar OneSignal error deta hai
+                if (data.errors) {
+                    alert("⚠️ OneSignal API Error: " + JSON.stringify(data.errors));
+                    return false;
+                }
+                
+                if (response.ok) {
                     await saveNotificationHistory({
                         title: notificationData.headings?.en || 'Notification',
                         message: notificationData.contents?.en || '',
@@ -1751,14 +1753,10 @@
                         status: 'sent'
                     });
                     return true;
-                } else {
-                    console.error('OneSignal error:', data);
-                    showToast('API Error: ' + (data.errors ? JSON.stringify(data.errors) : 'Failed to send'), 'error');
-                    return false;
                 }
+                
             } catch (e) {
-                console.error('Send notification error:', e);
-                showToast('Connection error: ' + e.message, 'error');
+                alert("❌ Network Error: " + e.message);
                 return false;
             }
         }
@@ -1869,24 +1867,23 @@
             }
         }
 
-        // Send test notification to self
+        // 2. Fixed Test Notification
         async function sendTestNotification() {
             showLoading();
             
-            // Get admin's own OneSignal ID if available
+            // "Test Users" segment by default OneSignal mein nahi hota, 
+            // isliye hum ise 'Subscribed Users' ko bhej kar test karenge.
             const success = await sendOneSignalNotification({
-                included_segments: ['Test Users'],
+                included_segments: ['Subscribed Users'], // Isko fix kar diya gaya hai
                 headings: { en: 'Test Notification 🧪' },
-                contents: { en: 'This is a test notification from Solor Energy Admin Panel!' },
+                contents: { en: 'This is a test notification from Solor Energy Admin!' },
                 url: window.location.origin
             });
             
             hideLoading();
-            
             if (success) {
-                showToast('Test notification sent! Check your device.', 'success');
-            } else {
-                showToast('Failed to send test. Check console for details.', 'error');
+                showToast('Test notification sent!', 'success');
+                showNotificationResult('Test Sent', '<p style="text-align:center;">Test notification sent successfully to all subscribed users.</p>');
             }
         }
 
