@@ -413,8 +413,8 @@
                     <p style="font-size: 13px; color: var(--gray); margin-bottom: 15px;">
                         Send instant push notifications to all users or specific users. Notifications work even when the app is closed!
                     </p>
-                    <button class="btn-main btn-primary" onclick="testOneSignalConnection()" style="width: 100%;">
-                        <i class="fas fa-plug"></i> Test OneSignal Connection
+                    <button class="btn-main btn-primary" onclick="showToast('Cloudflare connection active', 'success')" style="width: 100%;">
+                        <i class="fas fa-plug"></i> Test Connection
                     </button>
                     <div id="connectionTestResult" class="api-test-result hidden"></div>
                 </div>
@@ -722,15 +722,7 @@
         let isAddingNewPlan = false;
         let userToDelete = null;
         let oneSignalInitialized = false;
-        let oneSignalAppId = "eca3e9cf-b75c-4b7e-930a-0cc01359a2de";
-        let oneSignalApiKey = "os_v2_app_5sr6tt5xlrfx5eykbtabgwnc3z4yx2eypbfupuuhr32y5vgkhvsjt53p5y4ftlbdxk3zj2htzk7d64benvbyzhrq5lwl43iabibswhy";
-
-        const PLANS = [
-            { id: 'nano', name: 'Nano' }, { id: 'micro', name: 'Micro' }, 
-            { id: 'mini', name: 'Mini' }, { id: 'basic', name: 'Basic' }, 
-            { id: 'standard', name: 'Standard' }, { id: 'pro', name: 'Pro' }
-        ];
-
+        
         // Utils
         function showLoading() { document.getElementById('loadingScreen').classList.add('active'); }
         function hideLoading() { document.getElementById('loadingScreen').classList.remove('active'); }
@@ -1668,48 +1660,9 @@
         
         function checkOneSignalStatus() {
             const statusEl = document.getElementById('oneSignalStatus');
-            
-            if (!oneSignalApiKey || oneSignalApiKey === 'YOUR_API_KEY_HERE') {
-                statusEl.className = 'notification-status error';
-                statusEl.innerHTML = '<i class="fas fa-times-circle"></i> API Key Not Set';
-                return;
-            }
-            
             statusEl.className = 'notification-status success';
-            statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Ready';
+            statusEl.innerHTML = '<i class="fas fa-check-circle"></i> Ready (Cloudflare)';
             oneSignalInitialized = true;
-        }
-
-        async function testOneSignalConnection() {
-            const resultDiv = document.getElementById('connectionTestResult');
-            resultDiv.classList.remove('hidden', 'success', 'error');
-            resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing connection...';
-            
-            try {
-                // Test by getting app info WITH CORS PROXY
-                const response = await fetch(`https://corsproxy.io/?https://onesignal.com/api/v1/apps/${oneSignalAppId}`, {
-                    method: 'GET',
-                    headers: {
-                        'Authorization': `Basic ${oneSignalApiKey}`
-                    }
-                });
-                
-                if (response.ok) {
-                    const data = await response.json();
-                    resultDiv.classList.add('success');
-                    resultDiv.innerHTML = `<strong>✅ Connection Successful!</strong><br>App Name: ${data.name}<br>Created: ${new Date(data.created_at * 1000).toLocaleDateString()}`;
-                    showToast('OneSignal connection successful!', 'success');
-                } else {
-                    const error = await response.text();
-                    resultDiv.classList.add('error');
-                    resultDiv.innerHTML = `<strong>❌ Connection Failed</strong><br>Error: ${error}`;
-                    showToast('Connection failed. Check API key.', 'error');
-                }
-            } catch (e) {
-                resultDiv.classList.add('error');
-                resultDiv.innerHTML = `<strong>❌ Error</strong><br>${e.message}`;
-                showToast('Error testing connection', 'error');
-            }
         }
 
         // Load users for individual notification selection
@@ -1772,25 +1725,23 @@
             });
         }
 
-        // Generic function to send OneSignal notification
+        // Generic function to send OneSignal notification (VIA CLOUDFLARE WORKER)
         async function sendOneSignalNotification(notificationData) {
+            // YAHAN AAPKA CLOUDFLARE WORKER URL HAI 👇
+            const CLOUDFLARE_URL = "https://summer-wave-af78.ankitrathore6430.workers.dev/"; 
+
             try {
-                // USING CORS PROXY
-                const response = await fetch('https://corsproxy.io/?https://onesignal.com/api/v1/notifications', {
+                const response = await fetch(CLOUDFLARE_URL, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Basic ${oneSignalApiKey}`
+                        'Content-Type': 'application/json'
                     },
-                    body: JSON.stringify({
-                        app_id: oneSignalAppId,
-                        ...notificationData
-                    })
+                    body: JSON.stringify(notificationData)
                 });
                 
                 const data = await response.json();
                 
-                if (response.ok) {
+                if (response.ok && !data.errors) {
                     // Save to notification history
                     await saveNotificationHistory({
                         title: notificationData.headings?.en || 'Notification',
@@ -1802,10 +1753,12 @@
                     return true;
                 } else {
                     console.error('OneSignal error:', data);
+                    showToast('API Error: ' + (data.errors ? JSON.stringify(data.errors) : 'Failed to send'), 'error');
                     return false;
                 }
             } catch (e) {
                 console.error('Send notification error:', e);
+                showToast('Connection error: ' + e.message, 'error');
                 return false;
             }
         }
