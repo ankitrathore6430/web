@@ -1,7 +1,14 @@
 export default {
   async fetch(request) {
+    // CORS Bypass
     if (request.method === "OPTIONS") {
-      return new Response(null, { headers: { "Access-Control-Allow-Origin": "*", "Access-Control-Allow-Headers": "*" } });
+      return new Response(null, { 
+        headers: { 
+          "Access-Control-Allow-Origin": "*", 
+          "Access-Control-Allow-Methods": "GET, POST, OPTIONS", 
+          "Access-Control-Allow-Headers": "*" 
+        } 
+      });
     }
     
     // GET = Connection Test, POST = Send Notification
@@ -21,10 +28,16 @@ export default {
 
       return new Response(await response.text(), {
         status: response.status,
-        headers: { "Access-Control-Allow-Origin": "*", "Content-Type": "application/json" }
+        headers: { 
+          "Access-Control-Allow-Origin": "*", 
+          "Content-Type": "application/json" 
+        }
       });
     } catch (e) {
-      return new Response(JSON.stringify({ error: e.message }), { status: 500, headers: { "Access-Control-Allow-Origin": "*" } });
+      return new Response(JSON.stringify({ error: e.message }), { 
+        status: 500, 
+        headers: { "Access-Control-Allow-Origin": "*" } 
+      });
     }
   }
 };
