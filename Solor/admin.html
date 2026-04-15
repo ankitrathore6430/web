@@ -413,7 +413,7 @@
                     <p style="font-size: 13px; color: var(--gray); margin-bottom: 15px;">
                         Send instant push notifications to all users or specific users. Notifications work even when the app is closed!
                     </p>
-                    <button class="btn-main btn-primary" onclick="showToast('Cloudflare connection active', 'success')" style="width: 100%;">
+                    <button class="btn-main btn-primary" onclick="testOneSignalConnection()" style="width: 100%;">
                         <i class="fas fa-plug"></i> Test Connection
                     </button>
                     <div id="connectionTestResult" class="api-test-result hidden"></div>
@@ -723,6 +723,9 @@
         let userToDelete = null;
         let oneSignalInitialized = false;
         
+        let oneSignalAppId = "eca3e9cf-b75c-4b7e-930a-0cc01359a2de";
+        let oneSignalApiKey = "os_v2_app_5sr6tt5xlrfx5eykbtabgwnc3z4yx2eypbfupuuhr32y5vgkhvsjt53p5y4ftlbdxk3zj2htzk7d64benvbyzhrq5lwl43iabibswhy";
+
         // Utils
         function showLoading() { document.getElementById('loadingScreen').classList.add('active'); }
         function hideLoading() { document.getElementById('loadingScreen').classList.remove('active'); }
@@ -1307,22 +1310,24 @@
                     if(previousStatus !== 'approved') {
                         updates[`users/${currentUserId}/wallet/mainBalance`] = currentBalance + d.amount;
                     }
-                    
-                    // Send notification for approved deposit
-                    await sendNotificationToUser(currentUserId, 'Deposit Approved! 💰', `₹${d.amount} has been added to your wallet. ${reason}`, '/wallet');
                 } else if(action === 'rejected') {
                     if(previousStatus === 'approved') {
                         updates[`users/${currentUserId}/wallet/mainBalance`] = Math.max(0, currentBalance - d.amount);
                     }
-                    
-                    // Send notification for rejected deposit
-                    await sendNotificationToUser(currentUserId, 'Deposit Rejected ❌', `Your deposit of ₹${d.amount} was rejected. Reason: ${reason}`, '/wallet');
                 }
                 
                 await db.ref().update(updates);
                 hideLoading(); 
                 closeModal('depositModal'); 
                 showToast('Deposit status updated successfully');
+
+                // Try to send notification but don't block on error
+                if (action === 'approved') {
+                    sendNotificationToUser(currentUserId, 'Deposit Approved! 💰', `₹${d.amount} has been added to your wallet. ${reason}`, '/wallet').catch(console.error);
+                } else if(action === 'rejected') {
+                    sendNotificationToUser(currentUserId, 'Deposit Rejected ❌', `Your deposit of ₹${d.amount} was rejected. Reason: ${reason}`, '/wallet').catch(console.error);
+                }
+
             } catch(e) {
                 hideLoading();
                 showToast('Error updating deposit: ' + e.message, 'error');
@@ -1422,9 +1427,6 @@
                     if(previousStatus !== 'approved') {
                         updates[`users/${currentUserId}/wallet/totalWithdrawn`] = currentWithdrawn + w.amount;
                     }
-                    
-                    // Send notification for approved withdrawal
-                    await sendNotificationToUser(currentUserId, 'Withdrawal Approved! 🎉', `₹${w.amount} has been sent to your account. ${reason}`, '/wallet');
                 } else if(action === 'rejected') {
                     if(previousStatus !== 'rejected') {
                         updates[`users/${currentUserId}/wallet/mainBalance`] = currentBalance + w.amount;
@@ -1432,15 +1434,20 @@
                             updates[`users/${currentUserId}/wallet/totalWithdrawn`] = Math.max(0, currentWithdrawn - w.amount);
                         }
                     }
-                    
-                    // Send notification for rejected withdrawal
-                    await sendNotificationToUser(currentUserId, 'Withdrawal Rejected ❌', `Your withdrawal of ₹${w.amount} was rejected. Reason: ${reason}`, '/wallet');
                 }
                 
                 await db.ref().update(updates);
                 hideLoading(); 
                 closeModal('withdrawModal'); 
                 showToast('Withdrawal status updated successfully');
+
+                // Try to send notification but don't block
+                if(action === 'approved') {
+                    sendNotificationToUser(currentUserId, 'Withdrawal Approved! 🎉', `₹${w.amount} has been sent to your account. ${reason}`, '/wallet').catch(console.error);
+                } else if(action === 'rejected') {
+                    sendNotificationToUser(currentUserId, 'Withdrawal Rejected ❌', `Your withdrawal of ₹${w.amount} was rejected. Reason: ${reason}`, '/wallet').catch(console.error);
+                }
+
             } catch(e) {
                 hideLoading();
                 showToast('Error updating withdrawal: ' + e.message, 'error');
@@ -1565,12 +1572,13 @@
                     repliedAt: new Date().toISOString() 
                 });
                 
-                // Send notification to user about ticket reply
-                await sendNotificationToUser(t.userId, 'Support Reply Received! 📩', `Admin replied to your ticket: "${reply.substring(0, 50)}${reply.length > 50 ? '...' : ''}"`, '/support');
-                
                 hideLoading(); 
                 closeModal('ticketModal'); 
                 showToast('Reply sent successfully');
+
+                // Try to send notification
+                sendNotificationToUser(t.userId, 'Support Reply Received! 📩', `Admin replied to your ticket: "${reply.substring(0, 50)}${reply.length > 50 ? '...' : ''}"`, '/support').catch(console.error);
+
             } catch(e) {
                 hideLoading();
                 showToast('Error sending reply: ' + e.message, 'error');
@@ -1665,6 +1673,40 @@
             oneSignalInitialized = true;
         }
 
+        async function testOneSignalConnection() {
+            const resultDiv = document.getElementById('connectionTestResult');
+            resultDiv.classList.remove('hidden', 'success', 'error');
+            resultDiv.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Testing connection...';
+            
+            const CLOUDFLARE_URL = "https://summer-wave-af78.ankitrathore6430.workers.dev/"; 
+            
+            try {
+                const response = await fetch(CLOUDFLARE_URL, {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': 'Basic ' + oneSignalApiKey,
+                        'x-target-url': `https://onesignal.com/api/v1/apps/${oneSignalAppId}`
+                    }
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.classList.add('success');
+                    resultDiv.innerHTML = `<strong>✅ Connection Successful!</strong><br>App Name: ${data.name}`;
+                    showToast('OneSignal connection successful!', 'success');
+                } else {
+                    const error = await response.text();
+                    resultDiv.classList.add('error');
+                    resultDiv.innerHTML = `<strong>❌ Connection Failed</strong><br>Error: ${error}`;
+                    showToast('Connection failed.', 'error');
+                }
+            } catch (e) {
+                resultDiv.classList.add('error');
+                resultDiv.innerHTML = `<strong>❌ Error</strong><br>${e.message}`;
+                showToast('Error testing connection', 'error');
+            }
+        }
+
         // Load users for individual notification selection
         function loadNotificationUsers() {
             const users = Object.entries(appData.users || {}).map(([id, u]) => ({...u, id}));
@@ -1713,7 +1755,6 @@
         async function sendNotificationToUser(userId, title, message, url = '') {
             const user = appData.users[userId];
             if (!user || !user.oneSignalId) {
-                console.log('User not found or no OneSignal ID:', userId);
                 return false;
             }
             
@@ -1725,26 +1766,33 @@
             });
         }
 
-        // 1. Main Function with Alert Error Catcher
+        // Main Function communicating with universal Cloudflare Proxy
         async function sendOneSignalNotification(notificationData) {
             const CLOUDFLARE_URL = "https://summer-wave-af78.ankitrathore6430.workers.dev/"; 
+
+            // App ID must be inside the body payload
+            notificationData.app_id = oneSignalAppId;
 
             try {
                 const response = await fetch(CLOUDFLARE_URL, {
                     method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Basic ' + oneSignalApiKey,
+                        'x-target-url': 'https://onesignal.com/api/v1/notifications'
+                    },
                     body: JSON.stringify(notificationData)
                 });
                 
                 const data = await response.json();
                 
-                // Agar OneSignal error deta hai
+                // Agar OneSignal API ne error diya
                 if (data.errors) {
                     alert("⚠️ OneSignal API Error: " + JSON.stringify(data.errors));
                     return false;
                 }
                 
-                if (response.ok) {
+                if (response.ok || data.id) {
                     await saveNotificationHistory({
                         title: notificationData.headings?.en || 'Notification',
                         message: notificationData.contents?.en || '',
@@ -1867,14 +1915,12 @@
             }
         }
 
-        // 2. Fixed Test Notification
+        // Test Notification
         async function sendTestNotification() {
             showLoading();
             
-            // "Test Users" segment by default OneSignal mein nahi hota, 
-            // isliye hum ise 'Subscribed Users' ko bhej kar test karenge.
             const success = await sendOneSignalNotification({
-                included_segments: ['Subscribed Users'], // Isko fix kar diya gaya hai
+                included_segments: ['Subscribed Users'],
                 headings: { en: 'Test Notification 🧪' },
                 contents: { en: 'This is a test notification from Solor Energy Admin!' },
                 url: window.location.origin
