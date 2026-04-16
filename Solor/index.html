@@ -5,22 +5,25 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Solor Energy - Premium</title>
     
-    <!-- OneSignal SDK -->
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-    <script>
-        window.OneSignalDeferred = window.OneSignalDeferred || [];
-        OneSignalDeferred.push(async function(OneSignal) {
-            await OneSignal.init({
-                appId: "eca3e9cf-b75c-4b7e-930a-0cc01359a2de",
-                allowLocalhostAsSecureOrigin: true,
-            });
-        });
-    </script>
-    
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <!-- OneSignal SDK -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: "eca3e9cf-b75c-4b7e-930a-0cc01359a2de",
+          allowLocalhostAsSecureOrigin: true,
+          notifyButton: {
+            enable: false
+          }
+        });
+      });
+    </script>
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -385,30 +388,98 @@
             gap: 10px;
         }
 
-        /* Notification Badge */
-        .notification-badge {
-            position: absolute;
-            top: -5px;
-            right: -5px;
-            background: var(--danger);
-            color: white;
-            width: 20px;
-            height: 20px;
+        /* Notification Permission Modal */
+        .notification-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.7);
+            z-index: 100000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        .notification-modal.active {
+            display: flex;
+        }
+        .notification-card {
+            background: white;
+            border-radius: 24px;
+            padding: 35px 30px;
+            max-width: 380px;
+            width: 100%;
+            text-align: center;
+            animation: slideUp 0.3s ease;
+        }
+        .notification-icon {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-1);
             border-radius: 50%;
-            font-size: 11px;
-            font-weight: 700;
             display: flex;
             align-items: center;
             justify-content: center;
-            animation: pulse 2s infinite;
+            margin: 0 auto 20px;
+            font-size: 40px;
+            color: white;
         }
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.1); }
+        .notification-title {
+            font-size: 22px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+        .notification-text {
+            font-size: 14px;
+            color: var(--gray);
+            margin-bottom: 25px;
+            line-height: 1.5;
+        }
+        .notification-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .notification-btn {
+            padding: 16px;
+            border-radius: 16px;
+            border: none;
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .notification-btn-primary {
+            background: var(--gradient-1);
+            color: white;
+        }
+        .notification-btn-secondary {
+            background: var(--light);
+            color: var(--gray);
         }
     </style>
 </head>
 <body>
+    <!-- Notification Permission Modal -->
+    <div id="notificationModal" class="notification-modal">
+        <div class="notification-card">
+            <div class="notification-icon">🔔</div>
+            <h3 class="notification-title">Stay Updated!</h3>
+            <p class="notification-text">Enable notifications to get instant alerts for deposits, withdrawals, support replies, and exclusive offers - even when the app is closed!</p>
+            <div class="notification-buttons">
+                <button class="notification-btn notification-btn-primary" onclick="requestNotificationPermission()">
+                    <i class="fas fa-bell"></i> Enable Notifications
+                </button>
+                <button class="notification-btn notification-btn-secondary" onclick="closeNotificationModal()">
+                    Maybe Later
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- Account Deleted Screen -->
     <div id="deletedScreen" class="deleted-screen">
         <div class="deleted-icon">🗑️</div>
@@ -484,15 +555,9 @@
                     <p>Refer & Earn</p>
                 </div>
             </div>
-            <div style="display: flex; align-items: center; gap: 15px;">
-                <div class="header-balance" onclick="showPage('wallet')">
-                    <div class="label">Balance</div>
-                    <div class="amount">₹<span id="headerBalance">0</span></div>
-                </div>
-                <div style="position: relative; cursor: pointer;" onclick="showPage('support')">
-                    <i class="fas fa-bell" style="font-size: 24px; color: white;"></i>
-                    <span id="notificationBadge" class="notification-badge hidden">0</span>
-                </div>
+            <div class="header-balance" onclick="showPage('wallet')">
+                <div class="label">Balance</div>
+                <div class="amount">₹<span id="headerBalance">0</span></div>
             </div>
         </div>
     </header>
@@ -683,6 +748,7 @@
         <div style="padding: 30px 20px;">
             <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 10px;"><i class="fas fa-gem" style="color: var(--secondary); margin-right: 10px;"></i>Investment Plans</h2>
         </div>
+
         <div class="premium-card" id="plan-card-free" style="background: var(--gradient-2); color: white; margin-bottom: 20px;">
             <div style="display: flex; align-items: center; gap: 20px;">
                 <div style="font-size: 50px;">🎁</div>
@@ -1019,14 +1085,12 @@
         let userStatusListener = null;
         let lastSeenInterval = null;
         let isAccountDeleted = false;
-        let onesignalPlayerId = null;
+        let oneSignalInitialized = false;
+        let userOneSignalId = null;
 
         // WhatsApp OTP Server Config
         const WHATSAPP_OTP_SERVER = 'https://we-aobe.onrender.com';
         const WHATSAPP_API_KEY = 'SOLOR_SECRET_786';
-
-        // OneSignal Cloudflare Worker URL
-        const ONESIGNAL_WORKER_URL = 'https://adminsolor.ankitrathore6430.workers.dev/';
 
         // ==================== PLANS DATA ====================
         let PLANS = [];
@@ -1047,6 +1111,89 @@
             document.querySelectorAll('.refer-amount-display').forEach(el => {
                 el.textContent = REFER_AMOUNT;
             });
+        }
+
+        // ==================== ONESIGNAL NOTIFICATION FUNCTIONS ====================
+        async function initOneSignal() {
+            if (oneSignalInitialized) return;
+            
+            try {
+                await OneSignalDeferred.push(async function(OneSignal) {
+                    // Check if permission is already granted
+                    const permission = await OneSignal.Notifications.permission;
+                    
+                    if (permission === 'granted') {
+                        const subscriptionId = await OneSignal.User.PushSubscription.id;
+                        if (subscriptionId) {
+                            userOneSignalId = subscriptionId;
+                            oneSignalInitialized = true;
+                            
+                            // Save to Firebase if user is logged in
+                            if (currentUser) {
+                                await saveOneSignalId(currentUser.id, subscriptionId);
+                            }
+                        }
+                    } else {
+                        // Show notification permission modal after 3 seconds
+                        setTimeout(() => {
+                            showNotificationModal();
+                        }, 3000);
+                    }
+                });
+            } catch (e) {
+                console.log('OneSignal init error:', e);
+            }
+        }
+
+        function showNotificationModal() {
+            // Only show if not already shown in this session
+            if (sessionStorage.getItem('notificationModalShown')) return;
+            sessionStorage.setItem('notificationModalShown', 'true');
+            
+            document.getElementById('notificationModal').classList.add('active');
+        }
+
+        function closeNotificationModal() {
+            document.getElementById('notificationModal').classList.remove('active');
+        }
+
+        async function requestNotificationPermission() {
+            try {
+                await OneSignalDeferred.push(async function(OneSignal) {
+                    await OneSignal.Notifications.requestPermission();
+                    
+                    const permission = await OneSignal.Notifications.permission;
+                    if (permission === 'granted') {
+                        const subscriptionId = await OneSignal.User.PushSubscription.id;
+                        if (subscriptionId) {
+                            userOneSignalId = subscriptionId;
+                            oneSignalInitialized = true;
+                            
+                            // Save to Firebase if user is logged in
+                            if (currentUser) {
+                                await saveOneSignalId(currentUser.id, subscriptionId);
+                            }
+                            
+                            showToast('Notifications enabled successfully!', 'success');
+                        }
+                    } else {
+                        showToast('Please enable notifications in browser settings', 'error');
+                    }
+                });
+            } catch (e) {
+                console.log('Permission error:', e);
+                showToast('Error enabling notifications', 'error');
+            }
+            
+            closeNotificationModal();
+        }
+
+        async function saveOneSignalId(userId, oneSignalId) {
+            try {
+                await database.ref(`users/${userId}/oneSignalId`).set(oneSignalId);
+            } catch (e) {
+                console.log('Error saving OneSignal ID:', e);
+            }
         }
 
         // ==================== NAVIGATION ====================
@@ -1098,69 +1245,11 @@
             }, 300);
         }
 
-        // ==================== ONESIGNAL NOTIFICATION FUNCTIONS ====================
-        async function initOneSignal() {
-            try {
-                if (typeof OneSignal !== 'undefined') {
-                    // Get Player ID
-                    const playerId = await OneSignal.User.PushSubscription.id;
-                    if (playerId) {
-                        onesignalPlayerId = playerId;
-                        console.log('OneSignal Player ID:', playerId);
-                        
-                        // Save to user profile if logged in
-                        if (currentUser) {
-                            await database.ref(`users/${currentUser.id}/onesignalPlayerId`).set(playerId);
-                        }
-                    }
-
-                    // Listen for subscription changes
-                    OneSignal.User.PushSubscription.addEventListener("change", async (event) => {
-                        if (event.current.id) {
-                            onesignalPlayerId = event.current.id;
-                            if (currentUser) {
-                                await database.ref(`users/${currentUser.id}/onesignalPlayerId`).set(event.current.id);
-                            }
-                        }
-                    });
-                }
-            } catch (e) {
-                console.error('OneSignal init error:', e);
-            }
-        }
-
-        // Send notification via Cloudflare Worker
-        async function sendNotificationToUser(userId, title, message, url = null) {
-            try {
-                const userSnap = await database.ref(`users/${userId}`).once('value');
-                const userData = userSnap.val();
-                
-                if (userData && userData.onesignalPlayerId) {
-                    const payload = {
-                        playerId: userData.onesignalPlayerId,
-                        title: title,
-                        message: message,
-                        url: url || window.location.origin
-                    };
-
-                    const response = await fetch(ONESIGNAL_WORKER_URL + 'send-notification', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify(payload)
-                    });
-                    
-                    return await response.json();
-                }
-            } catch (e) {
-                console.error('Send notification error:', e);
-            }
-        }
-
         // ==================== FIXED: CHECK LOGIN STATUS FIRST ====================
         window.onload = function() {
             // Initialize OneSignal
             initOneSignal();
-
+            
             // Load settings first
             database.ref('settings').on('value', snap => {
                 appSettings = snap.val() || {};
@@ -1198,9 +1287,6 @@
             if(savedUser) {
                 currentUser = JSON.parse(savedUser);
                 setupUserListener(currentUser.id);
-                
-                // Re-init OneSignal with user
-                initOneSignal();
                 
                 // Check for ref code but don't go to register if logged in
                 if(refCode) {
@@ -1255,6 +1341,11 @@
                         return;
                     } else {
                         document.getElementById('blockedScreen').classList.remove('active');
+                    }
+                    
+                    // Save OneSignal ID if not already saved
+                    if (userOneSignalId && !currentUser.oneSignalId) {
+                        saveOneSignalId(userId, userOneSignalId);
                     }
                     
                     if(document.getElementById('homePage').classList.contains('active')) updateHomeUI();
@@ -1329,14 +1420,7 @@
                 return; 
             }
             currentUser = user; localStorage.setItem('currentUser', JSON.stringify(user));
-            setupUserListener(user.id);
-            
-            // Save OneSignal Player ID on login
-            if (onesignalPlayerId) {
-                await database.ref(`users/${user.id}/onesignalPlayerId`).set(onesignalPlayerId);
-            }
-            
-            hideLoading(); showToast('Login successful!', 'success'); showPage('home');
+            setupUserListener(user.id); hideLoading(); showToast('Login successful!', 'success'); showPage('home');
         });
 
         // ==================== WHATSAPP OTP REGISTRATION ====================
@@ -1445,9 +1529,6 @@
                             date: new Date().toISOString(), 
                             status: 'approved'
                         });
-                        
-                        // Send notification to referrer
-                        await sendNotificationToUser(rId, '🎉 New Referral!', `${tempUserData.name} joined using your link. You earned ₹${REFER_AMOUNT}!`);
                     }
                 }
                 
@@ -1473,14 +1554,18 @@
                             status: 'approved'
                         }
                     },
-                    lastSeen: Date.now(),
-                    onesignalPlayerId: onesignalPlayerId || null
+                    lastSeen: Date.now()
                 };
                 
                 await database.ref(`users/${newUser.id}`).set(newUser);
                 currentUser = newUser; 
                 localStorage.setItem('currentUser', JSON.stringify(newUser)); 
                 setupUserListener(newUser.id);
+                
+                // Save OneSignal ID if available
+                if (userOneSignalId) {
+                    await saveOneSignalId(newUser.id, userOneSignalId);
+                }
                 
                 // Clear pending ref code
                 sessionStorage.removeItem('pendingRefCode');
@@ -1750,9 +1835,6 @@
             for(let key in currentUser.activePlans) { await database.ref(`users/${currentUser.id}/activePlans/${key}/totalClaimed`).set((currentUser.activePlans[key].totalClaimed||0) + currentUser.activePlans[key].dailyReturn); }
             hideLoading(); showToast(`₹${total} Claimed!`, 'success'); 
             
-            // Send notification
-            await sendNotificationToUser(currentUser.id, '💰 Daily Earnings Claimed!', `You have successfully claimed ₹${total} daily earnings.`);
-            
             updateHomeUI();
             if(document.getElementById('plansPage').classList.contains('active')) {
                 loadPlansPage(); 
@@ -1850,9 +1932,6 @@
                 if(comm > 0) {
                     await database.ref(`users/${rId}`).update({ 'wallet/mainBalance': (rData.wallet?.mainBalance||0) + comm, 'referrals/earnings': (rData.referrals?.earnings||0) + comm });
                     await database.ref(`users/${rId}/transactions`).push({ id: generateId('TXN'), type: 'commission', amount: comm, description: `Level ${i+1} Comm. (${levels[i]}%) from ${currentUser.name}`, date: new Date().toISOString(), status: 'approved' });
-                    
-                    // Send notification for commission
-                    await sendNotificationToUser(rId, '💸 Commission Earned!', `You earned ₹${comm} commission from Level ${i+1} referral.`);
                 }
                 currentCode = rData.referredBy; 
             }
@@ -1928,9 +2007,6 @@
                 await distributeCommission(currentUser.referredBy, finalPrice);
             }
             
-            // Send notification for plan purchase
-            await sendNotificationToUser(currentUser.id, '🎉 Plan Activated!', `Your ${plan.name} plan is now active. ₹${plan.daily} credited to wallet!`);
-            
             hideLoading(); 
             showToast(`Plan Activated! ₹${plan.daily} credited to wallet!`, 'success'); 
             showPage('plans'); 
@@ -1987,10 +2063,6 @@
             const depId = generateId('DEP');
             await database.ref('deposits/'+depId).set({id: depId, userId: currentUser.id, userName: currentUser.name, userPhone: currentUser.phone, amount: amt, transactionId: utr, upiApp: via, status: 'pending', requestedAt: new Date().toISOString()});
             await database.ref(`users/${currentUser.id}/transactions/${depId}`).set({id: depId, type: 'deposit_pending', amount: amt, description: `Deposit (UTR: ${utr})`, date: new Date().toISOString(), status: 'pending'});
-            
-            // Send notification for deposit request
-            await sendNotificationToUser(currentUser.id, '⏳ Deposit Requested', `Your deposit request of ₹${amt} is pending approval.`);
-            
             hideLoading(); showToast('Request Sent!', 'success'); document.getElementById('addMoneyForm').reset(); showWalletTab('history');
         });
 
@@ -2012,10 +2084,6 @@
             const wId = generateId('WID');
             await database.ref('withdrawals/'+wId).set({id: wId, userId: currentUser.id, userName: currentUser.name, amount: amt, method: m, details: details, status: 'pending', requestedAt: new Date().toISOString()});
             await database.ref(`users/${currentUser.id}/transactions/${wId}`).set({id: wId, type: 'withdrawal_pending', amount: amt, description: `Withdrawal Requested`, date: new Date().toISOString(), status: 'pending'});
-            
-            // Send notification for withdrawal request
-            await sendNotificationToUser(currentUser.id, '⏳ Withdrawal Requested', `Your withdrawal request of ₹${amt} is being processed.`);
-            
             hideLoading(); showToast('Withdrawal Requested!', 'success'); document.getElementById('withdrawForm').reset(); showWalletTab('history');
         });
 
@@ -2118,17 +2186,7 @@
             e.preventDefault();
             const ticket = { id: generateId('TIC'), userId: currentUser.id, userName: currentUser.name, userPhone: currentUser.phone, type: document.getElementById('ticketType').value, subject: document.getElementById('ticketSubject').value, message: document.getElementById('ticketMessage').value, status: 'open', createdAt: new Date().toISOString() };
             showLoading('Submitting...');
-            try { 
-                await database.ref('tickets').push(ticket); 
-                
-                // Send notification for ticket creation
-                await sendNotificationToUser(currentUser.id, '🎫 Ticket Created', `Your support ticket "${ticket.subject}" has been submitted.`);
-                
-                hideLoading(); 
-                showToast('Ticket created!', 'success'); 
-                document.getElementById('ticketForm').reset(); 
-                loadSupportData(); 
-            } 
+            try { await database.ref('tickets').push(ticket); hideLoading(); showToast('Ticket created!', 'success'); document.getElementById('ticketForm').reset(); loadSupportData(); } 
             catch (error) { hideLoading(); showToast('Failed to create ticket', 'error'); }
         });
     </script>
