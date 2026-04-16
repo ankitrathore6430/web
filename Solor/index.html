@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="hi">
 <head>
@@ -10,27 +11,67 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
     
-    <!-- OneSignal SDK -->
-    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
-    <script>
-      window.OneSignalDeferred = window.OneSignalDeferred || [];
-      OneSignalDeferred.push(async function(OneSignal) {
-        await OneSignal.init({
-          appId: "eca3e9cf-b75c-4b7e-930a-0cc01359a2de",
-          allowLocalhostAsSecureOrigin: true,
-          notifyButton: {
-            enable: false
-          }
-        });
-      });
-    </script>
-    
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- OneSignal Push Notification SDK -->
+    <script src="https://cdn.onesignal.com/sdks/web/v16/OneSignalSDK.page.js" defer></script>
+    <script>
+      window.OneSignalDeferred = window.OneSignalDeferred || [];
+      OneSignalDeferred.push(async function(OneSignal) {
+        await OneSignal.init({
+          appId: "eca3e9cf-b75c-4b7e-930a-0cc01359a2de",
+          notifyButton: {
+            enable: false, // Custom bell icon used instead
+          },
+        });
+
+        // Listen for subscription changes
+        OneSignal.User.PushSubscription.addEventListener("change", function(event) {
+            if (event.current.optedIn) {
+                updateBellIcon(true);
+                if (typeof currentUser !== 'undefined' && currentUser && currentUser.id) {
+                    saveOneSignalIdToFirebase(event.current.id);
+                }
+            } else {
+                updateBellIcon(false);
+            }
+        });
+
+        // Initial Icon check
+        if (OneSignal.User.PushSubscription.optedIn) {
+            updateBellIcon(true);
+        } else {
+            updateBellIcon(false);
+        }
+      });
+
+      function updateBellIcon(isOptedIn) {
+          const bell = document.getElementById('bellIcon');
+          if (!bell) return;
+          if (isOptedIn) {
+              bell.classList.remove('inactive');
+              bell.classList.add('active');
+          } else {
+              bell.classList.remove('active');
+              bell.classList.add('inactive');
+          }
+      }
+
+      function promptNotification() {
+          window.OneSignalDeferred.push(async function(OneSignal) {
+              if (OneSignal.User.PushSubscription.optedIn) {
+                  showToast("Notifications are already enabled! 🔔", "success");
+              } else {
+                  await OneSignal.Slidedown.promptPush();
+              }
+          });
+      }
+    </script>
+
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
         
@@ -60,10 +101,17 @@
         .brand-text h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
         .brand-text p { font-size: 12px; opacity: 0.9; font-weight: 500; }
         
+        .header-actions { display: flex; align-items: center; gap: 10px; }
         .header-balance { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 10px 20px; border-radius: 50px; color: var(--white); text-align: center; border: 1px solid rgba(255,255,255,0.2); cursor: pointer;}
         .header-balance .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
         .header-balance .amount { font-size: 20px; font-weight: 700; }
         
+        /* Notification Bell */
+        .notification-bell { background: rgba(255,255,255,0.15); width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--white); font-size: 18px; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); backdrop-filter: blur(10px); position: relative; transition: all 0.3s; }
+        .notification-bell.active { color: #fde047; box-shadow: 0 0 10px rgba(253, 224, 71, 0.4); }
+        .notification-bell.inactive .badge { display: block; }
+        .notification-bell .badge { position: absolute; top: 0; right: 2px; width: 10px; height: 10px; background: var(--danger); border-radius: 50%; border: 2px solid #6366f1; display: none; }
+
         /* Bottom Nav */
         .premium-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--white); padding: 12px 20px 25px; display: flex; justify-content: space-around; box-shadow: 0 -10px 40px rgba(0,0,0,0.1); z-index: 1000; border-radius: 30px 30px 0 0; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 8px 16px; border-radius: 16px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none; background: transparent; color: var(--gray); position: relative; }
@@ -98,7 +146,6 @@
         .plan-header-premium { padding: 30px; text-align: center; color: var(--white); position: relative; }
         .plan-header-premium.free { background: var(--gradient-2); }
         .plan-header-premium.paid { background: var(--gradient-1); }
-        /* FIX: Ensure popular plan (500) has distinct color and white text */
         .plan-header-premium.popular { background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%) !important; color: #ffffff !important; }
         
         .discount-badge { position: absolute; top: 15px; right: -10px; background: #fde047; color: var(--dark); padding: 5px 20px; font-size: 12px; font-weight: 800; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
@@ -160,34 +207,10 @@
         .wallet-tab { flex: 1; padding: 14px; border-radius: 12px; border: none; background: transparent; font-weight: 600; cursor: pointer; transition: all 0.3s; color: var(--gray); }
         .wallet-tab.active { background: var(--gradient-1); color: var(--white); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
         
-        /* OTP Inputs - FIXED CENTERED LAYOUT */
-        .otp-container { 
-            display: flex; 
-            gap: 8px; 
-            justify-content: center; 
-            margin: 30px 0; 
-            flex-wrap: nowrap;
-            overflow-x: auto;
-            padding: 10px 0;
-            -webkit-overflow-scrolling: touch;
-        }
-        .otp-input-premium { 
-            width: 45px; 
-            height: 55px; 
-            border: 2px solid #e2e8f0; 
-            border-radius: 12px; 
-            text-align: center; 
-            font-size: 20px; 
-            font-weight: 700; 
-            transition: all 0.3s; 
-            flex-shrink: 0;
-        }
-        .otp-input-premium:focus { 
-            border-color: var(--primary); 
-            outline: none; 
-            transform: scale(1.05); 
-            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-        }
+        /* OTP Inputs */
+        .otp-container { display: flex; gap: 8px; justify-content: center; margin: 30px 0; flex-wrap: nowrap; overflow-x: auto; padding: 10px 0; -webkit-overflow-scrolling: touch; }
+        .otp-input-premium { width: 45px; height: 55px; border: 2px solid #e2e8f0; border-radius: 12px; text-align: center; font-size: 20px; font-weight: 700; transition: all 0.3s; flex-shrink: 0; }
+        .otp-input-premium:focus { border-color: var(--primary); outline: none; transform: scale(1.05); box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1); }
         
         /* Daily Claim */
         .claim-card { background: var(--gradient-2); margin: 20px; border-radius: 30px; padding: 30px; color: var(--white); text-align: center; box-shadow: 0 20px 40px rgba(16, 185, 129, 0.3); }
@@ -223,7 +246,7 @@
         /* WhatsApp Badge */
         .whatsapp-badge { background: #25D366; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 15px; }
         
-        /* Forgot Password Modal - FIXED */
+        /* Forgot Password Modal */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10001; display: none; align-items: center; justify-content: center; padding: 20px; }
         .modal-overlay.active { display: flex; }
         .modal-content { background: white; border-radius: 24px; padding: 30px; width: 100%; max-width: 400px; animation: slideUp 0.3s ease; max-height: 90vh; overflow-y: auto; }
@@ -243,243 +266,38 @@
         }
 
         /* Blocked Screen Styles */
-        .blocked-screen { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); 
-            z-index: 99999; 
-            display: none; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            padding: 40px 20px; 
-            text-align: center; 
-            color: white;
-        }
+        .blocked-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); z-index: 99999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; text-align: center; color: white; }
         .blocked-screen.active { display: flex; }
         .blocked-icon { font-size: 80px; margin-bottom: 30px; color: var(--danger); }
         .blocked-title { font-size: 28px; font-weight: 800; margin-bottom: 15px; }
         .blocked-text { font-size: 16px; opacity: 0.8; margin-bottom: 40px; max-width: 300px; }
-        .blocked-btn { 
-            width: 100%; 
-            max-width: 300px; 
-            padding: 16px; 
-            border-radius: 16px; 
-            border: none; 
-            font-size: 16px; 
-            font-weight: 700; 
-            cursor: pointer; 
-            margin-bottom: 15px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
+        .blocked-btn { width: 100%; max-width: 300px; padding: 16px; border-radius: 16px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 10px; }
         .blocked-btn-support { background: var(--warning); color: white; }
         .blocked-btn-logout { background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.3); }
 
         /* Profile Edit Styles */
-        .profile-name-edit { 
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-            justify-content: center; 
-            margin-bottom: 5px;
-        }
-        .edit-name-btn { 
-            background: rgba(255,255,255,0.2); 
-            border: none; 
-            width: 32px; 
-            height: 32px; 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            cursor: pointer; 
-            color: white;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
+        .profile-name-edit { display: flex; align-items: center; gap: 10px; justify-content: center; margin-bottom: 5px; }
+        .edit-name-btn { background: rgba(255,255,255,0.2); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 14px; transition: all 0.3s; }
         .edit-name-btn:hover { background: rgba(255,255,255,0.3); transform: scale(1.1); }
-        
-        .name-edit-input { 
-            background: rgba(255,255,255,0.2); 
-            border: 2px solid rgba(255,255,255,0.3); 
-            color: white; 
-            padding: 8px 15px; 
-            border-radius: 25px; 
-            font-size: 18px; 
-            font-weight: 700; 
-            text-align: center; 
-            width: 200px;
-            outline: none;
-        }
+        .name-edit-input { background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.3); color: white; padding: 8px 15px; border-radius: 25px; font-size: 18px; font-weight: 700; text-align: center; width: 200px; outline: none; }
         .name-edit-input::placeholder { color: rgba(255,255,255,0.6); }
-        
-        .save-name-btn { 
-            background: var(--success); 
-            border: none; 
-            width: 32px; 
-            height: 32px; 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            cursor: pointer; 
-            color: white;
-            font-size: 14px;
-        }
+        .save-name-btn { background: var(--success); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 14px; }
 
         /* Landing Page Text Styles */
-        .landing-text-container {
-            text-align: center;
-            margin: 20px 0;
-        }
-        .landing-main-text {
-            font-size: 32px;
-            font-weight: 800;
-            margin-bottom: 10px;
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
-        }
-        .landing-sub-text {
-            font-size: 18px;
-            opacity: 0.95;
-            font-weight: 600;
-        }
+        .landing-text-container { text-align: center; margin: 20px 0; }
+        .landing-main-text { font-size: 32px; font-weight: 800; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .landing-sub-text { font-size: 18px; opacity: 0.95; font-weight: 600; }
 
         /* Account Deleted Screen */
-        .deleted-screen { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); 
-            z-index: 99999; 
-            display: none; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            padding: 40px 20px; 
-            text-align: center; 
-            color: white;
-        }
+        .deleted-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); z-index: 99999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; text-align: center; color: white; }
         .deleted-screen.active { display: flex; }
         .deleted-icon { font-size: 80px; margin-bottom: 30px; color: var(--danger); }
         .deleted-title { font-size: 28px; font-weight: 800; margin-bottom: 15px; }
         .deleted-text { font-size: 16px; opacity: 0.8; margin-bottom: 40px; max-width: 300px; }
-        .deleted-btn { 
-            width: 100%; 
-            max-width: 300px; 
-            padding: 16px; 
-            border-radius: 16px; 
-            border: none; 
-            font-size: 16px; 
-            font-weight: 700; 
-            cursor: pointer; 
-            background: var(--gradient-1); 
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-        }
-
-        /* Notification Permission Modal */
-        .notification-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0,0,0,0.7);
-            z-index: 100000;
-            display: none;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .notification-modal.active {
-            display: flex;
-        }
-        .notification-card {
-            background: white;
-            border-radius: 24px;
-            padding: 35px 30px;
-            max-width: 380px;
-            width: 100%;
-            text-align: center;
-            animation: slideUp 0.3s ease;
-        }
-        .notification-icon {
-            width: 80px;
-            height: 80px;
-            background: var(--gradient-1);
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 20px;
-            font-size: 40px;
-            color: white;
-        }
-        .notification-title {
-            font-size: 22px;
-            font-weight: 700;
-            margin-bottom: 10px;
-            color: var(--dark);
-        }
-        .notification-text {
-            font-size: 14px;
-            color: var(--gray);
-            margin-bottom: 25px;
-            line-height: 1.5;
-        }
-        .notification-buttons {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .notification-btn {
-            padding: 16px;
-            border-radius: 16px;
-            border: none;
-            font-size: 16px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-        .notification-btn-primary {
-            background: var(--gradient-1);
-            color: white;
-        }
-        .notification-btn-secondary {
-            background: var(--light);
-            color: var(--gray);
-        }
+        .deleted-btn { width: 100%; max-width: 300px; padding: 16px; border-radius: 16px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; background: var(--gradient-1); color: white; display: flex; align-items: center; justify-content: center; gap: 10px; }
     </style>
 </head>
 <body>
-    <!-- Notification Permission Modal -->
-    <div id="notificationModal" class="notification-modal">
-        <div class="notification-card">
-            <div class="notification-icon">🔔</div>
-            <h3 class="notification-title">Stay Updated!</h3>
-            <p class="notification-text">Enable notifications to get instant alerts for deposits, withdrawals, support replies, and exclusive offers - even when the app is closed!</p>
-            <div class="notification-buttons">
-                <button class="notification-btn notification-btn-primary" onclick="requestNotificationPermission()">
-                    <i class="fas fa-bell"></i> Enable Notifications
-                </button>
-                <button class="notification-btn notification-btn-secondary" onclick="closeNotificationModal()">
-                    Maybe Later
-                </button>
-            </div>
-        </div>
-    </div>
-
     <!-- Account Deleted Screen -->
     <div id="deletedScreen" class="deleted-screen">
         <div class="deleted-icon">🗑️</div>
@@ -512,7 +330,7 @@
     <!-- Toast -->
     <div id="toast" class="toast"></div>
 
-    <!-- Forgot Password Modal - FIXED -->
+    <!-- Forgot Password Modal -->
     <div id="forgotPasswordModal" class="modal-overlay">
         <div class="modal-content">
             <div class="modal-header">
@@ -545,7 +363,7 @@
         </div>
     </div>
 
-    <!-- HEADER -->
+    <!-- HEADER (UPDATED WITH BELL ICON) -->
     <header class="premium-header" id="mainHeader" style="display: none;">
         <div class="header-content">
             <div class="brand">
@@ -555,9 +373,17 @@
                     <p>Refer & Earn</p>
                 </div>
             </div>
-            <div class="header-balance" onclick="showPage('wallet')">
-                <div class="label">Balance</div>
-                <div class="amount">₹<span id="headerBalance">0</span></div>
+            <div class="header-actions">
+                <!-- Notification Bell -->
+                <div class="notification-bell inactive" id="bellIcon" onclick="promptNotification()">
+                    <i class="fas fa-bell"></i>
+                    <div class="badge"></div>
+                </div>
+                <!-- Balance -->
+                <div class="header-balance" onclick="showPage('wallet')">
+                    <div class="label">Balance</div>
+                    <div class="amount">₹<span id="headerBalance">0</span></div>
+                </div>
             </div>
         </div>
     </header>
@@ -625,7 +451,7 @@
         </div>
     </div>
 
-    <!-- REGISTER PAGE - FIXED -->
+    <!-- REGISTER PAGE -->
     <div id="registerPage" class="page">
         <div class="premium-card" style="margin-top:20px;">
             <div id="regStep1">
@@ -661,7 +487,7 @@
                 </div>
             </div>
 
-            <!-- OTP Step - FIXED CENTERED -->
+            <!-- OTP Step -->
             <div id="regStep2" class="hidden" style="text-align: center;">
                 <div class="whatsapp-badge"><i class="fab fa-whatsapp"></i> WhatsApp OTP</div>
                 <h3 style="margin-bottom: 10px;">Verify OTP</h3>
@@ -743,7 +569,7 @@
         <div class="tx-list" id="homeTransactions"></div>
     </div>
 
-    <!-- PLANS PAGE (VERTICAL POST LAYOUT WITH CLAIM SYSTEM) -->
+    <!-- PLANS PAGE -->
     <div id="plansPage" class="page">
         <div style="padding: 30px 20px;">
             <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 10px;"><i class="fas fa-gem" style="color: var(--secondary); margin-right: 10px;"></i>Investment Plans</h2>
@@ -757,16 +583,13 @@
                     <p style="opacity: 0.9; margin-bottom: 15px;">Earn ₹10/day for 7 days - No investment!</p>
                 </div>
             </div>
-            <div id="freePlanAction">
-                <!-- Action Buttons will load dynamically here -->
-            </div>
+            <div id="freePlanAction"></div>
         </div>
 
-        <!-- Plans will load vertically here with offers & claim buttons -->
         <div class="plans-vertical" id="plansContainer"></div>
     </div>
 
-    <!-- WALLET PAGE WITH AUTO UPI REDIRECT -->
+    <!-- WALLET PAGE -->
     <div id="walletPage" class="page">
         <div class="balance-premium" style="background: var(--gradient-1);">
             <div class="balance-content">
@@ -781,7 +604,6 @@
             <button class="wallet-tab" onclick="showWalletTab('history')" data-tab="history">History</button>
         </div>
 
-        <!-- Add Money Auto UPI -->
         <div id="walletAddSection" class="wallet-section">
             <div class="premium-card">
                 <h3 style="margin-bottom: 20px; font-size: 20px;"><i class="fas fa-plus-circle" style="color: var(--success); margin-right: 10px;"></i>Add Money</h3>
@@ -826,7 +648,6 @@
         </div>
 
         <div id="walletWithdrawSection" class="wallet-section hidden">
-            <!-- Withdraw form remains same layout -->
             <div class="premium-card">
                 <h3 style="margin-bottom: 20px; font-size: 20px;"><i class="fas fa-minus-circle" style="color: var(--danger); margin-right: 10px;"></i>Withdraw</h3>
                 <form class="form-premium" id="withdrawForm">
@@ -861,9 +682,8 @@
         </div>
     </div>
 
-    <!-- REFERRAL PAGE (OPTIMIZED UI) -->
+    <!-- REFERRAL PAGE -->
     <div id="referralPage" class="page">
-        <!-- Header Banner -->
         <div class="premium-card" style="background: var(--gradient-1); color: white; text-align: center; margin-bottom: 20px; padding: 35px 20px;">
             <h2 style="font-size: 26px; font-weight: 800;">Refer & Earn Lifetime!</h2>
             <p style="opacity: 0.9; margin-bottom: 15px;">Build your team and get passive income</p>
@@ -882,7 +702,6 @@
             </div>
         </div>
 
-        <!-- How it Works Guide -->
         <div class="section-title"><h2><i class="fas fa-info-circle" style="color: var(--warning); margin-right: 10px;"></i>How It Works?</h2></div>
         <div class="premium-card" style="padding: 15px;">
             <div style="display: flex; gap: 15px; margin-bottom: 20px;">
@@ -908,7 +727,6 @@
             </div>
         </div>
 
-        <!-- 3 Level Commission Guide -->
         <div class="section-title"><h2><i class="fas fa-sitemap" style="color: var(--primary); margin-right: 10px;"></i>Team Commission</h2></div>
         <div class="premium-card" style="padding: 15px;">
             <div class="level-card">
@@ -945,7 +763,6 @@
             </div>
         </div>
 
-        <!-- Team Stats -->
         <div class="section-title"><h2><i class="fas fa-chart-line" style="color: var(--success); margin-right: 10px;"></i>Your Earnings</h2></div>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 0 20px 20px;">
             <div class="premium-card" style="margin: 0; padding: 25px; text-align: center;">
@@ -961,24 +778,17 @@
 
     <!-- PROFILE PAGE -->
     <div id="profilePage" class="page">
-        <!-- Profile Header -->
         <div style="background: var(--gradient-1); padding: 40px 20px; text-align: center; color: white; position: relative;">
             <div style="width: 100px; height: 100px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 50px; border: 4px solid rgba(255,255,255,0.3);">👤</div>
             
-            <!-- Editable Name with Pencil Icon -->
             <div class="profile-name-edit" id="nameDisplayContainer">
                 <h2 id="profileName" style="font-size: 28px; font-weight: 700;">User Name</h2>
-                <button class="edit-name-btn" onclick="enableNameEdit()" title="Edit Name">
-                    <i class="fas fa-pencil-alt"></i>
-                </button>
+                <button class="edit-name-btn" onclick="enableNameEdit()" title="Edit Name"><i class="fas fa-pencil-alt"></i></button>
             </div>
             
-            <!-- Name Edit Input (Hidden by default) -->
             <div class="profile-name-edit hidden" id="nameEditContainer">
                 <input type="text" class="name-edit-input" id="nameEditInput" maxlength="30">
-                <button class="save-name-btn" onclick="saveProfileName()" title="Save">
-                    <i class="fas fa-check"></i>
-                </button>
+                <button class="save-name-btn" onclick="saveProfileName()" title="Save"><i class="fas fa-check"></i></button>
             </div>
             
             <p id="profilePhone" style="opacity: 0.9; font-size: 16px;">+91 ---</p>
@@ -987,7 +797,6 @@
             </div>
         </div>
 
-        <!-- Stats -->
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 20px;">
             <div class="premium-card" style="margin: 0; padding: 25px; text-align: center;">
                 <div style="font-size: 32px; font-weight: 700; color: var(--primary);" id="profTotalEarn">₹0</div>
@@ -999,7 +808,6 @@
             </div>
         </div>
 
-        <!-- Menu Items -->
         <div class="premium-card" style="padding: 10px;">
             <div style="display: flex; align-items: center; gap: 15px; padding: 20px; cursor: pointer;" onclick="showPage('wallet')">
                 <div style="width: 45px; height: 45px; background: rgba(99, 102, 241, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 20px;"><i class="fas fa-wallet"></i></div>
@@ -1085,17 +893,11 @@
         let userStatusListener = null;
         let lastSeenInterval = null;
         let isAccountDeleted = false;
-        let oneSignalInitialized = false;
-        let userOneSignalId = null;
 
-        // WhatsApp OTP Server Config
         const WHATSAPP_OTP_SERVER = 'https://we-aobe.onrender.com';
         const WHATSAPP_API_KEY = 'SOLOR_SECRET_786';
-
-        // ==================== PLANS DATA ====================
         let PLANS = [];
 
-        // ==================== UTILITY FUNCTIONS ====================
         function showLoading(text='Loading...') { document.querySelector('#loadingScreen p').textContent = text; document.getElementById('loadingScreen').classList.add('active'); }
         function hideLoading() { document.getElementById('loadingScreen').classList.remove('active'); }
         function showToast(message, type='info') {
@@ -1106,99 +908,34 @@
         function generateId(prefix) { return prefix + Date.now().toString().slice(-6); }
         function formatCurrency(amt) { return '₹' + parseInt(amt||0).toLocaleString('en-IN'); }
 
-        // Update all refer amount displays
         function updateReferDisplays() {
-            document.querySelectorAll('.refer-amount-display').forEach(el => {
-                el.textContent = REFER_AMOUNT;
+            document.querySelectorAll('.refer-amount-display').forEach(el => { el.textContent = REFER_AMOUNT; });
+        }
+
+        // ==================== NOTIFICATION SYNCING ====================
+        function syncOneSignalId() {
+            window.OneSignalDeferred.push(async function(OneSignal) {
+                if (OneSignal.User.PushSubscription.optedIn) {
+                    const id = OneSignal.User.PushSubscription.id;
+                    if (id) saveOneSignalIdToFirebase(id);
+                } else {
+                    // Automatically prompt users for permission 2 seconds after they log in
+                    setTimeout(() => {
+                        OneSignal.Slidedown.promptPush();
+                    }, 2000);
+                }
             });
         }
 
-        // ==================== ONESIGNAL NOTIFICATION FUNCTIONS ====================
-        async function initOneSignal() {
-            if (oneSignalInitialized) return;
-            
-            try {
-                await OneSignalDeferred.push(async function(OneSignal) {
-                    // Check if permission is already granted
-                    const permission = await OneSignal.Notifications.permission;
-                    
-                    if (permission === 'granted') {
-                        const subscriptionId = await OneSignal.User.PushSubscription.id;
-                        if (subscriptionId) {
-                            userOneSignalId = subscriptionId;
-                            oneSignalInitialized = true;
-                            
-                            // Save to Firebase if user is logged in
-                            if (currentUser) {
-                                await saveOneSignalId(currentUser.id, subscriptionId);
-                            }
-                        }
-                    } else {
-                        // Show notification permission modal after 3 seconds
-                        setTimeout(() => {
-                            showNotificationModal();
-                        }, 3000);
-                    }
-                });
-            } catch (e) {
-                console.log('OneSignal init error:', e);
+        function saveOneSignalIdToFirebase(id) {
+            if (currentUser && currentUser.id && id) {
+                database.ref(`users/${currentUser.id}/oneSignalId`).set(id);
+                currentUser.oneSignalId = id;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
             }
         }
 
-        function showNotificationModal() {
-            // Only show if not already shown in this session
-            if (sessionStorage.getItem('notificationModalShown')) return;
-            sessionStorage.setItem('notificationModalShown', 'true');
-            
-            document.getElementById('notificationModal').classList.add('active');
-        }
-
-        function closeNotificationModal() {
-            document.getElementById('notificationModal').classList.remove('active');
-        }
-
-        async function requestNotificationPermission() {
-            try {
-                await OneSignalDeferred.push(async function(OneSignal) {
-                    await OneSignal.Notifications.requestPermission();
-                    
-                    const permission = await OneSignal.Notifications.permission;
-                    if (permission === 'granted') {
-                        const subscriptionId = await OneSignal.User.PushSubscription.id;
-                        if (subscriptionId) {
-                            userOneSignalId = subscriptionId;
-                            oneSignalInitialized = true;
-                            
-                            // Save to Firebase if user is logged in
-                            if (currentUser) {
-                                await saveOneSignalId(currentUser.id, subscriptionId);
-                            }
-                            
-                            showToast('Notifications enabled successfully!', 'success');
-                        }
-                    } else {
-                        showToast('Please enable notifications in browser settings', 'error');
-                    }
-                });
-            } catch (e) {
-                console.log('Permission error:', e);
-                showToast('Error enabling notifications', 'error');
-            }
-            
-            closeNotificationModal();
-        }
-
-        async function saveOneSignalId(userId, oneSignalId) {
-            try {
-                await database.ref(`users/${userId}/oneSignalId`).set(oneSignalId);
-            } catch (e) {
-                console.log('Error saving OneSignal ID:', e);
-            }
-        }
-
-        // ==================== NAVIGATION ====================
         function showPage(page) {
-            // Check if user is blocked before showing any page
             if(currentUser && currentUser.status === 'blocked' && page !== 'support') {
                 document.getElementById('blockedScreen').classList.add('active');
                 document.getElementById('mainHeader').style.display = 'none';
@@ -1227,7 +964,6 @@
             window.scrollTo(0,0);
         }
 
-        // REDIRECT & HIGHLIGHT SPECIFIC PLAN
         function goToPlan(planId) {
             showPage('plans');
             setTimeout(() => {
@@ -1245,12 +981,7 @@
             }, 300);
         }
 
-        // ==================== FIXED: CHECK LOGIN STATUS FIRST ====================
         window.onload = function() {
-            // Initialize OneSignal
-            initOneSignal();
-            
-            // Load settings first
             database.ref('settings').on('value', snap => {
                 appSettings = snap.val() || {};
                 ADMIN_UPI_ID = appSettings.upiId || '6395503566@upi';
@@ -1261,43 +992,29 @@
                 updateReferDisplays();
             });
 
-            // Load plans from database
             database.ref('plans').on('value', snap => {
                 const plansData = snap.val();
                 if(plansData) {
                     PLANS = Object.values(plansData).sort((a,b) => a.price - b.price);
                 }
-                if(document.getElementById('plansPage').classList.contains('active')) {
-                    loadPlansPage();
-                }
+                if(document.getElementById('plansPage').classList.contains('active')) loadPlansPage();
             });
 
-            // Check for referral code in URL
             const urlParams = new URLSearchParams(window.location.search);
             const refCode = urlParams.get('ref');
-            
-            // Store ref code in session if exists
-            if(refCode) {
-                sessionStorage.setItem('pendingRefCode', refCode);
-            }
+            if(refCode) sessionStorage.setItem('pendingRefCode', refCode);
 
             const savedUser = localStorage.getItem('currentUser');
-            
-            // If user is already logged in, go to home regardless of URL
             if(savedUser) {
                 currentUser = JSON.parse(savedUser);
                 setupUserListener(currentUser.id);
-                
-                // Check for ref code but don't go to register if logged in
-                if(refCode) {
-                    showToast('You are already logged in!', 'info');
-                }
+                syncOneSignalId(); // Ask/Sync OneSignal after loading session
+
+                if(refCode) showToast('You are already logged in!', 'info');
                 showPage('home');
             } else {
-                // User not logged in - check for ref code
                 const pendingRef = sessionStorage.getItem('pendingRefCode');
                 if(pendingRef) {
-                    // Fill referral code in register form
                     document.getElementById('regReferral').value = pendingRef;
                     document.getElementById('refBonusText').style.display = 'block';
                 }
@@ -1311,29 +1028,20 @@
         };
 
         function setupUserListener(userId) {
-            // Remove existing listener if any
-            if(userStatusListener) {
-                userStatusListener.off();
-            }
+            if(userStatusListener) userStatusListener.off();
 
-            // Setup real-time listener for user data
             userStatusListener = database.ref('users/' + userId);
             userStatusListener.on('value', (snap) => {
                 const userData = snap.val();
-                
-                // Check if user has been deleted
                 if(!userData && currentUser && !isAccountDeleted) {
-                    // User data no longer exists - account was deleted
                     isAccountDeleted = true;
                     handleAccountDeleted();
                     return;
                 }
-                
                 if(userData) {
                     currentUser = userData;
                     localStorage.setItem('currentUser', JSON.stringify(currentUser));
                     
-                    // Check if user is blocked
                     if(currentUser.status === 'blocked') {
                         document.getElementById('blockedScreen').classList.add('active');
                         document.getElementById('mainHeader').style.display = 'none';
@@ -1343,11 +1051,6 @@
                         document.getElementById('blockedScreen').classList.remove('active');
                     }
                     
-                    // Save OneSignal ID if not already saved
-                    if (userOneSignalId && !currentUser.oneSignalId) {
-                        saveOneSignalId(userId, userOneSignalId);
-                    }
-                    
                     if(document.getElementById('homePage').classList.contains('active')) updateHomeUI();
                     if(document.getElementById('plansPage').classList.contains('active')) loadPlansPage();
                     if(document.getElementById('walletPage').classList.contains('active')) loadWalletData();
@@ -1355,7 +1058,6 @@
                 }
             });
 
-            // Update last seen every 30 seconds when app is active
             if(lastSeenInterval) clearInterval(lastSeenInterval);
             lastSeenInterval = setInterval(() => {
                 if(currentUser && currentUser.status !== 'blocked' && !isAccountDeleted) {
@@ -1363,45 +1065,26 @@
                 }
             }, 30000);
 
-            // Set last seen immediately on login
             database.ref(`users/${userId}/lastSeen`).set(Date.now());
         }
 
-        // Handle account deletion
         function handleAccountDeleted() {
-            // Clear all intervals
-            if(lastSeenInterval) {
-                clearInterval(lastSeenInterval);
-                lastSeenInterval = null;
-            }
-            
-            // Remove listener
-            if(userStatusListener) {
-                userStatusListener.off();
-                userStatusListener = null;
-            }
-            
-            // Clear local storage
+            if(lastSeenInterval) { clearInterval(lastSeenInterval); lastSeenInterval = null; }
+            if(userStatusListener) { userStatusListener.off(); userStatusListener = null; }
             localStorage.removeItem('currentUser');
             currentUser = null;
-            
-            // Show deleted screen
             document.getElementById('deletedScreen').classList.add('active');
             document.getElementById('mainHeader').style.display = 'none';
             document.getElementById('bottomNav').style.display = 'none';
-            
-            // Hide all pages
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
         }
 
-        // Force logout function for deleted screen
         function forceLogout() {
             isAccountDeleted = false;
             document.getElementById('deletedScreen').classList.remove('active');
             window.location.reload();
         }
 
-        // ==================== AUTH (WHATSAPP OTP) ====================
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault(); showLoading('Logging in...');
             const phone = document.getElementById('loginPhone').value, pass = document.getElementById('loginPassword').value;
@@ -1420,10 +1103,11 @@
                 return; 
             }
             currentUser = user; localStorage.setItem('currentUser', JSON.stringify(user));
-            setupUserListener(user.id); hideLoading(); showToast('Login successful!', 'success'); showPage('home');
+            setupUserListener(user.id); 
+            hideLoading(); showToast('Login successful!', 'success'); showPage('home');
+            syncOneSignalId(); // Prompt/Sync after new login
         });
 
-        // ==================== WHATSAPP OTP REGISTRATION ====================
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const name = document.getElementById('regName').value, phone = document.getElementById('regPhone').value;
@@ -1432,84 +1116,51 @@
             if(phone.length !== 10) return showToast('Invalid phone', 'error');
             
             showLoading('Sending OTP via WhatsApp...');
-            
-            // Check if phone already registered
             const snap = await database.ref('users').orderByChild('phone').equalTo(phone).once('value');
-            if(snap.val()) { 
-                hideLoading(); 
-                return showToast('Phone already registered', 'error'); 
-            }
+            if(snap.val()) { hideLoading(); return showToast('Phone already registered', 'error'); }
             
-            // Generate 6-digit OTP
             const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
-            
             try {
-                // Send OTP via WhatsApp server
                 const response = await fetch(`${WHATSAPP_OTP_SERVER}/send-otp?phone=${phone}&otp=${generatedOtp}&key=${WHATSAPP_API_KEY}`);
                 const result = await response.json();
-                
                 if(result.status !== "success") {
                     hideLoading();
-                    return showToast('Failed to send WhatsApp OTP: ' + (result.message || 'Unknown error'), 'error');
+                    return showToast('Failed to send WhatsApp OTP', 'error');
                 }
                 
-                // Store data for later use
-                tempUserData = {
-                    name, 
-                    phone, 
-                    pass, 
-                    ref: document.getElementById('regReferral').value.trim(),
-                    generatedOtp: generatedOtp // Store OTP for verification
-                };
-                
+                tempUserData = { name, phone, pass, ref: document.getElementById('regReferral').value.trim(), generatedOtp };
                 hideLoading(); 
                 document.getElementById('regStep1').classList.add('hidden'); 
                 document.getElementById('regStep2').classList.remove('hidden');
                 document.getElementById('otpPhoneDisplay').textContent = phone;
                 setupRegOtpInputs();
                 startOtpTimer();
-                
-            } catch(e) { 
-                hideLoading(); 
-                showToast('Error: ' + e.message, 'error'); 
-            }
+            } catch(e) { hideLoading(); showToast('Error: ' + e.message, 'error'); }
         });
 
         function setupRegOtpInputs() {
             const inputs = document.querySelectorAll('.reg-otp');
             inputs.forEach((inpt, i) => {
-                inpt.value = ''; // Clear previous values
+                inpt.value = '';
                 inpt.addEventListener('input', (e) => {
-                    // Only allow numbers
                     e.target.value = e.target.value.replace(/[^0-9]/g, '');
                     if(e.target.value.length===1 && i<5) inputs[i+1].focus();
                     document.getElementById('fullOtp').value = Array.from(inputs).map(inp=>inp.value).join('');
                 });
-                // Handle backspace
                 inpt.addEventListener('keydown', (e) => {
-                    if(e.key === 'Backspace' && !e.target.value && i>0) {
-                        inputs[i-1].focus();
-                    }
+                    if(e.key === 'Backspace' && !e.target.value && i>0) inputs[i-1].focus();
                 });
             });
-            // Focus first input
             if(inputs.length > 0) inputs[0].focus();
         }
 
         async function verifyOtp() {
             const otp = document.getElementById('fullOtp').value;
             if(otp.length!==6) return showToast('Enter valid 6-digit OTP', 'error');
-            
             showLoading('Creating account...');
-            
             try {
-                // Verify OTP locally (compare with stored OTP)
-                if(otp !== tempUserData.generatedOtp) {
-                    hideLoading();
-                    return showToast('Invalid OTP', 'error');
-                }
+                if(otp !== tempUserData.generatedOtp) { hideLoading(); return showToast('Invalid OTP', 'error'); }
                 
-                // OTP verified - Create account
                 let bonus = 0, refBy = 'ADMIN';
                 if(tempUserData.ref) {
                     const rSnap = await database.ref('users').orderByChild('referralCode').equalTo(tempUserData.ref).once('value');
@@ -1521,38 +1172,17 @@
                             'referrals/count': (rData.referrals?.count||0)+1, 
                             'referrals/earnings': (rData.referrals?.earnings||0)+REFER_AMOUNT 
                         });
-                        await database.ref(`users/${rId}/transactions`).push({
-                            id: generateId('TXN'), 
-                            type: 'referral_bonus', 
-                            amount: REFER_AMOUNT, 
-                            description: `Referral Signup Bonus from ${tempUserData.name}`, 
-                            date: new Date().toISOString(), 
-                            status: 'approved'
-                        });
+                        await database.ref(`users/${rId}/transactions`).push({ id: generateId('TXN'), type: 'referral_bonus', amount: REFER_AMOUNT, description: `Referral Signup Bonus from ${tempUserData.name}`, date: new Date().toISOString(), status: 'approved' });
                     }
                 }
                 
                 const newUser = {
-                    id: generateId('USER'), 
-                    name: tempUserData.name, 
-                    phone: tempUserData.phone, 
-                    password: tempUserData.pass,
-                    referralCode: tempUserData.name.substring(0,4).toUpperCase()+Math.floor(Math.random()*1000), 
-                    referredBy: refBy,
-                    joinDate: new Date().toISOString(), 
-                    status: 'active', 
-                    wallet: {mainBalance: bonus, totalWithdrawn: 0},
-                    referrals: {count:0, earnings:0}, 
-                    activePlans: {},
+                    id: generateId('USER'), name: tempUserData.name, phone: tempUserData.phone, password: tempUserData.pass,
+                    referralCode: tempUserData.name.substring(0,4).toUpperCase()+Math.floor(Math.random()*1000), referredBy: refBy,
+                    joinDate: new Date().toISOString(), status: 'active', wallet: {mainBalance: bonus, totalWithdrawn: 0},
+                    referrals: {count:0, earnings:0}, activePlans: {},
                     transactions: {
-                        [Date.now()]: {
-                            id: generateId('TXN'), 
-                            type: 'signup', 
-                            amount: bonus, 
-                            description: 'Signup Bonus', 
-                            date: new Date().toISOString(), 
-                            status: 'approved'
-                        }
+                        [Date.now()]: { id: generateId('TXN'), type: 'signup', amount: bonus, description: 'Signup Bonus', date: new Date().toISOString(), status: 'approved' }
                     },
                     lastSeen: Date.now()
                 };
@@ -1561,199 +1191,118 @@
                 currentUser = newUser; 
                 localStorage.setItem('currentUser', JSON.stringify(newUser)); 
                 setupUserListener(newUser.id);
-                
-                // Save OneSignal ID if available
-                if (userOneSignalId) {
-                    await saveOneSignalId(newUser.id, userOneSignalId);
-                }
-                
-                // Clear pending ref code
                 sessionStorage.removeItem('pendingRefCode');
                 
                 hideLoading(); 
                 document.getElementById('regStep2').classList.add('hidden'); 
                 document.getElementById('regStep3').classList.remove('hidden');
                 document.getElementById('bonusMessage').textContent = bonus > 0 ? `🎉 You received ₹${bonus} signup bonus!` : '';
+                syncOneSignalId(); // Prompt/Sync after successful registration
                 
-            } catch(e) { 
-                hideLoading(); 
-                showToast('Error creating account: ' + e.message, 'error'); 
-            }
+            } catch(e) { hideLoading(); showToast('Error creating account: ' + e.message, 'error'); }
         }
 
         async function resendOtp() {
             const phone = tempUserData.phone;
             const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
             tempUserData.generatedOtp = generatedOtp;
-            
             showLoading('Resending OTP...');
-            
             try {
                 const response = await fetch(`${WHATSAPP_OTP_SERVER}/send-otp?phone=${phone}&otp=${generatedOtp}&key=${WHATSAPP_API_KEY}`);
                 const result = await response.json();
-                
                 if(result.status === "success") {
-                    hideLoading();
-                    showToast('OTP resent via WhatsApp!', 'success');
-                    startOtpTimer();
-                } else {
-                    hideLoading();
-                    showToast('Failed to resend OTP', 'error');
-                }
-            } catch(e) {
-                hideLoading();
-                showToast('Error: ' + e.message, 'error');
-            }
+                    hideLoading(); showToast('OTP resent via WhatsApp!', 'success'); startOtpTimer();
+                } else { hideLoading(); showToast('Failed to resend OTP', 'error'); }
+            } catch(e) { hideLoading(); showToast('Error: ' + e.message, 'error'); }
         }
 
         function startOtpTimer() {
             let time = 60;
             document.getElementById('otpTimer').classList.remove('hidden');
             document.getElementById('resendOtpBtn').classList.add('hidden');
-            
             const timer = setInterval(() => {
-                time--;
-                document.getElementById('otpTimer').textContent = time + 's';
+                time--; document.getElementById('otpTimer').textContent = time + 's';
                 if(time <= 0) {
-                    clearInterval(timer);
-                    document.getElementById('otpTimer').classList.add('hidden');
-                    document.getElementById('resendOtpBtn').classList.remove('hidden');
+                    clearInterval(timer); document.getElementById('otpTimer').classList.add('hidden'); document.getElementById('resendOtpBtn').classList.remove('hidden');
                 }
             }, 1000);
         }
 
         function backToReg() {
-            // Clear OTP inputs
             document.querySelectorAll('.reg-otp').forEach(inp => inp.value = '');
             document.getElementById('fullOtp').value = '';
-            
             document.getElementById('regStep2').classList.add('hidden');
             document.getElementById('regStep1').classList.remove('hidden');
-            // Don't clear tempUserData completely, keep phone for convenience
         }
 
-        // ==================== FORGOT PASSWORD - FIXED ====================
         function openForgotModal() {
             document.getElementById('forgotPasswordModal').classList.add('active');
             forgotPasswordData = {};
-            // Reset form
             document.getElementById('forgotPasswordForm').reset();
             document.getElementById('forgotOtpGroup').style.display = 'none';
             document.getElementById('newPasswordGroup').style.display = 'none';
             document.getElementById('forgotBtn').textContent = 'Send OTP';
-            // Clear OTP inputs
             document.querySelectorAll('.forgot-otp').forEach(inp => inp.value = '');
             document.getElementById('forgotFullOtp').value = '';
         }
 
-        function closeForgotModal() {
-            document.getElementById('forgotPasswordModal').classList.remove('active');
-        }
+        function closeForgotModal() { document.getElementById('forgotPasswordModal').classList.remove('active'); }
 
-        // Setup forgot password OTP inputs
         function setupForgotOtpInputs() {
             const inputs = document.querySelectorAll('.forgot-otp');
             inputs.forEach((inpt, i) => {
-                inpt.value = ''; // Clear previous
+                inpt.value = '';
                 inpt.addEventListener('input', (e) => {
                     e.target.value = e.target.value.replace(/[^0-9]/g, '');
                     if(e.target.value.length===1 && i<5) inputs[i+1].focus();
                     document.getElementById('forgotFullOtp').value = Array.from(inputs).map(inp=>inp.value).join('');
                 });
-                inpt.addEventListener('keydown', (e) => {
-                    if(e.key === 'Backspace' && !e.target.value && i>0) {
-                        inputs[i-1].focus();
-                    }
-                });
+                inpt.addEventListener('keydown', (e) => { if(e.key === 'Backspace' && !e.target.value && i>0) inputs[i-1].focus(); });
             });
-            // Focus first input
             if(inputs.length > 0) inputs[0].focus();
         }
 
         document.getElementById('forgotPasswordForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            
-            // Step 1: Send OTP
             if(!forgotPasswordData.step) {
                 const phone = document.getElementById('forgotPhone').value;
                 if(phone.length !== 10) return showToast('Invalid phone number', 'error');
-                
                 showLoading('Sending OTP...');
-                
-                // Check if user exists
                 const snap = await database.ref('users').orderByChild('phone').equalTo(phone).once('value');
-                if(!snap.val()) {
-                    hideLoading();
-                    return showToast('Phone number not registered', 'error');
-                }
+                if(!snap.val()) { hideLoading(); return showToast('Phone number not registered', 'error'); }
                 
-                const userData = Object.values(snap.val())[0];
-                const userId = Object.keys(snap.val())[0];
-                
-                // Generate and send OTP
+                const userData = Object.values(snap.val())[0], userId = Object.keys(snap.val())[0];
                 const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
                 
                 try {
                     const response = await fetch(`${WHATSAPP_OTP_SERVER}/send-otp?phone=${phone}&otp=${generatedOtp}&key=${WHATSAPP_API_KEY}`);
                     const result = await response.json();
-                    
-                    if(result.status !== "success") {
-                        hideLoading();
-                        return showToast('Failed to send OTP', 'error');
-                    }
-                    
-                    forgotPasswordData = {
-                        step: 'verify',
-                        phone: phone,
-                        userId: userId,
-                        generatedOtp: generatedOtp
-                    };
-                    
-                    hideLoading();
-                    document.getElementById('forgotOtpGroup').style.display = 'block';
-                    document.getElementById('forgotBtn').textContent = 'Verify OTP';
-                    showToast('OTP sent via WhatsApp!', 'success');
-                    setupForgotOtpInputs();
-                    
-                } catch(e) {
-                    hideLoading();
-                    showToast('Error: ' + e.message, 'error');
-                }
+                    if(result.status !== "success") { hideLoading(); return showToast('Failed to send OTP', 'error'); }
+                    forgotPasswordData = { step: 'verify', phone: phone, userId: userId, generatedOtp: generatedOtp };
+                    hideLoading(); document.getElementById('forgotOtpGroup').style.display = 'block'; document.getElementById('forgotBtn').textContent = 'Verify OTP';
+                    showToast('OTP sent via WhatsApp!', 'success'); setupForgotOtpInputs();
+                } catch(e) { hideLoading(); showToast('Error: ' + e.message, 'error'); }
             }
-            // Step 2: Verify OTP
             else if(forgotPasswordData.step === 'verify') {
                 const otp = document.getElementById('forgotFullOtp').value;
                 if(otp.length !== 6) return showToast('Enter valid 6-digit OTP', 'error');
-                
-                if(otp !== forgotPasswordData.generatedOtp) {
-                    return showToast('Invalid OTP', 'error');
-                }
-                
+                if(otp !== forgotPasswordData.generatedOtp) return showToast('Invalid OTP', 'error');
                 forgotPasswordData.step = 'reset';
                 document.getElementById('newPasswordGroup').style.display = 'block';
                 document.getElementById('forgotBtn').textContent = 'Reset Password';
                 showToast('OTP verified! Enter new password', 'success');
             }
-            // Step 3: Reset Password
             else if(forgotPasswordData.step === 'reset') {
                 const newPass = document.getElementById('newPassword').value;
                 if(newPass.length < 6) return showToast('Password must be at least 6 characters', 'error');
-                
                 showLoading('Resetting password...');
-                
                 try {
                     await database.ref(`users/${forgotPasswordData.userId}/password`).set(newPass);
-                    hideLoading();
-                    showToast('Password reset successful!', 'success');
-                    closeForgotModal();
-                } catch(e) {
-                    hideLoading();
-                    showToast('Error resetting password', 'error');
-                }
+                    hideLoading(); showToast('Password reset successful!', 'success'); closeForgotModal();
+                } catch(e) { hideLoading(); showToast('Error resetting password', 'error'); }
             }
         });
 
-        // ==================== HOME ====================
         function updateHomeUI() {
             document.getElementById('homeBalance').textContent = currentUser.wallet?.mainBalance || 0;
             document.getElementById('homeRefers').textContent = currentUser.referrals?.count || 0;
@@ -1777,23 +1326,13 @@
                     return `
                     <div class="premium-card" style="margin: 0 20px 15px; background: linear-gradient(135deg, #fff0f2 0%, #ffe4e6 100%); border: 1px solid #fda4af;">
                         <div style="display: flex; justify-content: space-between; align-items: center;">
-                            <div>
-                                <span style="background: var(--danger); color: white; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">${disc}% OFF</span>
-                                <h3 style="margin: 5px 0;">${p.name}</h3>
-                                <div style="font-size: 13px; color: var(--gray);">Daily: ₹${p.daily} • ${p.days} Days</div>
-                            </div>
-                            <div style="text-align: right;">
-                                <div style="text-decoration: line-through; color: var(--gray-light); font-size: 14px;">₹${p.price}</div>
-                                <div style="font-size: 22px; font-weight: 800; color: var(--danger);">₹${newPrice}</div>
-                                <button class="btn-main" style="padding: 6px 12px; font-size: 12px; margin-top: 5px; background: var(--danger); color: white;" onclick="goToPlan('${p.id}')">View Offer</button>
-                            </div>
+                            <div><span style="background: var(--danger); color: white; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">${disc}% OFF</span><h3 style="margin: 5px 0;">${p.name}</h3><div style="font-size: 13px; color: var(--gray);">Daily: ₹${p.daily} • ${p.days} Days</div></div>
+                            <div style="text-align: right;"><div style="text-decoration: line-through; color: var(--gray-light); font-size: 14px;">₹${p.price}</div><div style="font-size: 22px; font-weight: 800; color: var(--danger);">₹${newPrice}</div><button class="btn-main" style="padding: 6px 12px; font-size: 12px; margin-top: 5px; background: var(--danger); color: white;" onclick="goToPlan('${p.id}')">View Offer</button></div>
                         </div>
                     </div>`;
                 }).join('');
                 offerContainer.classList.remove('hidden');
-            } else {
-                offerContainer.classList.add('hidden');
-            }
+            } else { offerContainer.classList.add('hidden'); }
 
             const claimSection = document.getElementById('dailyClaimSection');
             if(plans.length) {
@@ -1815,8 +1354,7 @@
                 <div class="tx-item">
                     <div class="tx-icon ${status==='pending'?'pending':(tx.type.includes('withdrawal')||tx.type.includes('purchase')?'debit':'credit')}"><i class="fas fa-rupee-sign"></i></div>
                     <div class="tx-details">
-                        <div style="font-weight:600; font-size:14px;">${tx.description}</div>
-                        <div style="font-size:11px;color:gray;">${new Date(tx.date).toLocaleDateString()} <span class="status-badge status-${status}">${status}</span></div>
+                        <div style="font-weight:600; font-size:14px;">${tx.description}</div><div style="font-size:11px;color:gray;">${new Date(tx.date).toLocaleDateString()} <span class="status-badge status-${status}">${status}</span></div>
                         ${tx.adminReason ? `<div style="font-size:11px; color:var(--danger); margin-top:3px;">Reason: ${tx.adminReason}</div>` : ''}
                     </div>
                     <div style="font-weight:bold; color: ${status==='pending'?'#b45309':(status==='rejected'||tx.type.includes('withdrawal')||tx.type.includes('purchase')?'#ef4444':'#10b981')}">₹${tx.amount}</div>
@@ -1836,18 +1374,14 @@
             hideLoading(); showToast(`₹${total} Claimed!`, 'success'); 
             
             updateHomeUI();
-            if(document.getElementById('plansPage').classList.contains('active')) {
-                loadPlansPage(); 
-            }
+            if(document.getElementById('plansPage').classList.contains('active')) loadPlansPage(); 
         }
 
-        // ==================== PLANS (VERTICAL + OFFERS + CLAIM SYSTEM) ====================
         function loadPlansPage() {
             const activeIds = Object.values(currentUser.activePlans || {}).map(p=>p.planId);
             const bal = currentUser.wallet?.mainBalance||0;
             const todayClaimed = currentUser.lastClaimDate === new Date().toDateString();
             
-            // Handle Free Plan
             const hasFreePlan = activeIds.includes('free');
             const freePlanDiv = document.getElementById('freePlanAction');
             if(hasFreePlan) {
@@ -1868,7 +1402,6 @@
                 freePlanDiv.innerHTML = `<button class="btn-premium btn-premium-primary" onclick="buyPlan('free')" style="margin-top: 20px; width:100%;">Claim Free Plan</button>`;
             }
 
-            // Handle Other Plans
             document.getElementById('plansContainer').innerHTML = PLANS.filter(p=>p.id!=='free').map(p => {
                 const disc = activeOffers[p.id] || 0;
                 const finalPrice = disc > 0 ? p.price - (p.price * disc / 100) : p.price;
@@ -1877,35 +1410,20 @@
                 let actionButtons = '';
                 if (isActive) {
                     if (todayClaimed) {
-                        actionButtons = `
-                            <div style="display:flex; gap:10px;">
-                                <button class="btn-plan btn-plan-success" style="flex:1; cursor:default;" disabled><i class="fas fa-check-circle"></i> Active</button>
-                                <button class="btn-plan" style="flex:1; background:var(--gray-light); color:white;" onclick="showToast('Claim again tomorrow!', 'info')"><i class="fas fa-check"></i> Claimed</button>
-                            </div>`;
+                        actionButtons = `<div style="display:flex; gap:10px;"><button class="btn-plan btn-plan-success" style="flex:1; cursor:default;" disabled><i class="fas fa-check-circle"></i> Active</button><button class="btn-plan" style="flex:1; background:var(--gray-light); color:white;" onclick="showToast('Claim again tomorrow!', 'info')"><i class="fas fa-check"></i> Claimed</button></div>`;
                     } else {
-                        actionButtons = `
-                            <div style="display:flex; gap:10px;">
-                                <button class="btn-plan btn-plan-success" style="flex:1; cursor:default;" disabled><i class="fas fa-check-circle"></i> Active</button>
-                                <button class="btn-plan" style="flex:1; background:var(--warning); color:white;" onclick="claimDailyEarnings()"><i class="fas fa-hand-holding-usd"></i> Claim Now</button>
-                            </div>`;
+                        actionButtons = `<div style="display:flex; gap:10px;"><button class="btn-plan btn-plan-success" style="flex:1; cursor:default;" disabled><i class="fas fa-check-circle"></i> Active</button><button class="btn-plan" style="flex:1; background:var(--warning); color:white;" onclick="claimDailyEarnings()"><i class="fas fa-hand-holding-usd"></i> Claim Now</button></div>`;
                     }
-                } else if (bal >= finalPrice) {
-                    actionButtons = `<button class="btn-plan btn-plan-primary" onclick="buyPlan('${p.id}')">Buy Now</button>`;
-                } else {
-                    actionButtons = `<button class="btn-plan" style="background:#cbd5e1;" onclick="showPage('wallet'); showWalletTab('add');">Add Money</button>`;
-                }
+                } else if (bal >= finalPrice) { actionButtons = `<button class="btn-plan btn-plan-primary" onclick="buyPlan('${p.id}')">Buy Now</button>`; } 
+                else { actionButtons = `<button class="btn-plan" style="background:#cbd5e1;" onclick="showPage('wallet'); showWalletTab('add');">Add Money</button>`; }
                 
                 return `
                 <div class="plan-card-premium ${p.popular?'popular':''}" id="plan-card-${p.id}">
                     ${disc > 0 ? `<div class="discount-badge">${disc}% OFF</div>` : ''}
                     <div class="plan-header-premium ${p.color} ${p.popular ? 'popular' : ''}">
                         ${p.popular && !disc ? '<div class="popular-badge">Popular</div>':''}
-                        <div class="plan-icon">${p.icon}</div>
-                        <div class="plan-name">${p.name}</div>
-                        <div class="plan-price">
-                            ${disc > 0 ? `<span class="price-strike">₹${p.price}</span>` : ''}
-                            <span>₹</span>${finalPrice}
-                        </div>
+                        <div class="plan-icon">${p.icon}</div><div class="plan-name">${p.name}</div>
+                        <div class="plan-price">${disc > 0 ? `<span class="price-strike">₹${p.price}</span>` : ''}<span>₹</span>${finalPrice}</div>
                     </div>
                     <div class="plan-body-premium">
                         <ul class="plan-features">
@@ -1937,82 +1455,34 @@
             }
         }
 
-        // ==================== FIXED: FIRST DAY CLAIM BALANCE ====================
         async function buyPlan(pid) {
             const plan = PLANS.find(p=>p.id===pid);
             const disc = activeOffers[pid] || 0;
             const finalPrice = disc > 0 ? plan.price - (plan.price * disc / 100) : plan.price;
-            
             if(pid!=='free' && (currentUser.wallet?.mainBalance||0) < finalPrice) return showToast('Insufficient balance', 'error');
             
             showLoading('Processing...');
+            const exp = new Date(); exp.setDate(exp.getDate() + plan.days);
             
-            // Calculate expiry date
-            const exp = new Date(); 
-            exp.setDate(exp.getDate() + plan.days);
+            if(pid !== 'free') await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set(currentUser.wallet.mainBalance - finalPrice);
             
-            // Deduct balance for paid plans
-            if(pid !== 'free') {
-                await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set(currentUser.wallet.mainBalance - finalPrice);
-            }
-            
-            // Add plan to active plans
-            await database.ref(`users/${currentUser.id}/activePlans`).push({
-                planId: plan.id, 
-                planName: plan.name, 
-                amount: finalPrice, 
-                dailyReturn: plan.daily, 
-                purchasedDate: new Date().toISOString(), 
-                expiryDate: exp.toISOString(), 
-                status: 'active', 
-                totalClaimed: 0
-            });
-            
-            // Add transaction record
-            await database.ref(`users/${currentUser.id}/transactions`).push({
-                id: generateId('TXN'), 
-                type: 'plan_purchase', 
-                amount: finalPrice, 
-                description: `Bought ${plan.name}`, 
-                date: new Date().toISOString(), 
-                status: 'approved'
-            });
-            
-            // ==================== FIX: CREDIT FIRST DAY EARNING IMMEDIATELY ====================
-            // Add first day earning to wallet immediately
+            await database.ref(`users/${currentUser.id}/activePlans`).push({ planId: plan.id, planName: plan.name, amount: finalPrice, dailyReturn: plan.daily, purchasedDate: new Date().toISOString(), expiryDate: exp.toISOString(), status: 'active', totalClaimed: 0 });
+            await database.ref(`users/${currentUser.id}/transactions`).push({ id: generateId('TXN'), type: 'plan_purchase', amount: finalPrice, description: `Bought ${plan.name}`, date: new Date().toISOString(), status: 'approved' });
             await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set((currentUser.wallet?.mainBalance||0) + plan.daily);
-            
-            // Add first day earning transaction
-            await database.ref(`users/${currentUser.id}/transactions`).push({
-                id: generateId('TXN'), 
-                type: 'daily_earning', 
-                amount: plan.daily, 
-                description: `First Day Earning - ${plan.name}`, 
-                date: new Date().toISOString(), 
-                status: 'approved'
-            });
-            
-            // Set last claim date to today so they can claim again tomorrow
+            await database.ref(`users/${currentUser.id}/transactions`).push({ id: generateId('TXN'), type: 'daily_earning', amount: plan.daily, description: `First Day Earning - ${plan.name}`, date: new Date().toISOString(), status: 'approved' });
             await database.ref(`users/${currentUser.id}/lastClaimDate`).set(new Date().toDateString());
             
-            // Update total claimed for the plan
             const plansSnapshot = await database.ref(`users/${currentUser.id}/activePlans`).orderByChild('planId').equalTo(pid).once('value');
             if(plansSnapshot.val()) {
                 const planKey = Object.keys(plansSnapshot.val()).pop();
                 await database.ref(`users/${currentUser.id}/activePlans/${planKey}/totalClaimed`).set(plan.daily);
             }
             
-            // Distribute commission if applicable
-            if(pid !== 'free' && currentUser.referredBy) {
-                await distributeCommission(currentUser.referredBy, finalPrice);
-            }
+            if(pid !== 'free' && currentUser.referredBy) await distributeCommission(currentUser.referredBy, finalPrice);
             
-            hideLoading(); 
-            showToast(`Plan Activated! ₹${plan.daily} credited to wallet!`, 'success'); 
-            showPage('plans'); 
+            hideLoading(); showToast(`Plan Activated! ₹${plan.daily} credited to wallet!`, 'success'); showPage('plans'); 
         }
 
-        // ==================== WALLET & TRANSACTIONS ====================
         function showWalletTab(tab) {
             document.querySelectorAll('.wallet-tab').forEach(t=>t.classList.remove('active'));
             document.querySelector(`.wallet-tab[data-tab="${tab}"]`).classList.add('active');
@@ -2027,15 +1497,7 @@
                 let status = tx.status || 'approved'; 
                 if(tx.type.includes('pending')) status = 'pending';
                 if(tx.type.includes('rejected')) status = 'rejected';
-                return `
-                <div class="tx-item">
-                    <div class="tx-details">
-                        <div style="font-weight:600;">${tx.description}</div>
-                        <div style="font-size:12px;color:gray;">${new Date(tx.date).toLocaleDateString()} <span class="status-badge status-${status}">${status}</span></div>
-                        ${tx.adminReason ? `<div style="font-size:11px; color:var(--danger); margin-top:3px;">Reason: ${tx.adminReason}</div>` : ''}
-                    </div>
-                    <div style="font-weight:bold; color: ${status==='pending'?'#b45309':(status==='rejected'||tx.type.includes('withdrawal')||tx.type.includes('purchase')?'#ef4444':'#10b981')}">₹${tx.amount}</div>
-                </div>`;
+                return `<div class="tx-item"><div class="tx-details"><div style="font-weight:600;">${tx.description}</div><div style="font-size:12px;color:gray;">${new Date(tx.date).toLocaleDateString()} <span class="status-badge status-${status}">${status}</span></div>${tx.adminReason ? `<div style="font-size:11px; color:var(--danger); margin-top:3px;">Reason: ${tx.adminReason}</div>` : ''}</div><div style="font-weight:bold; color: ${status==='pending'?'#b45309':(status==='rejected'||tx.type.includes('withdrawal')||tx.type.includes('purchase')?'#ef4444':'#10b981')}">₹${tx.amount}</div></div>`;
             }).join('') : '<p style="text-align:center;">No History</p>';
         }
 
@@ -2087,7 +1549,6 @@
             hideLoading(); showToast('Withdrawal Requested!', 'success'); document.getElementById('withdrawForm').reset(); showWalletTab('history');
         });
 
-        // ==================== REFERRAL & PROFILE ====================
         function loadReferralData() {
             document.getElementById('refLink').textContent = `${window.location.origin}${window.location.pathname}?ref=${currentUser.referralCode}`;
             document.getElementById('refTotal').textContent = currentUser.referrals?.count || 0;
@@ -2101,15 +1562,12 @@
             window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
         }
 
-        // Profile Name Edit Functions
         function loadProfileData() { 
             if(!currentUser) return;
             document.getElementById('profileName').textContent = currentUser.name; 
             document.getElementById('profilePhone').textContent = '+91 '+currentUser.phone; 
             document.getElementById('profJoinDate').textContent = new Date(currentUser.joinDate).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
             document.getElementById('profTotalEarn').textContent = '₹' + ((currentUser.referrals?.earnings || 0) + (currentUser.wallet?.mainBalance || 0));
-            
-            // Reset edit mode
             document.getElementById('nameDisplayContainer').classList.remove('hidden');
             document.getElementById('nameEditContainer').classList.add('hidden');
         }
@@ -2123,42 +1581,29 @@
         
         async function saveProfileName() {
             const newName = document.getElementById('nameEditInput').value.trim();
-            if(!newName) {
-                showToast('Please enter a valid name', 'error');
-                return;
-            }
+            if(!newName) return showToast('Please enter a valid name', 'error');
             if(newName === currentUser.name) {
                 document.getElementById('nameDisplayContainer').classList.remove('hidden');
                 document.getElementById('nameEditContainer').classList.add('hidden');
                 return;
             }
-            
             showLoading('Updating...');
             try {
                 await database.ref(`users/${currentUser.id}/name`).set(newName);
-                currentUser.name = newName;
-                localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                
+                currentUser.name = newName; localStorage.setItem('currentUser', JSON.stringify(currentUser));
                 document.getElementById('profileName').textContent = newName;
                 document.getElementById('nameDisplayContainer').classList.remove('hidden');
                 document.getElementById('nameEditContainer').classList.add('hidden');
-                
-                hideLoading();
-                showToast('Profile name updated!', 'success');
-            } catch(e) {
-                hideLoading();
-                showToast('Error updating name', 'error');
-            }
+                hideLoading(); showToast('Profile name updated!', 'success');
+            } catch(e) { hideLoading(); showToast('Error updating name', 'error'); }
         }
         
         function logout() { 
             if(lastSeenInterval) clearInterval(lastSeenInterval);
             if(userStatusListener) userStatusListener.off();
-            localStorage.removeItem('currentUser'); 
-            window.location.reload(); 
+            localStorage.removeItem('currentUser'); window.location.reload(); 
         }
 
-        // ==================== SUPPORT TICKETS ====================
         function loadSupportData() {
             if (!currentUser) return;
             database.ref('tickets').orderByChild('userId').equalTo(currentUser.id).once('value', (snapshot) => {
@@ -2170,12 +1615,8 @@
                 }
                 container.innerHTML = Object.values(tickets).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map(ticket => `
                     <div class="premium-card" style="margin: 0 0 15px 0; border-left: 4px solid ${ticket.status === 'open' ? 'var(--warning)' : 'var(--success)'};">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                            <span style="background:${ticket.status === 'open' ? 'var(--warning)' : 'var(--success)'}; color:white; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:bold;">${ticket.status.toUpperCase()}</span>
-                            <small style="color: var(--gray);">${new Date(ticket.createdAt).toLocaleDateString()}</small>
-                        </div>
-                        <h4 style="margin-bottom: 8px;">${ticket.subject}</h4>
-                        <p style="color: var(--gray); font-size: 14px;">${ticket.message}</p>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;"><span style="background:${ticket.status === 'open' ? 'var(--warning)' : 'var(--success)'}; color:white; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:bold;">${ticket.status.toUpperCase()}</span><small style="color: var(--gray);">${new Date(ticket.createdAt).toLocaleDateString()}</small></div>
+                        <h4 style="margin-bottom: 8px;">${ticket.subject}</h4><p style="color: var(--gray); font-size: 14px;">${ticket.message}</p>
                         ${ticket.reply ? `<div style="background: rgba(99, 102, 241, 0.1); padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 13px;"><strong style="color:var(--primary);">Admin:</strong> ${ticket.reply}</div>` : ''}
                     </div>
                 `).join('');
