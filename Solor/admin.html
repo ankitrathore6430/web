@@ -17,7 +17,7 @@
         :root {
             --primary: #6366f1; --primary-dark: #4f46e5; --success: #10b981; --danger: #ef4444;
             --warning: #f59e0b; --dark: #0f172a; --gray: #64748b; --gray-light: #94a3b8;
-            --light: #f1f5f9; --white: #ffffff; --info: #3b82f6;
+            --light: #f1f5f9; --white: #ffffff;
             --gradient-1: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
             --gradient-dark: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
             --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
@@ -64,7 +64,6 @@
         .stat-card.success { border-bottom-color: var(--success); }
         .stat-card.warning { border-bottom-color: var(--warning); }
         .stat-card.danger { border-bottom-color: var(--danger); }
-        .stat-card.info { border-bottom-color: var(--info); }
         .stat-value { font-size: 24px; font-weight: 800; margin-bottom: 5px; }
         .stat-label { font-size: 12px; color: var(--gray); text-transform: uppercase; font-weight: 600; }
         
@@ -85,7 +84,6 @@
         .status-rejected { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
         .status-active { background: rgba(16, 185, 129, 0.1); color: var(--success); }
         .status-blocked { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
-        .status-sent { background: rgba(59, 130, 246, 0.1); color: var(--info); }
         
         /* Online/Offline Indicators */
         .online-indicator { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; }
@@ -100,14 +98,13 @@
         .btn-danger { background: var(--danger); color: var(--white); }
         .btn-secondary { background: var(--light); color: var(--dark); }
         .btn-warning { background: var(--warning); color: var(--white); }
-        .btn-info { background: var(--info); color: var(--white); }
         
         .btn-icon { width: 36px; height: 36px; border-radius: 10px; border: none; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 14px; }
         .btn-icon.view { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
         .btn-icon.edit { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
         .btn-icon.delete { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
         .btn-icon.success { background: rgba(16, 185, 129, 0.1); color: var(--success); }
-        .btn-icon.notify { background: rgba(59, 130, 246, 0.1); color: var(--info); }
+        .btn-icon.notify { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
         
         /* Forms */
         .form-group { margin-bottom: 20px; }
@@ -160,83 +157,24 @@
         .history-section { display: none; }
         .history-section.active { display: block; }
         
-        /* Notification Cards */
-        .notification-card { 
-            background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%); 
-            border: 2px solid var(--info); 
-            border-radius: 20px; 
-            padding: 25px; 
-            margin-bottom: 20px; 
-        }
-        .notification-card.broadcast { 
-            background: linear-gradient(135deg, #fef3c7 0%, #ffffff 100%); 
-            border-color: var(--warning); 
-        }
+        /* Notification Card */
+        .notification-card { background: linear-gradient(135deg, #e0e7ff 0%, #ffffff 100%); border: 2px solid var(--primary); border-radius: 20px; padding: 20px; margin-bottom: 20px; }
+        .notification-type-badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 10px; }
+        .notification-type-badge.broadcast { background: var(--primary); color: white; }
+        .notification-type-badge.individual { background: var(--warning); color: white; }
+        .notification-type-badge.auto { background: var(--success); color: white; }
         
         /* User Select Dropdown */
         .user-select-container { max-height: 200px; overflow-y: auto; border: 2px solid #e2e8f0; border-radius: 12px; padding: 10px; }
-        .user-select-item { 
-            display: flex; 
-            align-items: center; 
-            gap: 10px; 
-            padding: 10px; 
-            border-radius: 8px; 
-            cursor: pointer; 
-            transition: all 0.2s;
-        }
-        .user-select-item:hover { background: rgba(99, 102, 241, 0.1); }
-        .user-select-item.selected { background: var(--gradient-1); color: white; }
-        .user-select-item input[type="checkbox"] { width: 18px; height: 18px; }
+        .user-select-item { display: flex; align-items: center; gap: 10px; padding: 10px; border-radius: 8px; cursor: pointer; transition: all 0.2s; }
+        .user-select-item:hover { background: var(--light); }
+        .user-select-item.selected { background: rgba(99, 102, 241, 0.1); border: 2px solid var(--primary); }
+        .user-select-item img { width: 40px; height: 40px; border-radius: 50%; background: var(--light); display: flex; align-items: center; justify-content: center; font-size: 18px; }
         
-        /* Notification History Item */
-        .notif-history-item {
-            background: var(--light);
-            border-radius: 12px;
-            padding: 15px;
-            margin-bottom: 10px;
-            border-left: 4px solid var(--info);
-        }
-        .notif-history-item.broadcast { border-left-color: var(--warning); }
-        .notif-history-item .notif-title { font-weight: 600; margin-bottom: 5px; }
-        .notif-history-item .notif-message { font-size: 13px; color: var(--gray); margin-bottom: 8px; }
-        .notif-history-item .notif-meta { 
-            display: flex; 
-            justify-content: space-between; 
-            font-size: 11px; 
-            color: var(--gray-light);
-        }
-        
-        /* Toggle Switch */
-        .toggle-switch {
-            position: relative;
-            display: inline-block;
-            width: 50px;
-            height: 26px;
-        }
-        .toggle-switch input { opacity: 0; width: 0; height: 0; }
-        .toggle-slider {
-            position: absolute;
-            cursor: pointer;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background-color: #ccc;
-            transition: .4s;
-            border-radius: 34px;
-        }
-        .toggle-slider:before {
-            position: absolute;
-            content: "";
-            height: 18px;
-            width: 18px;
-            left: 4px;
-            bottom: 4px;
-            background-color: white;
-            transition: .4s;
-            border-radius: 50%;
-        }
-        input:checked + .toggle-slider { background-color: var(--success); }
-        input:checked + .toggle-slider:before { transform: translateX(24px); }
-        
-        .toggle-label { margin-left: 10px; font-weight: 600; }
+        /* Notification Log */
+        .notification-log-item { background: var(--light); padding: 15px; border-radius: 12px; margin-bottom: 10px; border-left: 4px solid var(--primary); }
+        .notification-log-item.success { border-left-color: var(--success); }
+        .notification-log-item.error { border-left-color: var(--danger); }
     </style>
 </head>
 <body>
@@ -298,9 +236,9 @@
                 <div class="nav-item" onclick="showPage('plans')" data-page="plans"><i class="fas fa-gem"></i> <span>Plans</span></div>
                 <div class="nav-item" onclick="showPage('deposits')" data-page="deposits"><i class="fas fa-arrow-down"></i> <span>Deposits</span> <span class="nav-badge" id="badgeDeposits">0</span></div>
                 <div class="nav-item" onclick="showPage('withdrawals')" data-page="withdrawals"><i class="fas fa-arrow-up"></i> <span>Withdrawals</span> <span class="nav-badge" id="badgeWithdrawals">0</span></div>
-                <div class="nav-item" onclick="showPage('notifications')" data-page="notifications"><i class="fas fa-bell"></i> <span>Push Notifications</span> <span class="nav-badge" id="badgeNotifications">NEW</span></div>
                 <div class="nav-item" onclick="showPage('offers')" data-page="offers"><i class="fas fa-tags"></i> <span>Manage Offers</span></div>
                 <div class="nav-item" onclick="showPage('tickets')" data-page="tickets"><i class="fas fa-ticket-alt"></i> <span>Tickets</span> <span class="nav-badge" id="badgeTickets">0</span></div>
+                <div class="nav-item" onclick="showPage('notifications')" data-page="notifications"><i class="fas fa-bell"></i> <span>Push Notifications</span> <span class="nav-badge" id="badgeNotifications">NEW</span></div>
                 <div class="nav-item" onclick="showPage('settings')" data-page="settings"><i class="fas fa-cog"></i> <span>Settings</span></div>
                 <div class="nav-item" onclick="logout()" style="color: var(--danger);"><i class="fas fa-sign-out-alt"></i> <span>Logout</span></div>
             </div>
@@ -316,7 +254,6 @@
                     <div class="stat-card success"><div class="stat-value" id="statBalance">₹0</div><div class="stat-label">Users Balance</div></div>
                     <div class="stat-card warning"><div class="stat-value" id="statPendingDep">0</div><div class="stat-label">Pending Deposits</div></div>
                     <div class="stat-card danger"><div class="stat-value" id="statPendingWith">0</div><div class="stat-label">Pending Withdrawals</div></div>
-                    <div class="stat-card info"><div class="stat-value" id="statNotifications">0</div><div class="stat-label">Notifications Sent</div></div>
                 </div>
             </div>
 
@@ -422,123 +359,6 @@
                 </div>
             </div>
 
-            <!-- PUSH NOTIFICATIONS PAGE - NEW -->
-            <div id="notificationsPage" class="admin-page">
-                
-                <!-- Broadcast to All -->
-                <div class="notification-card broadcast">
-                    <div class="card-header" style="margin-bottom: 15px;">
-                        <h3 class="card-title" style="font-size: 18px; color: var(--warning);"><i class="fas fa-broadcast-tower"></i> Broadcast to All Users</h3>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Notification Title</label>
-                        <input type="text" class="form-input" id="broadcastTitle" placeholder="e.g., Special Offer!">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Notification Message</label>
-                        <textarea class="form-textarea" id="broadcastMessage" rows="3" placeholder="e.g., Get 20% off on all plans today only!"></textarea>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Redirect URL (Optional)</label>
-                        <input type="text" class="form-input" id="broadcastUrl" placeholder="e.g., https://yourdomain.com/plans">
-                    </div>
-                    <button class="btn-main btn-warning" onclick="sendBroadcastNotification()" style="width: 100%;">
-                        <i class="fas fa-paper-plane"></i> Send to All Users
-                    </button>
-                </div>
-
-                <!-- Send to Selected Users -->
-                <div class="notification-card">
-                    <div class="card-header" style="margin-bottom: 15px;">
-                        <h3 class="card-title" style="font-size: 18px; color: var(--info);"><i class="fas fa-user-check"></i> Send to Selected Users</h3>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Select Users (Click to select multiple)</label>
-                        <div class="user-select-container" id="userSelectContainer">
-                            <p style="color: var(--gray); text-align: center; padding: 20px;">Loading users...</p>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Notification Title</label>
-                        <input type="text" class="form-input" id="selectedTitle" placeholder="e.g., Your deposit is approved!">
-                    </div>
-                    <div class="form-group">
-                        <label class="form-label">Notification Message</label>
-                        <textarea class="form-textarea" id="selectedMessage" rows="3" placeholder="e.g., ₹500 has been added to your wallet."></textarea>
-                    </div>
-                    <button class="btn-main btn-info" onclick="sendSelectedNotification()" style="width: 100%;">
-                        <i class="fas fa-paper-plane"></i> Send to Selected Users
-                    </button>
-                </div>
-
-                <!-- Auto Notifications Settings -->
-                <div class="content-card">
-                    <div class="card-header" style="margin-bottom: 15px;">
-                        <h3 class="card-title"><i class="fas fa-robot" style="color: var(--success);"></i> Automatic Notifications</h3>
-                    </div>
-                    <p style="color: var(--gray); margin-bottom: 20px; font-size: 13px;">Enable/disable automatic notifications for user actions.</p>
-                    
-                    <div style="display: flex; flex-direction: column; gap: 15px;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: var(--light); border-radius: 12px;">
-                            <div>
-                                <div style="font-weight: 600;">Deposit Updates</div>
-                                <div style="font-size: 12px; color: var(--gray);">Notify when deposit approved/rejected</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="autoDepositNotif" checked onchange="saveAutoNotifSettings()">
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        
-                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: var(--light); border-radius: 12px;">
-                            <div>
-                                <div style="font-weight: 600;">Withdrawal Updates</div>
-                                <div style="font-size: 12px; color: var(--gray);">Notify when withdrawal approved/rejected</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="autoWithdrawNotif" checked onchange="saveAutoNotifSettings()">
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        
-                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: var(--light); border-radius: 12px;">
-                            <div>
-                                <div style="font-weight: 600;">Support Ticket Replies</div>
-                                <div style="font-size: 12px; color: var(--gray);">Notify when admin replies to ticket</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="autoTicketNotif" checked onchange="saveAutoNotifSettings()">
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                        
-                        <div style="display: flex; align-items: center; justify-content: space-between; padding: 15px; background: var(--light); border-radius: 12px;">
-                            <div>
-                                <div style="font-weight: 600;">Referral Earnings</div>
-                                <div style="font-size: 12px; color: var(--gray);">Notify when user gets referral bonus</div>
-                            </div>
-                            <label class="toggle-switch">
-                                <input type="checkbox" id="autoReferralNotif" checked onchange="saveAutoNotifSettings()">
-                                <span class="toggle-slider"></span>
-                            </label>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Notification History -->
-                <div class="content-card">
-                    <div class="card-header">
-                        <h3 class="card-title"><i class="fas fa-history"></i> Notification History</h3>
-                        <button class="btn-main btn-secondary" onclick="clearNotificationHistory()" style="padding: 8px 16px; font-size: 12px;">
-                            <i class="fas fa-trash"></i> Clear History
-                        </button>
-                    </div>
-                    <div id="notificationHistoryList">
-                        <p style="text-align: center; color: var(--gray); padding: 40px;">No notifications sent yet</p>
-                    </div>
-                </div>
-            </div>
-
             <!-- Offers Page -->
             <div id="offersPage" class="admin-page">
                 <div class="content-card">
@@ -551,7 +371,7 @@
                 </div>
             </div>
 
-            <!-- Tickets Page with History -->
+            <!-- Tickets Page -->
             <div id="ticketsPage" class="admin-page">
                 <div class="tabs-container">
                     <button class="tab-btn active" onclick="showTicketTab('open')" data-tab="open">Open Tickets</button>
@@ -581,25 +401,113 @@
                 </div>
             </div>
 
-            <!-- Settings Page -->
-            <div id="settingsPage" class="admin-page">
-                <!-- OneSignal Settings -->
-                <div class="content-card" style="background: linear-gradient(135deg, #eff6ff 0%, #ffffff 100%); border: 2px solid var(--info); margin-bottom: 20px;">
-                    <div class="card-header" style="margin-bottom: 15px;">
-                        <h3 class="card-title" style="font-size: 18px;"><i class="fas fa-bell" style="color: var(--info);"></i> OneSignal Configuration</h3>
-                    </div>
-                    <div style="background: var(--light); padding: 15px; border-radius: 12px; margin-bottom: 15px;">
-                        <div style="font-size: 12px; color: var(--gray); margin-bottom: 5px;">App ID</div>
-                        <div style="font-weight: 600; font-family: monospace; font-size: 14px;">eca3e9cf-b75c-4b7e-930a-0cc01359a2de</div>
-                    </div>
-                    <div style="background: var(--light); padding: 15px; border-radius: 12px;">
-                        <div style="font-size: 12px; color: var(--gray); margin-bottom: 5px;">REST API Key</div>
-                        <div style="font-weight: 600; font-family: monospace; font-size: 12px; word-break: break-all;">os_v2_app_5sr6tt5xlrfx5eykbtabgwnc3zdjdz6hxzqesx4efdr7w3qmr3bkb75mjswjwycjphoassr7dia57lhjaz6jlqzhrr4hqin34goziuq</div>
-                    </div>
-                    <p style="font-size: 12px; color: var(--gray); margin-top: 15px;"><i class="fas fa-info-circle"></i> These credentials are used to send push notifications to users.</p>
+            <!-- PUSH NOTIFICATIONS PAGE -->
+            <div id="notificationsPage" class="admin-page">
+                
+                <!-- Broadcast to All Users -->
+                <div class="notification-card">
+                    <span class="notification-type-badge broadcast"><i class="fas fa-broadcast-tower"></i> BROADCAST</span>
+                    <h3 style="margin-bottom: 15px; font-size: 18px;">Send Notification to ALL Users</h3>
+                    <form id="broadcastForm" onsubmit="sendBroadcastNotification(event)">
+                        <div class="form-group">
+                            <label class="form-label">Notification Title</label>
+                            <input type="text" class="form-input" id="broadcastTitle" placeholder="e.g., Special Offer Alert!" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Notification Message</label>
+                            <textarea class="form-textarea" id="broadcastMessage" rows="3" placeholder="e.g., Get 20% off on all plans today only!" required></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Action URL (Optional - opens when clicked)</label>
+                            <input type="url" class="form-input" id="broadcastUrl" placeholder="https://yourdomain.com/plans">
+                        </div>
+                        <button type="submit" class="btn-main btn-primary" style="width: 100%;">
+                            <i class="fas fa-paper-plane"></i> Send to ALL Users
+                        </button>
+                    </form>
                 </div>
 
-                <!-- Refer Amount Settings -->
+                <!-- Individual User Notification -->
+                <div class="notification-card" style="border-color: var(--warning); background: linear-gradient(135deg, #fef3c7 0%, #ffffff 100%);">
+                    <span class="notification-type-badge individual"><i class="fas fa-user"></i> INDIVIDUAL</span>
+                    <h3 style="margin-bottom: 15px; font-size: 18px;">Send to Specific User</h3>
+                    <form id="individualForm" onsubmit="sendIndividualNotification(event)">
+                        <div class="form-group">
+                            <label class="form-label">Select User</label>
+                            <select class="form-select" id="individualUser" required>
+                                <option value="">Choose a user...</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Notification Title</label>
+                            <input type="text" class="form-input" id="individualTitle" placeholder="e.g., Your Deposit Approved!" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Notification Message</label>
+                            <textarea class="form-textarea" id="individualMessage" rows="3" placeholder="e.g., Your deposit of ₹500 has been approved." required></textarea>
+                        </div>
+                        <button type="submit" class="btn-main btn-warning" style="width: 100%;">
+                            <i class="fas fa-paper-plane"></i> Send to Selected User
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Auto Notification Settings -->
+                <div class="notification-card" style="border-color: var(--success); background: linear-gradient(135deg, #dcfce7 0%, #ffffff 100%);">
+                    <span class="notification-type-badge auto"><i class="fas fa-robot"></i> AUTO</span>
+                    <h3 style="margin-bottom: 15px; font-size: 18px;">Automatic Notifications</h3>
+                    <p style="color: var(--gray); font-size: 13px; margin-bottom: 15px;">
+                        These notifications are sent automatically when actions occur:
+                    </p>
+                    <div style="display: grid; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 10px; padding: 12px; background: white; border-radius: 10px;">
+                            <i class="fas fa-check-circle" style="color: var(--success); font-size: 20px;"></i>
+                            <div>
+                                <div style="font-weight: 600;">Deposit Approved/Rejected</div>
+                                <div style="font-size: 12px; color: var(--gray);">Instant notification to user</div>
+                            </div>
+                            <label class="switch" style="margin-left: auto;">
+                                <input type="checkbox" id="autoDepositNotif" checked onchange="saveAutoSettings()">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; padding: 12px; background: white; border-radius: 10px;">
+                            <i class="fas fa-money-bill-wave" style="color: var(--warning); font-size: 20px;"></i>
+                            <div>
+                                <div style="font-weight: 600;">Withdrawal Approved/Rejected</div>
+                                <div style="font-size: 12px; color: var(--gray);">Instant notification to user</div>
+                            </div>
+                            <label class="switch" style="margin-left: auto;">
+                                <input type="checkbox" id="autoWithdrawNotif" checked onchange="saveAutoSettings()">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px; padding: 12px; background: white; border-radius: 10px;">
+                            <i class="fas fa-headset" style="color: var(--primary); font-size: 20px;"></i>
+                            <div>
+                                <div style="font-weight: 600;">Support Ticket Reply</div>
+                                <div style="font-size: 12px; color: var(--gray);">When admin replies to ticket</div>
+                            </div>
+                            <label class="switch" style="margin-left: auto;">
+                                <input type="checkbox" id="autoTicketNotif" checked onchange="saveAutoSettings()">
+                                <span class="slider"></span>
+                            </label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Notification Log -->
+                <div class="content-card">
+                    <div class="card-header">
+                        <h3 class="card-title"><i class="fas fa-history"></i> Recent Notifications</h3>
+                        <button class="btn-main btn-secondary" onclick="clearNotificationLog()"><i class="fas fa-trash"></i> Clear Log</button>
+                    </div>
+                    <div id="notificationLog"></div>
+                </div>
+            </div>
+
+            <!-- Settings Page -->
+            <div id="settingsPage" class="admin-page">
                 <div class="refer-settings-card">
                     <div class="card-header" style="margin-bottom: 15px;">
                         <h3 class="card-title" style="font-size: 18px;"><i class="fas fa-gift" style="color: var(--warning);"></i> Referral Bonus Settings</h3>
@@ -741,11 +649,6 @@
                     <label class="form-label">Reason / Remark (Will show to user)</label>
                     <input type="text" class="form-input" id="depReason" placeholder="e.g., Payment verified / Invalid UTR">
                 </div>
-                <div class="form-group">
-                    <label class="form-label">
-                        <input type="checkbox" id="sendDepositNotif" checked style="margin-right: 8px;"> Send push notification to user
-                    </label>
-                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn-main btn-secondary" onclick="closeModal('depositModal')">Cancel</button>
@@ -774,11 +677,6 @@
                     <label class="form-label">Reason / Remark / UTR</label>
                     <input type="text" class="form-input" id="withReason" placeholder="e.g., UTR: 123456... or Invalid Bank Details">
                 </div>
-                <div class="form-group">
-                    <label class="form-label">
-                        <input type="checkbox" id="sendWithdrawNotif" checked style="margin-right: 8px;"> Send push notification to user
-                    </label>
-                </div>
             </div>
             <div class="modal-footer">
                 <button class="btn-main btn-secondary" onclick="closeModal('withdrawModal')">Cancel</button>
@@ -797,47 +695,41 @@
                     <label class="form-label">Admin Reply</label>
                     <textarea class="form-textarea" id="ticketReply" rows="4" placeholder="Type your reply to the user..."></textarea>
                 </div>
-                <div class="form-group">
-                    <label class="form-label">
-                        <input type="checkbox" id="sendTicketNotif" checked style="margin-right: 8px;"> Send push notification to user
-                    </label>
-                </div>
             </div>
             <div class="modal-footer"><button class="btn-main btn-primary" onclick="submitTicket()">Send Reply & Close Ticket</button></div>
         </div>
     </div>
 
-    <!-- Send Notification Modal (Quick Send from User List) -->
-    <div class="modal-overlay" id="quickNotifModal">
-        <div class="modal">
+    <!-- Send Notification Modal (Quick from User List) -->
+    <div class="modal-overlay" id="quickNotifyModal">
+        <div class="modal" style="max-width: 450px;">
             <div class="modal-header">
-                <h3 style="font-size: 18px;"><i class="fas fa-bell" style="color: var(--info);"></i> Send Notification</h3>
-                <button class="btn-icon" onclick="closeModal('quickNotifModal')" style="background: var(--light);">×</button>
+                <h3 style="font-size: 18px;"><i class="fas fa-bell" style="color: var(--primary);"></i> Send Notification</h3>
+                <button class="btn-icon" onclick="closeModal('quickNotifyModal')" style="background: var(--light);">×</button>
             </div>
             <div class="modal-body">
-                <div id="quickNotifUserInfo" style="background: var(--light); padding: 15px; border-radius: 12px; margin-bottom: 15px; font-size: 14px;"></div>
+                <input type="hidden" id="quickNotifyUserId">
+                <div style="background: var(--light); padding: 12px; border-radius: 10px; margin-bottom: 15px;">
+                    <strong>To:</strong> <span id="quickNotifyUserName"></span>
+                </div>
                 <div class="form-group">
                     <label class="form-label">Title</label>
-                    <input type="text" class="form-input" id="quickNotifTitle" placeholder="Notification title">
+                    <input type="text" class="form-input" id="quickNotifyTitle" placeholder="e.g., Important Update" required>
                 </div>
                 <div class="form-group">
                     <label class="form-label">Message</label>
-                    <textarea class="form-textarea" id="quickNotifMessage" rows="3" placeholder="Notification message"></textarea>
+                    <textarea class="form-textarea" id="quickNotifyMessage" rows="3" placeholder="Enter your message..." required></textarea>
                 </div>
             </div>
             <div class="modal-footer">
-                <button class="btn-main btn-secondary" onclick="closeModal('quickNotifModal')">Cancel</button>
-                <button class="btn-main btn-info" onclick="sendQuickNotification()"><i class="fas fa-paper-plane"></i> Send</button>
+                <button class="btn-main btn-secondary" onclick="closeModal('quickNotifyModal')">Cancel</button>
+                <button class="btn-main btn-primary" onclick="sendQuickNotification()"><i class="fas fa-paper-plane"></i> Send</button>
             </div>
         </div>
     </div>
 
     <!-- Firebase Configuration & JS logic -->
     <script>
-        // ==================== ONESIGNAL CONFIGURATION ====================
-        const ONESIGNAL_APP_ID = 'eca3e9cf-b75c-4b7e-930a-0cc01359a2de';
-        const ONESIGNAL_REST_API_KEY = 'os_v2_app_5sr6tt5xlrfx5eykbtabgwnc3zdjdz6hxzqesx4efdr7w3qmr3bkb75mjswjwycjphoassr7dia57lhjaz6jlqzhrr4hqin34goziuq';
-        
         const firebaseConfig = {
             apiKey: "AIzaSyA3pH_dnb6_--wRoDSuoj-TAudsmJ7D4R0",
             authDomain: "solor-energy.firebaseapp.com",
@@ -850,13 +742,23 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.database();
 
-        let appData = { users: {}, deposits: {}, withdrawals: {}, tickets: {}, settings: {}, plans: {}, notifications: {} };
+        let appData = { users: {}, deposits: {}, withdrawals: {}, tickets: {}, settings: {}, plans: {} };
         let currentActionId = null;
         let currentUserId = null;
         let currentFirebaseKey = null;
         let isAddingNewPlan = false;
         let userToDelete = null;
-        let selectedUsersForNotif = new Set();
+
+        // Cloudflare Worker URL for OneSignal API
+        const ONESIGNAL_WORKER_URL = 'https://adminsolor.ankitrathore6430.workers.dev/';
+        const ONESIGNAL_APP_ID = 'eca3e9cf-b75c-4b7e-930a-0cc01359a2de';
+
+        // Auto notification settings
+        let autoNotifications = {
+            deposit: true,
+            withdrawal: true,
+            ticket: true
+        };
 
         // Utils
         function showLoading() { document.getElementById('loadingScreen').classList.add('active'); }
@@ -885,9 +787,9 @@
             if(page==='plans') loadPlansPage();
             if(page==='deposits') { showDepositTab('pending'); loadDeposits(); }
             if(page==='withdrawals') { showWithdrawTab('pending'); loadWithdrawals(); }
-            if(page==='notifications') { loadNotificationUsers(); loadNotificationHistory(); loadAutoNotifSettings(); }
-            if(page==='offers') loadOffers();
             if(page==='tickets') { showTicketTab('open'); loadTickets(); }
+            if(page==='offers') loadOffers();
+            if(page==='notifications') loadNotificationsPage();
             if(page==='settings') loadSettings();
         }
 
@@ -946,16 +848,24 @@
                     withdrawals: data.withdrawals || {},
                     tickets: data.tickets || {},
                     settings: data.settings || {},
-                    plans: data.plans || {},
-                    notifications: data.notifications || {}
+                    plans: data.plans || {}
                 };
+                
+                // Load auto notification settings
+                if(data.settings?.autoNotifications) {
+                    autoNotifications = data.settings.autoNotifications;
+                    document.getElementById('autoDepositNotif').checked = autoNotifications.deposit;
+                    document.getElementById('autoWithdrawNotif').checked = autoNotifications.withdrawal;
+                    document.getElementById('autoTicketNotif').checked = autoNotifications.ticket;
+                }
+                
                 updateDashboard();
                 if(document.getElementById('usersPage').classList.contains('active')) loadUsers();
                 if(document.getElementById('plansPage').classList.contains('active')) loadPlansPage();
                 if(document.getElementById('depositsPage').classList.contains('active')) loadDeposits();
                 if(document.getElementById('withdrawalsPage').classList.contains('active')) loadWithdrawals();
-                if(document.getElementById('notificationsPage').classList.contains('active')) { loadNotificationUsers(); loadNotificationHistory(); }
                 if(document.getElementById('ticketsPage').classList.contains('active')) loadTickets();
+                if(document.getElementById('notificationsPage').classList.contains('active')) loadNotificationsPage();
                 if(document.getElementById('settingsPage').classList.contains('active')) loadSettings();
                 hideLoading();
             });
@@ -966,7 +876,6 @@
             const deps = Object.values(appData.deposits || {}).filter(d=>d.status==='pending');
             const withs = Object.values(appData.withdrawals || {}).filter(w=>w.status==='pending');
             const ticks = Object.values(appData.tickets || {}).filter(t=>t.status==='open');
-            const notifs = Object.values(appData.notifications || {});
             
             const totalBal = users.reduce((sum, u) => sum + (u.wallet?.mainBalance||0), 0);
             
@@ -974,356 +883,11 @@
             document.getElementById('statBalance').textContent = '₹' + totalBal;
             document.getElementById('statPendingDep').textContent = deps.length;
             document.getElementById('statPendingWith').textContent = withs.length;
-            document.getElementById('statNotifications').textContent = notifs.length;
             
             document.getElementById('badgeUsers').textContent = users.length;
             document.getElementById('badgeDeposits').textContent = deps.length;
             document.getElementById('badgeWithdrawals').textContent = withs.length;
             document.getElementById('badgeTickets').textContent = ticks.length;
-        }
-
-        // ==================== ONESIGNAL NOTIFICATION FUNCTIONS ====================
-        
-        // Send notification to specific user(s)
-        async function sendOneSignalNotification(playerIds, title, message, url = null) {
-            try {
-                const payload = {
-                    app_id: ONESIGNAL_APP_ID,
-                    include_player_ids: Array.isArray(playerIds) ? playerIds : [playerIds],
-                    headings: { en: title },
-                    contents: { en: message },
-                    priority: 10
-                };
-                
-                if (url) {
-                    payload.url = url;
-                }
-                
-                const response = await fetch('https://onesignal.com/api/v1/notifications', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Basic ' + ONESIGNAL_REST_API_KEY
-                    },
-                    body: JSON.stringify(payload)
-                });
-                
-                const result = await response.json();
-                
-                if (result.id) {
-                    return { success: true, id: result.id, recipients: result.recipients };
-                } else {
-                    console.error('OneSignal Error:', result);
-                    return { success: false, error: result.errors || 'Unknown error' };
-                }
-            } catch (error) {
-                console.error('Notification Error:', error);
-                return { success: false, error: error.message };
-            }
-        }
-
-        // Send notification to all users (using segments)
-        async function sendBroadcastNotificationToAll(title, message, url = null) {
-            try {
-                const payload = {
-                    app_id: ONESIGNAL_APP_ID,
-                    included_segments: ['All'],
-                    headings: { en: title },
-                    contents: { en: message },
-                    priority: 10
-                };
-                
-                if (url) {
-                    payload.url = url;
-                }
-                
-                const response = await fetch('https://onesignal.com/api/v1/notifications', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Basic ' + ONESIGNAL_REST_API_KEY
-                    },
-                    body: JSON.stringify(payload)
-                });
-                
-                const result = await response.json();
-                
-                if (result.id) {
-                    return { success: true, id: result.id, recipients: result.recipients };
-                } else {
-                    console.error('OneSignal Error:', result);
-                    return { success: false, error: result.errors || 'Unknown error' };
-                }
-            } catch (error) {
-                console.error('Broadcast Error:', error);
-                return { success: false, error: error.message };
-            }
-        }
-
-        // Save notification to database history
-        async function saveNotificationToHistory(title, message, type, recipients, status) {
-            const notifData = {
-                id: 'NOTIF_' + Date.now(),
-                title: title,
-                message: message,
-                type: type, // 'broadcast' or 'individual'
-                recipients: recipients,
-                status: status,
-                sentAt: new Date().toISOString(),
-                sentBy: 'admin'
-            };
-            
-            await db.ref('notifications/' + notifData.id).set(notifData);
-            return notifData.id;
-        }
-
-        // ==================== NOTIFICATION PAGE FUNCTIONS ====================
-
-        // Load users for selection
-        function loadNotificationUsers() {
-            const users = Object.entries(appData.users || {}).map(([id, user]) => ({ ...user, id }));
-            const container = document.getElementById('userSelectContainer');
-            
-            if (users.length === 0) {
-                container.innerHTML = '<p style="color: var(--gray); text-align: center; padding: 20px;">No users found</p>';
-                return;
-            }
-            
-            container.innerHTML = users.map(u => `
-                <div class="user-select-item" onclick="toggleUserSelection('${u.id}', this)" data-user-id="${u.id}">
-                    <input type="checkbox" onchange="event.stopPropagation()">
-                    <div style="flex: 1;">
-                        <div style="font-weight: 600;">${u.name || 'Unknown'}</div>
-                        <div style="font-size: 12px; color: var(--gray);">${u.phone || '--'}</div>
-                    </div>
-                    <span class="status-badge status-${u.status || 'active'}">${u.status || 'active'}</span>
-                </div>
-            `).join('');
-        }
-
-        function toggleUserSelection(userId, element) {
-            const checkbox = element.querySelector('input[type="checkbox"]');
-            checkbox.checked = !checkbox.checked;
-            
-            if (checkbox.checked) {
-                selectedUsersForNotif.add(userId);
-                element.classList.add('selected');
-            } else {
-                selectedUsersForNotif.delete(userId);
-                element.classList.remove('selected');
-            }
-        }
-
-        // Send broadcast to all
-        async function sendBroadcastNotification() {
-            const title = document.getElementById('broadcastTitle').value.trim();
-            const message = document.getElementById('broadcastMessage').value.trim();
-            const url = document.getElementById('broadcastUrl').value.trim() || null;
-            
-            if (!title || !message) {
-                showToast('Please enter both title and message', 'error');
-                return;
-            }
-            
-            showLoading('Sending to all users...');
-            
-            const result = await sendBroadcastNotificationToAll(title, message, url);
-            
-            if (result.success) {
-                await saveNotificationToHistory(title, message, 'broadcast', 'all', 'sent');
-                hideLoading();
-                showToast(`Notification sent to ${result.recipients} users!`, 'success');
-                document.getElementById('broadcastTitle').value = '';
-                document.getElementById('broadcastMessage').value = '';
-                document.getElementById('broadcastUrl').value = '';
-                loadNotificationHistory();
-            } else {
-                hideLoading();
-                showToast('Failed to send: ' + (result.error || 'Unknown error'), 'error');
-            }
-        }
-
-        // Send to selected users
-        async function sendSelectedNotification() {
-            const title = document.getElementById('selectedTitle').value.trim();
-            const message = document.getElementById('selectedMessage').value.trim();
-            
-            if (!title || !message) {
-                showToast('Please enter both title and message', 'error');
-                return;
-            }
-            
-            if (selectedUsersForNotif.size === 0) {
-                showToast('Please select at least one user', 'error');
-                return;
-            }
-            
-            showLoading(`Sending to ${selectedUsersForNotif.size} users...`);
-            
-            // Get player IDs for selected users (you'll need to store these when users subscribe)
-            // For now, we'll use external_user_ids which are the user IDs
-            const userIds = Array.from(selectedUsersForNotif);
-            
-            // Send to each user individually or use filters
-            let successCount = 0;
-            for (const userId of userIds) {
-                // Try to get player ID from user data or use external user ID
-                const result = await sendOneSignalNotificationByExternalId(userId, title, message);
-                if (result.success) successCount++;
-            }
-            
-            await saveNotificationToHistory(title, message, 'individual', userIds.join(', '), 'sent');
-            
-            hideLoading();
-            showToast(`Notification sent to ${successCount}/${userIds.length} users!`, 'success');
-            
-            // Clear selection
-            document.getElementById('selectedTitle').value = '';
-            document.getElementById('selectedMessage').value = '';
-            selectedUsersForNotif.clear();
-            loadNotificationUsers(); // Refresh to clear checkboxes
-            loadNotificationHistory();
-        }
-
-        // Send using external user ID (Firebase user ID)
-        async function sendOneSignalNotificationByExternalId(externalUserId, title, message, url = null) {
-            try {
-                const payload = {
-                    app_id: ONESIGNAL_APP_ID,
-                    filters: [
-                        {"field": "tag", "key": "user_id", "relation": "=", "value": externalUserId}
-                    ],
-                    headings: { en: title },
-                    contents: { en: message },
-                    priority: 10
-                };
-                
-                if (url) payload.url = url;
-                
-                const response = await fetch('https://onesignal.com/api/v1/notifications', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': 'Basic ' + ONESIGNAL_REST_API_KEY
-                    },
-                    body: JSON.stringify(payload)
-                });
-                
-                const result = await response.json();
-                
-                if (result.id) {
-                    return { success: true, id: result.id };
-                } else {
-                    return { success: false, error: result.errors };
-                }
-            } catch (error) {
-                return { success: false, error: error.message };
-            }
-        }
-
-        // Load notification history
-        function loadNotificationHistory() {
-            const notifs = Object.values(appData.notifications || {})
-                .sort((a, b) => new Date(b.sentAt) - new Date(a.sentAt))
-                .slice(0, 50); // Last 50 notifications
-            
-            const container = document.getElementById('notificationHistoryList');
-            
-            if (notifs.length === 0) {
-                container.innerHTML = '<p style="text-align: center; color: var(--gray); padding: 40px;">No notifications sent yet</p>';
-                return;
-            }
-            
-            container.innerHTML = notifs.map(n => `
-                <div class="notif-history-item ${n.type}">
-                    <div class="notif-title">${n.title}</div>
-                    <div class="notif-message">${n.message}</div>
-                    <div class="notif-meta">
-                        <span><i class="fas fa-${n.type === 'broadcast' ? 'broadcast-tower' : 'user'}"></i> ${n.type === 'broadcast' ? 'Broadcast' : 'Individual'} • ${n.recipients}</span>
-                        <span>${new Date(n.sentAt).toLocaleString()}</span>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        // Clear notification history
-        async function clearNotificationHistory() {
-            if (!confirm('Are you sure you want to clear all notification history?')) return;
-            
-            showLoading();
-            await db.ref('notifications').remove();
-            hideLoading();
-            showToast('Notification history cleared');
-            loadNotificationHistory();
-        }
-
-        // Auto notification settings
-        function loadAutoNotifSettings() {
-            const settings = appData.settings?.autoNotifications || {};
-            document.getElementById('autoDepositNotif').checked = settings.deposit !== false;
-            document.getElementById('autoWithdrawNotif').checked = settings.withdrawal !== false;
-            document.getElementById('autoTicketNotif').checked = settings.ticket !== false;
-            document.getElementById('autoReferralNotif').checked = settings.referral !== false;
-        }
-
-        async function saveAutoNotifSettings() {
-            const settings = {
-                deposit: document.getElementById('autoDepositNotif').checked,
-                withdrawal: document.getElementById('autoWithdrawNotif').checked,
-                ticket: document.getElementById('autoTicketNotif').checked,
-                referral: document.getElementById('autoReferralNotif').checked
-            };
-            
-            await db.ref('settings/autoNotifications').set(settings);
-            showToast('Auto-notification settings saved');
-        }
-
-        // ==================== AUTOMATIC NOTIFICATIONS ====================
-
-        // Send automatic notification for deposit update
-        async function sendAutoDepositNotification(userId, amount, status, reason) {
-            const settings = appData.settings?.autoNotifications || {};
-            if (settings.deposit === false) return; // Disabled
-            
-            const user = appData.users[userId];
-            if (!user) return;
-            
-            const title = status === 'approved' ? '✅ Deposit Approved!' : '❌ Deposit Rejected';
-            const message = status === 'approved' 
-                ? `₹${amount} has been added to your wallet.`
-                : `Your deposit of ₹${amount} was rejected. Reason: ${reason}`;
-            
-            await sendOneSignalNotificationByExternalId(userId, title, message);
-        }
-
-        // Send automatic notification for withdrawal update
-        async function sendAutoWithdrawalNotification(userId, amount, status, reason) {
-            const settings = appData.settings?.autoNotifications || {};
-            if (settings.withdrawal === false) return; // Disabled
-            
-            const user = appData.users[userId];
-            if (!user) return;
-            
-            const title = status === 'approved' ? '✅ Withdrawal Processed!' : '❌ Withdrawal Rejected';
-            const message = status === 'approved' 
-                ? `Your withdrawal of ₹${amount} has been processed.`
-                : `Your withdrawal of ₹${amount} was rejected. Reason: ${reason}`;
-            
-            await sendOneSignalNotificationByExternalId(userId, title, message);
-        }
-
-        // Send automatic notification for ticket reply
-        async function sendAutoTicketNotification(userId, subject) {
-            const settings = appData.settings?.autoNotifications || {};
-            if (settings.ticket === false) return; // Disabled
-            
-            const user = appData.users[userId];
-            if (!user) return;
-            
-            const title = '💬 Support Ticket Update';
-            const message = `Admin has replied to your ticket: "${subject}"`;
-            
-            await sendOneSignalNotificationByExternalId(userId, title, message);
         }
 
         // Format last seen time
@@ -1382,12 +946,14 @@
                 const balance = u.wallet?.mainBalance || 0;
                 const refers = u.referrals?.count || 0;
                 const status = u.status || 'active';
+                const hasPlayerId = u.oneSignalPlayerId ? true : false;
                 
                 return `
                 <tr>
                     <td>
                         <div style="font-weight: 600;">${u.name || 'Unknown'}</div>
                         <div style="font-size: 12px; color: var(--gray);">${u.phone || '--'}</div>
+                        ${hasPlayerId ? '<span style="font-size: 10px; color: var(--success);"><i class="fas fa-bell"></i> Push Ready</span>' : ''}
                     </td>
                     <td style="font-weight: bold; color: var(--success);">₹${balance}</td>
                     <td>${refers}</td>
@@ -1396,50 +962,11 @@
                     <td><span class="status-badge status-${status}">${status}</span></td>
                     <td>
                         <button class="btn-icon view" onclick="manageUser('${u.id}')" title="Manage"><i class="fas fa-edit"></i></button>
-                        <button class="btn-icon notify" onclick="openQuickNotif('${u.id}')" title="Send Notification"><i class="fas fa-bell"></i></button>
+                        <button class="btn-icon notify" onclick="openQuickNotify('${u.id}', '${u.name}')" title="Send Notification" ${!hasPlayerId ? 'style="opacity:0.5;"' : ''}><i class="fas fa-bell"></i></button>
                         <button class="btn-icon delete" onclick="deleteUser('${u.id}')" title="Delete Permanently"><i class="fas fa-trash"></i></button>
                     </td>
                 </tr>
             `}).join('');
-        }
-
-        // Quick notification modal
-        function openQuickNotif(userId) {
-            const user = appData.users[userId];
-            if (!user) return;
-            
-            currentUserId = userId;
-            document.getElementById('quickNotifUserInfo').innerHTML = `
-                <strong>Sending to:</strong> ${user.name || 'Unknown'} (${user.phone || '--'})
-            `;
-            document.getElementById('quickNotifTitle').value = '';
-            document.getElementById('quickNotifMessage').value = '';
-            openModal('quickNotifModal');
-        }
-
-        async function sendQuickNotification() {
-            const title = document.getElementById('quickNotifTitle').value.trim();
-            const message = document.getElementById('quickNotifMessage').value.trim();
-            
-            if (!title || !message) {
-                showToast('Please enter both title and message', 'error');
-                return;
-            }
-            
-            showLoading('Sending...');
-            
-            const result = await sendOneSignalNotificationByExternalId(currentUserId, title, message);
-            
-            if (result.success) {
-                await saveNotificationToHistory(title, message, 'individual', currentUserId, 'sent');
-                hideLoading();
-                showToast('Notification sent!', 'success');
-                closeModal('quickNotifModal');
-                loadNotificationHistory();
-            } else {
-                hideLoading();
-                showToast('Failed to send notification', 'error');
-            }
         }
 
         function manageUser(uid) {
@@ -1457,6 +984,7 @@
                     <div style="width: 80px; height: 80px; background: var(--gradient-1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px; font-size: 36px; color: white;">👤</div>
                     <h4 style="font-size: 20px; margin-bottom: 5px;">${u.name || 'Unknown'}</h4>
                     <p style="color: var(--gray); font-size: 14px;">${u.phone || '--'}</p>
+                    ${u.oneSignalPlayerId ? '<span style="background: var(--success); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px;"><i class="fas fa-bell"></i> Push Notifications Active</span>' : '<span style="background: var(--gray-light); color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px;">No Push ID</span>'}
                 </div>
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
                     <div style="background: var(--light); padding: 15px; border-radius: 12px; text-align: center;">
@@ -1493,8 +1021,64 @@
                         <i class="fas fa-${u.status==='blocked'?'check-circle':'ban'}"></i> ${u.status==='blocked'?'Unblock User':'Block User'}
                     </button>
                 </div>
+                ${u.oneSignalPlayerId ? `
+                <div style="margin-top:15px;">
+                    <button class="btn-main btn-primary" style="width:100%" onclick="openQuickNotify('${uid}', '${u.name}')">
+                        <i class="fas fa-paper-plane"></i> Send Push Notification
+                    </button>
+                </div>
+                ` : ''}
             `;
             openModal('userModal');
+        }
+
+        function openQuickNotify(uid, name) {
+            const u = appData.users[uid];
+            if(!u || !u.oneSignalPlayerId) {
+                showToast('User has no push notification ID', 'error');
+                return;
+            }
+            document.getElementById('quickNotifyUserId').value = uid;
+            document.getElementById('quickNotifyUserName').textContent = name + ' (' + u.phone + ')';
+            document.getElementById('quickNotifyTitle').value = '';
+            document.getElementById('quickNotifyMessage').value = '';
+            openModal('quickNotifyModal');
+        }
+
+        async function sendQuickNotification() {
+            const uid = document.getElementById('quickNotifyUserId').value;
+            const title = document.getElementById('quickNotifyTitle').value;
+            const message = document.getElementById('quickNotifyMessage').value;
+            
+            if(!title || !message) {
+                showToast('Please fill all fields', 'error');
+                return;
+            }
+            
+            const u = appData.users[uid];
+            if(!u || !u.oneSignalPlayerId) {
+                showToast('User push ID not found', 'error');
+                return;
+            }
+            
+            showLoading();
+            const result = await sendOneSignalNotification({
+                include_player_ids: [u.oneSignalPlayerId],
+                headings: { en: title },
+                contents: { en: message },
+                data: { type: 'admin_message', userId: uid }
+            });
+            
+            hideLoading();
+            closeModal('quickNotifyModal');
+            
+            if(result.success) {
+                showToast('Notification sent successfully!');
+                addNotificationLog('individual', title, u.name, true);
+            } else {
+                showToast('Failed to send: ' + result.error, 'error');
+                addNotificationLog('individual', title, u.name, false);
+            }
         }
 
         function deleteUser(uid) {
@@ -1780,7 +1364,6 @@
             document.getElementById('depositDetails').innerHTML = `User: <b>${d.userName || '--'}</b><br>Amount: <b>₹${d.amount}</b><br>UTR: <b>${d.transactionId || '--'}</b>`;
             document.getElementById('depReason').value = d.adminReason || 'Payment Verified';
             document.getElementById('depAction').value = 'approved';
-            document.getElementById('sendDepositNotif').checked = true;
             openModal('depositModal');
         }
 
@@ -1798,14 +1381,12 @@
             `;
             document.getElementById('depReason').value = d.adminReason || '';
             document.getElementById('depAction').value = d.status === 'approved' ? 'rejected' : 'approved';
-            document.getElementById('sendDepositNotif').checked = true;
             openModal('depositModal');
         }
 
         async function submitDeposit() {
             const action = document.getElementById('depAction').value;
             const reason = document.getElementById('depReason').value || (action==='approved'?'Payment Verified':'Invalid Details');
-            const sendNotif = document.getElementById('sendDepositNotif').checked;
             const d = appData.deposits[currentActionId];
             if(!d) {
                 showToast('Deposit not found', 'error');
@@ -1840,9 +1421,19 @@
                 
                 await db.ref().update(updates);
                 
-                // Send push notification if enabled
-                if (sendNotif) {
-                    await sendAutoDepositNotification(currentUserId, d.amount, action, reason);
+                // Send auto notification if enabled
+                if(autoNotifications.deposit && u && u.oneSignalPlayerId) {
+                    const notifTitle = action === 'approved' ? '✅ Deposit Approved!' : '❌ Deposit Rejected';
+                    const notifMsg = action === 'approved' 
+                        ? `Your deposit of ₹${d.amount} has been approved. Balance updated!`
+                        : `Your deposit of ₹${d.amount} was rejected. Reason: ${reason}`;
+                    
+                    await sendOneSignalNotification({
+                        include_player_ids: [u.oneSignalPlayerId],
+                        headings: { en: notifTitle },
+                        contents: { en: notifMsg },
+                        data: { type: 'deposit_update', depositId: currentActionId, status: action }
+                    });
                 }
                 
                 hideLoading(); 
@@ -1897,7 +1488,6 @@
             document.getElementById('withdrawDetails').innerHTML = `Amount: <b>₹${w.amount}</b><br>Method: <b>${(w.method || '').toUpperCase()}</b><br>Details: ${w.details || '--'}`;
             document.getElementById('withReason').value = w.adminReason || '';
             document.getElementById('withAction').value = 'approved';
-            document.getElementById('sendWithdrawNotif').checked = true;
             openModal('withdrawModal');
         }
 
@@ -1915,14 +1505,12 @@
             `;
             document.getElementById('withReason').value = w.adminReason || '';
             document.getElementById('withAction').value = w.status === 'approved' ? 'rejected' : 'approved';
-            document.getElementById('sendWithdrawNotif').checked = true;
             openModal('withdrawModal');
         }
 
         async function submitWithdraw() {
             const action = document.getElementById('withAction').value;
             const reason = document.getElementById('withReason').value || (action==='approved'?'Payment Sent':'Rejected');
-            const sendNotif = document.getElementById('sendWithdrawNotif').checked;
             const w = appData.withdrawals[currentActionId];
             if(!w) {
                 showToast('Withdrawal not found', 'error');
@@ -1961,9 +1549,19 @@
                 
                 await db.ref().update(updates);
                 
-                // Send push notification if enabled
-                if (sendNotif) {
-                    await sendAutoWithdrawalNotification(currentUserId, w.amount, action, reason);
+                // Send auto notification if enabled
+                if(autoNotifications.withdrawal && u && u.oneSignalPlayerId) {
+                    const notifTitle = action === 'approved' ? '✅ Withdrawal Approved!' : '❌ Withdrawal Rejected';
+                    const notifMsg = action === 'approved' 
+                        ? `Your withdrawal of ₹${w.amount} has been processed. UTR: ${reason}`
+                        : `Your withdrawal of ₹${w.amount} was rejected. Reason: ${reason}`;
+                    
+                    await sendOneSignalNotification({
+                        include_player_ids: [u.oneSignalPlayerId],
+                        headings: { en: notifTitle },
+                        contents: { en: notifMsg },
+                        data: { type: 'withdrawal_update', withdrawalId: currentActionId, status: action }
+                    });
                 }
                 
                 hideLoading(); 
@@ -2076,27 +1674,33 @@
                 ${t.reply ? `<p style="color: var(--gray);"><strong>Current Reply:</strong> ${t.reply}</p>` : ''}
             `;
             document.getElementById('ticketReply').value = t.reply || '';
-            document.getElementById('sendTicketNotif').checked = true;
             openModal('ticketModal');
         }
 
         async function submitTicket() {
             const reply = document.getElementById('ticketReply').value;
-            const sendNotif = document.getElementById('sendTicketNotif').checked;
             if(!reply) return showToast('Please enter a reply', 'error');
             
             showLoading();
             try {
-                const ticket = appData.tickets[currentFirebaseKey];
                 await db.ref(`tickets/${currentFirebaseKey}`).update({ 
                     status: 'closed', 
                     reply: reply, 
                     repliedAt: new Date().toISOString() 
                 });
                 
-                // Send push notification if enabled
-                if (sendNotif && ticket) {
-                    await sendAutoTicketNotification(ticket.userId, ticket.subject);
+                // Send auto notification if enabled
+                const t = appData.tickets[currentFirebaseKey];
+                if(autoNotifications.ticket && t && t.userId) {
+                    const u = appData.users[t.userId];
+                    if(u && u.oneSignalPlayerId) {
+                        await sendOneSignalNotification({
+                            include_player_ids: [u.oneSignalPlayerId],
+                            headings: { en: '🎫 Support Ticket Reply' },
+                            contents: { en: `Admin replied to your ticket: "${reply.substring(0, 100)}${reply.length > 100 ? '...' : ''}"` },
+                            data: { type: 'ticket_reply', ticketId: currentFirebaseKey }
+                        });
+                    }
                 }
                 
                 hideLoading(); 
@@ -2121,6 +1725,219 @@
                 hideLoading();
                 showToast('Error reopening ticket: ' + e.message, 'error');
             }
+        }
+
+        // ==================== PUSH NOTIFICATION FUNCTIONS ====================
+        
+        // Send notification via Cloudflare Worker
+        async function sendOneSignalNotification(payload) {
+            try {
+                const response = await fetch(ONESIGNAL_WORKER_URL, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(payload)
+                });
+                
+                const result = await response.json();
+                return { success: true, data: result };
+            } catch(error) {
+                console.error('OneSignal Error:', error);
+                return { success: false, error: error.message };
+            }
+        }
+
+        // Load notifications page
+        function loadNotificationsPage() {
+            // Populate user dropdown for individual notifications
+            const userSelect = document.getElementById('individualUser');
+            userSelect.innerHTML = '<option value="">Choose a user...</option>';
+            
+            const users = Object.entries(appData.users || {})
+                .map(([id, u]) => ({...u, id}))
+                .filter(u => u.oneSignalPlayerId)
+                .sort((a, b) => (a.name || '').localeCompare(b.name || ''));
+            
+            users.forEach(u => {
+                const option = document.createElement('option');
+                option.value = u.id;
+                option.textContent = `${u.name || 'Unknown'} (${u.phone || '--'})`;
+                userSelect.appendChild(option);
+            });
+            
+            // Load notification log
+            loadNotificationLog();
+        }
+
+        // Send broadcast to all users
+        async function sendBroadcastNotification(e) {
+            e.preventDefault();
+            
+            const title = document.getElementById('broadcastTitle').value;
+            const message = document.getElementById('broadcastMessage').value;
+            const url = document.getElementById('broadcastUrl').value;
+            
+            if(!title || !message) {
+                showToast('Please fill all required fields', 'error');
+                return;
+            }
+            
+            showLoading();
+            
+            // Get all player IDs
+            const allUsers = Object.values(appData.users || {});
+            const playerIds = allUsers
+                .filter(u => u.oneSignalPlayerId)
+                .map(u => u.oneSignalPlayerId);
+            
+            if(playerIds.length === 0) {
+                hideLoading();
+                showToast('No users have push notifications enabled', 'error');
+                return;
+            }
+            
+            // Send in batches of 2000 (OneSignal limit)
+            const batchSize = 2000;
+            let successCount = 0;
+            let failCount = 0;
+            
+            for(let i = 0; i < playerIds.length; i += batchSize) {
+                const batch = playerIds.slice(i, i + batchSize);
+                const payload = {
+                    include_player_ids: batch,
+                    headings: { en: title },
+                    contents: { en: message },
+                    data: { type: 'broadcast', sentAt: new Date().toISOString() }
+                };
+                
+                if(url) {
+                    payload.url = url;
+                }
+                
+                const result = await sendOneSignalNotification(payload);
+                if(result.success) {
+                    successCount += batch.length;
+                } else {
+                    failCount += batch.length;
+                }
+            }
+            
+            hideLoading();
+            
+            if(successCount > 0) {
+                showToast(`Sent to ${successCount} users!`);
+                addNotificationLog('broadcast', title, `All Users (${successCount})`, true);
+                document.getElementById('broadcastForm').reset();
+            } else {
+                showToast('Failed to send notifications', 'error');
+                addNotificationLog('broadcast', title, 'All Users', false);
+            }
+        }
+
+        // Send individual notification
+        async function sendIndividualNotification(e) {
+            e.preventDefault();
+            
+            const userId = document.getElementById('individualUser').value;
+            const title = document.getElementById('individualTitle').value;
+            const message = document.getElementById('individualMessage').value;
+            
+            if(!userId || !title || !message) {
+                showToast('Please fill all fields', 'error');
+                return;
+            }
+            
+            const u = appData.users[userId];
+            if(!u || !u.oneSignalPlayerId) {
+                showToast('User push ID not found', 'error');
+                return;
+            }
+            
+            showLoading();
+            
+            const result = await sendOneSignalNotification({
+                include_player_ids: [u.oneSignalPlayerId],
+                headings: { en: title },
+                contents: { en: message },
+                data: { type: 'individual', userId: userId }
+            });
+            
+            hideLoading();
+            
+            if(result.success) {
+                showToast('Notification sent successfully!');
+                addNotificationLog('individual', title, u.name, true);
+                document.getElementById('individualForm').reset();
+            } else {
+                showToast('Failed to send: ' + result.error, 'error');
+                addNotificationLog('individual', title, u.name, false);
+            }
+        }
+
+        // Save auto notification settings
+        async function saveAutoSettings() {
+            const settings = {
+                deposit: document.getElementById('autoDepositNotif').checked,
+                withdrawal: document.getElementById('autoWithdrawNotif').checked,
+                ticket: document.getElementById('autoTicketNotif').checked
+            };
+            
+            try {
+                await db.ref('settings/autoNotifications').set(settings);
+                autoNotifications = settings;
+                showToast('Auto notification settings saved');
+            } catch(e) {
+                showToast('Error saving settings', 'error');
+            }
+        }
+
+        // Notification Log
+        function addNotificationLog(type, title, recipient, success) {
+            const log = JSON.parse(localStorage.getItem('notificationLog') || '[]');
+            log.unshift({
+                type,
+                title,
+                recipient,
+                success,
+                time: new Date().toISOString()
+            });
+            
+            // Keep only last 50
+            if(log.length > 50) log.pop();
+            
+            localStorage.setItem('notificationLog', JSON.stringify(log));
+            loadNotificationLog();
+        }
+
+        function loadNotificationLog() {
+            const log = JSON.parse(localStorage.getItem('notificationLog') || '[]');
+            const container = document.getElementById('notificationLog');
+            
+            if(log.length === 0) {
+                container.innerHTML = '<p style="text-align:center; color: var(--gray); padding: 20px;">No notifications sent yet</p>';
+                return;
+            }
+            
+            container.innerHTML = log.map(item => `
+                <div class="notification-log-item ${item.success ? 'success' : 'error'}">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                        <span style="font-weight: 600;">${item.title}</span>
+                        <span style="font-size: 12px; color: var(--gray);">${new Date(item.time).toLocaleString()}</span>
+                    </div>
+                    <div style="font-size: 13px; color: var(--gray);">
+                        <span class="notification-type-badge ${item.type}" style="font-size: 10px; padding: 2px 8px;">${item.type.toUpperCase()}</span>
+                        To: ${item.recipient}
+                        ${item.success ? '<i class="fas fa-check-circle" style="color: var(--success); margin-left: 10px;"></i>' : '<i class="fas fa-times-circle" style="color: var(--danger); margin-left: 10px;"></i>'}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function clearNotificationLog() {
+            localStorage.removeItem('notificationLog');
+            loadNotificationLog();
+            showToast('Log cleared');
         }
 
         // SETTINGS with Refer Amount
