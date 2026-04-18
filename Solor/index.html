@@ -49,52 +49,62 @@
         body { background: var(--light); min-height: 100vh; padding-bottom: 90px; color: var(--dark); }
         
         /* Premium Header */
-        .premium-header { background: var(--gradient-1); padding: 15px 20px; position: sticky; top: 0; z-index: 1000; box-shadow: var(--shadow-lg); }
+        .premium-header { background: var(--gradient-1); padding: 20px; position: sticky; top: 0; z-index: 1000; box-shadow: var(--shadow-lg); }
         .header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
         .brand { display: flex; align-items: center; gap: 12px; color: var(--white); }
         .brand-icon { width: 45px; height: 45px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; backdrop-filter: blur(10px); }
         .brand-text h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
         .brand-text p { font-size: 12px; opacity: 0.9; font-weight: 500; }
         
-        /* Bell Icon in Header */
         .header-actions { display: flex; align-items: center; gap: 15px; }
-        .notification-bell { 
-            width: 45px; 
-            height: 45px; 
-            background: rgba(255,255,255,0.15); 
-            border-radius: 12px; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            cursor: pointer; 
-            border: 1px solid rgba(255,255,255,0.2);
-            backdrop-filter: blur(10px);
-            position: relative;
-            transition: all 0.3s;
-        }
-        .notification-bell:hover { background: rgba(255,255,255,0.25); transform: scale(1.05); }
-        .notification-bell i { font-size: 20px; color: var(--white); }
-        .notification-badge { 
-            position: absolute; 
-            top: -5px; 
-            right: -5px; 
-            background: var(--danger); 
-            color: white; 
-            width: 20px; 
-            height: 20px; 
-            border-radius: 50%; 
-            font-size: 11px; 
-            font-weight: 700; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-            animation: pulse 2s infinite;
-        }
-        @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
         
         .header-balance { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 10px 20px; border-radius: 50px; color: var(--white); text-align: center; border: 1px solid rgba(255,255,255,0.2); cursor: pointer;}
         .header-balance .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
         .header-balance .amount { font-size: 20px; font-weight: 700; }
+        
+        /* Notification Bell Icon */
+        .notification-bell {
+            width: 45px;
+            height: 45px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            border: 1px solid rgba(255,255,255,0.2);
+            color: var(--white);
+            font-size: 20px;
+            position: relative;
+            transition: all 0.3s;
+        }
+        .notification-bell:hover {
+            background: rgba(255,255,255,0.25);
+            transform: scale(1.05);
+        }
+        .notification-bell.disabled {
+            opacity: 0.6;
+        }
+        .notification-bell .badge {
+            position: absolute;
+            top: -2px;
+            right: -2px;
+            width: 18px;
+            height: 18px;
+            background: var(--danger);
+            border-radius: 50%;
+            font-size: 10px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 2s infinite;
+        }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
         
         /* Bottom Nav */
         .premium-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--white); padding: 12px 20px 25px; display: flex; justify-content: space-around; box-shadow: 0 -10px 40px rgba(0,0,0,0.1); z-index: 1000; border-radius: 30px 30px 0 0; }
@@ -267,6 +277,9 @@
         @media (max-width: 380px) {
             .otp-input-premium { width: 40px; height: 50px; font-size: 18px; }
             .otp-container { gap: 6px; }
+            .header-balance { padding: 8px 15px; }
+            .header-balance .amount { font-size: 16px; }
+            .notification-bell { width: 40px; height: 40px; font-size: 18px; }
         }
         
         @media (min-width: 768px) {
@@ -499,9 +512,9 @@
             </div>
             <div class="header-actions">
                 <!-- Notification Bell Icon -->
-                <div class="notification-bell" onclick="handleNotificationBellClick()" title="Notifications">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-badge hidden" id="notificationBadge">0</span>
+                <div class="notification-bell" id="notificationBell" onclick="handleNotificationClick()" title="Notifications">
+                    <i class="fas fa-bell" id="bellIcon"></i>
+                    <span class="badge hidden" id="notifBadge">0</span>
                 </div>
                 <div class="header-balance" onclick="showPage('wallet')">
                     <div class="label">Balance</div>
@@ -1034,6 +1047,7 @@
         let userStatusListener = null;
         let lastSeenInterval = null;
         let isAccountDeleted = false;
+        let oneSignalInitialized = false;
 
         // WhatsApp OTP Server Config
         const WHATSAPP_OTP_SERVER = 'https://we-aobe.onrender.com';
@@ -1060,62 +1074,82 @@
             });
         }
 
-        // ==================== ONE SIGNAL NOTIFICATION FUNCTIONS ====================
-        // Handle notification bell click
-        async function handleNotificationBellClick() {
-            try {
-                // Check if OneSignal is initialized
-                if (typeof OneSignal === 'undefined') {
-                    showToast('Notifications not ready yet. Please wait...', 'error');
-                    return;
-                }
-                
-                // Check current permission state
-                const permission = await OneSignal.Notifications.permission;
-                
-                if (permission === 'granted') {
-                    // Already allowed - show info
-                    showToast('✅ Notifications already enabled!', 'success');
-                } else if (permission === 'denied') {
-                    // Permission was denied - show instructions to enable
-                    showToast('⚠️ Please enable notifications in browser settings', 'warning');
-                    // Optional: Show a modal with instructions
-                    setTimeout(() => {
-                        if(confirm('Notifications are blocked. Open browser settings to enable?')) {
-                            // Open browser settings (works on some mobile browsers)
-                            window.open('app-settings:');
-                        }
-                    }, 1000);
-                } else {
-                    // Permission not determined yet - show prompt
-                    await OneSignal.Notifications.requestPermission();
-                }
-            } catch (error) {
-                console.error('OneSignal Error:', error);
-                showToast('Error checking notifications', 'error');
+        // ==================== ONESIGNAL NOTIFICATION FUNCTIONS ====================
+        
+        // Initialize OneSignal and check permission status
+        function initOneSignal() {
+            if (typeof OneSignal !== 'undefined') {
+                OneSignalDeferred.push(async function(OneSignal) {
+                    oneSignalInitialized = true;
+                    updateBellIcon();
+                    
+                    // Listen for permission changes
+                    OneSignal.on('notificationPermissionChange', function(permissionChange) {
+                        updateBellIcon();
+                    });
+                });
             }
         }
 
-        // Subscribe user to OneSignal with their user ID
-        async function subscribeUserToNotifications(userId) {
-            try {
-                if (typeof OneSignal === 'undefined') {
-                    console.log('OneSignal not loaded yet');
-                    return;
+        // Update bell icon based on permission status
+        function updateBellIcon() {
+            const bell = document.getElementById('notificationBell');
+            const icon = document.getElementById('bellIcon');
+            
+            if (!oneSignalInitialized) return;
+            
+            OneSignalDeferred.push(async function(OneSignal) {
+                const permission = await OneSignal.Notifications.permission;
+                
+                if (permission === 'granted') {
+                    bell.classList.remove('disabled');
+                    icon.className = 'fas fa-bell';
+                    // Hide badge if permission granted
+                    document.getElementById('notifBadge').classList.add('hidden');
+                } else {
+                    bell.classList.add('disabled');
+                    icon.className = 'fas fa-bell-slash';
+                    // Show badge to indicate action needed
+                    document.getElementById('notifBadge').classList.remove('hidden');
+                    document.getElementById('notifBadge').textContent = '!';
                 }
-                
-                // Set external user ID for targeting
-                await OneSignal.login(userId);
-                
-                // Also set phone number as alias if available
-                if (currentUser && currentUser.phone) {
-                    await OneSignal.User.addAlias("phone", currentUser.phone);
-                }
-                
-                console.log('User subscribed to notifications:', userId);
-            } catch (error) {
-                console.error('Error subscribing user:', error);
+            });
+        }
+
+        // Handle notification bell click
+        function handleNotificationClick() {
+            if (!oneSignalInitialized) {
+                showToast('Notifications not ready yet', 'error');
+                return;
             }
+            
+            OneSignalDeferred.push(async function(OneSignal) {
+                const permission = await OneSignal.Notifications.permission;
+                
+                if (permission === 'granted') {
+                    showToast('Notifications are enabled!', 'success');
+                } else {
+                    // Show permission prompt
+                    await OneSignal.Notifications.requestPermission();
+                    updateBellIcon();
+                }
+            });
+        }
+
+        // Save OneSignal Player ID to Firebase for targeted notifications
+        async function saveOneSignalPlayerId() {
+            if (!currentUser || !oneSignalInitialized) return;
+            
+            OneSignalDeferred.push(async function(OneSignal) {
+                try {
+                    const playerId = await OneSignal.User.PushSubscription.id;
+                    if (playerId) {
+                        await database.ref(`users/${currentUser.id}/oneSignalPlayerId`).set(playerId);
+                    }
+                } catch(e) {
+                    console.log('OneSignal Player ID save error:', e);
+                }
+            });
         }
 
         // ==================== NAVIGATION ====================
@@ -1169,6 +1203,9 @@
 
         // ==================== FIXED: CHECK LOGIN STATUS FIRST ====================
         window.onload = function() {
+            // Initialize OneSignal
+            initOneSignal();
+            
             // Load settings first
             database.ref('settings').on('value', snap => {
                 appSettings = snap.val() || {};
@@ -1207,8 +1244,8 @@
                 currentUser = JSON.parse(savedUser);
                 setupUserListener(currentUser.id);
                 
-                // Subscribe to notifications
-                subscribeUserToNotifications(currentUser.id);
+                // Save OneSignal Player ID after login
+                setTimeout(saveOneSignalPlayerId, 3000);
                 
                 // Check for ref code but don't go to register if logged in
                 if(refCode) {
@@ -1337,10 +1374,10 @@
                 return; 
             }
             currentUser = user; localStorage.setItem('currentUser', JSON.stringify(user));
-            setupUserListener(user.id);
+            setupUserListener(user.id); 
             
-            // Subscribe to notifications on login
-            subscribeUserToNotifications(user.id);
+            // Save OneSignal Player ID after login
+            setTimeout(saveOneSignalPlayerId, 3000);
             
             hideLoading(); showToast('Login successful!', 'success'); showPage('home');
         });
@@ -1484,8 +1521,8 @@
                 localStorage.setItem('currentUser', JSON.stringify(newUser)); 
                 setupUserListener(newUser.id);
                 
-                // Subscribe to notifications
-                subscribeUserToNotifications(newUser.id);
+                // Save OneSignal Player ID after registration
+                setTimeout(saveOneSignalPlayerId, 3000);
                 
                 // Clear pending ref code
                 sessionStorage.removeItem('pendingRefCode');
@@ -2074,12 +2111,6 @@
         function logout() { 
             if(lastSeenInterval) clearInterval(lastSeenInterval);
             if(userStatusListener) userStatusListener.off();
-            
-            // Logout from OneSignal
-            if (typeof OneSignal !== 'undefined') {
-                OneSignal.logout();
-            }
-            
             localStorage.removeItem('currentUser'); 
             window.location.reload(); 
         }
