@@ -5,17 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Solor Energy - Premium</title>
     
-    <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <!-- ADDED: Firebase Messaging SDK for Push Notifications -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
     
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -37,69 +33,27 @@
             --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.3);
         }
         
-        body { background: var(--light); min-height: 100vh; padding-bottom: 90px; color: var(--dark); overflow-x: hidden; }
+        body { background: var(--light); min-height: 100vh; padding-bottom: 90px; color: var(--dark); }
         
         /* Premium Header */
         .premium-header { background: var(--gradient-1); padding: 20px; position: sticky; top: 0; z-index: 1000; box-shadow: var(--shadow-lg); }
         .header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
         .brand { display: flex; align-items: center; gap: 12px; color: var(--white); }
         .brand-icon { width: 45px; height: 45px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; backdrop-filter: blur(10px); }
-        .brand-text h1 { font-size: 20px; font-weight: 700; letter-spacing: -0.5px; white-space: nowrap; }
-        .brand-text p { font-size: 11px; opacity: 0.9; font-weight: 500; }
+        .brand-text h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+        .brand-text p { font-size: 12px; opacity: 0.9; font-weight: 500; }
         
-        /* ADDED: Header Actions (Bell + Balance) */
-        .header-actions { display: flex; align-items: center; gap: 12px; }
-        
-        /* ADDED: Notification Bell */
-        .noti-bell { position: relative; width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.15); display: flex; align-items: center; justify-content: center; color: white; font-size: 18px; cursor: pointer; transition: all 0.3s; border: 1px solid rgba(255,255,255,0.2); }
-        .noti-bell:active { transform: scale(0.9); }
-        .noti-badge { position: absolute; top: 5px; right: 5px; background: var(--danger); color: white; font-size: 10px; font-weight: bold; width: 16px; height: 16px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--primary); display: none; }
-        .noti-badge.show { display: flex; animation: popIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        @keyframes popIn { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+        .header-actions { display: flex; align-items: center; gap: 15px; }
+        .header-balance { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 10px 20px; border-radius: 50px; color: var(--white); text-align: center; border: 1px solid rgba(255,255,255,0.2); cursor: pointer;}
+        .header-balance .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
+        .header-balance .amount { font-size: 20px; font-weight: 700; }
 
-        .header-balance { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 8px 15px; border-radius: 50px; color: var(--white); text-align: center; border: 1px solid rgba(255,255,255,0.2); cursor: pointer;}
-        .header-balance .label { font-size: 9px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
-        .header-balance .amount { font-size: 16px; font-weight: 700; }
+        /* Notification Bell */
+        .noti-bell { position: relative; color: white; font-size: 24px; cursor: pointer; transition: transform 0.3s; }
+        .noti-bell:hover { transform: scale(1.1); }
+        .noti-badge { position: absolute; top: -4px; right: -4px; background: var(--danger); color: white; font-size: 10px; font-weight: bold; width: 16px; height: 16px; display: flex; align-items: center; justify-content: center; border-radius: 50%; border: 2px solid var(--primary-dark); display: none; }
+        .noti-badge.active { display: flex; }
         
-        /* ADDED: Notification Panel */
-        .noti-panel { position: fixed; top: 0; right: -100%; width: 100%; max-width: 400px; height: 100vh; background: var(--white); z-index: 2000; transition: right 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: -5px 0 25px rgba(0,0,0,0.1); display: flex; flex-direction: column; }
-        .noti-panel.active { right: 0; }
-        .noti-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1999; display: none; opacity: 0; transition: opacity 0.3s; }
-        .noti-overlay.active { display: block; opacity: 1; }
-        
-        .noti-header { padding: 20px; background: var(--gradient-1); color: white; display: flex; justify-content: space-between; align-items: center; }
-        .noti-header h2 { font-size: 18px; font-weight: 700; }
-        .close-noti { background: rgba(255,255,255,0.2); border: none; color: white; width: 35px; height: 35px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 16px; cursor: pointer; transition: all 0.3s; }
-        .close-noti:hover { background: rgba(255,255,255,0.3); transform: rotate(90deg); }
-        
-        .noti-body { flex: 1; overflow-y: auto; padding: 15px; background: var(--light); }
-        
-        /* Permission Box */
-        .permission-box { background: white; padding: 25px 20px; border-radius: 20px; text-align: center; box-shadow: var(--shadow-sm); margin-bottom: 20px; border: 2px dashed #e2e8f0; }
-        .permission-box i { font-size: 40px; color: var(--warning); margin-bottom: 15px; }
-        .permission-box h3 { font-size: 16px; margin-bottom: 10px; color: var(--dark); }
-        .permission-box p { font-size: 13px; color: var(--gray); margin-bottom: 20px; }
-        .btn-allow-noti { background: var(--gradient-1); color: white; border: none; padding: 12px 25px; border-radius: 12px; font-weight: 600; cursor: pointer; width: 100%; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); transition: all 0.3s; }
-        .btn-allow-noti:hover { transform: translateY(-2px); }
-
-        /* Notification Items */
-        .noti-item { background: white; padding: 15px; border-radius: 16px; margin-bottom: 12px; display: flex; gap: 15px; box-shadow: var(--shadow-sm); transition: all 0.3s; position: relative; overflow: hidden; }
-        .noti-item.unread::before { content: ''; position: absolute; left: 0; top: 0; width: 4px; height: 100%; background: var(--primary); }
-        .noti-item.unread { background: #f8fafc; }
-        
-        .noti-icon { width: 45px; height: 45px; border-radius: 12px; flex-shrink: 0; display: flex; align-items: center; justify-content: center; font-size: 18px; }
-        .noti-icon.deposit { background: rgba(16, 185, 129, 0.1); color: var(--success); }
-        .noti-icon.withdraw { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
-        .noti-icon.ticket { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
-        .noti-icon.system { background: rgba(99, 102, 241, 0.1); color: var(--primary); }
-        
-        .noti-content { flex: 1; }
-        .noti-title { font-weight: 700; font-size: 14px; margin-bottom: 4px; color: var(--dark); }
-        .noti-msg { font-size: 12px; color: var(--gray); line-height: 1.4; margin-bottom: 6px; }
-        .noti-time { font-size: 10px; color: var(--gray-light); font-weight: 500; }
-        .empty-noti { text-align: center; padding: 50px 20px; color: var(--gray-light); }
-        .empty-noti i { font-size: 50px; margin-bottom: 15px; opacity: 0.5; }
-
         /* Bottom Nav */
         .premium-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--white); padding: 12px 20px 25px; display: flex; justify-content: space-around; box-shadow: 0 -10px 40px rgba(0,0,0,0.1); z-index: 1000; border-radius: 30px 30px 0 0; }
         .nav-item { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 8px 16px; border-radius: 16px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none; background: transparent; color: var(--gray); position: relative; }
@@ -185,7 +139,7 @@
         .loader { width: 60px; height: 60px; border: 4px solid #e2e8f0; border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
         @keyframes spin { to { transform: rotate(360deg); } }
         
-        .toast { position: fixed; top: 100px; left: 50%; transform: translateX(-50%) translateY(-100px); background: var(--dark); color: var(--white); padding: 16px 24px; border-radius: 12px; font-weight: 500; z-index: 10000; opacity: 0; transition: all 0.3s; box-shadow: var(--shadow-xl); text-align: center; width: 90%; max-width: 400px;}
+        .toast { position: fixed; top: 100px; left: 50%; transform: translateX(-50%) translateY(-100px); background: var(--dark); color: var(--white); padding: 16px 24px; border-radius: 12px; font-weight: 500; z-index: 10000; opacity: 0; transition: all 0.3s; box-shadow: var(--shadow-xl); }
         .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
         .toast.success { background: var(--success); }
         .toast.error { background: var(--danger); }
@@ -215,9 +169,6 @@
         .tx-icon.pending { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
         .tx-details { flex: 1; }
         .tx-amount { font-weight: 700; font-size: 16px; }
-        .tx-amount.credit { color: var(--success); }
-        .tx-amount.debit { color: var(--danger); }
-        .tx-amount.pending { color: var(--warning); }
         
         .status-badge { font-size: 10px; padding: 3px 8px; border-radius: 10px; font-weight: bold; text-transform: uppercase; margin-left: 5px; }
         .status-pending { background: #fef3c7; color: #b45309; }
@@ -231,11 +182,9 @@
         /* Referral Program Specific Classes */
         .step-circle { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; background: var(--gradient-1); flex-shrink: 0; box-shadow: 0 4px 10px rgba(99,102,241,0.3);}
         .level-card { display: flex; align-items: center; justify-content: space-between; padding: 15px; border-radius: 16px; margin-bottom: 10px; background: var(--light); border: 1px solid #e2e8f0; }
-        
-        /* WhatsApp Badge */
         .whatsapp-badge { background: #25D366; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 15px; }
         
-        /* Modal */
+        /* Modals Generic */
         .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10001; display: none; align-items: center; justify-content: center; padding: 20px; }
         .modal-overlay.active { display: flex; }
         .modal-content { background: white; border-radius: 24px; padding: 30px; width: 100%; max-width: 400px; animation: slideUp 0.3s ease; max-height: 90vh; overflow-y: auto; }
@@ -243,6 +192,19 @@
         .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
         .modal-close { background: none; border: none; font-size: 24px; color: var(--gray); cursor: pointer; }
         
+        /* Notification UI */
+        .noti-list { max-height: 60vh; overflow-y: auto; margin-top: 15px; }
+        .noti-item { display: flex; gap: 15px; padding: 15px; border-radius: 16px; margin-bottom: 10px; background: var(--light); transition: all 0.3s; }
+        .noti-item.unread { background: rgba(99, 102, 241, 0.05); border-left: 4px solid var(--primary); }
+        .noti-icon { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; flex-shrink: 0; font-size: 18px; }
+        .noti-icon.deposit { background: var(--success); }
+        .noti-icon.withdraw { background: var(--danger); }
+        .noti-icon.support { background: var(--warning); }
+        .noti-icon.system { background: var(--primary); }
+        .noti-body h4 { font-size: 14px; margin-bottom: 3px; color: var(--dark); }
+        .noti-body p { font-size: 12px; color: var(--gray); margin-bottom: 5px; }
+        .noti-time { font-size: 10px; color: var(--gray-light); }
+
         @media (max-width: 380px) {
             .otp-input-premium { width: 40px; height: 50px; font-size: 18px; }
             .otp-container { gap: 6px; }
@@ -253,90 +215,58 @@
             .otp-container { gap: 12px; }
         }
 
-        /* Blocked / Deleted Screens */
+        /* Blocked / Deleted / Profile Styles */
         .blocked-screen, .deleted-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); z-index: 99999; display: none; flex-direction: column; align-items: center; justify-content: center; padding: 40px 20px; text-align: center; color: white; }
         .blocked-screen.active, .deleted-screen.active { display: flex; }
-        .screen-icon { font-size: 80px; margin-bottom: 30px; color: var(--danger); }
-        .screen-title { font-size: 28px; font-weight: 800; margin-bottom: 15px; }
-        .screen-text { font-size: 16px; opacity: 0.8; margin-bottom: 40px; max-width: 300px; }
-        .screen-btn { width: 100%; max-width: 300px; padding: 16px; border-radius: 16px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .blocked-icon, .deleted-icon { font-size: 80px; margin-bottom: 30px; color: var(--danger); }
+        .blocked-title, .deleted-title { font-size: 28px; font-weight: 800; margin-bottom: 15px; }
+        .blocked-text, .deleted-text { font-size: 16px; opacity: 0.8; margin-bottom: 40px; max-width: 300px; }
+        .blocked-btn, .deleted-btn { width: 100%; max-width: 300px; padding: 16px; border-radius: 16px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; margin-bottom: 15px; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .blocked-btn-support { background: var(--warning); color: white; }
+        .blocked-btn-logout { background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.3); }
+        .deleted-btn { background: var(--gradient-1); color: white; }
 
-        /* Profile Edit Styles */
         .profile-name-edit { display: flex; align-items: center; gap: 10px; justify-content: center; margin-bottom: 5px; }
         .edit-name-btn { background: rgba(255,255,255,0.2); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 14px; transition: all 0.3s; }
+        .edit-name-btn:hover { background: rgba(255,255,255,0.3); transform: scale(1.1); }
         .name-edit-input { background: rgba(255,255,255,0.2); border: 2px solid rgba(255,255,255,0.3); color: white; padding: 8px 15px; border-radius: 25px; font-size: 18px; font-weight: 700; text-align: center; width: 200px; outline: none; }
         .save-name-btn { background: var(--success); border: none; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; color: white; font-size: 14px; }
-        
+
         .landing-text-container { text-align: center; margin: 20px 0; }
         .landing-main-text { font-size: 32px; font-weight: 800; margin-bottom: 10px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
         .landing-sub-text { font-size: 18px; opacity: 0.95; font-weight: 600; }
     </style>
 </head>
 <body>
-
-    <!-- ADDED: Notification Overlay & Panel -->
-    <div class="noti-overlay" id="notiOverlay" onclick="toggleNotificationPanel()"></div>
-    <div class="noti-panel" id="notificationPanel">
-        <div class="noti-header">
-            <h2><i class="fas fa-bell"></i> Notifications</h2>
-            <button class="close-noti" onclick="toggleNotificationPanel()"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="noti-body">
-            <!-- Permission Section (Shows if not granted) -->
-            <div id="notiPermissionSection" class="permission-box hidden">
-                <i class="fas fa-bell-slash"></i>
-                <h3>Get Realtime Updates!</h3>
-                <p>Enable notifications to instantly know when your withdrawal arrives or tickets are answered.</p>
-                <button class="btn-allow-noti" onclick="requestNotificationPermission()">Allow Notifications</button>
-            </div>
-            
-            <!-- Notification List -->
-            <div id="notiList">
-                <!-- Notifications will be injected here -->
-                <div class="empty-noti">
-                    <i class="fas fa-inbox"></i>
-                    <h3>No Notifications</h3>
-                    <p>You're all caught up!</p>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Account Deleted Screen -->
     <div id="deletedScreen" class="deleted-screen">
-        <div class="screen-icon">🗑️</div>
-        <h2 class="screen-title">Account Deleted</h2>
-        <p class="screen-text">Your account has been permanently deleted by the administrator.</p>
-        <button class="screen-btn" style="background: var(--gradient-1); color: white;" onclick="forceLogout()">
+        <div class="deleted-icon">🗑️</div>
+        <h2 class="deleted-title">Account Deleted</h2>
+        <p class="deleted-text">Your account has been permanently deleted by the administrator.</p>
+        <button class="deleted-btn" onclick="forceLogout()">
             <i class="fas fa-sign-in-alt"></i> Back to Login
         </button>
     </div>
 
-    <!-- Blocked Screen -->
     <div id="blockedScreen" class="blocked-screen">
-        <div class="screen-icon">🚫</div>
-        <h2 class="screen-title">Blocked by Admin</h2>
-        <p class="screen-text">Your account has been blocked by the administrator. Please contact support for assistance.</p>
-        <button class="screen-btn" style="background: var(--warning); color: white;" onclick="showPage('support')">
+        <div class="blocked-icon">🚫</div>
+        <h2 class="blocked-title">Blocked by Admin</h2>
+        <p class="blocked-text">Your account has been blocked by the administrator. Please contact support for assistance.</p>
+        <button class="blocked-btn blocked-btn-support" onclick="showPage('support')">
             <i class="fas fa-headset"></i> Support Ticket
         </button>
-        <button class="screen-btn" style="background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.3);" onclick="logout()">
+        <button class="blocked-btn blocked-btn-logout" onclick="logout()">
             <i class="fas fa-sign-out-alt"></i> Logout
         </button>
     </div>
 
-    <!-- Loading Screen -->
     <div id="loadingScreen" class="loading-screen">
         <div class="loader"></div>
         <p style="margin-top: 20px; color: var(--primary); font-weight: 600;">Loading...</p>
     </div>
 
-    <!-- Toast -->
     <div id="toast" class="toast"></div>
 
-    <!-- Forgot Password Modal -->
     <div id="forgotPasswordModal" class="modal-overlay">
-        <!-- Kept exactly as your code -->
         <div class="modal-content">
             <div class="modal-header">
                 <h3 style="font-size: 20px; font-weight: 700;">Reset Password</h3>
@@ -368,7 +298,17 @@
         </div>
     </div>
 
-    <!-- HEADER (UPDATED WITH BELL ICON) -->
+    <div id="notificationModal" class="modal-overlay">
+        <div class="modal-content" style="padding: 20px;">
+            <div class="modal-header" style="margin-bottom: 10px;">
+                <h3 style="font-size: 20px; font-weight: 700;"><i class="fas fa-bell" style="color: var(--primary); margin-right: 8px;"></i>Notifications</h3>
+                <button class="modal-close" onclick="closeNotificationPanel()"><i class="fas fa-times"></i></button>
+            </div>
+            <div class="noti-list" id="notificationList">
+                </div>
+        </div>
+    </div>
+
     <header class="premium-header" id="mainHeader" style="display: none;">
         <div class="header-content">
             <div class="brand">
@@ -380,30 +320,37 @@
             </div>
             
             <div class="header-actions">
-                <!-- ADDED: Bell Icon -->
-                <div class="noti-bell" onclick="toggleNotificationPanel()">
+                <div class="noti-bell" onclick="handleBellClick()">
                     <i class="fas fa-bell"></i>
-                    <div class="noti-badge" id="notiBadge">0</div>
+                    <span class="noti-badge" id="notiBadge">0</span>
                 </div>
-                
                 <div class="header-balance" onclick="showPage('wallet')">
                     <div class="label">Balance</div>
                     <div class="amount">₹<span id="headerBalance">0</span></div>
                 </div>
             </div>
+            
         </div>
     </header>
 
-    <!-- BOTTOM NAV -->
     <nav class="premium-nav" id="bottomNav" style="display: none;">
-        <button class="nav-item active" onclick="showPage('home')" data-page="home"><i class="fas fa-home"></i><span>Home</span></button>
-        <button class="nav-item" onclick="showPage('plans')" data-page="plans"><i class="fas fa-gem"></i><span>Plans</span></button>
-        <button class="nav-item" onclick="showPage('wallet')" data-page="wallet"><i class="fas fa-wallet"></i><span>Wallet</span></button>
-        <button class="nav-item" onclick="showPage('referral')" data-page="referral"><i class="fas fa-users"></i><span>Refer</span></button>
-        <button class="nav-item" onclick="showPage('profile')" data-page="profile"><i class="fas fa-user"></i><span>Profile</span></button>
+        <button class="nav-item active" onclick="showPage('home')" data-page="home">
+            <i class="fas fa-home"></i><span>Home</span>
+        </button>
+        <button class="nav-item" onclick="showPage('plans')" data-page="plans">
+            <i class="fas fa-gem"></i><span>Plans</span>
+        </button>
+        <button class="nav-item" onclick="showPage('wallet')" data-page="wallet">
+            <i class="fas fa-wallet"></i><span>Wallet</span>
+        </button>
+        <button class="nav-item" onclick="showPage('referral')" data-page="referral">
+            <i class="fas fa-users"></i><span>Refer</span>
+        </button>
+        <button class="nav-item" onclick="showPage('profile')" data-page="profile">
+            <i class="fas fa-user"></i><span>Profile</span>
+        </button>
     </nav>
 
-    <!-- LANDING PAGE -->
     <div id="landingPage" class="page active">
         <div class="hero-section">
             <div class="hero-content">
@@ -420,9 +367,7 @@
         </div>
     </div>
 
-    <!-- LOGIN PAGE -->
     <div id="loginPage" class="page">
-        <!-- Exactly as your code -->
         <div style="padding: 40px 20px; text-align: center;">
             <h2 style="font-size: 28px; font-weight: 700;">Welcome Back!</h2>
             <p style="color: var(--gray);">Login to continue earning</p>
@@ -448,42 +393,58 @@
         </div>
     </div>
 
-    <!-- REGISTER PAGE -->
     <div id="registerPage" class="page">
-        <!-- Exactly as your code -->
         <div class="premium-card" style="margin-top:20px;">
             <div id="regStep1">
                 <h2 style="text-align:center; margin-bottom: 20px;">Create Account</h2>
                 <form class="form-premium" id="registerForm">
-                    <div class="form-group"><label>Full Name *</label><input type="text" class="input-premium" id="regName" required></div>
-                    <div class="form-group"><label>Phone Number *</label><input type="tel" class="input-premium" id="regPhone" maxlength="10" inputmode="numeric" required></div>
-                    <div class="form-group"><label>Password *</label><input type="password" class="input-premium" id="regPassword" minlength="6" required></div>
-                    <div class="form-group"><label>Confirm Password *</label><input type="password" class="input-premium" id="regConfirm" required></div>
+                    <div class="form-group">
+                        <label>Full Name *</label>
+                        <input type="text" class="input-premium" id="regName" placeholder="Your full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Phone Number *</label>
+                        <input type="tel" class="input-premium" id="regPhone" placeholder="9876543210" maxlength="10" inputmode="numeric" pattern="[0-9]*" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password *</label>
+                        <input type="password" class="input-premium" id="regPassword" placeholder="Min 6 characters" minlength="6" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password *</label>
+                        <input type="password" class="input-premium" id="regConfirm" placeholder="Confirm password" required>
+                    </div>
                     <div class="form-group">
                         <label>Referral Code (Optional)</label>
-                        <input type="text" class="input-premium" id="regReferral">
-                        <p style="font-size: 12px; color: var(--secondary); margin-top: 8px; display:none;" id="refBonusText"><i class="fas fa-info-circle"></i> You were invited! Get ₹<span class="refer-amount-display">15</span> bonus!</p>
+                        <input type="text" class="input-premium" id="regReferral" placeholder="Friend's code">
+                        <p style="font-size: 12px; color: var(--secondary); margin-top: 8px; display:none;" id="refBonusText">
+                            <i class="fas fa-info-circle"></i> You were invited! Get ₹<span class="refer-amount-display">15</span> bonus!
+                        </p>
                     </div>
-                    <button type="submit" class="btn-main btn-main-success"><i class="fab fa-whatsapp"></i> Send OTP</button>
+                    <button type="submit" class="btn-main btn-main-success"><i class="fab fa-whatsapp"></i> Send OTP via WhatsApp</button>
                 </form>
-                <div style="text-align: center; margin-top: 20px;"><p style="color: var(--gray);">Already have an account? <a href="#" onclick="showPage('login')" style="color: var(--primary); font-weight: 700; text-decoration: none;">Login Now</a></p></div>
+                <div style="text-align: center; margin-top: 20px;">
+                    <p style="color: var(--gray);">Already have an account? <a href="#" onclick="showPage('login')" style="color: var(--primary); font-weight: 700; text-decoration: none;">Login Now</a></p>
+                </div>
             </div>
 
-            <!-- OTP Step -->
             <div id="regStep2" class="hidden" style="text-align: center;">
                 <div class="whatsapp-badge"><i class="fab fa-whatsapp"></i> WhatsApp OTP</div>
                 <h3 style="margin-bottom: 10px;">Verify OTP</h3>
-                <p style="color: var(--gray); font-size: 14px; margin-bottom: 20px;">Sent to <strong id="otpPhoneDisplay"></strong></p>
+                <p style="color: var(--gray); font-size: 14px; margin-bottom: 20px;">Sent to <strong id="otpPhoneDisplay"></strong> via WhatsApp</p>
+                
                 <div class="otp-container">
-                    <input type="text" class="otp-input-premium reg-otp" maxlength="1" data-index="0" inputmode="numeric">
-                    <input type="text" class="otp-input-premium reg-otp" maxlength="1" data-index="1" inputmode="numeric">
-                    <input type="text" class="otp-input-premium reg-otp" maxlength="1" data-index="2" inputmode="numeric">
-                    <input type="text" class="otp-input-premium reg-otp" maxlength="1" data-index="3" inputmode="numeric">
-                    <input type="text" class="otp-input-premium reg-otp" maxlength="1" data-index="4" inputmode="numeric">
-                    <input type="text" class="otp-input-premium reg-otp" maxlength="1" data-index="5" inputmode="numeric">
+                    <input type="text" class="otp-input-premium reg-otp" maxlength="1" data-index="0" inputmode="numeric" pattern="[0-9]*">
+                    <input type="text" class="otp-input-premium reg-otp" maxlength="1" data-index="1" inputmode="numeric" pattern="[0-9]*">
+                    <input type="text" class="otp-input-premium reg-otp" maxlength="1" data-index="2" inputmode="numeric" pattern="[0-9]*">
+                    <input type="text" class="otp-input-premium reg-otp" maxlength="1" data-index="3" inputmode="numeric" pattern="[0-9]*">
+                    <input type="text" class="otp-input-premium reg-otp" maxlength="1" data-index="4" inputmode="numeric" pattern="[0-9]*">
+                    <input type="text" class="otp-input-premium reg-otp" maxlength="1" data-index="5" inputmode="numeric" pattern="[0-9]*">
                 </div>
                 <input type="hidden" id="fullOtp">
+                
                 <button class="btn-main btn-main-primary" onclick="verifyOtp()" style="margin-top: 20px;">Verify & Create Account</button>
+                
                 <div style="margin-top: 20px;">
                     <span id="otpTimer" style="color: var(--primary); font-weight: 600;">60s</span>
                     <button class="btn-main hidden" id="resendOtpBtn" onclick="resendOtp()" style="background: transparent; color: var(--primary);">Resend OTP</button>
@@ -491,19 +452,16 @@
                 <button class="btn-main" onclick="backToReg()" style="background: transparent; color: var(--gray); margin-top: 5px;">Change Number</button>
             </div>
 
-            <!-- Success Step -->
             <div id="regStep3" class="hidden text-center">
-                <div style="font-size: 50px; margin-bottom:15px; text-align: center;">🎉</div>
-                <h2 style="font-size: 28px; margin-bottom: 15px; text-align: center;">Welcome!</h2>
-                <p id="bonusMessage" style="color: var(--success); font-weight: 700; font-size: 18px; margin-bottom: 30px; text-align: center;"></p>
+                <div style="font-size: 50px; margin-bottom:15px;">🎉</div>
+                <h2 style="font-size: 28px; margin-bottom: 15px;">Welcome!</h2>
+                <p id="bonusMessage" style="color: var(--success); font-weight: 700; font-size: 18px; margin-bottom: 30px;"></p>
                 <button class="btn-main btn-main-primary" onclick="showPage('home')">Go to Dashboard</button>
             </div>
         </div>
     </div>
 
-    <!-- HOME PAGE -->
     <div id="homePage" class="page">
-        <!-- Kept exactly as your code -->
         <div class="balance-premium">
             <div class="balance-content">
                 <div class="balance-label">Total Balance</div>
@@ -545,12 +503,10 @@
         <div id="activePlansList" style="margin: 0 20px;"></div>
 
         <div class="section-title"><h2><i class="fas fa-history" style="color: var(--primary); margin-right: 10px;"></i>Recent Activity</h2></div>
-        <div class="tx-list" id="homeTransactions" style="margin: 0 20px;"></div>
+        <div class="tx-list" id="homeTransactions"></div>
     </div>
 
-    <!-- PLANS PAGE -->
     <div id="plansPage" class="page">
-        <!-- Kept exactly as your code -->
         <div style="padding: 30px 20px;">
             <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 10px;"><i class="fas fa-gem" style="color: var(--secondary); margin-right: 10px;"></i>Investment Plans</h2>
         </div>
@@ -568,22 +524,20 @@
         <div class="plans-vertical" id="plansContainer"></div>
     </div>
 
-    <!-- WALLET PAGE -->
     <div id="walletPage" class="page">
-        <!-- Kept exactly as your code -->
         <div class="balance-premium" style="background: var(--gradient-1);">
             <div class="balance-content">
                 <div class="balance-label">Available Balance</div>
                 <div class="balance-amount">₹<span id="walletBalance">0</span></div>
             </div>
         </div>
+
         <div class="wallet-tabs">
             <button class="wallet-tab active" onclick="showWalletTab('add')" data-tab="add">Add Money</button>
             <button class="wallet-tab" onclick="showWalletTab('withdraw')" data-tab="withdraw">Withdraw</button>
             <button class="wallet-tab" onclick="showWalletTab('history')" data-tab="history">History</button>
         </div>
 
-        <!-- Add Money -->
         <div id="walletAddSection" class="wallet-section">
             <div class="premium-card">
                 <h3 style="margin-bottom: 20px; font-size: 20px;"><i class="fas fa-plus-circle" style="color: var(--success); margin-right: 10px;"></i>Add Money</h3>
@@ -622,7 +576,6 @@
             </div>
         </div>
 
-        <!-- Withdraw -->
         <div id="walletWithdrawSection" class="wallet-section hidden">
             <div class="premium-card">
                 <h3 style="margin-bottom: 20px; font-size: 20px;"><i class="fas fa-minus-circle" style="color: var(--danger); margin-right: 10px;"></i>Withdraw</h3>
@@ -652,56 +605,106 @@
                 </form>
             </div>
         </div>
+
         <div id="walletHistorySection" class="wallet-section hidden">
-            <div class="tx-list" id="walletTransactions" style="margin: 0 20px;"></div>
+            <div class="tx-list" id="walletTransactions"></div>
         </div>
     </div>
 
-    <!-- REFERRAL PAGE -->
     <div id="referralPage" class="page">
-        <!-- Kept exactly as your code -->
         <div class="premium-card" style="background: var(--gradient-1); color: white; text-align: center; margin-bottom: 20px; padding: 35px 20px;">
             <h2 style="font-size: 26px; font-weight: 800;">Refer & Earn Lifetime!</h2>
+            <p style="opacity: 0.9; margin-bottom: 15px;">Build your team and get passive income</p>
             <div style="background: rgba(255,255,255,0.15); border-radius: 20px; padding: 20px; margin: 20px 0; border: 1px solid rgba(255,255,255,0.3); backdrop-filter: blur(10px);">
-                <div style="font-size: 12px; text-transform: uppercase; font-weight: 600;">Instant Bonus</div>
+                <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Instant Bonus</div>
                 <div style="font-size: 55px; font-weight: 800; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">₹<span class="refer-amount-display">15</span></div>
+                <div style="font-size: 14px; opacity: 0.9;">Per Successful Signup</div>
             </div>
-            <p style="font-size: 13px; opacity: 0.9; margin-bottom: 5px; font-weight: 700;">Your Referral Link</p>
-            <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; font-family: monospace; word-break: break-all; font-weight: 600; margin-bottom: 15px;" id="refLink">Loading...</div>
+            <p style="font-size: 13px; opacity: 0.9; margin-bottom: 5px; text-transform: uppercase; font-weight: 700;">Your Referral Link</p>
+            <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; font-family: monospace; word-break: break-all; font-weight: 600; margin-bottom: 15px; border: 1px dashed rgba(255,255,255,0.5);" id="refLink">Loading...</div>
             <div style="display: flex; gap: 10px;">
-                <button class="btn-main" onclick="copyRefLink()" style="flex: 1; background: white; color: var(--primary);"><i class="fas fa-copy"></i> Copy</button>
+                <button class="btn-main" onclick="copyRefLink()" style="flex: 1; background: white; color: var(--primary);"><i class="fas fa-copy"></i> Copy Link</button>
                 <button class="btn-main" onclick="shareWhatsApp()" style="flex: 1; background: #25D366; color: white; border: none;"><i class="fab fa-whatsapp"></i> Share</button>
             </div>
         </div>
-        
-        <!-- ... Levels and stats (kept as is) ... -->
-        <div class="section-title"><h2><i class="fas fa-sitemap" style="color: var(--primary); margin-right: 10px;"></i>Team Commission</h2></div>
+
+        <div class="section-title"><h2><i class="fas fa-info-circle" style="color: var(--warning); margin-right: 10px;"></i>How It Works?</h2></div>
         <div class="premium-card" style="padding: 15px;">
-            <div class="level-card"><div><div style="font-weight: 700;">L1 (Direct Refers)</div></div><div style="font-size: 22px; font-weight: 800; color: var(--primary);">5%</div></div>
-            <div class="level-card"><div><div style="font-weight: 700;">L2 (Indirect Refers)</div></div><div style="font-size: 22px; font-weight: 800; color: var(--success);">3%</div></div>
-            <div class="level-card" style="margin-bottom: 0;"><div><div style="font-weight: 700;">L3 (Deep Refers)</div></div><div style="font-size: 22px; font-weight: 800; color: var(--warning);">1%</div></div>
+            <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                <div class="step-circle">1</div>
+                <div><div style="font-weight: 700; font-size: 15px;">Share Your Link</div><div style="font-size: 13px; color: var(--gray);">Send your link to friends via WhatsApp or social media.</div></div>
+            </div>
+            <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                <div class="step-circle" style="background: var(--gradient-2);">2</div>
+                <div><div style="font-weight: 700; font-size: 15px;">Friend Registers (Earn ₹<span class="refer-amount-display">15</span>)</div><div style="font-size: 13px; color: var(--gray);">When your friend signs up, you instantly get bonus.</div></div>
+            </div>
+            <div style="display: flex; gap: 15px;">
+                <div class="step-circle" style="background: var(--gradient-3);">3</div>
+                <div><div style="font-weight: 700; font-size: 15px;">Friend Buys Plan (Earn Comm.)</div><div style="font-size: 13px; color: var(--gray);">When they invest, you get up to 5% commission immediately!</div></div>
+            </div>
         </div>
 
+        <div class="section-title"><h2><i class="fas fa-sitemap" style="color: var(--primary); margin-right: 10px;"></i>Team Commission</h2></div>
+        <div class="premium-card" style="padding: 15px;">
+            <div class="level-card">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 45px; height: 45px; background: rgba(99, 102, 241, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary); font-weight: 800; font-size: 18px;">L1</div>
+                    <div><div style="font-weight: 700; font-size: 15px;">Direct Refers</div><div style="font-size: 12px; color: var(--gray);">Your direct friends</div></div>
+                </div>
+                <div style="font-size: 22px; font-weight: 800; color: var(--primary);">5%</div>
+            </div>
+            <div class="level-card">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 45px; height: 45px; background: rgba(16, 185, 129, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--success); font-weight: 800; font-size: 18px;">L2</div>
+                    <div><div style="font-weight: 700; font-size: 15px;">Indirect Refers</div><div style="font-size: 12px; color: var(--gray);">Friends of Level 1</div></div>
+                </div>
+                <div style="font-size: 22px; font-weight: 800; color: var(--success);">3%</div>
+            </div>
+            <div class="level-card" style="margin-bottom: 0;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 45px; height: 45px; background: rgba(245, 158, 11, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--warning); font-weight: 800; font-size: 18px;">L3</div>
+                    <div><div style="font-weight: 700; font-size: 15px;">Deep Refers</div><div style="font-size: 12px; color: var(--gray);">Friends of Level 2</div></div>
+                </div>
+                <div style="font-size: 22px; font-weight: 800; color: var(--warning);">1%</div>
+            </div>
+        </div>
+
+        <div class="section-title"><h2><i class="fas fa-chart-line" style="color: var(--success); margin-right: 10px;"></i>Your Earnings</h2></div>
         <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 0 20px 20px;">
-            <div class="premium-card" style="margin: 0; padding: 25px; text-align: center;"><div style="font-size: 28px; font-weight: 700;" id="refTotal">0</div><div style="font-size: 12px; color: var(--gray);">Total Team</div></div>
-            <div class="premium-card" style="margin: 0; padding: 25px; text-align: center;"><div style="font-size: 28px; font-weight: 700; color: var(--success);" id="refEarned">₹0</div><div style="font-size: 12px; color: var(--gray);">Income</div></div>
+            <div class="premium-card" style="margin: 0; padding: 25px; text-align: center;">
+                <div style="font-size: 28px; font-weight: 700; color: var(--dark);" id="refTotal">0</div>
+                <div style="font-size: 12px; color: var(--gray);">Total Team</div>
+            </div>
+            <div class="premium-card" style="margin: 0; padding: 25px; text-align: center;">
+                <div style="font-size: 28px; font-weight: 700; color: var(--success);" id="refEarned">₹0</div>
+                <div style="font-size: 12px; color: var(--gray);">Referral Income</div>
+            </div>
         </div>
     </div>
 
-    <!-- PROFILE PAGE -->
     <div id="profilePage" class="page">
-        <!-- Kept exactly as your code -->
         <div style="background: var(--gradient-1); padding: 40px 20px; text-align: center; color: white; position: relative;">
             <div style="width: 100px; height: 100px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 50px; border: 4px solid rgba(255,255,255,0.3);">👤</div>
             <div class="profile-name-edit" id="nameDisplayContainer">
                 <h2 id="profileName" style="font-size: 28px; font-weight: 700;">User Name</h2>
-                <button class="edit-name-btn" onclick="enableNameEdit()"><i class="fas fa-pencil-alt"></i></button>
+                <button class="edit-name-btn" onclick="enableNameEdit()" title="Edit Name"><i class="fas fa-pencil-alt"></i></button>
             </div>
             <div class="profile-name-edit hidden" id="nameEditContainer">
                 <input type="text" class="name-edit-input" id="nameEditInput" maxlength="30">
-                <button class="save-name-btn" onclick="saveProfileName()"><i class="fas fa-check"></i></button>
+                <button class="save-name-btn" onclick="saveProfileName()" title="Save"><i class="fas fa-check"></i></button>
             </div>
             <p id="profilePhone" style="opacity: 0.9; font-size: 16px;">+91 ---</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 20px;">
+            <div class="premium-card" style="margin: 0; padding: 25px; text-align: center;">
+                <div style="font-size: 32px; font-weight: 700; color: var(--primary);" id="profTotalEarn">₹0</div>
+                <div style="font-size: 13px; color: var(--gray); margin-top: 5px;">Total Earnings</div>
+            </div>
+            <div class="premium-card" style="margin: 0; padding: 25px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 700; color: var(--success);" id="profJoinDate">--</div>
+                <div style="font-size: 13px; color: var(--gray); margin-top: 5px;">Member Since</div>
+            </div>
         </div>
 
         <div class="premium-card" style="padding: 10px;">
@@ -724,7 +727,6 @@
         </div>
     </div>
 
-    <!-- SUPPORT PAGE -->
     <div id="supportPage" class="page">
         <div style="padding: 30px 20px;"><h2 style="font-size: 28px; font-weight: 700;"><i class="fas fa-headset" style="color: var(--primary); margin-right: 10px;"></i>Help Center</h2></div>
         
@@ -750,7 +752,6 @@
         <div id="ticketsList" style="margin: 0 20px;"></div>
     </div>
 
-    <!-- ==================== JAVASCRIPT ==================== -->
     <script>
         // ==================== FIREBASE CONFIG ====================
         const firebaseConfig = {
@@ -765,7 +766,12 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const database = firebase.database();
-        const messaging = firebase.messaging(); // ADDED FOR PUSH NOTIFICATION
+        let messaging;
+        try {
+            messaging = firebase.messaging();
+        } catch(e) {
+            console.warn("Firebase Messaging not supported", e);
+        }
 
         let currentUser = null;
         let tempUserData = {};
@@ -774,12 +780,8 @@
         let ADMIN_UPI_ID = '6395503566@upi'; 
         let MIN_WITHDRAWAL = 200;
         let REFER_AMOUNT = 15;
-        // Default VAPID key (Can be overwritten by admin panel setting)
-        let VAPID_KEY = "BMFOpP3xQcCdTGA5Ak17dHEKOvX430Nk0x3wXnDSMrmWGe5vVytY1MBWuEuGhAV2O_Qa-XR_77OYnmgV620AAcE"; 
-        
         let activeOffers = {}; 
         let userStatusListener = null;
-        let notificationListener = null; // ADDED
         let lastSeenInterval = null;
         let isAccountDeleted = false;
 
@@ -797,135 +799,7 @@
         }
         function generateId(prefix) { return prefix + Date.now().toString().slice(-6); }
         function formatCurrency(amt) { return '₹' + parseInt(amt||0).toLocaleString('en-IN'); }
-        function updateReferDisplays() { document.querySelectorAll('.refer-amount-display').forEach(el => el.textContent = REFER_AMOUNT); }
-
-        // ==================== NOTIFICATION SYSTEM ====================
-        function toggleNotificationPanel() {
-            const panel = document.getElementById('notificationPanel');
-            const overlay = document.getElementById('notiOverlay');
-            if (panel.classList.contains('active')) {
-                panel.classList.remove('active');
-                overlay.classList.remove('active');
-            } else {
-                panel.classList.add('active');
-                overlay.classList.add('active');
-                checkNotificationPermission(); // Check if we need to show the allow button
-                markNotificationsAsRead(); // Mark as read when opened
-            }
-        }
-
-        async function checkNotificationPermission() {
-            const permSection = document.getElementById('notiPermissionSection');
-            if (Notification.permission === 'default' || Notification.permission === 'denied') {
-                permSection.classList.remove('hidden');
-            } else {
-                permSection.classList.add('hidden');
-                // Auto fetch token if granted but not saved
-                if(currentUser && !currentUser.fcmToken) {
-                    try {
-                        const token = await messaging.getToken({ vapidKey: VAPID_KEY });
-                        if(token) database.ref(`users/${currentUser.id}/fcmToken`).set(token);
-                    } catch(e) {}
-                }
-            }
-        }
-
-        async function requestNotificationPermission() {
-            try {
-                const permission = await Notification.requestPermission();
-                if (permission === 'granted') {
-                    showToast('Notifications Enabled!', 'success');
-                    document.getElementById('notiPermissionSection').classList.add('hidden');
-                    
-                    const token = await messaging.getToken({ vapidKey: VAPID_KEY });
-                    if (token && currentUser) {
-                        await database.ref(`users/${currentUser.id}/fcmToken`).set(token);
-                    }
-                } else {
-                    showToast('Notification permission denied.', 'error');
-                }
-            } catch (error) {
-                console.error('Error requesting notification permission:', error);
-                showToast('Failed to enable notifications.', 'error');
-            }
-        }
-
-        // Listen for foreground FCM messages (Actual Push Notifications)
-        messaging.onMessage((payload) => {
-            console.log('Message received. ', payload);
-            showToast(`${payload.notification.title} - ${payload.notification.body}`, 'info');
-            // Since we also write to DB, the DB listener will update the list/badge automatically.
-        });
-
-        // Listen for Realtime DB Notifications (In-App notifications from Admin actions)
-        function setupNotificationListener(userId) {
-            if(notificationListener) notificationListener.off();
-            
-            notificationListener = database.ref(`users/${userId}/notifications`);
-            notificationListener.on('value', (snap) => {
-                const notifications = snap.val() || {};
-                const notiArray = Object.values(notifications).sort((a,b) => new Date(b.date) - new Date(a.date));
-                
-                // Count unread
-                const unreadCount = notiArray.filter(n => !n.read).length;
-                const badge = document.getElementById('notiBadge');
-                if(unreadCount > 0) {
-                    badge.textContent = unreadCount > 9 ? '9+' : unreadCount;
-                    badge.classList.add('show');
-                } else {
-                    badge.classList.remove('show');
-                }
-
-                // Render List
-                const notiList = document.getElementById('notiList');
-                if(notiArray.length === 0) {
-                    notiList.innerHTML = `<div class="empty-noti"><i class="fas fa-bell-slash"></i><h3>No Notifications</h3><p>We'll notify you when something happens.</p></div>`;
-                } else {
-                    notiList.innerHTML = notiArray.map(n => {
-                        let iconClass = 'system';
-                        let iconObj = 'fa-bell';
-                        if(n.type === 'deposit') { iconClass = 'deposit'; iconObj = 'fa-arrow-down'; }
-                        if(n.type === 'withdraw') { iconClass = 'withdraw'; iconObj = 'fa-arrow-up'; }
-                        if(n.type === 'ticket') { iconClass = 'ticket'; iconObj = 'fa-ticket-alt'; }
-                        
-                        return `
-                        <div class="noti-item ${n.read ? '' : 'unread'}">
-                            <div class="noti-icon ${iconClass}"><i class="fas ${iconObj}"></i></div>
-                            <div class="noti-content">
-                                <div class="noti-title">${n.title}</div>
-                                <div class="noti-msg">${n.body}</div>
-                                <div class="noti-time">${new Date(n.date).toLocaleString()}</div>
-                            </div>
-                        </div>`;
-                    }).join('');
-                }
-                
-                // If panel is already open, mark them as read immediately
-                if(document.getElementById('notificationPanel').classList.contains('active')) {
-                    markNotificationsAsRead();
-                }
-            });
-        }
-
-        async function markNotificationsAsRead() {
-            if(!currentUser) return;
-            const badge = document.getElementById('notiBadge');
-            if(badge.classList.contains('show')) {
-                const snap = await database.ref(`users/${currentUser.id}/notifications`).once('value');
-                const notis = snap.val();
-                if(notis) {
-                    const updates = {};
-                    for(let key in notis) {
-                        if(!notis[key].read) updates[`${key}/read`] = true;
-                    }
-                    if(Object.keys(updates).length > 0) {
-                        await database.ref(`users/${currentUser.id}/notifications`).update(updates);
-                    }
-                }
-                badge.classList.remove('show');
-            }
-        }
-
+        function updateReferDisplays() { document.querySelectorAll('.refer-amount-display').forEach(el => { el.textContent = REFER_AMOUNT; }); }
 
         // ==================== NAVIGATION ====================
         function showPage(page) {
@@ -957,38 +831,123 @@
             window.scrollTo(0,0);
         }
 
-        function goToPlan(planId) {
-            showPage('plans');
-            setTimeout(() => {
-                const planCard = document.getElementById('plan-card-' + planId);
-                if(planCard) {
-                    planCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    planCard.style.transition = 'all 0.5s';
-                    planCard.style.transform = 'scale(1.03)';
-                    planCard.style.boxShadow = '0 0 25px rgba(239, 68, 68, 0.6)';
-                    setTimeout(() => { planCard.style.transform = 'scale(1)'; planCard.style.boxShadow = 'var(--shadow)'; }, 1200);
-                }
-            }, 300);
+        // ==================== FIREBASE CLOUD MESSAGING (FCM) ====================
+        async function handleBellClick() {
+            if (!("Notification" in window)) {
+                showToast("Browser does not support notifications", "error");
+                return;
+            }
+            if (Notification.permission === "granted") {
+                openNotificationPanel();
+            } else if (Notification.permission !== "denied") {
+                try {
+                    const permission = await Notification.requestPermission();
+                    if (permission === "granted") {
+                        setupFCM();
+                        openNotificationPanel();
+                    } else {
+                        showToast("Notifications blocked. Enable in settings.", "error");
+                    }
+                } catch(e) { console.error(e); }
+            } else {
+                showToast("Notifications blocked. Enable in browser settings.", "error");
+            }
         }
 
-        // ==================== INIT ====================
+        function openNotificationPanel() {
+            document.getElementById('notificationModal').classList.add('active');
+            if(currentUser && currentUser.notifications) {
+                // Mark all as read when opened
+                const updates = {};
+                Object.keys(currentUser.notifications).forEach(key => {
+                    if(!currentUser.notifications[key].read) {
+                        updates[`users/${currentUser.id}/notifications/${key}/read`] = true;
+                    }
+                });
+                if(Object.keys(updates).length > 0) {
+                    database.ref().update(updates);
+                }
+            }
+        }
+
+        function closeNotificationPanel() {
+            document.getElementById('notificationModal').classList.remove('active');
+        }
+
+        async function setupFCM() {
+            if(!currentUser || !messaging) return;
+            try {
+                // Key will be dynamic via setting if you set it, fallback is provided
+                const vapidKey = appSettings.vapidKey || 'BMFOpP3xQcCdTGA5Ak17dHEKOvX430Nk0x3wXnDSMrmWGe5vVytY1MBWuEuGhAV2O_Qa-XR_77OYnmgV620AAcE';
+                const currentToken = await messaging.getToken({ vapidKey: vapidKey });
+                if (currentToken) {
+                    await database.ref(`users/${currentUser.id}/fcmToken`).set(currentToken);
+                }
+            } catch (err) {
+                console.error('An error occurred while retrieving token. ', err);
+            }
+        }
+
+        if(messaging) {
+            messaging.onMessage((payload) => {
+                showToast(`${payload.notification.title}`, 'info');
+                // You can also play a sound here if desired
+            });
+        }
+
+        function updateNotificationsUI() {
+            if(!currentUser) return;
+            const notis = Object.values(currentUser.notifications || {}).sort((a,b) => new Date(b.date) - new Date(a.date));
+            const unreadCount = notis.filter(n => !n.read).length;
+            
+            const badge = document.getElementById('notiBadge');
+            if(unreadCount > 0) {
+                badge.textContent = unreadCount;
+                badge.classList.add('active');
+            } else {
+                badge.classList.remove('active');
+            }
+
+            const list = document.getElementById('notificationList');
+            if(notis.length === 0) {
+                list.innerHTML = `<div class="empty-state" style="padding:30px 10px;"><i class="fas fa-bell-slash" style="font-size:40px;"></i><p>No new notifications</p></div>`;
+            } else {
+                list.innerHTML = notis.map(n => {
+                    let iconClass = 'system'; let iconSign = 'fa-info';
+                    if(n.type === 'deposit') { iconClass = 'deposit'; iconSign = 'fa-arrow-down'; }
+                    else if(n.type === 'withdrawal') { iconClass = 'withdraw'; iconSign = 'fa-arrow-up'; }
+                    else if(n.type === 'ticket') { iconClass = 'support'; iconSign = 'fa-headset'; }
+
+                    return `
+                    <div class="noti-item ${n.read ? '' : 'unread'}">
+                        <div class="noti-icon ${iconClass}"><i class="fas ${iconSign}"></i></div>
+                        <div class="noti-body">
+                            <h4>${n.title}</h4>
+                            <p>${n.message}</p>
+                            <span class="noti-time">${new Date(n.date).toLocaleString()}</span>
+                        </div>
+                    </div>`;
+                }).join('');
+            }
+        }
+
+        // ==================== INITIALIZATION ====================
         window.onload = function() {
             database.ref('settings').on('value', snap => {
                 appSettings = snap.val() || {};
                 ADMIN_UPI_ID = appSettings.upiId || '6395503566@upi';
                 MIN_WITHDRAWAL = appSettings.minWithdrawal || 200;
                 REFER_AMOUNT = appSettings.referAmount || 15;
-                if(appSettings.vapidKey) VAPID_KEY = appSettings.vapidKey; // Dynamic VAPID Key Update
-                
                 document.getElementById('minWithdrawDisplay').textContent = MIN_WITHDRAWAL;
                 document.getElementById('withdrawAmount').min = MIN_WITHDRAWAL;
                 updateReferDisplays();
+                if(currentUser && Notification.permission === "granted") setupFCM(); // Refresh token using new settings if changed
             });
 
             database.ref('plans').on('value', snap => {
                 const plansData = snap.val();
-                if(plansData) PLANS = Object.values(plansData).sort((a,b) => a.price - b.price);
-                if(document.getElementById('plansPage').classList.contains('active')) loadPlansPage();
+                if(plansData) { PLANS = Object.values(plansData).sort((a,b) => a.price - b.price); }
+                if(document.getElementById('plansPage').classList.contains('active')) { loadPlansPage(); }
             });
 
             const urlParams = new URLSearchParams(window.location.search);
@@ -1014,15 +973,6 @@
                 if(document.getElementById('plansPage').classList.contains('active')) loadPlansPage();
                 if(document.getElementById('homePage').classList.contains('active')) updateHomeUI();
             });
-            
-            // Check existing push permission
-            if ('Notification' in window) {
-                if (Notification.permission === 'granted' && currentUser) {
-                    messaging.getToken({ vapidKey: VAPID_KEY }).then((token) => {
-                        if (token) database.ref(`users/${currentUser.id}/fcmToken`).set(token);
-                    }).catch(console.error);
-                }
-            }
         };
 
         function setupUserListener(userId) {
@@ -1031,7 +981,6 @@
             userStatusListener = database.ref('users/' + userId);
             userStatusListener.on('value', (snap) => {
                 const userData = snap.val();
-                
                 if(!userData && currentUser && !isAccountDeleted) {
                     isAccountDeleted = true;
                     handleAccountDeleted();
@@ -1055,10 +1004,11 @@
                     if(document.getElementById('plansPage').classList.contains('active')) loadPlansPage();
                     if(document.getElementById('walletPage').classList.contains('active')) loadWalletData();
                     if(document.getElementById('profilePage').classList.contains('active')) loadProfileData();
+                    
+                    // Update Notifications
+                    updateNotificationsUI();
                 }
             });
-
-            setupNotificationListener(userId); // Start listening to Notifications DB
 
             if(lastSeenInterval) clearInterval(lastSeenInterval);
             lastSeenInterval = setInterval(() => {
@@ -1067,15 +1017,15 @@
                 }
             }, 30000);
             database.ref(`users/${userId}/lastSeen`).set(Date.now());
+            
+            // Setup FCM if allowed
+            if (Notification.permission === "granted") setupFCM();
         }
 
         function handleAccountDeleted() {
-            if(lastSeenInterval) clearInterval(lastSeenInterval);
-            if(userStatusListener) userStatusListener.off();
-            if(notificationListener) notificationListener.off();
-            
-            localStorage.removeItem('currentUser');
-            currentUser = null;
+            if(lastSeenInterval) { clearInterval(lastSeenInterval); lastSeenInterval = null; }
+            if(userStatusListener) { userStatusListener.off(); userStatusListener = null; }
+            localStorage.removeItem('currentUser'); currentUser = null;
             document.getElementById('deletedScreen').classList.add('active');
             document.getElementById('mainHeader').style.display = 'none';
             document.getElementById('bottomNav').style.display = 'none';
@@ -1088,9 +1038,7 @@
             window.location.reload();
         }
 
-        // ==================== ALL AUTH, WALLET, SUPPORT CODE REMAINS SAME AS YOUR ORIGINAL CODE ====================
-        // (For brevity and token limits, I'm keeping the core logic intact just like your provided code)
-
+        // ==================== AUTH LOGIC ====================
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault(); showLoading('Logging in...');
             const phone = document.getElementById('loginPhone').value, pass = document.getElementById('loginPassword').value;
@@ -1100,24 +1048,12 @@
             if(user.password !== pass) { hideLoading(); return showToast('Invalid password!', 'error'); }
             if(user.status === 'blocked') { 
                 hideLoading(); currentUser = user; localStorage.setItem('currentUser', JSON.stringify(user));
-                setupUserListener(user.id); document.getElementById('blockedScreen').classList.add('active');
-                return; 
+                setupUserListener(user.id); return; 
             }
             currentUser = user; localStorage.setItem('currentUser', JSON.stringify(user));
-            setupUserListener(user.id); 
-            
-            // Re-check token on login
-            if (Notification.permission === 'granted') {
-                try {
-                    const token = await messaging.getToken({ vapidKey: VAPID_KEY });
-                    if(token) database.ref(`users/${currentUser.id}/fcmToken`).set(token);
-                } catch(e) {}
-            }
-            
-            hideLoading(); showToast('Login successful!', 'success'); showPage('home');
+            setupUserListener(user.id); hideLoading(); showToast('Login successful!', 'success'); showPage('home');
         });
 
-        // OTP & REGISTRATION LOGIC...
         document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const name = document.getElementById('regName').value, phone = document.getElementById('regPhone').value;
@@ -1131,25 +1067,25 @@
             try {
                 const response = await fetch(`${WHATSAPP_OTP_SERVER}/send-otp?phone=${phone}&otp=${generatedOtp}&key=${WHATSAPP_API_KEY}`);
                 const result = await response.json();
-                if(result.status !== "success") { hideLoading(); return showToast('Failed to send WhatsApp OTP', 'error'); }
+                if(result.status !== "success") { hideLoading(); return showToast('Failed to send OTP', 'error'); }
                 tempUserData = { name, phone, pass, ref: document.getElementById('regReferral').value.trim(), generatedOtp };
-                hideLoading(); document.getElementById('regStep1').classList.add('hidden'); document.getElementById('regStep2').classList.remove('hidden');
-                document.getElementById('otpPhoneDisplay').textContent = phone; setupRegOtpInputs(); startOtpTimer();
+                hideLoading(); 
+                document.getElementById('regStep1').classList.add('hidden'); document.getElementById('regStep2').classList.remove('hidden');
+                document.getElementById('otpPhoneDisplay').textContent = phone;
+                setupRegOtpInputs(); startOtpTimer();
             } catch(e) { hideLoading(); showToast('Error: ' + e.message, 'error'); }
         });
 
         function setupRegOtpInputs() {
             const inputs = document.querySelectorAll('.reg-otp');
             inputs.forEach((inpt, i) => {
-                inpt.value = ''; 
+                inpt.value = '';
                 inpt.addEventListener('input', (e) => {
                     e.target.value = e.target.value.replace(/[^0-9]/g, '');
                     if(e.target.value.length===1 && i<5) inputs[i+1].focus();
                     document.getElementById('fullOtp').value = Array.from(inputs).map(inp=>inp.value).join('');
                 });
-                inpt.addEventListener('keydown', (e) => {
-                    if(e.key === 'Backspace' && !e.target.value && i>0) inputs[i-1].focus();
-                });
+                inpt.addEventListener('keydown', (e) => { if(e.key === 'Backspace' && !e.target.value && i>0) inputs[i-1].focus(); });
             });
             if(inputs.length > 0) inputs[0].focus();
         }
@@ -1167,9 +1103,6 @@
                         const rId = Object.keys(rSnap.val())[0], rData = rSnap.val()[rId];
                         bonus = REFER_AMOUNT; refBy = tempUserData.ref;
                         await database.ref(`users/${rId}`).update({ 'wallet/mainBalance': (rData.wallet?.mainBalance||0)+REFER_AMOUNT, 'referrals/count': (rData.referrals?.count||0)+1, 'referrals/earnings': (rData.referrals?.earnings||0)+REFER_AMOUNT });
-                        await database.ref(`users/${rId}/transactions`).push({ id: generateId('TXN'), type: 'referral_bonus', amount: REFER_AMOUNT, description: `Referral Signup Bonus from ${tempUserData.name}`, date: new Date().toISOString(), status: 'approved' });
-                        // Push Noti to Referrer
-                        await database.ref(`users/${rId}/notifications`).push({ title: "New Referral!", body: `${tempUserData.name} joined using your code. You got ₹${REFER_AMOUNT} bonus!`, date: new Date().toISOString(), read: false, type: "system" });
                     }
                 }
                 const newUser = {
@@ -1178,19 +1111,14 @@
                     joinDate: new Date().toISOString(), status: 'active', wallet: {mainBalance: bonus, totalWithdrawn: 0},
                     referrals: {count:0, earnings:0}, activePlans: {},
                     transactions: { [Date.now()]: { id: generateId('TXN'), type: 'signup', amount: bonus, description: 'Signup Bonus', date: new Date().toISOString(), status: 'approved' } },
-                    notifications: { [Date.now()]: { title: "Welcome to Solor Energy", body: "Start investing and referring to earn money!", date: new Date().toISOString(), read: false, type: "system" } },
                     lastSeen: Date.now()
                 };
                 await database.ref(`users/${newUser.id}`).set(newUser);
-                currentUser = newUser; localStorage.setItem('currentUser', JSON.stringify(newUser)); setupUserListener(newUser.id);
-                sessionStorage.removeItem('pendingRefCode');
-                hideLoading(); document.getElementById('regStep2').classList.add('hidden'); document.getElementById('regStep3').classList.remove('hidden');
+                currentUser = newUser; localStorage.setItem('currentUser', JSON.stringify(newUser)); 
+                setupUserListener(newUser.id); sessionStorage.removeItem('pendingRefCode');
+                hideLoading(); 
+                document.getElementById('regStep2').classList.add('hidden'); document.getElementById('regStep3').classList.remove('hidden');
                 document.getElementById('bonusMessage').textContent = bonus > 0 ? `🎉 You received ₹${bonus} signup bonus!` : '';
-                
-                if (Notification.permission === 'granted') {
-                    const token = await messaging.getToken({ vapidKey: VAPID_KEY });
-                    if(token) database.ref(`users/${currentUser.id}/fcmToken`).set(token);
-                }
             } catch(e) { hideLoading(); showToast('Error creating account: ' + e.message, 'error'); }
         }
 
@@ -1202,7 +1130,7 @@
             try {
                 const response = await fetch(`${WHATSAPP_OTP_SERVER}/send-otp?phone=${phone}&otp=${generatedOtp}&key=${WHATSAPP_API_KEY}`);
                 const result = await response.json();
-                if(result.status === "success") { hideLoading(); showToast('OTP resent!', 'success'); startOtpTimer(); } 
+                if(result.status === "success") { hideLoading(); showToast('OTP resent via WhatsApp!', 'success'); startOtpTimer(); } 
                 else { hideLoading(); showToast('Failed to resend OTP', 'error'); }
             } catch(e) { hideLoading(); showToast('Error: ' + e.message, 'error'); }
         }
@@ -1214,44 +1142,92 @@
                 if(time <= 0) { clearInterval(timer); document.getElementById('otpTimer').classList.add('hidden'); document.getElementById('resendOtpBtn').classList.remove('hidden'); }
             }, 1000);
         }
+
         function backToReg() {
             document.querySelectorAll('.reg-otp').forEach(inp => inp.value = ''); document.getElementById('fullOtp').value = '';
             document.getElementById('regStep2').classList.add('hidden'); document.getElementById('regStep1').classList.remove('hidden');
         }
 
-        // ==================== DASHBOARD & ACTIONS ====================
-        // FORGOT PASSWORD, PLANS, BUY PLAN, DAILY CLAIM... 
-        // [Note: To save space, I have kept the logic exactly same as original for these. If you need me to paste every single line, I can, but no logic was changed here. Just the deposit/withdraw/ticket push DB entry will be handled from Admin panel side]
+        // ==================== FORGOT PASSWORD ====================
+        function openForgotModal() {
+            document.getElementById('forgotPasswordModal').classList.add('active'); forgotPasswordData = {};
+            document.getElementById('forgotPasswordForm').reset(); document.getElementById('forgotOtpGroup').style.display = 'none';
+            document.getElementById('newPasswordGroup').style.display = 'none'; document.getElementById('forgotBtn').textContent = 'Send OTP';
+            document.querySelectorAll('.forgot-otp').forEach(inp => inp.value = ''); document.getElementById('forgotFullOtp').value = '';
+        }
+        function closeForgotModal() { document.getElementById('forgotPasswordModal').classList.remove('active'); }
 
+        function setupForgotOtpInputs() {
+            const inputs = document.querySelectorAll('.forgot-otp');
+            inputs.forEach((inpt, i) => {
+                inpt.value = '';
+                inpt.addEventListener('input', (e) => {
+                    e.target.value = e.target.value.replace(/[^0-9]/g, '');
+                    if(e.target.value.length===1 && i<5) inputs[i+1].focus();
+                    document.getElementById('forgotFullOtp').value = Array.from(inputs).map(inp=>inp.value).join('');
+                });
+                inpt.addEventListener('keydown', (e) => { if(e.key === 'Backspace' && !e.target.value && i>0) inputs[i-1].focus(); });
+            });
+            if(inputs.length > 0) inputs[0].focus();
+        }
+
+        document.getElementById('forgotPasswordForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if(!forgotPasswordData.step) {
+                const phone = document.getElementById('forgotPhone').value;
+                if(phone.length !== 10) return showToast('Invalid phone number', 'error');
+                showLoading('Sending OTP...');
+                const snap = await database.ref('users').orderByChild('phone').equalTo(phone).once('value');
+                if(!snap.val()) { hideLoading(); return showToast('Phone number not registered', 'error'); }
+                const userId = Object.keys(snap.val())[0];
+                const generatedOtp = Math.floor(100000 + Math.random() * 900000).toString();
+                try {
+                    const response = await fetch(`${WHATSAPP_OTP_SERVER}/send-otp?phone=${phone}&otp=${generatedOtp}&key=${WHATSAPP_API_KEY}`);
+                    const result = await response.json();
+                    if(result.status !== "success") { hideLoading(); return showToast('Failed to send OTP', 'error'); }
+                    forgotPasswordData = { step: 'verify', phone: phone, userId: userId, generatedOtp: generatedOtp };
+                    hideLoading(); document.getElementById('forgotOtpGroup').style.display = 'block'; document.getElementById('forgotBtn').textContent = 'Verify OTP';
+                    showToast('OTP sent via WhatsApp!', 'success'); setupForgotOtpInputs();
+                } catch(e) { hideLoading(); showToast('Error: ' + e.message, 'error'); }
+            } else if(forgotPasswordData.step === 'verify') {
+                const otp = document.getElementById('forgotFullOtp').value;
+                if(otp.length !== 6 || otp !== forgotPasswordData.generatedOtp) return showToast('Invalid OTP', 'error');
+                forgotPasswordData.step = 'reset'; document.getElementById('newPasswordGroup').style.display = 'block'; document.getElementById('forgotBtn').textContent = 'Reset Password';
+                showToast('OTP verified!', 'success');
+            } else if(forgotPasswordData.step === 'reset') {
+                const newPass = document.getElementById('newPassword').value;
+                if(newPass.length < 6) return showToast('Min 6 characters', 'error');
+                showLoading('Resetting password...');
+                try { await database.ref(`users/${forgotPasswordData.userId}/password`).set(newPass); hideLoading(); showToast('Password reset successful!', 'success'); closeForgotModal(); } catch(e) { hideLoading(); showToast('Error', 'error'); }
+            }
+        });
+
+        // ==================== REST LOGIC (HOME, PLANS, WALLET, TICKETS) ====================
         function updateHomeUI() {
             document.getElementById('homeBalance').textContent = currentUser.wallet?.mainBalance || 0;
             document.getElementById('homeRefers').textContent = currentUser.referrals?.count || 0;
             document.getElementById('homeEarnings').textContent = '₹'+(currentUser.referrals?.earnings || 0);
-            
             const plans = Object.values(currentUser.activePlans || {});
             document.getElementById('homePlans').textContent = plans.length;
-            
             document.getElementById('activePlansList').innerHTML = plans.length ? plans.map(p => `
                 <div class="premium-card" style="margin: 0 0 15px; border-left: 5px solid var(--success);">
                     <div style="font-weight:700;">${p.planName}</div><div style="font-size:12px;color:var(--gray);">₹${p.dailyReturn}/day • Total Claimed: ₹${p.totalClaimed||0}</div>
                 </div>`).join('') : '<p style="text-align:center;color:var(--gray);">No Active Plans</p>';
-
+            
+            // Offers and Claims
             const claimSection = document.getElementById('dailyClaimSection');
             if(plans.length) {
-                const totalDaily = plans.reduce((s,p)=>s+p.dailyReturn, 0);
-                document.getElementById('claimAmount').textContent = totalDaily;
+                const totalDaily = plans.reduce((s,p)=>s+p.dailyReturn, 0); document.getElementById('claimAmount').textContent = totalDaily;
                 const claimed = currentUser.lastClaimDate === new Date().toDateString();
                 const btn = document.getElementById('claimBtn');
-                btn.disabled = claimed; btn.className = claimed ? 'claim-btn claimed' : 'claim-btn';
-                btn.innerHTML = claimed ? 'Claimed' : 'Claim Now';
+                btn.disabled = claimed; btn.className = claimed ? 'claim-btn claimed' : 'claim-btn'; btn.innerHTML = claimed ? 'Claimed' : 'Claim Now';
                 claimSection.classList.remove('hidden');
             } else claimSection.classList.add('hidden');
 
             const txns = Object.values(currentUser.transactions || {}).sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5);
             document.getElementById('homeTransactions').innerHTML = txns.length ? txns.map(tx => {
                 let status = tx.status || 'approved'; 
-                if(tx.type.includes('pending')) status = 'pending';
-                if(tx.type.includes('rejected')) status = 'rejected';
+                if(tx.type.includes('pending')) status = 'pending'; if(tx.type.includes('rejected')) status = 'rejected';
                 return `
                 <div class="tx-item">
                     <div class="tx-icon ${status==='pending'?'pending':(tx.type.includes('withdrawal')||tx.type.includes('purchase')?'debit':'credit')}"><i class="fas fa-rupee-sign"></i></div>
@@ -1268,14 +1244,13 @@
         async function claimDailyEarnings() {
             const plans = Object.values(currentUser.activePlans || {});
             if(plans.length === 0) return;
-            const total = plans.reduce((s,p)=>s+p.dailyReturn, 0);
-            showLoading('Claiming...');
+            const total = plans.reduce((s,p)=>s+p.dailyReturn, 0); showLoading('Claiming...');
             await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set((currentUser.wallet?.mainBalance||0) + total);
             await database.ref(`users/${currentUser.id}/lastClaimDate`).set(new Date().toDateString());
             await database.ref(`users/${currentUser.id}/transactions`).push({id: generateId('TXN'), type: 'daily_earning', amount: total, description: 'Daily Earning', date: new Date().toISOString(), status: 'approved'});
             for(let key in currentUser.activePlans) { await database.ref(`users/${currentUser.id}/activePlans/${key}/totalClaimed`).set((currentUser.activePlans[key].totalClaimed||0) + currentUser.activePlans[key].dailyReturn); }
-            hideLoading(); showToast(`₹${total} Claimed!`, 'success'); 
-            updateHomeUI(); if(document.getElementById('plansPage').classList.contains('active')) loadPlansPage(); 
+            hideLoading(); showToast(`₹${total} Claimed!`, 'success'); updateHomeUI();
+            if(document.getElementById('plansPage').classList.contains('active')) loadPlansPage(); 
         }
 
         function loadPlansPage() {
@@ -1286,8 +1261,8 @@
             const hasFreePlan = activeIds.includes('free');
             const freePlanDiv = document.getElementById('freePlanAction');
             if(hasFreePlan) {
-                if(todayClaimed) freePlanDiv.innerHTML = `<button class="btn-premium" style="width:100%; background:rgba(255,255,255,0.4); color:white; border:none;" disabled><i class="fas fa-check"></i> Claimed Today</button>`;
-                else freePlanDiv.innerHTML = `<button class="btn-premium" style="width:100%; background:white; color:var(--success); border:none;" onclick="claimDailyEarnings()"><i class="fas fa-hand-holding-usd"></i> Claim Now</button>`;
+                if(todayClaimed) freePlanDiv.innerHTML = `<div style="display:flex; gap:10px; margin-top: 15px;"><button class="btn-premium" style="flex:1; cursor:default; background:rgba(255,255,255,0.2); color:white; border:none;" disabled><i class="fas fa-check-circle"></i> Active</button><button class="btn-premium" style="flex:1; background:rgba(255,255,255,0.4); color:white; border:none;" onclick="showToast('Claim again tomorrow!', 'info')"><i class="fas fa-check"></i> Claimed</button></div>`;
+                else freePlanDiv.innerHTML = `<div style="display:flex; gap:10px; margin-top: 15px;"><button class="btn-premium" style="flex:1; cursor:default; background:rgba(255,255,255,0.2); color:white; border:none;" disabled><i class="fas fa-check-circle"></i> Active</button><button class="btn-premium" style="flex:1; background:white; color:var(--success); border:none;" onclick="claimDailyEarnings()"><i class="fas fa-hand-holding-usd"></i> Claim Now</button></div>`;
             } else {
                 freePlanDiv.innerHTML = `<button class="btn-premium btn-premium-primary" onclick="buyPlan('free')" style="margin-top: 20px; width:100%;">Claim Free Plan</button>`;
             }
@@ -1298,10 +1273,13 @@
                 const isActive = activeIds.includes(p.id);
                 let actionButtons = '';
                 if (isActive) {
-                    if (todayClaimed) actionButtons = `<button class="btn-plan" style="background:var(--gray-light); color:white;" disabled><i class="fas fa-check"></i> Claimed Today</button>`;
-                    else actionButtons = `<button class="btn-plan" style="background:var(--warning); color:white;" onclick="claimDailyEarnings()"><i class="fas fa-hand-holding-usd"></i> Claim Now</button>`;
-                } else if (bal >= finalPrice) actionButtons = `<button class="btn-plan btn-plan-primary" onclick="buyPlan('${p.id}')">Buy Now</button>`;
-                else actionButtons = `<button class="btn-plan" style="background:#cbd5e1;" onclick="showPage('wallet'); showWalletTab('add');">Add Money</button>`;
+                    if (todayClaimed) actionButtons = `<div style="display:flex; gap:10px;"><button class="btn-plan btn-plan-success" style="flex:1; cursor:default;" disabled><i class="fas fa-check-circle"></i> Active</button><button class="btn-plan" style="flex:1; background:var(--gray-light); color:white;" onclick="showToast('Claim again tomorrow!', 'info')"><i class="fas fa-check"></i> Claimed</button></div>`;
+                    else actionButtons = `<div style="display:flex; gap:10px;"><button class="btn-plan btn-plan-success" style="flex:1; cursor:default;" disabled><i class="fas fa-check-circle"></i> Active</button><button class="btn-plan" style="flex:1; background:var(--warning); color:white;" onclick="claimDailyEarnings()"><i class="fas fa-hand-holding-usd"></i> Claim Now</button></div>`;
+                } else if (bal >= finalPrice) {
+                    actionButtons = `<button class="btn-plan btn-plan-primary" onclick="buyPlan('${p.id}')">Buy Now</button>`;
+                } else {
+                    actionButtons = `<button class="btn-plan" style="background:#cbd5e1;" onclick="showPage('wallet'); showWalletTab('add');">Add Money</button>`;
+                }
                 
                 return `
                 <div class="plan-card-premium ${p.popular?'popular':''}" id="plan-card-${p.id}">
@@ -1310,7 +1288,10 @@
                         ${p.popular && !disc ? '<div class="popular-badge">Popular</div>':''}
                         <div class="plan-icon">${p.icon}</div>
                         <div class="plan-name">${p.name}</div>
-                        <div class="plan-price">${disc > 0 ? `<span class="price-strike">₹${p.price}</span>` : ''}<span>₹</span>${finalPrice}</div>
+                        <div class="plan-price">
+                            ${disc > 0 ? `<span class="price-strike">₹${p.price}</span>` : ''}
+                            <span>₹</span>${finalPrice}
+                        </div>
                     </div>
                     <div class="plan-body-premium">
                         <ul class="plan-features">
@@ -1325,17 +1306,19 @@
         }
 
         async function buyPlan(pid) {
-            const plan = PLANS.find(p=>p.id===pid);
-            const disc = activeOffers[pid] || 0;
+            const plan = PLANS.find(p=>p.id===pid); const disc = activeOffers[pid] || 0;
             const finalPrice = disc > 0 ? plan.price - (plan.price * disc / 100) : plan.price;
             if(pid!=='free' && (currentUser.wallet?.mainBalance||0) < finalPrice) return showToast('Insufficient balance', 'error');
             
-            showLoading('Processing...');
-            const exp = new Date(); exp.setDate(exp.getDate() + plan.days);
+            showLoading('Processing...'); const exp = new Date(); exp.setDate(exp.getDate() + plan.days);
             if(pid !== 'free') await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set(currentUser.wallet.mainBalance - finalPrice);
             
-            await database.ref(`users/${currentUser.id}/activePlans`).push({ planId: plan.id, planName: plan.name, amount: finalPrice, dailyReturn: plan.daily, purchasedDate: new Date().toISOString(), expiryDate: exp.toISOString(), status: 'active', totalClaimed: 0 });
+            await database.ref(`users/${currentUser.id}/activePlans`).push({
+                planId: plan.id, planName: plan.name, amount: finalPrice, dailyReturn: plan.daily, 
+                purchasedDate: new Date().toISOString(), expiryDate: exp.toISOString(), status: 'active', totalClaimed: 0
+            });
             await database.ref(`users/${currentUser.id}/transactions`).push({ id: generateId('TXN'), type: 'plan_purchase', amount: finalPrice, description: `Bought ${plan.name}`, date: new Date().toISOString(), status: 'approved' });
+            
             await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set((currentUser.wallet?.mainBalance||0) + plan.daily);
             await database.ref(`users/${currentUser.id}/transactions`).push({ id: generateId('TXN'), type: 'daily_earning', amount: plan.daily, description: `First Day Earning - ${plan.name}`, date: new Date().toISOString(), status: 'approved' });
             await database.ref(`users/${currentUser.id}/lastClaimDate`).set(new Date().toDateString());
@@ -1344,34 +1327,33 @@
             if(plansSnapshot.val()) { const planKey = Object.keys(plansSnapshot.val()).pop(); await database.ref(`users/${currentUser.id}/activePlans/${planKey}/totalClaimed`).set(plan.daily); }
             
             if(pid !== 'free' && currentUser.referredBy) {
-                // Simplified Commission logic for brevity
-                const rSnap = await database.ref('users').orderByChild('referralCode').equalTo(currentUser.referredBy).once('value');
-                if(rSnap.val()){
-                    const rId = Object.keys(rSnap.val())[0], rData = rSnap.val()[rId], comm = Math.floor(finalPrice * 5 / 100);
-                    await database.ref(`users/${rId}`).update({ 'wallet/mainBalance': (rData.wallet?.mainBalance||0) + comm, 'referrals/earnings': (rData.referrals?.earnings||0) + comm });
-                    await database.ref(`users/${rId}/transactions`).push({ id: generateId('TXN'), type: 'commission', amount: comm, description: `Level 1 Comm. (5%) from ${currentUser.name}`, date: new Date().toISOString(), status: 'approved' });
-                    // Send notification to referrer
-                    await database.ref(`users/${rId}/notifications`).push({ title: "Commission Received!", body: `${currentUser.name} purchased a plan. You got ₹${comm} commission.`, date: new Date().toISOString(), read: false, type: "system" });
+                const levels = [5, 3, 1]; let currentCode = currentUser.referredBy;
+                for(let i=0; i<levels.length; i++) {
+                    if(!currentCode || currentCode === 'ADMIN') break;
+                    const rSnap = await database.ref('users').orderByChild('referralCode').equalTo(currentCode).once('value');
+                    if(!rSnap.val()) break;
+                    const rId = Object.keys(rSnap.val())[0], rData = rSnap.val()[rId], comm = Math.floor(finalPrice * levels[i] / 100);
+                    if(comm > 0) {
+                        await database.ref(`users/${rId}`).update({ 'wallet/mainBalance': (rData.wallet?.mainBalance||0) + comm, 'referrals/earnings': (rData.referrals?.earnings||0) + comm });
+                        await database.ref(`users/${rId}/transactions`).push({ id: generateId('TXN'), type: 'commission', amount: comm, description: `Level ${i+1} Comm. (${levels[i]}%) from ${currentUser.name}`, date: new Date().toISOString(), status: 'approved' });
+                        // Push Notification Note: You can add push notification to rId here via backend logic later.
+                    }
+                    currentCode = rData.referredBy; 
                 }
             }
             hideLoading(); showToast(`Plan Activated! ₹${plan.daily} credited!`, 'success'); showPage('plans'); 
         }
 
-        // WALLET, DEPOSIT, WITHDRAW
+        // Wallet Functions
         function showWalletTab(tab) {
-            document.querySelectorAll('.wallet-tab').forEach(t=>t.classList.remove('active'));
-            document.querySelector(`.wallet-tab[data-tab="${tab}"]`).classList.add('active');
-            document.querySelectorAll('.wallet-section').forEach(s=>s.classList.add('hidden'));
-            document.getElementById('wallet'+tab.charAt(0).toUpperCase()+tab.slice(1)+'Section').classList.remove('hidden');
+            document.querySelectorAll('.wallet-tab').forEach(t=>t.classList.remove('active')); document.querySelector(`.wallet-tab[data-tab="${tab}"]`).classList.add('active');
+            document.querySelectorAll('.wallet-section').forEach(s=>s.classList.add('hidden')); document.getElementById('wallet'+tab.charAt(0).toUpperCase()+tab.slice(1)+'Section').classList.remove('hidden');
         }
-
         function loadWalletData() {
             document.getElementById('walletBalance').textContent = currentUser.wallet?.mainBalance || 0;
             const txns = Object.values(currentUser.transactions || {}).sort((a,b)=>new Date(b.date)-new Date(a.date));
             document.getElementById('walletTransactions').innerHTML = txns.length ? txns.map(tx => {
-                let status = tx.status || 'approved'; 
-                if(tx.type.includes('pending')) status = 'pending';
-                if(tx.type.includes('rejected')) status = 'rejected';
+                let status = tx.status || 'approved'; if(tx.type.includes('pending')) status = 'pending'; if(tx.type.includes('rejected')) status = 'rejected';
                 return `
                 <div class="tx-item">
                     <div class="tx-details">
@@ -1383,13 +1365,13 @@
                 </div>`;
             }).join('') : '<p style="text-align:center;">No History</p>';
         }
-
         function setAmount(amt) { document.getElementById('addAmount').value = amt; }
         function payViaUPI(app) {
             const amount = document.getElementById('addAmount').value;
             if(!amount || amount < 100) return showToast('❌ Minimum ₹100 required', 'error');
-            const upiString = `pa=${ADMIN_UPI_ID}&pn=Solor%20Energy&am=${amount}&cu=INR`;
-            let intentUrl = app === 'gpay' ? `gpay://upi/pay?${upiString}` : (app === 'phonepe' ? `phonepe://pay?${upiString}` : (app === 'paytm' ? `paytmmp://pay?${upiString}` : `upi://pay?${upiString}`));
+            const upiString = `pa=${ADMIN_UPI_ID}&pn=Solor%20Energy&am=${amount}&cu=INR`; let intentUrl = '';
+            if(app === 'gpay') intentUrl = `gpay://upi/pay?${upiString}`; else if(app === 'phonepe') intentUrl = `phonepe://pay?${upiString}`;
+            else if(app === 'paytm') intentUrl = `paytmmp://pay?${upiString}`; else intentUrl = `upi://pay?${upiString}`;
             document.getElementById('paidVia').value = app === 'gpay' ? 'Google Pay' : (app === 'phonepe' ? 'PhonePe' : (app === 'paytm' ? 'Paytm' : 'Other'));
             showToast('Opening payment app...', 'info'); window.location.href = intentUrl;
         }
@@ -1397,8 +1379,7 @@
         document.getElementById('addMoneyForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const amt = parseInt(document.getElementById('addAmount').value), utr = document.getElementById('upiTxnId').value, via = document.getElementById('paidVia').value;
-            if(amt < 100) return showToast('Minimum ₹100', 'error');
-            showLoading('Submitting...');
+            if(amt < 100) return showToast('Minimum ₹100', 'error'); showLoading('Submitting...');
             const depId = generateId('DEP');
             await database.ref('deposits/'+depId).set({id: depId, userId: currentUser.id, userName: currentUser.name, userPhone: currentUser.phone, amount: amt, transactionId: utr, upiApp: via, status: 'pending', requestedAt: new Date().toISOString()});
             await database.ref(`users/${currentUser.id}/transactions/${depId}`).set({id: depId, type: 'deposit_pending', amount: amt, description: `Deposit (UTR: ${utr})`, date: new Date().toISOString(), status: 'pending'});
@@ -1407,29 +1388,25 @@
 
         function toggleWithdrawMethod() {
             const m = document.getElementById('withdrawMethod').value;
-            document.getElementById('upiFields').classList.toggle('hidden', m !== 'upi');
-            document.getElementById('bankFields').classList.toggle('hidden', m !== 'bank');
+            document.getElementById('upiFields').classList.toggle('hidden', m !== 'upi'); document.getElementById('bankFields').classList.toggle('hidden', m !== 'bank');
         }
 
         document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const amt = parseInt(document.getElementById('withdrawAmount').value), m = document.getElementById('withdrawMethod').value;
-            if(amt < MIN_WITHDRAWAL) return showToast(`Min ₹${MIN_WITHDRAWAL}`, 'error');
-            if(amt > (currentUser.wallet?.mainBalance||0)) return showToast('Insufficient balance', 'error');
+            if(amt < MIN_WITHDRAWAL) return showToast(`Min ₹${MIN_WITHDRAWAL}`, 'error'); if(amt > (currentUser.wallet?.mainBalance||0)) return showToast('Insufficient balance', 'error');
             let details = m === 'upi' ? document.getElementById('upiIdInput').value : `${document.getElementById('bankHolderName').value}, A/c: ${document.getElementById('bankAccNumber').value}, IFSC: ${document.getElementById('bankIfsc').value}`;
-            showLoading('Processing...');
-            await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set((currentUser.wallet.mainBalance) - amt);
+            
+            showLoading('Processing...'); await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set((currentUser.wallet.mainBalance) - amt);
             const wId = generateId('WID');
             await database.ref('withdrawals/'+wId).set({id: wId, userId: currentUser.id, userName: currentUser.name, amount: amt, method: m, details: details, status: 'pending', requestedAt: new Date().toISOString()});
             await database.ref(`users/${currentUser.id}/transactions/${wId}`).set({id: wId, type: 'withdrawal_pending', amount: amt, description: `Withdrawal Requested`, date: new Date().toISOString(), status: 'pending'});
             hideLoading(); showToast('Withdrawal Requested!', 'success'); document.getElementById('withdrawForm').reset(); showWalletTab('history');
         });
 
-        // REFERRAL, PROFILE & TICKETS
         function loadReferralData() {
             document.getElementById('refLink').textContent = `${window.location.origin}${window.location.pathname}?ref=${currentUser.referralCode}`;
-            document.getElementById('refTotal').textContent = currentUser.referrals?.count || 0;
-            document.getElementById('refEarned').textContent = '₹'+(currentUser.referrals?.earnings || 0);
+            document.getElementById('refTotal').textContent = currentUser.referrals?.count || 0; document.getElementById('refEarned').textContent = '₹'+(currentUser.referrals?.earnings || 0);
         }
         function copyRefLink() { navigator.clipboard.writeText(document.getElementById('refLink').textContent); showToast('Link Copied!', 'success'); }
         function shareWhatsApp() {
@@ -1440,50 +1417,33 @@
 
         function loadProfileData() { 
             if(!currentUser) return;
-            document.getElementById('profileName').textContent = currentUser.name; 
-            document.getElementById('profilePhone').textContent = '+91 '+currentUser.phone; 
+            document.getElementById('profileName').textContent = currentUser.name; document.getElementById('profilePhone').textContent = '+91 '+currentUser.phone; 
+            document.getElementById('profJoinDate').textContent = new Date(currentUser.joinDate).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+            document.getElementById('profTotalEarn').textContent = '₹' + ((currentUser.referrals?.earnings || 0) + (currentUser.wallet?.mainBalance || 0));
             document.getElementById('nameDisplayContainer').classList.remove('hidden'); document.getElementById('nameEditContainer').classList.add('hidden');
         }
         function enableNameEdit() { document.getElementById('nameDisplayContainer').classList.add('hidden'); document.getElementById('nameEditContainer').classList.remove('hidden'); document.getElementById('nameEditInput').value = currentUser.name; document.getElementById('nameEditInput').focus(); }
         async function saveProfileName() {
             const newName = document.getElementById('nameEditInput').value.trim();
-            if(!newName) return showToast('Please enter a valid name', 'error');
-            if(newName === currentUser.name) { document.getElementById('nameDisplayContainer').classList.remove('hidden'); document.getElementById('nameEditContainer').classList.add('hidden'); return; }
+            if(!newName) return showToast('Enter valid name', 'error'); if(newName === currentUser.name) { document.getElementById('nameDisplayContainer').classList.remove('hidden'); document.getElementById('nameEditContainer').classList.add('hidden'); return; }
             showLoading('Updating...');
-            try {
-                await database.ref(`users/${currentUser.id}/name`).set(newName); currentUser.name = newName; localStorage.setItem('currentUser', JSON.stringify(currentUser));
-                document.getElementById('profileName').textContent = newName; document.getElementById('nameDisplayContainer').classList.remove('hidden'); document.getElementById('nameEditContainer').classList.add('hidden');
-                hideLoading(); showToast('Profile updated!', 'success');
-            } catch(e) { hideLoading(); showToast('Error', 'error'); }
+            try { await database.ref(`users/${currentUser.id}/name`).set(newName); currentUser.name = newName; localStorage.setItem('currentUser', JSON.stringify(currentUser)); document.getElementById('profileName').textContent = newName; document.getElementById('nameDisplayContainer').classList.remove('hidden'); document.getElementById('nameEditContainer').classList.add('hidden'); hideLoading(); showToast('Updated!', 'success'); } catch(e) { hideLoading(); showToast('Error', 'error'); }
         }
-        
-        function logout() { 
-            if(lastSeenInterval) clearInterval(lastSeenInterval);
-            if(userStatusListener) userStatusListener.off();
-            if(notificationListener) notificationListener.off();
-            localStorage.removeItem('currentUser'); window.location.reload(); 
-        }
+        function logout() { if(lastSeenInterval) clearInterval(lastSeenInterval); if(userStatusListener) userStatusListener.off(); localStorage.removeItem('currentUser'); window.location.reload(); }
 
         function loadSupportData() {
             if (!currentUser) return;
             database.ref('tickets').orderByChild('userId').equalTo(currentUser.id).once('value', (snapshot) => {
-                const tickets = snapshot.val() || {};
-                const container = document.getElementById('ticketsList');
+                const tickets = snapshot.val() || {}; const container = document.getElementById('ticketsList');
                 if (Object.keys(tickets).length === 0) { container.innerHTML = `<div class="empty-state"><i class="fas fa-ticket-alt"></i><h3>No Tickets Yet</h3></div>`; return; }
                 container.innerHTML = Object.values(tickets).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map(ticket => `
                     <div class="premium-card" style="margin: 0 0 15px 0; border-left: 4px solid ${ticket.status === 'open' ? 'var(--warning)' : 'var(--success)'};">
-                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
-                            <span style="background:${ticket.status === 'open' ? 'var(--warning)' : 'var(--success)'}; color:white; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:bold;">${ticket.status.toUpperCase()}</span>
-                            <small style="color: var(--gray);">${new Date(ticket.createdAt).toLocaleDateString()}</small>
-                        </div>
-                        <h4 style="margin-bottom: 8px;">${ticket.subject}</h4>
-                        <p style="color: var(--gray); font-size: 14px;">${ticket.message}</p>
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;"><span style="background:${ticket.status === 'open' ? 'var(--warning)' : 'var(--success)'}; color:white; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:bold;">${ticket.status.toUpperCase()}</span><small style="color: var(--gray);">${new Date(ticket.createdAt).toLocaleDateString()}</small></div>
+                        <h4 style="margin-bottom: 8px;">${ticket.subject}</h4><p style="color: var(--gray); font-size: 14px;">${ticket.message}</p>
                         ${ticket.reply ? `<div style="background: rgba(99, 102, 241, 0.1); padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 13px;"><strong style="color:var(--primary);">Admin:</strong> ${ticket.reply}</div>` : ''}
-                    </div>
-                `).join('');
+                    </div>`).join('');
             });
         }
-
         document.getElementById('ticketForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const ticket = { id: generateId('TIC'), userId: currentUser.id, userName: currentUser.name, userPhone: currentUser.phone, type: document.getElementById('ticketType').value, subject: document.getElementById('ticketSubject').value, message: document.getElementById('ticketMessage').value, status: 'open', createdAt: new Date().toISOString() };
