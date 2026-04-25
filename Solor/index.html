@@ -582,8 +582,8 @@
     <!-- Toast -->
     <div id="toast" class="toast"></div>
 
-    <!-- Permission Prompt -->
-    <div id="permissionPrompt" class="permission-prompt">
+    <!-- Permission Prompt (Hidden - in-app only) -->
+    <div id="permissionPrompt" class="permission-prompt" style="display:none !important;">
         <i class="fas fa-bell" style="font-size: 24px;"></i>
         <div>
             <div style="font-weight: 600; margin-bottom: 3px;">Enable Notifications</div>
@@ -1360,31 +1360,22 @@
             }
         }
 
-        // Show permission prompt
+        // Show permission prompt (disabled - in-app only)
         function showPermissionPrompt() {
-            const prompt = document.getElementById('permissionPrompt');
-            prompt.classList.add('show');
-            setTimeout(() => prompt.classList.remove('show'), 8000);
+            // Disabled: Using in-app notifications only, no browser permission needed
+            // const prompt = document.getElementById('permissionPrompt');
+            // prompt.classList.add('show');
+            // setTimeout(() => prompt.classList.remove('show'), 8000);
         }
 
         function hidePermissionPrompt() {
             document.getElementById('permissionPrompt').classList.remove('show');
         }
 
-        // Handle bell icon click - FIXED: Always open panel first
+        // Handle bell icon click
         function handleBellClick() {
-            // ALWAYS open notification panel first
+            // ALWAYS open notification panel directly - no permission checks
             openNotificationPanel();
-
-            // Check if notifications are NOT allowed, then show permission prompt
-            if (Notification.permission === 'default') {
-                // User hasn't decided yet - show prompt after a small delay
-                setTimeout(() => showPermissionPrompt(), 500);
-            } else if (Notification.permission === 'denied') {
-                // Permission denied - show toast after panel opens
-                setTimeout(() => showToast('Please enable notifications in browser settings', 'error'), 500);
-            }
-            // If granted, panel opens normally with all notifications
         }
 
         // Notification Panel Functions
