@@ -1355,10 +1355,6 @@
             const result = await initFirebaseMessaging();
             if (result) {
                 showToast('Notifications enabled!', 'success');
-                // Auto-open notification panel after granting permission
-                setTimeout(() => {
-                    openNotificationPanel();
-                }, 500);
             } else {
                 showToast('Please allow notifications in browser settings', 'error');
             }
@@ -1375,22 +1371,20 @@
             document.getElementById('permissionPrompt').classList.remove('show');
         }
 
-        // Handle bell icon click
+        // Handle bell icon click - FIXED: Always open panel first
         function handleBellClick() {
-            // Check if notifications are allowed
-            if (Notification.permission === 'granted') {
-                openNotificationPanel();
-            } else if (Notification.permission === 'denied') {
-                showToast('Please enable notifications in browser settings', 'error');
-            } else {
-                // Not decided yet - show prompt
-                showPermissionPrompt();
-            }
-        }
-
-        // Directly open notification panel (bypasses permission check)
-        function openNotificationPanelDirect() {
+            // ALWAYS open notification panel first
             openNotificationPanel();
+
+            // Check if notifications are NOT allowed, then show permission prompt
+            if (Notification.permission === 'default') {
+                // User hasn't decided yet - show prompt after a small delay
+                setTimeout(() => showPermissionPrompt(), 500);
+            } else if (Notification.permission === 'denied') {
+                // Permission denied - show toast after panel opens
+                setTimeout(() => showToast('Please enable notifications in browser settings', 'error'), 500);
+            }
+            // If granted, panel opens normally with all notifications
         }
 
         // Notification Panel Functions
