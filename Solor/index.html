@@ -547,6 +547,7 @@
             gap: 10px;
         }
     </style>
+<base target="_blank">
 </head>
 <body>
     <!-- Account Deleted Screen -->
@@ -1354,6 +1355,10 @@
             const result = await initFirebaseMessaging();
             if (result) {
                 showToast('Notifications enabled!', 'success');
+                // Auto-open notification panel after granting permission
+                setTimeout(() => {
+                    openNotificationPanel();
+                }, 500);
             } else {
                 showToast('Please allow notifications in browser settings', 'error');
             }
@@ -1381,6 +1386,11 @@
                 // Not decided yet - show prompt
                 showPermissionPrompt();
             }
+        }
+
+        // Directly open notification panel (bypasses permission check)
+        function openNotificationPanelDirect() {
+            openNotificationPanel();
         }
 
         // Notification Panel Functions
