@@ -9,7 +9,6 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js"></script>
     
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -39,189 +38,16 @@
         body { background: var(--light); min-height: 100vh; padding-bottom: 90px; color: var(--dark); }
         
         /* Premium Header */
-        .premium-header { background: var(--gradient-1); padding: 15px 20px; position: sticky; top: 0; z-index: 1000; box-shadow: var(--shadow-lg); }
+        .premium-header { background: var(--gradient-1); padding: 20px; position: sticky; top: 0; z-index: 1000; box-shadow: var(--shadow-lg); }
         .header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
         .brand { display: flex; align-items: center; gap: 12px; color: var(--white); }
         .brand-icon { width: 45px; height: 45px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; backdrop-filter: blur(10px); }
         .brand-text h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
         .brand-text p { font-size: 12px; opacity: 0.9; font-weight: 500; }
         
-        .header-right { display: flex; align-items: center; gap: 15px; }
         .header-balance { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 10px 20px; border-radius: 50px; color: var(--white); text-align: center; border: 1px solid rgba(255,255,255,0.2); cursor: pointer;}
         .header-balance .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
         .header-balance .amount { font-size: 20px; font-weight: 700; }
-        
-        /* Notification Bell */
-        .notification-bell { 
-            position: relative; 
-            width: 45px; 
-            height: 45px; 
-            background: rgba(255,255,255,0.15); 
-            backdrop-filter: blur(10px); 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            cursor: pointer; 
-            border: 1px solid rgba(255,255,255,0.2); 
-            color: white; 
-            font-size: 20px;
-            transition: all 0.3s;
-        }
-        .notification-bell:hover { background: rgba(255,255,255,0.25); transform: scale(1.05); }
-        .notification-bell:active { transform: scale(0.95); }
-        .notification-badge { 
-            position: absolute; 
-            top: -5px; 
-            right: -5px; 
-            background: var(--danger); 
-            color: white; 
-            font-size: 11px; 
-            font-weight: 700; 
-            min-width: 20px; 
-            height: 20px; 
-            border-radius: 50%; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center; 
-            padding: 0 5px;
-            animation: bellPulse 2s infinite;
-        }
-        @keyframes bellPulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-        
-        /* Notification Panel */
-        .notification-panel { 
-            position: fixed; 
-            top: 70px; 
-            right: -100%; 
-            width: 100%; 
-            max-width: 400px; 
-            height: calc(100vh - 70px); 
-            background: var(--white); 
-            z-index: 999; 
-            transition: right 0.3s ease; 
-            box-shadow: -10px 0 40px rgba(0,0,0,0.1); 
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-        }
-        .notification-panel.active { right: 0; }
-        .notification-overlay { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            right: 0; 
-            bottom: 0; 
-            background: rgba(0,0,0,0.4); 
-            z-index: 998; 
-            opacity: 0; 
-            visibility: hidden; 
-            transition: all 0.3s; 
-        }
-        .notification-overlay.active { opacity: 1; visibility: visible; }
-        
-        .notification-header { 
-            padding: 20px; 
-            background: var(--gradient-1); 
-            color: white; 
-            display: flex; 
-            justify-content: space-between; 
-            align-items: center; 
-            position: sticky; 
-            top: 0; 
-            z-index: 10;
-        }
-        .notification-header h3 { font-size: 18px; font-weight: 700; }
-        .notification-header .close-btn { 
-            background: rgba(255,255,255,0.2); 
-            border: none; 
-            width: 36px; 
-            height: 36px; 
-            border-radius: 50%; 
-            color: white; 
-            font-size: 18px; 
-            cursor: pointer; 
-            display: flex; 
-            align-items: center; 
-            justify-content: center;
-        }
-        .notification-list { flex: 1; padding: 15px; }
-        .notification-item { 
-            background: var(--light); 
-            border-radius: 16px; 
-            padding: 15px; 
-            margin-bottom: 12px; 
-            border-left: 4px solid var(--primary); 
-            transition: all 0.3s; 
-            position: relative;
-        }
-        .notification-item.unread { background: rgba(99, 102, 241, 0.05); border-left-color: var(--primary); }
-        .notification-item.read { background: var(--light); border-left-color: var(--gray-light); opacity: 0.8; }
-        .notification-item.deposit { border-left-color: var(--success); }
-        .notification-item.withdrawal { border-left-color: var(--danger); }
-        .notification-item.ticket { border-left-color: var(--warning); }
-        .notification-item.admin { border-left-color: var(--secondary); }
-        
-        .notification-item-title { font-weight: 600; font-size: 14px; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; }
-        .notification-item-body { font-size: 13px; color: var(--gray); margin-bottom: 8px; }
-        .notification-item-time { font-size: 11px; color: var(--gray-light); }
-        .notification-item-delete { 
-            position: absolute; 
-            top: 10px; 
-            right: 10px; 
-            background: none; 
-            border: none; 
-            color: var(--gray-light); 
-            cursor: pointer; 
-            font-size: 14px;
-            padding: 5px;
-        }
-        .notification-item-delete:hover { color: var(--danger); }
-        
-        .notification-empty { 
-            text-align: center; 
-            padding: 60px 20px; 
-            color: var(--gray); 
-        }
-        .notification-empty i { font-size: 48px; margin-bottom: 15px; opacity: 0.3; }
-        
-        .notification-footer { 
-            padding: 15px; 
-            border-top: 1px solid #e2e8f0; 
-            display: flex; 
-            gap: 10px;
-        }
-        
-        /* Permission Prompt */
-        .permission-prompt { 
-            position: fixed; 
-            top: 80px; 
-            left: 50%; 
-            transform: translateX(-50%) translateY(-100px); 
-            background: var(--dark); 
-            color: white; 
-            padding: 15px 20px; 
-            border-radius: 16px; 
-            z-index: 10000; 
-            opacity: 0; 
-            transition: all 0.3s; 
-            display: flex; 
-            align-items: center; 
-            gap: 15px; 
-            max-width: 90%; 
-            box-shadow: var(--shadow-xl);
-        }
-        .permission-prompt.show { transform: translateX(-50%) translateY(0); opacity: 1; }
-        .permission-prompt button { 
-            background: var(--primary); 
-            color: white; 
-            border: none; 
-            padding: 8px 16px; 
-            border-radius: 8px; 
-            font-weight: 600; 
-            cursor: pointer; 
-            white-space: nowrap;
-        }
         
         /* Bottom Nav */
         .premium-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--white); padding: 12px 20px 25px; display: flex; justify-content: space-around; box-shadow: 0 -10px 40px rgba(0,0,0,0.1); z-index: 1000; border-radius: 30px 30px 0 0; }
@@ -547,7 +373,6 @@
             gap: 10px;
         }
     </style>
-<base target="_blank">
 </head>
 <body>
     <!-- Account Deleted Screen -->
@@ -581,40 +406,6 @@
 
     <!-- Toast -->
     <div id="toast" class="toast"></div>
-
-    <!-- Permission Prompt (Hidden - in-app only) -->
-    <div id="permissionPrompt" class="permission-prompt" style="display:none !important;">
-        <i class="fas fa-bell" style="font-size: 24px;"></i>
-        <div>
-            <div style="font-weight: 600; margin-bottom: 3px;">Enable Notifications</div>
-            <div style="font-size: 12px; opacity: 0.8;">Get alerts for deposits, withdrawals & more</div>
-        </div>
-        <button onclick="requestNotificationPermission()">Allow</button>
-    </div>
-
-    <!-- Notification Panel -->
-    <div class="notification-overlay" id="notificationOverlay" onclick="closeNotificationPanel()"></div>
-    <div class="notification-panel" id="notificationPanel">
-        <div class="notification-header">
-            <h3><i class="fas fa-bell" style="margin-right: 10px;"></i>Notifications</h3>
-            <button class="close-btn" onclick="closeNotificationPanel()"><i class="fas fa-times"></i></button>
-        </div>
-        <div class="notification-list" id="notificationList">
-            <div class="notification-empty">
-                <i class="fas fa-bell-slash"></i>
-                <h3>No Notifications</h3>
-                <p>Stay tuned for updates!</p>
-            </div>
-        </div>
-        <div class="notification-footer">
-            <button class="btn-main btn-main-primary" onclick="markAllRead()" style="flex:1; padding: 12px; font-size: 14px;">
-                <i class="fas fa-check-double"></i> Mark All Read
-            </button>
-            <button class="btn-main" style="flex:1; padding: 12px; font-size: 14px; background: var(--danger); color: white;" onclick="clearAllNotifications()">
-                <i class="fas fa-trash"></i> Clear All
-            </button>
-        </div>
-    </div>
 
     <!-- Forgot Password Modal - FIXED -->
     <div id="forgotPasswordModal" class="modal-overlay">
@@ -659,16 +450,9 @@
                     <p>Refer & Earn</p>
                 </div>
             </div>
-            <div class="header-right">
-                <!-- Notification Bell -->
-                <div class="notification-bell" id="notificationBell" onclick="handleBellClick()">
-                    <i class="fas fa-bell"></i>
-                    <span class="notification-badge hidden" id="notificationBadge">0</span>
-                </div>
-                <div class="header-balance" onclick="showPage('wallet')">
-                    <div class="label">Balance</div>
-                    <div class="amount">₹<span id="headerBalance">0</span></div>
-                </div>
+            <div class="header-balance" onclick="showPage('wallet')">
+                <div class="label">Balance</div>
+                <div class="amount">₹<span id="headerBalance">0</span></div>
             </div>
         </div>
     </header>
@@ -1184,7 +968,6 @@
         firebase.initializeApp(firebaseConfig);
         const auth = firebase.auth();
         const database = firebase.database();
-        const messaging = firebase.messaging();
 
         let currentUser = null;
         let tempUserData = {};
@@ -1197,12 +980,6 @@
         let userStatusListener = null;
         let lastSeenInterval = null;
         let isAccountDeleted = false;
-        let fcmToken = null;
-        let notifications = [];
-        let notificationListener = null;
-
-        // FCM Server Key (VAPID Key for Web Push)
-        const FCM_VAPID_KEY = 'BMFOpP3xQcCdTGA5Ak17dHEKOvX430Nk0x3wXnDSMrmWGe5vVytY1MBWuEuGhAV2O_Qa-XR_77OYnmgV620AAcE. S1ByaZ1BI8lBVxUggCoG7DW3bV9F26gjuBE80POHkCc';
 
         // WhatsApp OTP Server Config
         const WHATSAPP_OTP_SERVER = 'https://we-aobe.onrender.com';
@@ -1226,390 +1003,6 @@
         function updateReferDisplays() {
             document.querySelectorAll('.refer-amount-display').forEach(el => {
                 el.textContent = REFER_AMOUNT;
-            });
-        }
-
-        // ==================== FIREBASE PUSH NOTIFICATIONS ====================
-        
-        // Register Service Worker for background notifications
-        async function registerServiceWorker() {
-            if ('serviceWorker' in navigator) {
-                try {
-                    // Create a blob for the service worker
-                    const swCode = `
-                        importScripts('https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js');
-                        importScripts('https://www.gstatic.com/firebasejs/9.22.0/firebase-messaging-compat.js');
-                        
-                        firebase.initializeApp({
-                            apiKey: "AIzaSyA3pH_dnb6_--wRoDSuoj-TAudsmJ7D4R0",
-                            authDomain: "solor-energy.firebaseapp.com",
-                            databaseURL: "https://solor-energy-default-rtdb.firebaseio.com",
-                            projectId: "solor-energy",
-                            storageBucket: "solor-energy.firebasestorage.app",
-                            messagingSenderId: "772737546715",
-                            appId: "1:772737546715:web:3736545b464523bdc04ffe"
-                        });
-                        
-                        const messaging = firebase.messaging();
-                        
-                        messaging.onBackgroundMessage((payload) => {
-                            const notificationTitle = payload.notification.title;
-                            const notificationOptions = {
-                                body: payload.notification.body,
-                                icon: 'https://cdn-icons-png.flaticon.com/512/869/869869.png',
-                                badge: 'https://cdn-icons-png.flaticon.com/512/869/869869.png',
-                                tag: payload.data?.type || 'general',
-                                requireInteraction: true,
-                                actions: [
-                                    {
-                                        action: 'open',
-                                        title: 'Open App'
-                                    }
-                                ]
-                            };
-                            self.registration.showNotification(notificationTitle, notificationOptions);
-                        });
-                        
-                        self.addEventListener('notificationclick', (event) => {
-                            event.notification.close();
-                            event.waitUntil(
-                                clients.openWindow('/')
-                            );
-                        });
-                    `;
-                    
-                    const blob = new Blob([swCode], { type: 'application/javascript' });
-                    const swUrl = URL.createObjectURL(blob);
-                    
-                    const registration = await navigator.serviceWorker.register(swUrl);
-                    console.log('Service Worker registered:', registration);
-                    return registration;
-                } catch (err) {
-                    console.error('Service Worker registration failed:', err);
-                    return null;
-                }
-            }
-            return null;
-        }
-
-        // Initialize Firebase Messaging
-        async function initFirebaseMessaging() {
-            try {
-                const registration = await registerServiceWorker();
-                
-                // Request permission
-                const permission = await Notification.requestPermission();
-                console.log('Notification permission:', permission);
-                
-                if (permission === 'granted') {
-                    // Get FCM token
-                    const token = await messaging.getToken({
-                        vapidKey: FCM_VAPID_KEY,
-                        serviceWorkerRegistration: registration
-                    });
-                    
-                    if (token) {
-                        fcmToken = token;
-                        console.log('FCM Token:', token);
-                        
-                        // Save token to user profile
-                        if (currentUser) {
-                            await database.ref(`users/${currentUser.id}/fcmToken`).set(token);
-                        }
-                    }
-                    
-                    // Handle foreground messages
-                    messaging.onMessage((payload) => {
-                        console.log('Foreground message received:', payload);
-                        
-                        // Show in-app notification
-                        showToast(payload.notification.body, 'success');
-                        
-                        // Add to notification list
-                        addNotification({
-                            title: payload.notification.title,
-                            body: payload.notification.body,
-                            type: payload.data?.type || 'admin',
-                            timestamp: Date.now(),
-                            read: false
-                        });
-                        
-                        // Update badge
-                        updateNotificationBadge();
-                    });
-                    
-                    return true;
-                } else {
-                    console.log('Notification permission denied');
-                    return false;
-                }
-            } catch (err) {
-                console.error('Firebase Messaging init error:', err);
-                return false;
-            }
-        }
-
-        // Request notification permission
-        async function requestNotificationPermission() {
-            hidePermissionPrompt();
-            const result = await initFirebaseMessaging();
-            if (result) {
-                showToast('Notifications enabled!', 'success');
-            } else {
-                showToast('Please allow notifications in browser settings', 'error');
-            }
-        }
-
-        // Show permission prompt (disabled - in-app only)
-        function showPermissionPrompt() {
-            // Disabled: Using in-app notifications only, no browser permission needed
-            // const prompt = document.getElementById('permissionPrompt');
-            // prompt.classList.add('show');
-            // setTimeout(() => prompt.classList.remove('show'), 8000);
-        }
-
-        function hidePermissionPrompt() {
-            document.getElementById('permissionPrompt').classList.remove('show');
-        }
-
-        // Handle bell icon click
-        function handleBellClick() {
-            // ALWAYS open notification panel directly - no permission checks
-            openNotificationPanel();
-        }
-
-        // Notification Panel Functions
-        function openNotificationPanel() {
-            document.getElementById('notificationPanel').classList.add('active');
-            document.getElementById('notificationOverlay').classList.add('active');
-            loadNotifications();
-        }
-
-        function closeNotificationPanel() {
-            document.getElementById('notificationPanel').classList.remove('active');
-            document.getElementById('notificationOverlay').classList.remove('active');
-        }
-
-        // Add notification to local list and Firebase
-        async function addNotification(notification) {
-            if (!currentUser) return;
-            
-            const notifId = 'notif_' + Date.now();
-            notification.id = notifId;
-            
-            try {
-                await database.ref(`users/${currentUser.id}/notifications/${notifId}`).set(notification);
-            } catch (e) {
-                console.error('Error saving notification:', e);
-            }
-        }
-
-        // Load notifications from Firebase
-        function loadNotifications() {
-            if (!currentUser) return;
-            
-            database.ref(`users/${currentUser.id}/notifications`).orderByChild('timestamp').limitToLast(50).once('value', (snap) => {
-                const data = snap.val() || {};
-                notifications = Object.values(data).sort((a, b) => b.timestamp - a.timestamp);
-                renderNotifications();
-            });
-        }
-
-        // Render notifications in panel
-        function renderNotifications() {
-            const list = document.getElementById('notificationList');
-            
-            if (notifications.length === 0) {
-                list.innerHTML = `
-                    <div class="notification-empty">
-                        <i class="fas fa-bell-slash"></i>
-                        <h3>No Notifications</h3>
-                        <p>Stay tuned for updates!</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            list.innerHTML = notifications.map(n => {
-                const timeAgo = getTimeAgo(n.timestamp);
-                const iconClass = n.type === 'deposit' ? 'fa-arrow-down' : 
-                                 n.type === 'withdrawal' ? 'fa-arrow-up' : 
-                                 n.type === 'ticket' ? 'fa-ticket-alt' : 'fa-bell';
-                const typeClass = n.type || 'admin';
-                
-                return `
-                    <div class="notification-item ${n.read ? 'read' : 'unread'} ${typeClass}">
-                        <button class="notification-item-delete" onclick="deleteNotification('${n.id}', event)">
-                            <i class="fas fa-times"></i>
-                        </button>
-                        <div class="notification-item-title">
-                            <i class="fas ${iconClass}" style="color: var(--${typeClass === 'deposit' ? 'success' : typeClass === 'withdrawal' ? 'danger' : typeClass === 'ticket' ? 'warning' : 'primary'});"></i>
-                            ${n.title}
-                        </div>
-                        <div class="notification-item-body">${n.body}</div>
-                        <div class="notification-item-time"><i class="far fa-clock" style="margin-right: 5px;"></i>${timeAgo}</div>
-                    </div>
-                `;
-            }).join('');
-            
-            updateNotificationBadge();
-        }
-
-        function getTimeAgo(timestamp) {
-            const seconds = Math.floor((Date.now() - timestamp) / 1000);
-            if (seconds < 60) return 'Just now';
-            const minutes = Math.floor(seconds / 60);
-            if (minutes < 60) return `${minutes}m ago`;
-            const hours = Math.floor(minutes / 60);
-            if (hours < 24) return `${hours}h ago`;
-            const days = Math.floor(hours / 24);
-            return `${days}d ago`;
-        }
-
-        // Update notification badge
-        function updateNotificationBadge() {
-            const unreadCount = notifications.filter(n => !n.read).length;
-            const badge = document.getElementById('notificationBadge');
-            
-            if (unreadCount > 0) {
-                badge.textContent = unreadCount > 99 ? '99+' : unreadCount;
-                badge.classList.remove('hidden');
-            } else {
-                badge.classList.add('hidden');
-            }
-        }
-
-        // Mark all as read
-        async function markAllRead() {
-            if (!currentUser || notifications.length === 0) return;
-            
-            showLoading('Updating...');
-            const updates = {};
-            notifications.forEach(n => {
-                if (!n.read) {
-                    updates[`users/${currentUser.id}/notifications/${n.id}/read`] = true;
-                    n.read = true;
-                }
-            });
-            
-            try {
-                await database.ref().update(updates);
-                renderNotifications();
-                hideLoading();
-                showToast('All marked as read', 'success');
-            } catch (e) {
-                hideLoading();
-                showToast('Error updating', 'error');
-            }
-        }
-
-        // Clear all notifications
-        async function clearAllNotifications() {
-            if (!currentUser || notifications.length === 0) return;
-            
-            if (!confirm('Clear all notifications?')) return;
-            
-            showLoading('Clearing...');
-            try {
-                await database.ref(`users/${currentUser.id}/notifications`).remove();
-                notifications = [];
-                renderNotifications();
-                hideLoading();
-                showToast('All cleared', 'success');
-            } catch (e) {
-                hideLoading();
-                showToast('Error clearing', 'error');
-            }
-        }
-
-        // Delete single notification
-        async function deleteNotification(notifId, event) {
-            event.stopPropagation();
-            if (!currentUser) return;
-            
-            try {
-                await database.ref(`users/${currentUser.id}/notifications/${notifId}`).remove();
-                notifications = notifications.filter(n => n.id !== notifId);
-                renderNotifications();
-            } catch (e) {
-                showToast('Error deleting', 'error');
-            }
-        }
-
-        // Listen for new notifications in realtime
-        function setupNotificationListener() {
-            if (!currentUser) return;
-            
-            if (notificationListener) {
-                notificationListener.off();
-            }
-            
-            notificationListener = database.ref(`users/${currentUser.id}/notifications`);
-            notificationListener.on('child_added', (snap) => {
-                const notif = snap.val();
-                if (notif && !notifications.find(n => n.id === notif.id)) {
-                    notifications.unshift(notif);
-                    updateNotificationBadge();
-                    
-                    // If panel is open, re-render
-                    if (document.getElementById('notificationPanel').classList.contains('active')) {
-                        renderNotifications();
-                    }
-                }
-            });
-            
-            notificationListener.on('child_removed', (snap) => {
-                const notifId = snap.key;
-                notifications = notifications.filter(n => n.id !== notifId);
-                updateNotificationBadge();
-                if (document.getElementById('notificationPanel').classList.contains('active')) {
-                    renderNotifications();
-                }
-            });
-        }
-
-        // ==================== AUTO NOTIFICATION TRIGGERS ====================
-        
-        // Send notification when deposit status changes
-        async function sendDepositNotification(userId, status, amount, reason) {
-            const title = status === 'approved' ? '💰 Deposit Approved!' : '❌ Deposit Rejected';
-            const body = status === 'approved' 
-                ? `Your deposit of ₹${amount} has been approved and added to your wallet.`
-                : `Your deposit of ₹${amount} was rejected. Reason: ${reason || 'Invalid details'}`;
-            
-            await database.ref(`users/${userId}/notifications`).push({
-                title: title,
-                body: body,
-                type: 'deposit',
-                timestamp: Date.now(),
-                read: false
-            });
-        }
-
-        // Send notification when withdrawal status changes
-        async function sendWithdrawalNotification(userId, status, amount, reason) {
-            const title = status === 'approved' ? '💸 Withdrawal Approved!' : '❌ Withdrawal Rejected';
-            const body = status === 'approved' 
-                ? `Your withdrawal of ₹${amount} has been processed successfully.`
-                : `Your withdrawal of ₹${amount} was rejected. Reason: ${reason || 'Invalid details'}`;
-            
-            await database.ref(`users/${userId}/notifications`).push({
-                title: title,
-                body: body,
-                type: 'withdrawal',
-                timestamp: Date.now(),
-                read: false
-            });
-        }
-
-        // Send notification when ticket gets reply
-        async function sendTicketNotification(userId, subject, reply) {
-            await database.ref(`users/${userId}/notifications`).push({
-                title: '🎫 Ticket Reply Received',
-                body: `Admin replied to "${subject}": ${reply}`,
-                type: 'ticket',
-                timestamp: Date.now(),
-                read: false
             });
         }
 
@@ -1702,10 +1095,6 @@
                 currentUser = JSON.parse(savedUser);
                 setupUserListener(currentUser.id);
                 
-                // Initialize notifications
-                setupNotificationListener();
-                loadNotifications();
-                
                 // Check for ref code but don't go to register if logged in
                 if(refCode) {
                     showToast('You are already logged in!', 'info');
@@ -1794,11 +1183,6 @@
                 userStatusListener = null;
             }
             
-            if(notificationListener) {
-                notificationListener.off();
-                notificationListener = null;
-            }
-            
             // Clear local storage
             localStorage.removeItem('currentUser');
             currentUser = null;
@@ -1838,14 +1222,7 @@
                 return; 
             }
             currentUser = user; localStorage.setItem('currentUser', JSON.stringify(user));
-            setupUserListener(user.id);
-            setupNotificationListener();
-            loadNotifications();
-            
-            // Initialize messaging after login
-            initFirebaseMessaging();
-            
-            hideLoading(); showToast('Login successful!', 'success'); showPage('home');
+            setupUserListener(user.id); hideLoading(); showToast('Login successful!', 'success'); showPage('home');
         });
 
         // ==================== WHATSAPP OTP REGISTRATION ====================
@@ -1986,10 +1363,6 @@
                 currentUser = newUser; 
                 localStorage.setItem('currentUser', JSON.stringify(newUser)); 
                 setupUserListener(newUser.id);
-                setupNotificationListener();
-                
-                // Initialize messaging
-                initFirebaseMessaging();
                 
                 // Clear pending ref code
                 sessionStorage.removeItem('pendingRefCode');
@@ -2487,16 +1860,6 @@
             const depId = generateId('DEP');
             await database.ref('deposits/'+depId).set({id: depId, userId: currentUser.id, userName: currentUser.name, userPhone: currentUser.phone, amount: amt, transactionId: utr, upiApp: via, status: 'pending', requestedAt: new Date().toISOString()});
             await database.ref(`users/${currentUser.id}/transactions/${depId}`).set({id: depId, type: 'deposit_pending', amount: amt, description: `Deposit (UTR: ${utr})`, date: new Date().toISOString(), status: 'pending'});
-            
-            // Send auto notification for deposit submission
-            await addNotification({
-                title: '💰 Deposit Submitted',
-                body: `Your deposit of ₹${amt} is pending admin approval.`,
-                type: 'deposit',
-                timestamp: Date.now(),
-                read: false
-            });
-            
             hideLoading(); showToast('Request Sent!', 'success'); document.getElementById('addMoneyForm').reset(); showWalletTab('history');
         });
 
@@ -2518,16 +1881,6 @@
             const wId = generateId('WID');
             await database.ref('withdrawals/'+wId).set({id: wId, userId: currentUser.id, userName: currentUser.name, amount: amt, method: m, details: details, status: 'pending', requestedAt: new Date().toISOString()});
             await database.ref(`users/${currentUser.id}/transactions/${wId}`).set({id: wId, type: 'withdrawal_pending', amount: amt, description: `Withdrawal Requested`, date: new Date().toISOString(), status: 'pending'});
-            
-            // Send auto notification for withdrawal submission
-            await addNotification({
-                title: '💸 Withdrawal Submitted',
-                body: `Your withdrawal of ₹${amt} is pending admin approval.`,
-                type: 'withdrawal',
-                timestamp: Date.now(),
-                read: false
-            });
-            
             hideLoading(); showToast('Withdrawal Requested!', 'success'); document.getElementById('withdrawForm').reset(); showWalletTab('history');
         });
 
@@ -2598,7 +1951,6 @@
         function logout() { 
             if(lastSeenInterval) clearInterval(lastSeenInterval);
             if(userStatusListener) userStatusListener.off();
-            if(notificationListener) notificationListener.off();
             localStorage.removeItem('currentUser'); 
             window.location.reload(); 
         }
@@ -2631,23 +1983,7 @@
             e.preventDefault();
             const ticket = { id: generateId('TIC'), userId: currentUser.id, userName: currentUser.name, userPhone: currentUser.phone, type: document.getElementById('ticketType').value, subject: document.getElementById('ticketSubject').value, message: document.getElementById('ticketMessage').value, status: 'open', createdAt: new Date().toISOString() };
             showLoading('Submitting...');
-            try { 
-                await database.ref('tickets').push(ticket); 
-                
-                // Send auto notification for ticket creation
-                await addNotification({
-                    title: '🎫 Ticket Created',
-                    body: `Your ticket "${ticket.subject}" has been submitted. Admin will reply soon.`,
-                    type: 'ticket',
-                    timestamp: Date.now(),
-                    read: false
-                });
-                
-                hideLoading(); 
-                showToast('Ticket created!', 'success'); 
-                document.getElementById('ticketForm').reset(); 
-                loadSupportData(); 
-            } 
+            try { await database.ref('tickets').push(ticket); hideLoading(); showToast('Ticket created!', 'success'); document.getElementById('ticketForm').reset(); loadSupportData(); } 
             catch (error) { hideLoading(); showToast('Failed to create ticket', 'error'); }
         });
     </script>
