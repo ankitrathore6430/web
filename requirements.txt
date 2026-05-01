@@ -1,5 +1,4 @@
-selenium
-webdriver-manager
-requests
+selenium==4.20.0
 supabase
+requests
 google-generativeai
