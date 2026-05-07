@@ -1,7 +1,11 @@
 // bot.js - Complete Telegram Bot for Solor Energy
+// FIXED: Using Firebase v9 modular imports (getDatabase instead of firebase.database())
+
 const TelegramBot = require('node-telegram-bot-api');
-const firebase = require('firebase/app');
-require('firebase/database');
+
+// Firebase v9 modular imports
+const { initializeApp } = require('firebase/app');
+const { getDatabase, ref, onValue, onChildAdded, onChildChanged, set, update, remove, push, child, get, once } = require('firebase/database');
 
 // ==================== CONFIGURATION ====================
 const BOT_TOKEN = '1233674761:AAFdjpqG-N64dTVnK1vFTuQAplFD-WyK8u8';
@@ -19,9 +23,9 @@ const firebaseConfig = {
     appId: "1:772737546715:web:3736545b464523bdc04ffe"
 };
 
-// Initialize Firebase
-firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
+// Initialize Firebase v9
+const firebaseApp = initializeApp(firebaseConfig);
+const database = getDatabase(firebaseApp);
 
 // Initialize Bot with polling
 const bot = new TelegramBot(BOT_TOKEN, { polling: true });
@@ -228,12 +232,15 @@ async function sendReferralNotification(telegramId, userName, referredUserName, 
 
 // Listen for deposit changes
 function setupDepositListeners() {
-    database.ref('deposits').on('child_changed', async (snapshot) => {
+    const depositsRef = ref(database, 'deposits');
+    onChildChanged(depositsRef, async (snapshot) => {
         const deposit = snapshot.val();
         if (!deposit || !deposit.userId) return;
 
-        const userSnap = await database.ref(`users/${deposit.userId}`).once('value');
+        const userRef = ref(database, `users/${deposit.userId}`);
+        const userSnap = await get(userRef);
         const user = userSnap.val();
+
         if (!user || !user.telegramId) return;
 
         if (deposit.status === 'approved' || deposit.status === 'rejected') {
@@ -250,12 +257,15 @@ function setupDepositListeners() {
 
 // Listen for withdrawal changes
 function setupWithdrawalListeners() {
-    database.ref('withdrawals').on('child_changed', async (snapshot) => {
+    const withdrawalsRef = ref(database, 'withdrawals');
+    onChildChanged(withdrawalsRef, async (snapshot) => {
         const withdrawal = snapshot.val();
         if (!withdrawal || !withdrawal.userId) return;
 
-        const userSnap = await database.ref(`users/${withdrawal.userId}`).once('value');
+        const userRef = ref(database, `users/${withdrawal.userId}`);
+        const userSnap = await get(userRef);
         const user = userSnap.val();
+
         if (!user || !user.telegramId) return;
 
         if (withdrawal.status === 'approved' || withdrawal.status === 'rejected') {
@@ -272,10 +282,13 @@ function setupWithdrawalListeners() {
 
 // Listen for new tickets
 function setupTicketListeners() {
-    database.ref('tickets').on('child_added', async (snapshot) => {
+    const ticketsRef = ref(database, 'tickets');
+
+    onChildAdded(ticketsRef, async (snapshot) => {
         const ticket = snapshot.val();
         if (!ticket || !ticket.userId) return;
 
+        // Notify admin about new ticket
         for (const adminId of ADMIN_IDS) {
             try {
                 const message = `🎫 *New Support Ticket*\n\n` +
@@ -293,8 +306,11 @@ function setupTicketListeners() {
             }
         }
 
-        const userSnap = await database.ref(`users/${ticket.userId}`).once('value');
+        // Notify user that ticket is created
+        const userRef = ref(database, `users/${ticket.userId}`);
+        const userSnap = await get(userRef);
         const user = userSnap.val();
+
         if (user && user.telegramId) {
             await sendTicketNotification(
                 user.telegramId,
@@ -305,12 +321,14 @@ function setupTicketListeners() {
         }
     });
 
-    database.ref('tickets').on('child_changed', async (snapshot) => {
+    onChildChanged(ticketsRef, async (snapshot) => {
         const ticket = snapshot.val();
         if (!ticket || !ticket.userId || ticket.status !== 'closed') return;
 
-        const userSnap = await database.ref(`users/${ticket.userId}`).once('value');
+        const userRef = ref(database, `users/${ticket.userId}`);
+        const userSnap = await get(userRef);
         const user = userSnap.val();
+
         if (user && user.telegramId && ticket.reply) {
             await sendTicketNotification(
                 user.telegramId,
@@ -325,17 +343,27 @@ function setupTicketListeners() {
 
 // Listen for new user registrations (referral)
 function setupReferralListeners() {
-    database.ref('users').on('child_added', async (snapshot) => {
+    const usersRef = ref(database, 'users');
+    onChildAdded(usersRef, async (snapshot) => {
         const user = snapshot.val();
         if (!user || !user.referredBy || user.referredBy === 'ADMIN') return;
 
-        const refSnap = await database.ref('users').orderByChild('referralCode').equalTo(user.referredBy).once('value');
-        const refData = refSnap.val();
-        if (!refData) return;
+        const refQuery = ref(database, 'users');
+        const refSnap = await get(refQuery);
+        const allUsers = refSnap.val() || {};
 
-        const referrer = Object.values(refData)[0];
+        // Find referrer by referral code
+        let referrer = null;
+        for (const [uid, uData] of Object.entries(allUsers)) {
+            if (uData.referralCode === user.referredBy) {
+                referrer = uData;
+                break;
+            }
+        }
+
         if (referrer && referrer.telegramId) {
-            const settingsSnap = await database.ref('settings/referAmount').once('value');
+            const settingsRef = ref(database, 'settings/referAmount');
+            const settingsSnap = await get(settingsRef);
             const referAmount = settingsSnap.val() || 15;
 
             await sendReferralNotification(
@@ -351,7 +379,8 @@ function setupReferralListeners() {
 // ==================== ADMIN BROADCAST FUNCTIONS ====================
 
 async function broadcastMessage(text) {
-    const usersSnap = await database.ref('users').once('value');
+    const usersRef = ref(database, 'users');
+    const usersSnap = await get(usersRef);
     const users = usersSnap.val() || {};
 
     let sent = 0;
@@ -373,7 +402,8 @@ async function broadcastMessage(text) {
 }
 
 async function broadcastPhoto(photoFileId, caption) {
-    const usersSnap = await database.ref('users').once('value');
+    const usersRef = ref(database, 'users');
+    const usersSnap = await get(usersRef);
     const users = usersSnap.val() || {};
 
     let sent = 0;
@@ -474,7 +504,8 @@ bot.onText(/\/stats/, async (msg) => {
     if (!isAdmin(chatId)) return;
 
     try {
-        const usersSnap = await database.ref('users').once('value');
+        const usersRef = ref(database, 'users');
+        const usersSnap = await get(usersRef);
         const users = usersSnap.val() || {};
 
         const totalUsers = Object.keys(users).length;
@@ -482,15 +513,18 @@ bot.onText(/\/stats/, async (msg) => {
         const activeUsers = Object.values(users).filter(u => u.status === 'active').length;
         const blockedUsers = Object.values(users).filter(u => u.status === 'blocked').length;
 
-        const depositsSnap = await database.ref('deposits').once('value');
+        const depositsRef = ref(database, 'deposits');
+        const depositsSnap = await get(depositsRef);
         const deposits = depositsSnap.val() || {};
         const pendingDeps = Object.values(deposits).filter(d => d.status === 'pending').length;
 
-        const withdrawalsSnap = await database.ref('withdrawals').once('value');
+        const withdrawalsRef = ref(database, 'withdrawals');
+        const withdrawalsSnap = await get(withdrawalsRef);
         const withdrawals = withdrawalsSnap.val() || {};
         const pendingWiths = Object.values(withdrawals).filter(w => w.status === 'pending').length;
 
-        const ticketsSnap = await database.ref('tickets').once('value');
+        const ticketsRef = ref(database, 'tickets');
+        const ticketsSnap = await get(ticketsRef);
         const tickets = ticketsSnap.val() || {};
         const openTickets = Object.values(tickets).filter(t => t.status === 'open').length;
 
@@ -519,7 +553,8 @@ bot.onText(/\/users/, async (msg) => {
     if (!isAdmin(chatId)) return;
 
     try {
-        const usersSnap = await database.ref('users').once('value');
+        const usersRef = ref(database, 'users');
+        const usersSnap = await get(usersRef);
         const users = usersSnap.val() || {};
 
         const telegramUsers = Object.entries(users)
@@ -644,11 +679,15 @@ bot.on('text', async (msg) => {
             let telegramId = target;
 
             if (target.length === 10 && !isNaN(target)) {
-                const usersSnap = await database.ref('users').orderByChild('phone').equalTo(target).once('value');
-                const users = usersSnap.val();
-                if (users) {
-                    const user = Object.values(users)[0];
-                    telegramId = user.telegramId;
+                const usersRef = ref(database, 'users');
+                const usersSnap = await get(usersRef);
+                const users = usersSnap.val() || {};
+
+                for (const [uid, uData] of Object.entries(users)) {
+                    if (uData.phone === target && uData.telegramId) {
+                        telegramId = uData.telegramId;
+                        break;
+                    }
                 }
             }
 
@@ -768,7 +807,8 @@ async function sendDailyReminders() {
 
         if (currentHour !== 9) return;
 
-        const usersSnap = await database.ref('users').once('value');
+        const usersRef = ref(database, 'users');
+        const usersSnap = await get(usersRef);
         const users = usersSnap.val() || {};
 
         for (const [userId, user] of Object.entries(users)) {
