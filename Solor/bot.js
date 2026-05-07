@@ -1,16 +1,21 @@
 // bot.js - Complete Telegram Bot for Solor Energy
-// FIXED: Using Firebase v9 modular imports (getDatabase instead of firebase.database())
+// FIXED: Express server + Webhook for Render.com production
 
+const express = require('express');
 const TelegramBot = require('node-telegram-bot-api');
 
 // Firebase v9 modular imports
 const { initializeApp } = require('firebase/app');
-const { getDatabase, ref, onValue, onChildAdded, onChildChanged, set, update, remove, push, child, get, once } = require('firebase/database');
+const { getDatabase, ref, onValue, onChildAdded, onChildChanged, set, update, remove, get } = require('firebase/database');
 
 // ==================== CONFIGURATION ====================
 const BOT_TOKEN = '1233674761:AAFdjpqG-N64dTVnK1vFTuQAplFD-WyK8u8';
 const ADMIN_IDS = ['745211839']; // Telegram user IDs of admins
 const ADMIN_PHONE = '+916395503566';
+
+// Express app for health check port
+const app = express();
+const PORT = process.env.PORT || 10000;
 
 // Firebase Config (Same as your app)
 const firebaseConfig = {
@@ -27,11 +32,78 @@ const firebaseConfig = {
 const firebaseApp = initializeApp(firebaseConfig);
 const database = getDatabase(firebaseApp);
 
-// Initialize Bot with polling
-const bot = new TelegramBot(BOT_TOKEN, { polling: true });
-
 // Store admin states for broadcast
 const adminStates = {};
+
+// ==================== EXPRESS SERVER (For Render.com) ====================
+
+// Health check endpoint - Render.com requires this
+app.get('/health', (req, res) => {
+    res.status(200).json({ 
+        status: 'healthy', 
+        bot: 'running',
+        timestamp: new Date().toISOString() 
+    });
+});
+
+// Ping endpoint to keep alive
+app.get('/ping', (req, res) => {
+    res.status(200).send('OK');
+});
+
+// Root endpoint
+app.get('/', (req, res) => {
+    res.status(200).json({ 
+        message: 'Solor Energy Telegram Bot is running!',
+        admin: ADMIN_PHONE,
+        status: 'active'
+    });
+});
+
+// Start Express server
+const server = app.listen(PORT, '0.0.0.0', () => {
+    console.log(`🌐 Express server running on port ${PORT}`);
+    console.log(`📡 Health check: http://0.0.0.0:${PORT}/health`);
+});
+
+// ==================== WEBHOOK SETUP (Better than polling for production) ====================
+
+// Use WEBHOOK_URL from environment variable, or construct from Render URL
+const WEBHOOK_URL = process.env.WEBHOOK_URL || `https://${process.env.RENDER_EXTERNAL_HOSTNAME}/bot${BOT_TOKEN}`;
+
+let bot;
+
+if (process.env.WEBHOOK_URL || process.env.RENDER_EXTERNAL_HOSTNAME) {
+    // Production: Use Webhook
+    bot = new TelegramBot(BOT_TOKEN, { webHook: { port: false } });
+    bot.setWebHook(`${WEBHOOK_URL}/bot${BOT_TOKEN}`).then(() => {
+        console.log('✅ Webhook set:', `${WEBHOOK_URL}/bot${BOT_TOKEN}`);
+    }).catch(err => {
+        console.error('❌ Webhook setup failed:', err.message);
+        // Fallback to polling
+        startPolling();
+    });
+
+    // Express route for webhook
+    app.post(`/bot${BOT_TOKEN}`, (req, res) => {
+        bot.processUpdate(req.body);
+        res.sendStatus(200);
+    });
+} else {
+    // Development: Use Polling
+    startPolling();
+}
+
+function startPolling() {
+    bot = new TelegramBot(BOT_TOKEN, { polling: true });
+    console.log('🔄 Using polling mode (development)');
+
+    // Handle polling errors gracefully
+    bot.on('polling_error', (error) => {
+        console.error('⚠️ Polling error:', error.message);
+        // Don't crash - just log and continue
+    });
+}
 
 // ==================== UTILITY FUNCTIONS ====================
 function isAdmin(chatId) {
@@ -49,7 +121,6 @@ function formatCurrency(amount) {
 
 // ==================== USER NOTIFICATION FUNCTIONS ====================
 
-// Send daily claim reminder to a user
 async function sendDailyClaimReminder(telegramId, userName, claimAmount) {
     if (!telegramId) return;
     try {
@@ -61,13 +132,12 @@ async function sendDailyClaimReminder(telegramId, userName, claimAmount) {
             `☀️ *Solor Energy*`;
 
         await bot.sendMessage(telegramId, message, { parse_mode: 'MarkdownV2' });
-        console.log(`Daily claim reminder sent to ${telegramId}`);
+        console.log(`✅ Daily claim reminder sent to ${telegramId}`);
     } catch (error) {
-        console.error('Error sending daily claim reminder:', error.message);
+        console.error('❌ Error sending daily claim reminder:', error.message);
     }
 }
 
-// Send deposit notification
 async function sendDepositNotification(telegramId, userName, amount, status, reason) {
     if (!telegramId) return;
     reason = reason || '';
@@ -102,13 +172,12 @@ async function sendDepositNotification(telegramId, userName, amount, status, rea
 
         const fullMessage = `${emoji} *${title}*\n\n${message}`;
         await bot.sendMessage(telegramId, fullMessage, { parse_mode: 'MarkdownV2' });
-        console.log(`Deposit ${status} notification sent to ${telegramId}`);
+        console.log(`✅ Deposit ${status} notification sent to ${telegramId}`);
     } catch (error) {
-        console.error('Error sending deposit notification:', error.message);
+        console.error('❌ Error sending deposit notification:', error.message);
     }
 }
 
-// Send withdrawal notification
 async function sendWithdrawalNotification(telegramId, userName, amount, status, reason) {
     if (!telegramId) return;
     reason = reason || '';
@@ -146,13 +215,12 @@ async function sendWithdrawalNotification(telegramId, userName, amount, status, 
 
         const fullMessage = `${emoji} *${title}*\n\n${message}`;
         await bot.sendMessage(telegramId, fullMessage, { parse_mode: 'MarkdownV2' });
-        console.log(`Withdrawal ${status} notification sent to ${telegramId}`);
+        console.log(`✅ Withdrawal ${status} notification sent to ${telegramId}`);
     } catch (error) {
-        console.error('Error sending withdrawal notification:', error.message);
+        console.error('❌ Error sending withdrawal notification:', error.message);
     }
 }
 
-// Send support ticket notification
 async function sendTicketNotification(telegramId, userName, ticketSubject, status, reply) {
     if (!telegramId) return;
     reply = reply || '';
@@ -182,13 +250,12 @@ async function sendTicketNotification(telegramId, userName, ticketSubject, statu
 
         const fullMessage = `${emoji} *${title}*\n\n${message}`;
         await bot.sendMessage(telegramId, fullMessage, { parse_mode: 'MarkdownV2' });
-        console.log(`Ticket ${status} notification sent to ${telegramId}`);
+        console.log(`✅ Ticket ${status} notification sent to ${telegramId}`);
     } catch (error) {
-        console.error('Error sending ticket notification:', error.message);
+        console.error('❌ Error sending ticket notification:', error.message);
     }
 }
 
-// Send plan purchase notification
 async function sendPlanPurchaseNotification(telegramId, userName, planName, price, dailyReturn) {
     if (!telegramId) return;
     try {
@@ -203,13 +270,12 @@ async function sendPlanPurchaseNotification(telegramId, userName, planName, pric
             `☀️ *Solor Energy*`;
 
         await bot.sendMessage(telegramId, message, { parse_mode: 'MarkdownV2' });
-        console.log(`Plan purchase notification sent to ${telegramId}`);
+        console.log(`✅ Plan purchase notification sent to ${telegramId}`);
     } catch (error) {
-        console.error('Error sending plan purchase notification:', error.message);
+        console.error('❌ Error sending plan purchase notification:', error.message);
     }
 }
 
-// Send referral bonus notification
 async function sendReferralNotification(telegramId, userName, referredUserName, amount) {
     if (!telegramId) return;
     try {
@@ -222,65 +288,70 @@ async function sendReferralNotification(telegramId, userName, referredUserName, 
             `☀️ *Solor Energy*`;
 
         await bot.sendMessage(telegramId, message, { parse_mode: 'MarkdownV2' });
-        console.log(`Referral notification sent to ${telegramId}`);
+        console.log(`✅ Referral notification sent to ${telegramId}`);
     } catch (error) {
-        console.error('Error sending referral notification:', error.message);
+        console.error('❌ Error sending referral notification:', error.message);
     }
 }
 
-// ==================== FIREBASE LISTENERS FOR AUTOMATIC NOTIFICATIONS ====================
+// ==================== FIREBASE LISTENERS ====================
 
-// Listen for deposit changes
 function setupDepositListeners() {
     const depositsRef = ref(database, 'deposits');
     onChildChanged(depositsRef, async (snapshot) => {
         const deposit = snapshot.val();
         if (!deposit || !deposit.userId) return;
 
-        const userRef = ref(database, `users/${deposit.userId}`);
-        const userSnap = await get(userRef);
-        const user = userSnap.val();
+        try {
+            const userRef = ref(database, `users/${deposit.userId}`);
+            const userSnap = await get(userRef);
+            const user = userSnap.val();
 
-        if (!user || !user.telegramId) return;
+            if (!user || !user.telegramId) return;
 
-        if (deposit.status === 'approved' || deposit.status === 'rejected') {
-            await sendDepositNotification(
-                user.telegramId,
-                user.name,
-                deposit.amount,
-                deposit.status,
-                deposit.adminReason
-            );
+            if (deposit.status === 'approved' || deposit.status === 'rejected') {
+                await sendDepositNotification(
+                    user.telegramId,
+                    user.name,
+                    deposit.amount,
+                    deposit.status,
+                    deposit.adminReason
+                );
+            }
+        } catch (error) {
+            console.error('❌ Deposit listener error:', error.message);
         }
     });
 }
 
-// Listen for withdrawal changes
 function setupWithdrawalListeners() {
     const withdrawalsRef = ref(database, 'withdrawals');
     onChildChanged(withdrawalsRef, async (snapshot) => {
         const withdrawal = snapshot.val();
         if (!withdrawal || !withdrawal.userId) return;
 
-        const userRef = ref(database, `users/${withdrawal.userId}`);
-        const userSnap = await get(userRef);
-        const user = userSnap.val();
+        try {
+            const userRef = ref(database, `users/${withdrawal.userId}`);
+            const userSnap = await get(userRef);
+            const user = userSnap.val();
 
-        if (!user || !user.telegramId) return;
+            if (!user || !user.telegramId) return;
 
-        if (withdrawal.status === 'approved' || withdrawal.status === 'rejected') {
-            await sendWithdrawalNotification(
-                user.telegramId,
-                user.name,
-                withdrawal.amount,
-                withdrawal.status,
-                withdrawal.adminReason
-            );
+            if (withdrawal.status === 'approved' || withdrawal.status === 'rejected') {
+                await sendWithdrawalNotification(
+                    user.telegramId,
+                    user.name,
+                    withdrawal.amount,
+                    withdrawal.status,
+                    withdrawal.adminReason
+                );
+            }
+        } catch (error) {
+            console.error('❌ Withdrawal listener error:', error.message);
         }
     });
 }
 
-// Listen for new tickets
 function setupTicketListeners() {
     const ticketsRef = ref(database, 'tickets');
 
@@ -302,22 +373,26 @@ function setupTicketListeners() {
 
                 await bot.sendMessage(adminId, message, { parse_mode: 'MarkdownV2' });
             } catch (error) {
-                console.error('Error notifying admin:', error.message);
+                console.error('❌ Error notifying admin:', error.message);
             }
         }
 
         // Notify user that ticket is created
-        const userRef = ref(database, `users/${ticket.userId}`);
-        const userSnap = await get(userRef);
-        const user = userSnap.val();
+        try {
+            const userRef = ref(database, `users/${ticket.userId}`);
+            const userSnap = await get(userRef);
+            const user = userSnap.val();
 
-        if (user && user.telegramId) {
-            await sendTicketNotification(
-                user.telegramId,
-                user.name,
-                ticket.subject,
-                'created'
-            );
+            if (user && user.telegramId) {
+                await sendTicketNotification(
+                    user.telegramId,
+                    user.name,
+                    ticket.subject,
+                    'created'
+                );
+            }
+        } catch (error) {
+            console.error('❌ Ticket user notify error:', error.message);
         }
     });
 
@@ -325,53 +400,59 @@ function setupTicketListeners() {
         const ticket = snapshot.val();
         if (!ticket || !ticket.userId || ticket.status !== 'closed') return;
 
-        const userRef = ref(database, `users/${ticket.userId}`);
-        const userSnap = await get(userRef);
-        const user = userSnap.val();
+        try {
+            const userRef = ref(database, `users/${ticket.userId}`);
+            const userSnap = await get(userRef);
+            const user = userSnap.val();
 
-        if (user && user.telegramId && ticket.reply) {
-            await sendTicketNotification(
-                user.telegramId,
-                user.name,
-                ticket.subject,
-                'replied',
-                ticket.reply
-            );
+            if (user && user.telegramId && ticket.reply) {
+                await sendTicketNotification(
+                    user.telegramId,
+                    user.name,
+                    ticket.subject,
+                    'replied',
+                    ticket.reply
+                );
+            }
+        } catch (error) {
+            console.error('❌ Ticket reply error:', error.message);
         }
     });
 }
 
-// Listen for new user registrations (referral)
 function setupReferralListeners() {
     const usersRef = ref(database, 'users');
     onChildAdded(usersRef, async (snapshot) => {
         const user = snapshot.val();
         if (!user || !user.referredBy || user.referredBy === 'ADMIN') return;
 
-        const refQuery = ref(database, 'users');
-        const refSnap = await get(refQuery);
-        const allUsers = refSnap.val() || {};
+        try {
+            const refQuery = ref(database, 'users');
+            const refSnap = await get(refQuery);
+            const allUsers = refSnap.val() || {};
 
-        // Find referrer by referral code
-        let referrer = null;
-        for (const [uid, uData] of Object.entries(allUsers)) {
-            if (uData.referralCode === user.referredBy) {
-                referrer = uData;
-                break;
+            let referrer = null;
+            for (const [uid, uData] of Object.entries(allUsers)) {
+                if (uData.referralCode === user.referredBy) {
+                    referrer = uData;
+                    break;
+                }
             }
-        }
 
-        if (referrer && referrer.telegramId) {
-            const settingsRef = ref(database, 'settings/referAmount');
-            const settingsSnap = await get(settingsRef);
-            const referAmount = settingsSnap.val() || 15;
+            if (referrer && referrer.telegramId) {
+                const settingsRef = ref(database, 'settings/referAmount');
+                const settingsSnap = await get(settingsRef);
+                const referAmount = settingsSnap.val() || 15;
 
-            await sendReferralNotification(
-                referrer.telegramId,
-                referrer.name,
-                user.name,
-                referAmount
-            );
+                await sendReferralNotification(
+                    referrer.telegramId,
+                    referrer.name,
+                    user.name,
+                    referAmount
+                );
+            }
+        } catch (error) {
+            console.error('❌ Referral listener error:', error.message);
         }
     });
 }
@@ -379,57 +460,66 @@ function setupReferralListeners() {
 // ==================== ADMIN BROADCAST FUNCTIONS ====================
 
 async function broadcastMessage(text) {
-    const usersRef = ref(database, 'users');
-    const usersSnap = await get(usersRef);
-    const users = usersSnap.val() || {};
+    try {
+        const usersRef = ref(database, 'users');
+        const usersSnap = await get(usersRef);
+        const users = usersSnap.val() || {};
 
-    let sent = 0;
-    let failed = 0;
+        let sent = 0;
+        let failed = 0;
 
-    for (const [userId, user] of Object.entries(users)) {
-        if (user.telegramId) {
-            try {
-                await bot.sendMessage(user.telegramId, text, { parse_mode: 'MarkdownV2' });
-                sent++;
-            } catch (error) {
-                failed++;
-                console.error(`Failed to send to ${userId}:`, error.message);
+        for (const [userId, user] of Object.entries(users)) {
+            if (user.telegramId) {
+                try {
+                    await bot.sendMessage(user.telegramId, text, { parse_mode: 'MarkdownV2' });
+                    sent++;
+                } catch (error) {
+                    failed++;
+                    console.error(`❌ Failed to send to ${userId}:`, error.message);
+                }
             }
         }
-    }
 
-    return { sent, failed, total: Object.keys(users).length };
+        return { sent, failed, total: Object.keys(users).length };
+    } catch (error) {
+        console.error('❌ Broadcast error:', error.message);
+        return { sent: 0, failed: 0, total: 0 };
+    }
 }
 
 async function broadcastPhoto(photoFileId, caption) {
-    const usersRef = ref(database, 'users');
-    const usersSnap = await get(usersRef);
-    const users = usersSnap.val() || {};
+    try {
+        const usersRef = ref(database, 'users');
+        const usersSnap = await get(usersRef);
+        const users = usersSnap.val() || {};
 
-    let sent = 0;
-    let failed = 0;
+        let sent = 0;
+        let failed = 0;
 
-    for (const [userId, user] of Object.entries(users)) {
-        if (user.telegramId) {
-            try {
-                await bot.sendPhoto(user.telegramId, photoFileId, {
-                    caption: caption || '',
-                    parse_mode: 'MarkdownV2'
-                });
-                sent++;
-            } catch (error) {
-                failed++;
-                console.error(`Failed to send photo to ${userId}:`, error.message);
+        for (const [userId, user] of Object.entries(users)) {
+            if (user.telegramId) {
+                try {
+                    await bot.sendPhoto(user.telegramId, photoFileId, {
+                        caption: caption || '',
+                        parse_mode: 'MarkdownV2'
+                    });
+                    sent++;
+                } catch (error) {
+                    failed++;
+                    console.error(`❌ Failed to send photo to ${userId}:`, error.message);
+                }
             }
         }
-    }
 
-    return { sent, failed, total: Object.keys(users).length };
+        return { sent, failed, total: Object.keys(users).length };
+    } catch (error) {
+        console.error('❌ Photo broadcast error:', error.message);
+        return { sent: 0, failed: 0, total: 0 };
+    }
 }
 
 // ==================== BOT COMMAND HANDLERS ====================
 
-// Start command
 bot.onText(/\/start/, async (msg) => {
     const chatId = msg.chat.id;
     const username = msg.from.first_name || 'User';
@@ -480,7 +570,6 @@ bot.onText(/\/start/, async (msg) => {
     }
 });
 
-// Admin: Broadcast text message
 bot.onText(/\/broadcast/, async (msg) => {
     const chatId = msg.chat.id;
     if (!isAdmin(chatId)) return;
@@ -489,7 +578,6 @@ bot.onText(/\/broadcast/, async (msg) => {
     await bot.sendMessage(chatId, '📢 *Broadcast Mode*\n\nPlease type the message you want to send to ALL users\n\nUse *bold* , _italic_ , or `code` formatting\n\nType /cancel to exit', { parse_mode: 'MarkdownV2' });
 });
 
-// Admin: Broadcast photo
 bot.onText(/\/broadcastpic/, async (msg) => {
     const chatId = msg.chat.id;
     if (!isAdmin(chatId)) return;
@@ -498,7 +586,6 @@ bot.onText(/\/broadcastpic/, async (msg) => {
     await bot.sendMessage(chatId, '📸 *Broadcast Photo Mode*\n\nPlease send the photo you want to broadcast\n\nType /cancel to exit', { parse_mode: 'MarkdownV2' });
 });
 
-// Admin: Statistics
 bot.onText(/\/stats/, async (msg) => {
     const chatId = msg.chat.id;
     if (!isAdmin(chatId)) return;
@@ -547,7 +634,6 @@ bot.onText(/\/stats/, async (msg) => {
     }
 });
 
-// Admin: List users with Telegram
 bot.onText(/\/users/, async (msg) => {
     const chatId = msg.chat.id;
     if (!isAdmin(chatId)) return;
@@ -585,7 +671,6 @@ bot.onText(/\/users/, async (msg) => {
     }
 });
 
-// Admin: Notify specific user
 bot.onText(/\/notifyuser/, async (msg) => {
     const chatId = msg.chat.id;
     if (!isAdmin(chatId)) return;
@@ -594,7 +679,6 @@ bot.onText(/\/notifyuser/, async (msg) => {
     await bot.sendMessage(chatId, '👤 *Notify User*\n\nPlease enter the user\'s Telegram ID or Phone Number\n\nType /cancel to exit', { parse_mode: 'MarkdownV2' });
 });
 
-// Cancel command
 bot.onText(/\/cancel/, async (msg) => {
     const chatId = msg.chat.id;
     delete adminStates[chatId];
@@ -830,9 +914,9 @@ async function sendDailyReminders() {
             await sendDailyClaimReminder(user.telegramId, user.name, totalDaily);
         }
 
-        console.log('Daily reminders sent successfully');
+        console.log('✅ Daily reminders sent successfully');
     } catch (error) {
-        console.error('Error sending daily reminders:', error);
+        console.error('❌ Error sending daily reminders:', error);
     }
 }
 
@@ -851,16 +935,31 @@ setupReferralListeners();
 console.log('✅ All Firebase listeners active');
 console.log('✅ Bot is ready to send notifications');
 
-bot.on('polling_error', (error) => {
-    console.error('Polling error:', error.message);
+// Handle bot errors gracefully
+bot.on('error', (error) => {
+    console.error('⚠️ Bot error:', error.message);
 });
 
-bot.on('error', (error) => {
-    console.error('Bot error:', error.message);
+// Graceful shutdown
+process.on('SIGTERM', () => {
+    console.log('\n🛑 SIGTERM received. Shutting down gracefully...');
+    server.close(() => {
+        console.log('✅ Express server closed');
+        if (bot.stopPolling) bot.stopPolling();
+        process.exit(0);
+    });
+
+    // Force exit after 25 seconds
+    setTimeout(() => {
+        console.log('⚠️ Forced exit after timeout');
+        process.exit(1);
+    }, 25000);
 });
 
 process.on('SIGINT', () => {
-    console.log('\n🛑 Bot shutting down...');
-    bot.stopPolling();
-    process.exit(0);
+    console.log('\n🛑 SIGINT received. Shutting down...');
+    server.close(() => {
+        if (bot.stopPolling) bot.stopPolling();
+        process.exit(0);
+    });
 });
