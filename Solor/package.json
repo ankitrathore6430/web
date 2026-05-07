@@ -1,7 +1,7 @@
 {
   "name": "solor-energy-telegram-bot",
   "version": "1.0.0",
-  "description": "Telegram Bot for Solor Energy - Notifications & Admin Broadcast",
+  "description": "Telegram Bot for Solor Energy - Webhook + Express + Firebase v9",
   "main": "bot.js",
   "scripts": {
     "start": "node bot.js",
