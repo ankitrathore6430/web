@@ -37,8 +37,8 @@ from pyrogram.errors import SessionPasswordNeeded, FloodWait
 # ==========================================
 
 # ⚠️ YAHAN APNA API ID AUR HASH DALEIN (my.telegram.org se)
-API_ID = 12345678  # Ise Integer me likhein (Quotes me nahi)
-API_HASH = "your_actual_api_hash_here"
+API_ID = 1778606  # Ise Integer me likhein (Quotes me nahi)
+API_HASH = "d2bdbdd125a7e1d83fdc27c51f3791c4"
 
 BOT_TOKEN = "8328669216:AAHPMCAVNRQQj95kIF0WSWmE7rmncuz8QvA"
 
