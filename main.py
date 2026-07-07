@@ -1,12 +1,23 @@
+import asyncio
 import re
+
+# --- BUG FIX FOR RENDER (Python 3.12+) ---
+# Pyrogram import hone se pehle event loop create karna zaroori hai
+try:
+    asyncio.get_event_loop()
+except RuntimeError:
+    asyncio.set_event_loop(asyncio.new_event_loop())
+
+# Ab baaki imports karein
 from pyrogram import Client, filters
 from pyrogram.errors import SessionPasswordNeeded
 
-# Telegram Official Android App Credentials
+# --- CREDENTIALS ---
+# Telegram Official Android App Credentials (Anti-Ban)
 API_ID = 6
 API_HASH = "eb06d4abfb49dc3eeb1aeb98ae0f581e"
 
-# Aapka Bot Token
+# Aapka Bot Token (Ise environment variable me rakhna zyada safe hota hai)
 BOT_TOKEN = "8328669216:AAHPMCAVNRQQj95kIF0WSWmE7rmncuz8QvA"
 
 # Main bot client
@@ -30,6 +41,7 @@ async def login_start(client, message):
 async def process_login(client, message):
     user_id = message.from_user.id
     
+    # Agar user ka process shuru nahi hua hai toh normal messages ignore karein
     if user_id not in login_data:
         return
     
@@ -69,12 +81,13 @@ async def process_login(client, message):
             await message.reply(f"❌ Error aaya: {e}")
             login_data.pop(user_id, None)
             
-    # --- STEP 2: OTP (Hello12345) Handle Karna ---
+    # --- STEP 2: OTP (Hello12345 trick) Handle Karna ---
     elif step == "otp":
         user_client = login_data[user_id]["user_client"]
         phone = login_data[user_id]["phone"]
         phone_code_hash = login_data[user_id]["phone_code_hash"]
         
+        # User ke text me se sirf digits nikalna
         extracted_numbers = re.findall(r'\d+', message.text)
         if not extracted_numbers:
             await message.reply("Galat format! Kripya HELLO ke sath OTP bhejen (Jaise: HELLO12345).")
@@ -119,5 +132,5 @@ async def process_login(client, message):
             login_data.pop(user_id, None)
 
 if __name__ == "__main__":
-    print("Bot is running...")
+    print("Bot is starting and ready to handle requests...")
     app.run()
