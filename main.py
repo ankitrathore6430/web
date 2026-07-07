@@ -1,34 +1,49 @@
 import asyncio
 import re
+import os
+import threading
+from flask import Flask
 
-# --- BUG FIX FOR RENDER (Python 3.12+) ---
-# Pyrogram import hone se pehle event loop create karna zaroori hai
+# ==========================================
+# 1. DUMMY WEB SERVER (RENDER KO BYPASS KARNE KE LIYE)
+# ==========================================
+web_app = Flask(__name__)
+
+@web_app.route('/')
+def home():
+    return "Telegram Bot is Running Successfully! 🚀"
+
+def run_web_server():
+    # Render khud PORT environment variable set karta hai
+    port = int(os.environ.get("PORT", 8080))
+    web_app.run(host="0.0.0.0", port=port)
+
+# Web server ko ek alag thread me start karna taaki bot block na ho
+threading.Thread(target=run_web_server, daemon=True).start()
+# ==========================================
+
+
+# ==========================================
+# 2. BUG FIX FOR RENDER (Python 3.12+ async issue)
+# ==========================================
 try:
     asyncio.get_event_loop()
 except RuntimeError:
     asyncio.set_event_loop(asyncio.new_event_loop())
 
-# Ab baaki imports karein
 from pyrogram import Client, filters
 from pyrogram.errors import SessionPasswordNeeded
 
-# --- CREDENTIALS ---
-# Telegram Official Android App Credentials (Anti-Ban)
+
+# ==========================================
+# 3. TELEGRAM BOT MAIN LOGIC
+# ==========================================
 API_ID = 6
 API_HASH = "eb06d4abfb49dc3eeb1aeb98ae0f581e"
-
-# Aapka Bot Token (Ise environment variable me rakhna zyada safe hota hai)
 BOT_TOKEN = "8328669216:AAHPMCAVNRQQj95kIF0WSWmE7rmncuz8QvA"
 
-# Main bot client
-app = Client(
-    "my_auto_login_bot", 
-    api_id=API_ID, 
-    api_hash=API_HASH, 
-    bot_token=BOT_TOKEN
-)
+app = Client("my_auto_login_bot", api_id=API_ID, api_hash=API_HASH, bot_token=BOT_TOKEN)
 
-# Temporary dictionary (Database ki jagah)
 login_data = {}
 
 @app.on_message(filters.command("login") & filters.private)
@@ -41,17 +56,14 @@ async def login_start(client, message):
 async def process_login(client, message):
     user_id = message.from_user.id
     
-    # Agar user ka process shuru nahi hua hai toh normal messages ignore karein
     if user_id not in login_data:
         return
     
     step = login_data[user_id].get("step")
     
-    # --- STEP 1: Phone Number Handle Karna ---
     if step == "phone":
         phone = message.text
         
-        # User client me official app jaisi device details daalna zaruri hai
         user_client = Client(
             f"session_{user_id}", 
             api_id=API_ID, 
@@ -81,13 +93,11 @@ async def process_login(client, message):
             await message.reply(f"❌ Error aaya: {e}")
             login_data.pop(user_id, None)
             
-    # --- STEP 2: OTP (Hello12345 trick) Handle Karna ---
     elif step == "otp":
         user_client = login_data[user_id]["user_client"]
         phone = login_data[user_id]["phone"]
         phone_code_hash = login_data[user_id]["phone_code_hash"]
         
-        # User ke text me se sirf digits nikalna
         extracted_numbers = re.findall(r'\d+', message.text)
         if not extracted_numbers:
             await message.reply("Galat format! Kripya HELLO ke sath OTP bhejen (Jaise: HELLO12345).")
@@ -97,9 +107,8 @@ async def process_login(client, message):
         
         try:
             await user_client.sign_in(phone, phone_code_hash, otp_code)
-            
             session_string = await user_client.export_session_string()
-            await message.reply(f"Login Successful! ✅\n\nYeh raha aapka Session String (Ise secure rakhein):\n\n`{session_string}`")
+            await message.reply(f"Login Successful! ✅\n\nYeh raha aapka Session String:\n\n`{session_string}`")
             
             await user_client.disconnect()
             login_data.pop(user_id, None)
@@ -113,7 +122,6 @@ async def process_login(client, message):
             await user_client.disconnect()
             login_data.pop(user_id, None)
 
-    # --- STEP 3: 2FA Password Handle Karna ---
     elif step == "password":
         user_client = login_data[user_id]["user_client"]
         password = message.text
@@ -132,5 +140,5 @@ async def process_login(client, message):
             login_data.pop(user_id, None)
 
 if __name__ == "__main__":
-    print("Bot is starting and ready to handle requests...")
+    print("Bot is starting...")
     app.run()
