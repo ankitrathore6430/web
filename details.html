@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Phone Number Search | Premium ESI Lookup</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #6366f1;
+            --primary-light: #818cf8;
+            --primary-dark: #4f46e5;
+            --accent: #06b6d4;
+            --accent-glow: rgba(6, 182, 212, 0.35);
+            --success: #10b981;
+            --error: #ef4444;
+            --bg-dark: #09090e;
+            --bg-card: rgba(18, 18, 28, 0.75);
+            --bg-glass: rgba(255, 255, 255, 0.03);
+            --border: rgba(255, 255, 255, 0.08);
+            --border-hover: rgba(255, 255, 255, 0.16);
+            --text-primary: #f8fafc;
+            --text-secondary: #94a3b8;
+            --text-muted: #64748b;
+            --shadow-glow: 0 0 50px rgba(99, 102, 241, 0.18);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background: var(--bg-dark);
+            min-height: 100vh;
+            color: var(--text-primary);
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        /* Animated ambient lighting */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 25% 30%, rgba(99, 102, 241, 0.09) 0%, transparent 45%),
+                radial-gradient(circle at 75% 70%, rgba(6, 182, 212, 0.07) 0%, transparent 45%),
+                radial-gradient(circle at 50% 50%, rgba(139, 92, 246, 0.05) 0%, transparent 55%);
+            animation: bgFloat 20s ease-in-out infinite;
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        @keyframes bgFloat {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(2%, 2%) rotate(1deg); }
+            66% { transform: translate(-1%, 1%) rotate(-1deg); }
+        }
+
+        .page-wrapper {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Header */
+        .header {
+            text-align: center;
+            padding: 50px 20px 24px;
+        }
+
+        .header-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 18px;
+            background: var(--bg-glass);
+            border: 1px solid var(--border);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 20px;
+            backdrop-filter: blur(12px);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .header-badge .dot {
+            width: 8px;
+            height: 8px;
+            background: var(--success);
+            border-radius: 50%;
+            box-shadow: 0 0 12px var(--success);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .header h1 {
+            font-size: 2.6rem;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, #ffffff 0%, #a5b4fc 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            max-width: 480px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        /* Main Container */
+        .container {
+            flex: 1;
+            max-width: 850px;
+            width: 100%;
+            margin: 0 auto;
+            padding: 0 20px 50px;
+        }
+
+        /* Search Card */
+        .search-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(24px);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 30px;
+            margin-bottom: 28px;
+            box-shadow: var(--shadow-glow), 0 20px 60px rgba(0,0,0,0.4);
+            transition: border-color 0.3s;
+        }
+
+        .search-card:hover {
+            border-color: var(--border-hover);
+        }
+
+        .search-label {
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 14px;
+            display: block;
+        }
+
+        .search-box {
+            display: flex;
+            gap: 14px;
+            position: relative;
+        }
+
+        .input-wrapper {
+            flex: 1;
+            position: relative;
+        }
+
+        .input-wrapper .prefix {
+            position: absolute;
+            left: 20px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.1rem;
+            font-weight: 500;
+            pointer-events: none;
+            z-index: 2;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 18px 20px 18px 56px;
+            font-size: 1.25rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 600;
+            letter-spacing: 2px;
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--text-primary);
+            outline: none;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        input[type="text"]::placeholder {
+            color: var(--text-muted);
+            font-family: 'Inter', sans-serif;
+            font-weight: 400;
+            letter-spacing: normal;
+            font-size: 1rem;
+        }
+
+        input[type="text"]:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.18), 0 0 30px rgba(99, 102, 241, 0.15);
+            background: rgba(0, 0, 0, 0.45);
+        }
+
+        /* ⚡ ULTRA-PREMIUM SEARCH BUTTON */
+        .search-btn {
+            padding: 0 38px;
+            font-size: 1.05rem;
+            font-weight: 700;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            background: linear-gradient(135deg, var(--primary) 0%, #4338ca 50%, var(--accent) 100%);
+            background-size: 200% 200%;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+            white-space: nowrap;
+            box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3);
+        }
+
+        .search-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.25), transparent);
+            transition: left 0.6s ease;
+        }
+
+        .search-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            background-position: 100% 0%;
+            box-shadow: 0 14px 40px rgba(6, 182, 212, 0.4), 0 0 20px rgba(99, 102, 241, 0.4);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .search-btn:hover:not(:disabled)::before {
+            left: 100%;
+        }
+
+        .search-btn:active:not(:disabled) {
+            transform: translateY(1px);
+        }
+
+        .search-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .search-btn .btn-text {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Info Box */
+        .info-box {
+            margin-top: 20px;
+            padding: 14px 18px;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.08), rgba(6, 182, 212, 0.05));
+            border: 1px solid rgba(99, 102, 241, 0.15);
+            border-radius: 12px;
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            display: none;
+            align-items: center;
+            gap: 12px;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .info-box.show {
+            display: flex;
+        }
+
+        /* Loading */
+        .loading-card {
+            text-align: center;
+            padding: 50px 20px;
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .loading-card.show {
+            display: block;
+        }
+
+        .spinner-ring {
+            width: 56px;
+            height: 56px;
+            margin: 0 auto 20px;
+            position: relative;
+        }
+
+        .spinner-ring::before,
+        .spinner-ring::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            border: 3px solid transparent;
+        }
+
+        .spinner-ring::before {
+            width: 100%;
+            height: 100%;
+            border-top-color: var(--primary-light);
+            border-right-color: var(--primary);
+            animation: spin 1s linear infinite;
+        }
+
+        .spinner-ring::after {
+            width: 70%;
+            height: 70%;
+            top: 15%;
+            left: 15%;
+            border-bottom-color: var(--accent);
+            border-left-color: var(--accent);
+            animation: spin 0.7s linear infinite reverse;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ==========================================
+           ⚡ VERTICAL ESI CARD LAYOUT
+        ========================================== */
+        .esi-container {
+            display: flex;
+            flex-direction: column;
+            gap: 24px;
+            margin-top: 10px;
+        }
+
+        .esi-card {
+            background: var(--bg-card);
+            backdrop-filter: blur(24px);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35);
+            transition: all 0.3s ease;
+            animation: slideUp 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .esi-card:hover {
+            border-color: var(--border-hover);
+            transform: translateY(-2px);
+        }
+
+        .esi-card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 24px;
+            background: linear-gradient(90deg, rgba(99, 102, 241, 0.12), rgba(6, 182, 212, 0.05));
+            border-bottom: 1px solid var(--border);
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .esi-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 14px;
+            background: rgba(99, 102, 241, 0.2);
+            border: 1px solid rgba(129, 140, 248, 0.3);
+            border-radius: 100px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            color: #c7d2fe;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        /* ⚡ TIMER BADGE */
+        .time-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 12px;
+            background: rgba(6, 182, 212, 0.12);
+            border: 1px solid rgba(6, 182, 212, 0.3);
+            border-radius: 100px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            color: #38bdf8;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .esi-file-tag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Key-Value Vertical Rows */
+        .esi-row {
+            display: flex;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            transition: background 0.2s;
+        }
+
+        .esi-row:last-child {
+            border-bottom: none;
+        }
+
+        .esi-row:hover {
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .esi-label {
+            width: 40%;
+            max-width: 220px;
+            padding: 16px 24px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-secondary);
+            border-right: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(0, 0, 0, 0.15);
+            display: flex;
+            align-items: center;
+        }
+
+        .esi-value {
+            flex: 1;
+            padding: 16px 24px;
+            font-size: 0.95rem;
+            font-weight: 500;
+            color: var(--text-primary);
+            word-break: break-word;
+            display: flex;
+            align-items: center;
+        }
+
+        .val-mobile {
+            font-family: 'JetBrains Mono', monospace;
+            font-weight: 700;
+            color: #38bdf8;
+            font-size: 1.05rem;
+            letter-spacing: 1px;
+        }
+
+        .val-email {
+            color: #818cf8;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .val-alt {
+            font-family: 'JetBrains Mono', monospace;
+            color: var(--text-secondary);
+        }
+
+        .val-address {
+            color: #cbd5e1;
+            line-height: 1.5;
+            font-size: 0.9rem;
+        }
+
+        /* Error & Empty State Cards */
+        .error-card {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.08), rgba(239, 68, 68, 0.03));
+            border: 1px solid rgba(239, 68, 68, 0.2);
+            border-radius: 20px;
+            padding: 40px 30px;
+            text-align: center;
+            display: none;
+            animation: shake 0.4s ease;
+        }
+
+        .error-card.show {
+            display: block;
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-6px); }
+            40% { transform: translateX(6px); }
+            60% { transform: translateX(-3px); }
+            80% { transform: translateX(3px); }
+        }
+
+        /* Init Card */
+        .init-card {
+            text-align: center;
+            padding: 80px 20px;
+            animation: fadeIn 0.5s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .init-card .progress-bar {
+            width: 200px;
+            height: 4px;
+            background: var(--border);
+            border-radius: 2px;
+            margin: 24px auto 0;
+            overflow: hidden;
+        }
+
+        .init-card .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            border-radius: 2px;
+            animation: progress 2.5s ease-in-out infinite;
+        }
+
+        @keyframes progress {
+            0% { width: 0%; margin-left: 0%; }
+            50% { width: 70%; margin-left: 15%; }
+            100% { width: 0%; margin-left: 100%; }
+        }
+
+        /* ⚡ CUSTOM FOOTER */
+        .footer {
+            text-align: center;
+            padding: 35px 20px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+        }
+
+        .creator-tag {
+            font-weight: 700;
+            background: linear-gradient(135deg, #a5b4fc 0%, #38bdf8 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 0.5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) {
+            .header h1 { font-size: 2rem; }
+            .search-card { padding: 22px; }
+            .search-box { flex-direction: column; }
+            .search-btn { width: 100%; padding: 16px; justify-content: center; }
+            input[type="text"] { font-size: 1.15rem; padding: 16px 16px 16px 50px; }
+            .esi-label { width: 45%; padding: 14px 16px; font-size: 0.8rem; }
+            .esi-value { padding: 14px 16px; font-size: 0.9rem; }
+            .esi-card-header { flex-direction: column; align-items: flex-start; gap: 8px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <header class="header">
+            <div class="header-badge">
+                <span class="dot"></span>
+                Premium ESI Profile Lookup
+            </div>
+            <h1>Phone Number Search</h1>
+            <p>Search any 10-digit mobile number and view structured vertical profile cards</p>
+        </header>
+
+        <main class="container">
+            <!-- Init -->
+            <div id="initCard" class="init-card">
+                <div class="spinner-ring"></div>
+                <h3>Initializing Database Engine</h3>
+                <p style="color:var(--text-muted); margin-top:8px;">Loading DuckDB-WASM for ultra-fast browser parsing...</p>
+                <div class="progress-bar"><div class="progress-fill"></div></div>
+            </div>
+
+            <!-- Search Section -->
+            <div id="searchSection" style="display:none;">
+                <div class="search-card">
+                    <label class="search-label">Enter 10-Digit Mobile Number</label>
+                    <div class="search-box">
+                        <div class="input-wrapper">
+                            <span class="prefix">+91</span>
+                            <input type="text" id="phoneInput" placeholder="9876543210" maxlength="10" autocomplete="off" inputmode="numeric">
+                        </div>
+                        <!-- ⚡ SLEEK PREMIUM BUTTON -->
+                        <button id="searchBtn" class="search-btn" onclick="searchNumber()">
+                            <span class="btn-text">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                Search Profile
+                            </span>
+                        </button>
+                    </div>
+                    <div id="infoBox" class="info-box">
+                        <span id="infoText"></span>
+                    </div>
+                </div>
+
+                <!-- Loading -->
+                <div id="loadingCard" class="loading-card">
+                    <div class="spinner-ring"></div>
+                    <h3 style="margin-bottom:6px;">Searching Dataset</h3>
+                    <p style="color:var(--text-muted); font-size:0.9rem;">Fetching and parsing Parquet partition...</p>
+                </div>
+
+                <!-- Error Card -->
+                <div id="errorCard" class="error-card">
+                    <div style="font-size:2.5rem; margin-bottom:12px;">⚠️</div>
+                    <h3 id="errorTitle" style="color:var(--error); margin-bottom:8px;">Error</h3>
+                    <p id="errorMsg" style="color:var(--text-muted);"></p>
+                </div>
+
+                <!-- Vertical ESI Cards Container -->
+                <div id="esiResults" class="esi-container"></div>
+            </div>
+        </main>
+
+        <!-- ⚡ CREATOR BANNER FOOTER -->
+        <footer class="footer">
+            This Tool Created by <span class="creator-tag">Ankit Rathore</span>
+        </footer>
+    </div>
+
+    <script type="module">
+        import * as duckdb from 'https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@1.28.1-dev106.0/+esm';
+
+        let conn = null;
+        const REPO_BASE = 'https://huggingface.co/datasets/Ankitrathore6430/Usersdata/resolve/main/data';
+
+        async function initDB() {
+            try {
+                const JSDELIVR_BUNDLES = duckdb.getJsDelivrBundles();
+                const bundle = await duckdb.selectBundle(JSDELIVR_BUNDLES);
+
+                const worker_url = URL.createObjectURL(
+                    new Blob([`importScripts("${bundle.mainWorker}");`], {type: 'text/javascript'})
+                );
+
+                const worker = new Worker(worker_url);
+                const logger = new duckdb.ConsoleLogger();
+                const db = new duckdb.AsyncDuckDB(logger, worker);
+                await db.instantiate(bundle.mainModule, bundle.pthreadWorker);
+                URL.revokeObjectURL(worker_url);
+
+                conn = await db.connect();
+
+                document.getElementById('initCard').style.display = 'none';
+                document.getElementById('searchSection').style.display = 'block';
+                document.getElementById('phoneInput').focus();
+            } catch (e) {
+                document.getElementById('initCard').innerHTML = `
+                    <div style="color:var(--error); font-size:3rem; margin-bottom:16px;">⚠️</div>
+                    <h3 style="color:var(--error);">Engine Initialization Failed</h3>
+                    <p style="color:var(--text-muted); margin-top:8px;">${e.message}</p>
+                `;
+            }
+        }
+
+        window.searchNumber = async function() {
+            const phone = document.getElementById('phoneInput').value.trim();
+            const btn = document.getElementById('searchBtn');
+            const infoBox = document.getElementById('infoBox');
+            const loadingCard = document.getElementById('loadingCard');
+            const errorCard = document.getElementById('errorCard');
+            const esiResults = document.getElementById('esiResults');
+
+            infoBox.className = 'info-box';
+            errorCard.className = 'error-card';
+            esiResults.innerHTML = '';
+
+            if (!/^\d{10}$/.test(phone)) {
+                document.getElementById('errorTitle').textContent = 'Invalid Mobile Number';
+                document.getElementById('errorMsg').textContent = 'Please enter exactly 10 digits without any spaces or country codes.';
+                errorCard.className = 'error-card show';
+                return;
+            }
+
+            const prefix6 = phone.substring(0, 6);
+            const folder2 = prefix6.substring(0, 2);
+            const file4 = prefix6.substring(2);
+            const parquetUrl = `${REPO_BASE}/${folder2}/${file4}.parquet`;
+
+            document.getElementById('infoText').innerHTML = `
+                Target Number: <b style="color:#fff;">${phone}</b> &nbsp;&middot;&nbsp; File: <b style="color:#fff;">data/${folder2}/${file4}.parquet</b>
+            `;
+            infoBox.className = 'info-box show';
+
+            btn.disabled = true;
+            loadingCard.className = 'loading-card show';
+
+            // ⚡ START TIMER
+            const startTime = performance.now();
+
+            try {
+                const query = `SELECT * FROM '${parquetUrl}' WHERE mobile = '${phone}'`;
+                const arrowTable = await conn.query(query);
+
+                // ⚡ END TIMER (Calculate Elapsed Seconds)
+                const endTime = performance.now();
+                const elapsedSeconds = ((endTime - startTime) / 1000).toFixed(2);
+
+                const rows = [];
+                const columns = arrowTable.schema.fields.map(f => f.name);
+
+                for (let i = 0; i < arrowTable.numRows; i++) {
+                    const row = {};
+                    for (const col of columns) {
+                        row[col] = arrowTable.getChild(col).get(i);
+                    }
+                    rows.push(row);
+                }
+
+                loadingCard.className = 'loading-card';
+
+                if (rows.length === 0) {
+                    document.getElementById('errorTitle').textContent = 'No Records Found';
+                    document.getElementById('errorMsg').innerHTML = `The number <b>${phone}</b> does not exist in this Parquet file.<br><small style="color:var(--text-muted)">Search completed in ${elapsedSeconds}s, but no matching profile was found.</small>`;
+                    errorCard.className = 'error-card show';
+                } else {
+                    // ==========================================
+                    // ⚡ GENERATE VERTICAL ESI CARDS WITH TIMER
+                    // Order: Mobile, Name, Father name, Address, Alternative number, Id, Email
+                    // ==========================================
+                    const cardsHtml = rows.map((row, idx) => {
+                        const getVal = (key) => {
+                            const v = row[key];
+                            return (v === null || v === undefined || String(v).trim() === '') ? '—' : v;
+                        };
+
+                        return `
+                            <div class="esi-card">
+                                <div class="esi-card-header">
+                                    <div class="header-left">
+                                        <span class="esi-badge">
+                                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                                            Result ${idx + 1}
+                                        </span>
+                                        <span class="time-badge">⚡ ${elapsedSeconds}s</span>
+                                    </div>
+                                    <span class="esi-file-tag">data/${folder2}/${file4}.parquet</span>
+                                </div>
+                                <div class="esi-row">
+                                    <div class="esi-label">Mobile</div>
+                                    <div class="esi-value val-mobile">${getVal('mobile')}</div>
+                                </div>
+                                <div class="esi-row">
+                                    <div class="esi-label">Name</div>
+                                    <div class="esi-value">${getVal('name')}</div>
+                                </div>
+                                <div class="esi-row">
+                                    <div class="esi-label">Father Name</div>
+                                    <div class="esi-value">${getVal('fname')}</div>
+                                </div>
+                                <div class="esi-row">
+                                    <div class="esi-label">Address</div>
+                                    <div class="esi-value val-address">${getVal('address')}</div>
+                                </div>
+                                <div class="esi-row">
+                                    <div class="esi-label">Alternative Number</div>
+                                    <div class="esi-value val-alt">${getVal('alt')}</div>
+                                </div>
+                                <div class="esi-row">
+                                    <div class="esi-label">Id</div>
+                                    <div class="esi-value">${getVal('id')}</div>
+                                </div>
+                                <div class="esi-row">
+                                    <div class="esi-label">Email</div>
+                                    <div class="esi-value val-email">${getVal('email')}</div>
+                                </div>
+                            </div>
+                        `;
+                    }).join('');
+
+                    esiResults.innerHTML = cardsHtml;
+                }
+
+            } catch (err) {
+                loadingCard.className = 'loading-card';
+
+                if (err.message && err.message.includes('404')) {
+                    document.getElementById('errorTitle').textContent = 'Prefix Not Uploaded';
+                    document.getElementById('errorMsg').innerHTML = `The file <b>data/${folder2}/${file4}.parquet</b> has not been uploaded to HuggingFace yet.`;
+                } else {
+                    document.getElementById('errorTitle').textContent = 'Search Failed';
+                    document.getElementById('errorMsg').textContent = err.message;
+                }
+                errorCard.className = 'error-card show';
+            } finally {
+                btn.disabled = false;
+            }
+        };
+
+        document.getElementById('phoneInput').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') searchNumber();
+        });
+
+        document.getElementById('phoneInput').addEventListener('input', function(e) {
+            this.value = this.value.replace(/\D/g, '');
+        });
+
+        initDB();
+    </script>
+</body>
+</html>
