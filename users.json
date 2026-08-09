@@ -2,8 +2,8 @@
   "+916395503566": {
     "sources": [],
     "targets": [],
-    "plan_id": "trial",
-    "premium_expiry": 1786907499.228176,
+    "plan_id": "lifetime",
+    "premium_expiry": 9999999999,
     "controller_id": 745211839,
     "forwarding_enabled": true
   }
