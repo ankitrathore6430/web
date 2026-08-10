@@ -4,6 +4,12 @@
   },
   "+916395503566": {
     "message": "<msg>",
-    "recipients": []
+    "recipients": [
+      1531736597
+    ],
+    "last_replied_to": {
+      "1531736597": 1786329458.6420388
+    },
+    "monthly_reply_count": 50
   }
 }
