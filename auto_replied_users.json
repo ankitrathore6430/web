@@ -1,6 +1,12 @@
 {
   "unregistered_user_broadcast": {
-    "target_users": {}
+    "target_users": {
+      "1531736597": {
+        "last_sent_timestamp": 0,
+        "start_date_timestamp": 1786344655.679549,
+        "messages_received_count": 0
+      }
+    }
   },
   "+916395503566": {
     "message": "<msg>",
