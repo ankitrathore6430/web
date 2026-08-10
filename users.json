@@ -2,14 +2,11 @@
   "+916395503566": {
     "sources": [
       -1001812918716,
-      -1002543965359,
-      -1001365072055,
-      -1002381466793,
-      -1001303539818
+      -1002543965359
     ],
     "targets": [],
-    "plan_id": "lifetime",
-    "premium_expiry": 9999999999,
+    "plan_id": "free",
+    "premium_expiry": 1786387188.0037196,
     "controller_id": 745211839,
     "forwarding_enabled": true,
     "min_delay": 15,
