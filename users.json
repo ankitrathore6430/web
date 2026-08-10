@@ -5,8 +5,8 @@
       -1002543965359
     ],
     "targets": [],
-    "plan_id": "free",
-    "premium_expiry": 1786355903.242147,
+    "plan_id": "lifetime",
+    "premium_expiry": 9999999999,
     "controller_id": 745211839,
     "forwarding_enabled": true,
     "min_delay": 15,
