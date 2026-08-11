@@ -1,15 +1,1 @@
-{
-  "+916395503566": {
-    "sources": [
-      -1001812918716,
-      -1002543965359
-    ],
-    "targets": [],
-    "plan_id": "starter",
-    "premium_expiry": 1787725203.405653,
-    "controller_id": 745211839,
-    "forwarding_enabled": true,
-    "min_delay": 15,
-    "max_delay": 20
-  }
-}
+{}
