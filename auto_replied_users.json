@@ -7,13 +7,5 @@
         "messages_received_count": 0
       }
     }
-  },
-  "+916395503566": {
-    "message": "<msg>",
-    "recipients": [],
-    "last_replied_to": {
-      "1531736597": 1786356159.9499424
-    },
-    "monthly_reply_count": 55
   }
 }
