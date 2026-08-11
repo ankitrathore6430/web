@@ -1,1 +1,10 @@
-{}
+{
+  "+916395503566": {
+    "sources": [],
+    "targets": [],
+    "plan_id": "trial",
+    "premium_expiry": 1787034334.1617167,
+    "controller_id": 745211839,
+    "forwarding_enabled": true
+  }
+}
