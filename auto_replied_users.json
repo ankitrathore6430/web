@@ -5,6 +5,11 @@
         "last_sent_timestamp": 0,
         "start_date_timestamp": 1786344655.679549,
         "messages_received_count": 0
+      },
+      "745211839": {
+        "last_sent_timestamp": 0,
+        "start_date_timestamp": 1786512665.1381693,
+        "messages_received_count": 0
       }
     }
   }
