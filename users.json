@@ -4,8 +4,8 @@
     "targets": [
       -1001303539818
     ],
-    "plan_id": "trial",
-    "premium_expiry": 1787124191.807,
+    "plan_id": "lifetime",
+    "premium_expiry": 9999999999,
     "controller_id": 745211839,
     "forwarding_enabled": true
   },
