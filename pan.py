@@ -4,8 +4,6 @@ import json
 from flask import Flask, render_template_string, request, jsonify
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
-from selenium.webdriver.chrome.service import Service
-from webdriver_manager.chrome import ChromeDriverManager
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -20,16 +18,16 @@ def init_driver_with_session():
     global driver
     if driver is None:
         options = Options()
-        options.add_argument('--headless=new')
+        options.add_argument('--headless=new')  
         options.add_argument('--no-sandbox')
         options.add_argument('--disable-dev-shm-usage')
-        options.add_argument('--disable-gpu')  # Docker me stability ke liye
+        options.add_argument('--disable-gpu')  
         options.add_argument('--window-size=1920,1080')
         options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36')
         options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
         
-        service = Service(ChromeDriverManager().install())
-        driver = webdriver.Chrome(service=service, options=options)
+        # JADOO: Selenium 4 ka inbuilt manager ab khud sab handle karega!
+        driver = webdriver.Chrome(options=options)
         
         # GitHub repo me rakhi cookies.json aur storage.json ko load karna
         try:
