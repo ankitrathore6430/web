@@ -12,12 +12,12 @@ from selenium.webdriver.common.keys import Keys
 
 app = Flask(__name__)
 
-# Global persistent driver aur lock for thread safety
+# Global variables for Speed & Stability
 driver = None
 driver_lock = threading.Lock()
+pan_cache = {}  # 🚀 SMART CACHE: Ek baar search hua PAN yahan save ho jayega instant result ke liye
 
 def start_persistent_browser():
-    """Server start hote hi browser ek hi baar khulega aur apply page par ready rahega."""
     global driver
     options = Options()
     options.add_argument('--headless=new')
@@ -30,7 +30,6 @@ def start_persistent_browser():
     
     driver = webdriver.Chrome(options=options)
     
-    # Session restore
     try:
         driver.get("https://turtlemintloans.com/404")
         if os.path.exists("cookies.json"):
@@ -48,12 +47,11 @@ def start_persistent_browser():
     except Exception as e:
         print(f"Session load warning: {e}")
 
-    # Form page ko open rakhna
     driver.get("https://turtlemintloans.com/products/personal-loan/customer/MULTI/apply")
     time.sleep(3)
     print("🚀 Browser initialized and waiting for PAN searches.")
 
-# HTML Frontend
+# HTML Frontend (With Anti-Spam Security & Ankit's Signature)
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
@@ -62,13 +60,18 @@ HTML_TEMPLATE = """
     <title>Instant PAN Lookup</title>
     <style>
         body { font-family: Arial, sans-serif; background: #f0f4f8; text-align: center; padding: 40px; }
-        .box { background: white; padding: 30px; border-radius: 12px; display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 460px; }
+        .box { background: white; padding: 30px; border-radius: 12px; display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 460px; position: relative; }
         input { padding: 12px; width: 85%; border: 2px solid #ccc; border-radius: 6px; text-transform: uppercase; font-size: 18px; text-align: center; font-weight: bold; letter-spacing: 2px; }
         input:focus { border-color: #009F69; outline: none; }
-        button { padding: 12px 28px; background: #009F69; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 15px; }
-        button:hover { background: #007D64; }
+        button { padding: 12px 28px; background: #009F69; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 15px; transition: 0.3s; }
+        button:hover:not(:disabled) { background: #007D64; }
+        button:disabled { background: #cccccc; cursor: not-allowed; }
         #result { margin-top: 20px; text-align: left; background: #eef9e3; padding: 15px; border-radius: 6px; display: none; font-family: monospace; white-space: pre-wrap; word-break: break-all; }
         .loader { color: #555; font-style: italic; }
+        
+        /* The Creator Signature */
+        .creator-signature { margin-top: 35px; font-size: 13px; color: #888; font-weight: 600; }
+        .creator-signature span { color: #e25555; font-size: 15px; }
     </style>
 </head>
 <body>
@@ -77,22 +80,31 @@ HTML_TEMPLATE = """
         <h2>Instant PAN Verification</h2>
         <input type="text" id="panInput" placeholder="ENTER PAN" maxlength="10" autocomplete="off">
         <br>
-        <button onclick="searchPan()">Search Details</button>
+        <button id="searchBtn" onclick="searchPan()">Search Details</button>
         <div id="result"></div>
+        
+        <div class="creator-signature">
+            This Tool Created by Ankit Rathore <span>❤️</span>
+        </div>
     </div>
 
     <script>
         async function searchPan() {
-            let pan = document.getElementById('panInput').value.trim();
+            let pan = document.getElementById('panInput').value.trim().toUpperCase();
             let resultDiv = document.getElementById('result');
+            let btn = document.getElementById('searchBtn');
             
             if(!pan || pan.length !== 10) {
                 alert("Kripya 10 digit ka valid PAN number enter karein!");
                 return;
             }
 
+            // LEVEL 1 SECURITY: Button Disabled to prevent double click spam
+            btn.disabled = true;
+            btn.innerText = "Searching... ⏳";
+            
             resultDiv.style.display = "block";
-            resultDiv.innerHTML = "<span class='loader'>Searching in background... ⏳</span>";
+            resultDiv.innerHTML = "<span class='loader'>Fetching data from server...</span>";
 
             let formData = new FormData();
             formData.append('pan', pan);
@@ -106,6 +118,10 @@ HTML_TEMPLATE = """
                 resultDiv.innerHTML = JSON.stringify(data, null, 4);
             } catch (err) {
                 resultDiv.innerHTML = "Server connection error.";
+            } finally {
+                // Task complete hone ke baad button wapas normal
+                btn.disabled = false;
+                btn.innerText = "Search Details";
             }
         }
     </script>
@@ -120,11 +136,18 @@ def index():
 
 @app.route('/search', methods=['POST'])
 def search_pan():
-    global driver
+    global driver, pan_cache
     pan_number = request.form.get('pan', '').strip().upper()
+    
     if not pan_number:
         return jsonify({"error": "PAN number zaroori hai!"})
 
+    # LEVEL 2 SECURITY (SUPER FAST): Agar PAN pehle se Cache mein hai, toh instant result do (0.1s delay)
+    if pan_number in pan_cache:
+        print(f"⚡ INSTANT HIT: Returning cached result for {pan_number}")
+        return jsonify(pan_cache[pan_number])
+
+    # Agar naya PAN hai, toh systematically Queue mein lagao
     with driver_lock:
         if driver is None:
             start_persistent_browser()
@@ -132,31 +155,24 @@ def search_pan():
         wait = WebDriverWait(driver, 10)
 
         try:
-            # Check karein agar kisi reason se session expire ho gaya ho
             if "login" in driver.current_url:
                 return jsonify({"error": "Session expired! Naye cookies/storage update karein."})
 
-            # PAN Field ko locate karein
             pan_input = wait.until(EC.presence_of_element_located((
                 By.XPATH, "//input[contains(@name, 'pan') or contains(@class, 'pan') or contains(@id, 'pan')]"
             )))
 
-            # 1. Field completely clear karein
             pan_input.send_keys(Keys.CONTROL + "a")
             pan_input.send_keys(Keys.BACKSPACE)
             time.sleep(0.2)
 
-            # 2. PAN Number type karein
             pan_input.send_keys(pan_number)
-
-            # 3. Focus hatane ke liye trigger blur (Bina koi button press kiye API call hogi)
+            # Smart API trigger without pressing any Submit button
             driver.execute_script("arguments[0].dispatchEvent(new Event('change', { bubbles: true })); arguments[0].blur();", pan_input)
 
-            # 4. Performance logs scan karein data pakadne ke liye
             extracted_data = None
             start_time = time.time()
             
-            # Max 6 seconds tak network log monitor karega
             while time.time() - start_time < 6:
                 logs = driver.get_log("performance")
                 for entry in logs:
@@ -178,6 +194,8 @@ def search_pan():
                 time.sleep(0.3)
 
             if extracted_data:
+                # Result Cache mein save kar lo, taaki agli baar yahi aane par wait na karna pade
+                pan_cache[pan_number] = extracted_data
                 return jsonify(extracted_data)
             else:
                 return jsonify({"error": "Data fetch nahi ho paya ya PAN invalid hai."})
@@ -186,6 +204,5 @@ def search_pan():
             return jsonify({"error": str(e)})
 
 if __name__ == '__main__':
-    # Server start hone se pehle hi background browser launch kar lena
     start_persistent_browser()
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
