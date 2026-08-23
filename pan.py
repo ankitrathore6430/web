@@ -114,7 +114,7 @@ HTML_TEMPLATE = """
 """
 
 @app.route('/')
-index():
+def index():
     return render_template_string(HTML_TEMPLATE)
 
 @app.route('/search', methods=['POST'])
