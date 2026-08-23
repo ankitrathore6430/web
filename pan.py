@@ -16,8 +16,8 @@ app = Flask(__name__)
 driver = None
 pan_cache = {}          # Instant results ke liye memory
 ticket_counter = 0      # Ticket number generate karne ke liye
-queue_list = []         # Line jisme tickets khadi hongi: [{'ticket_id': 'TKT-1', 'pan': 'MMNP...'}, ...]
-results_db = {}         # Har ticket ka live status: {'TKT-1': {'status': 'WAITING', 'data': None, 'error': None}}
+queue_list = []         # Line jisme tickets khadi hongi
+results_db = {}         # Har ticket ka live status
 
 def start_persistent_browser():
     """Browser ko ek hi baar start karega"""
@@ -55,27 +55,22 @@ def start_persistent_browser():
     print("🚀 Browser Ready! Starting Queue Worker...")
 
 def background_queue_worker():
-    """Yeh robot hamesha chalega aur line (queue) mein lage PAN ko search karega"""
+    """Background Robot for Processing Queue"""
     global driver, queue_list, results_db, pan_cache
     
     while True:
         if len(queue_list) > 0:
-            # Line mein sabse aage khade insaan (index 0) ko bulao
             current_task = queue_list[0]
             t_id = current_task['ticket_id']
             pan_number = current_task['pan']
             
-            # Status update karo ki "Processing" chal rahi hai
             results_db[t_id]['status'] = 'PROCESSING'
-            print(f"⚙️ Processing {t_id} for PAN: {pan_number}")
 
             try:
                 wait = WebDriverWait(driver, 10)
-                
                 if "login" in driver.current_url:
                     results_db[t_id]['error'] = "Session expired! Naye cookies update karein."
                 else:
-                    # PAN enter karne ka process
                     pan_input = wait.until(EC.presence_of_element_located((
                         By.XPATH, "//input[contains(@name, 'pan') or contains(@class, 'pan') or contains(@id, 'pan')]"
                     )))
@@ -85,13 +80,11 @@ def background_queue_worker():
                     time.sleep(0.2)
                     pan_input.send_keys(pan_number)
                     
-                    # API Trigger
                     driver.execute_script("arguments[0].dispatchEvent(new Event('change', { bubbles: true })); arguments[0].blur();", pan_input)
 
                     extracted_data = None
                     start_time = time.time()
                     
-                    # 6 seconds tak wait
                     while time.time() - start_time < 6:
                         logs = driver.get_log("performance")
                         for entry in logs:
@@ -112,62 +105,141 @@ def background_queue_worker():
                             break
                         time.sleep(0.3)
 
-                    # Result Save karna
                     if extracted_data:
                         results_db[t_id]['data'] = extracted_data
-                        pan_cache[pan_number] = extracted_data # Cache mein daal do future ke liye
+                        pan_cache[pan_number] = extracted_data
                     else:
                         results_db[t_id]['error'] = "Data fetch nahi ho paya ya PAN invalid hai."
 
             except Exception as e:
                 results_db[t_id]['error'] = str(e)
 
-            # Kaam khatam, status DONE karo aur line (queue) se bahar nikal do
             results_db[t_id]['status'] = 'DONE'
             queue_list.pop(0)
             
         else:
-            # Agar line khali hai toh 1 second aaram karo
             time.sleep(1)
 
 
-# --- HTML FRONTEND (WITH LIVE POLLING) ---
+# --- PREMIUM HTML FRONTEND ---
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Instant PAN Lookup</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Enterprise PAN API</title>
+    <!-- Google Fonts for Premium Look -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: Arial, sans-serif; background: #f0f4f8; text-align: center; padding: 40px; }
-        .box { background: white; padding: 30px; border-radius: 12px; display: inline-block; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 460px; position: relative; }
-        input { padding: 12px; width: 85%; border: 2px solid #ccc; border-radius: 6px; text-transform: uppercase; font-size: 18px; text-align: center; font-weight: bold; letter-spacing: 2px; }
-        input:focus { border-color: #009F69; outline: none; }
-        button { padding: 12px 28px; background: #009F69; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 15px; transition: 0.3s; }
-        button:hover:not(:disabled) { background: #007D64; }
-        button:disabled { background: #cccccc; cursor: not-allowed; }
+        * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
+        body { margin: 0; background: #f3f4f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
         
-        #statusBox { margin-top: 20px; font-weight: bold; color: #d9534f; display: none; background: #f9f2f2; padding: 10px; border-radius: 6px; }
-        #result { margin-top: 20px; text-align: left; background: #eef9e3; padding: 15px; border-radius: 6px; display: none; font-family: monospace; white-space: pre-wrap; word-break: break-all; }
+        .premium-container {
+            background: #ffffff;
+            width: 100%;
+            max-width: 480px;
+            padding: 40px 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            text-align: center;
+            border: 1px solid #eaebed;
+        }
+
+        .header h2 { margin: 0; font-size: 24px; color: #1e293b; font-weight: 700; letter-spacing: -0.5px; }
+        .header p { color: #64748b; font-size: 14px; margin-top: 5px; margin-bottom: 30px; }
+
+        .input-group { position: relative; margin-bottom: 20px; }
+        .input-group input {
+            width: 100%;
+            padding: 16px 20px;
+            font-size: 18px;
+            border: 2px solid #e2e8f0;
+            border-radius: 12px;
+            text-transform: uppercase;
+            font-weight: 600;
+            color: #0f172a;
+            text-align: center;
+            letter-spacing: 2px;
+            transition: all 0.3s ease;
+            outline: none;
+        }
+        .input-group input:focus { border-color: #2563eb; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
+        .input-group input::placeholder { color: #94a3b8; font-weight: 400; letter-spacing: 1px; }
+
+        button {
+            width: 100%;
+            padding: 16px;
+            background: #2563eb;
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+        }
+        button:hover:not(:disabled) { background: #1d4ed8; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3); }
+        button:disabled { background: #94a3b8; cursor: not-allowed; transform: none; box-shadow: none; }
+
+        /* Status Banner (Queue) */
+        .status-banner {
+            margin-top: 25px; padding: 15px; border-radius: 10px; font-size: 14px; font-weight: 500;
+            display: none; transition: all 0.3s;
+        }
+        .status-waiting { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+        .status-processing { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
+
+        /* Premium Result Card */
+        .result-card {
+            margin-top: 25px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px;
+            padding: 20px; text-align: left; display: none; position: relative;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.02);
+            animation: fadeIn 0.4s ease;
+        }
         
-        .creator-signature { margin-top: 35px; font-size: 13px; color: #888; font-weight: 600; }
-        .creator-signature span { color: #e25555; font-size: 15px; }
+        .badge-valid { display: inline-block; background: #10b981; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 15px; }
+        .badge-invalid { display: inline-block; background: #ef4444; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 15px; }
+        
+        .cache-badge { position: absolute; top: 15px; right: 15px; background: #fef08a; color: #854d0e; font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 6px; display: flex; align-items: center; gap: 4px;}
+        
+        .detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #cbd5e1; font-size: 14px; }
+        .detail-row:last-child { border-bottom: none; }
+        .detail-row span { color: #64748b; }
+        .detail-row strong { color: #0f172a; font-weight: 600; }
+
+        /* Signature */
+        .signature { margin-top: 40px; font-size: 13px; color: #94a3b8; font-weight: 500; }
+        .signature span { color: #1e293b; font-weight: 600; }
+        .signature .heart { color: #ef4444; font-size: 14px; display: inline-block; animation: heartbeat 1.5s infinite; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.2); } }
     </style>
 </head>
 <body>
 
-    <div class="box">
-        <h2>Instant PAN Verification</h2>
-        <input type="text" id="panInput" placeholder="ENTER PAN" maxlength="10" autocomplete="off">
-        <br>
-        <button id="searchBtn" onclick="requestSearch()">Search Details</button>
+    <div class="premium-container">
+        <div class="header">
+            <h2>PAN Verification API</h2>
+            <p>Fast & Secure Enterprise Lookup</p>
+        </div>
         
-        <!-- Live Queue Status Dikhane ke liye -->
-        <div id="statusBox"></div>
-        <div id="result"></div>
+        <div class="input-group">
+            <input type="text" id="panInput" placeholder="ENTER PAN NUMBER" maxlength="10" autocomplete="off">
+        </div>
         
-        <div class="creator-signature">
-            This Tool Created by Ankit Rathore <span>❤️</span>
+        <button id="searchBtn" onclick="requestSearch()">Verify PAN Details</button>
+        
+        <!-- Live Queue Banner -->
+        <div id="statusBox" class="status-banner"></div>
+        
+        <!-- Result Card UI -->
+        <div id="resultCard" class="result-card"></div>
+        
+        <div class="signature">
+            Designed & Engineered by <span>Ankit Rathore</span> <span class="heart">❤️</span>
         </div>
     </div>
 
@@ -176,46 +248,40 @@ HTML_TEMPLATE = """
 
         async function requestSearch() {
             let pan = document.getElementById('panInput').value.trim().toUpperCase();
-            let resultDiv = document.getElementById('result');
+            let resultCard = document.getElementById('resultCard');
             let statusBox = document.getElementById('statusBox');
             let btn = document.getElementById('searchBtn');
             
             if(!pan || pan.length !== 10) {
-                alert("Kripya 10 digit ka valid PAN number enter karein!");
+                alert("Please enter a valid 10-digit PAN.");
                 return;
             }
 
-            // Button Lock
             btn.disabled = true;
-            btn.innerText = "Requesting... ⏳";
-            resultDiv.style.display = "none";
+            btn.innerText = "Connecting to Server... ⏳";
+            resultCard.style.display = "none";
+            
+            statusBox.className = "status-banner status-waiting";
             statusBox.style.display = "block";
-            statusBox.innerHTML = "Submitting request...";
+            statusBox.innerHTML = "Submitting secure request...";
 
             let formData = new FormData();
             formData.append('pan', pan);
 
             try {
-                let response = await fetch('/enqueue', {
-                    method: 'POST',
-                    body: formData
-                });
+                let response = await fetch('/enqueue', { method: 'POST', body: formData });
                 let data = await response.json();
 
-                // Agar Instant Cache Hit hua
                 if(data.status === "DONE") {
-                    showFinalResult(data);
+                    showFinalResult(data.data, true);
                 } else if(data.ticket_id) {
-                    // Agar Queue mein laga
-                    statusBox.innerHTML = `🎫 Ticket: <b>${data.ticket_id}</b> | 🚶 Line mein lag gaye hain...`;
-                    // Har 2 second mein status check karo
+                    statusBox.innerHTML = `🎫 Ticket: <b>${data.ticket_id}</b> <br> 🚶 Added to Queue...`;
                     pollInterval = setInterval(() => checkStatus(data.ticket_id), 2000);
                 }
-
             } catch (err) {
-                statusBox.innerHTML = "Server error while requesting.";
+                statusBox.innerHTML = "Network connection failed.";
                 btn.disabled = false;
-                btn.innerText = "Search Details";
+                btn.innerText = "Verify PAN Details";
             }
         }
 
@@ -227,39 +293,48 @@ HTML_TEMPLATE = """
                 let data = await res.json();
 
                 if (data.status === "WAITING") {
-                    statusBox.innerHTML = `🎫 Ticket: <b>${ticketId}</b> | 🚶 Waiting Number: <b>${data.position}</b>`;
+                    statusBox.className = "status-banner status-waiting";
+                    statusBox.innerHTML = `🎫 Ticket: <b>${ticketId}</b> <br> 🚶 Queue Position: <b>${data.position}</b>`;
                 } else if (data.status === "PROCESSING") {
-                    statusBox.style.color = "#009F69";
-                    statusBox.innerHTML = `🎫 Ticket: <b>${ticketId}</b> | ⚙️ Processing your PAN... Please wait!`;
+                    statusBox.className = "status-banner status-processing";
+                    statusBox.innerHTML = `🎫 Ticket: <b>${ticketId}</b> <br> ⚡ Validating via API...`;
                 } else if (data.status === "DONE") {
                     clearInterval(pollInterval);
-                    showFinalResult(data);
+                    showFinalResult(data.data, false, data.error);
                 }
-
-            } catch(e) {
-                console.log("Polling error...");
-            }
+            } catch(e) { console.log("Polling error..."); }
         }
 
-        function showFinalResult(data) {
-            let resultDiv = document.getElementById('result');
+        function showFinalResult(apiData, isCached = false, errorMsg = null) {
+            let resultCard = document.getElementById('resultCard');
             let statusBox = document.getElementById('statusBox');
             let btn = document.getElementById('searchBtn');
 
             statusBox.style.display = "none";
-            resultDiv.style.display = "block";
+            resultCard.style.display = "block";
             
-            if(data.data) {
-                resultDiv.innerHTML = JSON.stringify(data.data, null, 4);
-            } else if (data.error) {
-                resultDiv.innerHTML = `<span style="color:red">Error: ${data.error}</span>`;
+            if (apiData && apiData.data) {
+                let details = apiData.data;
+                let statusBadgeClass = details.panStatus === 'VALID' ? 'badge-valid' : 'badge-invalid';
+                
+                resultCard.innerHTML = `
+                    ${isCached ? '<div class="cache-badge">⚡ Instant Hit</div>' : ''}
+                    <div class="${statusBadgeClass}">${details.panStatus || 'UNKNOWN'}</div>
+                    <div class="detail-row"><span>Name</span> <strong>${details.customerName || '-'}</strong></div>
+                    <div class="detail-row"><span>DOB</span> <strong>${details.dob || '-'}</strong></div>
+                    <div class="detail-row"><span>First Name</span> <strong>${details.firstName || '-'}</strong></div>
+                    <div class="detail-row"><span>Last Name</span> <strong>${details.lastName || '-'}</strong></div>
+                `;
+            } else if (errorMsg) {
+                resultCard.innerHTML = `<div style="color:#ef4444; font-weight:500; font-size:14px; text-align:center;">❌ ${errorMsg}</div>`;
+            } else {
+                resultCard.innerHTML = `<div style="color:#ef4444; font-weight:500; font-size:14px; text-align:center;">❌ Invalid PAN or Data not found.</div>`;
             }
 
             btn.disabled = false;
-            btn.innerText = "Search Details";
+            btn.innerText = "Verify Another PAN";
         }
     </script>
-
 </body>
 </html>
 """
@@ -270,31 +345,26 @@ def index():
 
 @app.route('/enqueue', methods=['POST'])
 def enqueue_task():
-    """Naya PAN aane par usko Ticket dega ya instant cache se result dega"""
     global ticket_counter, queue_list, results_db, pan_cache
     
     pan_number = request.form.get('pan', '').strip().upper()
     if not pan_number:
         return jsonify({"error": "PAN missing"})
 
-    # 1. CACHE CHECK (Ultra Fast)
     if pan_number in pan_cache:
         print(f"⚡ CACHE HIT for {pan_number}")
-        return jsonify({"status": "DONE", "data": pan_cache[pan_number]})
+        return jsonify({"status": "DONE", "data": pan_cache[pan_number], "cached": True})
 
-    # 2. QUEUE MEIN LAGANA
     ticket_counter += 1
     t_id = f"TKT-{ticket_counter}"
     
     results_db[t_id] = {'status': 'WAITING', 'data': None, 'error': None}
     queue_list.append({'ticket_id': t_id, 'pan': pan_number})
     
-    print(f"🎟️ Ticket {t_id} generated for {pan_number}")
     return jsonify({"ticket_id": t_id, "status": "QUEUED"})
 
 @app.route('/status/<ticket_id>', methods=['GET'])
 def check_status(ticket_id):
-    """Frontend is URL ko call karega apna live waiting number dekhne ke liye"""
     global queue_list, results_db
     
     if ticket_id not in results_db:
@@ -302,7 +372,6 @@ def check_status(ticket_id):
         
     info = results_db[ticket_id]
     
-    # Agar Wait kar raha hai toh Line ka number calculate karo
     if info['status'] == 'WAITING':
         position = 0
         for index, item in enumerate(queue_list):
@@ -322,10 +391,7 @@ def check_status(ticket_id):
         })
 
 if __name__ == '__main__':
-    # Flask server start hone se pehle Browser aur Worker Thread start karo
     start_persistent_browser()
-    
     worker_thread = threading.Thread(target=background_queue_worker, daemon=True)
     worker_thread.start()
-    
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
