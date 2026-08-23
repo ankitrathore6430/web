@@ -12,12 +12,15 @@ from selenium.webdriver.common.keys import Keys
 
 app = Flask(__name__)
 
-# Global variables for Speed & Stability
+# --- GLOBAL VARIABLES FOR QUEUE & CACHE ---
 driver = None
-driver_lock = threading.Lock()
-pan_cache = {}  # 🚀 SMART CACHE: Ek baar search hua PAN yahan save ho jayega instant result ke liye
+pan_cache = {}          # Instant results ke liye memory
+ticket_counter = 0      # Ticket number generate karne ke liye
+queue_list = []         # Line jisme tickets khadi hongi: [{'ticket_id': 'TKT-1', 'pan': 'MMNP...'}, ...]
+results_db = {}         # Har ticket ka live status: {'TKT-1': {'status': 'WAITING', 'data': None, 'error': None}}
 
 def start_persistent_browser():
+    """Browser ko ek hi baar start karega"""
     global driver
     options = Options()
     options.add_argument('--headless=new')
@@ -49,9 +52,86 @@ def start_persistent_browser():
 
     driver.get("https://turtlemintloans.com/products/personal-loan/customer/MULTI/apply")
     time.sleep(3)
-    print("🚀 Browser initialized and waiting for PAN searches.")
+    print("🚀 Browser Ready! Starting Queue Worker...")
 
-# HTML Frontend (With Anti-Spam Security & Ankit's Signature)
+def background_queue_worker():
+    """Yeh robot hamesha chalega aur line (queue) mein lage PAN ko search karega"""
+    global driver, queue_list, results_db, pan_cache
+    
+    while True:
+        if len(queue_list) > 0:
+            # Line mein sabse aage khade insaan (index 0) ko bulao
+            current_task = queue_list[0]
+            t_id = current_task['ticket_id']
+            pan_number = current_task['pan']
+            
+            # Status update karo ki "Processing" chal rahi hai
+            results_db[t_id]['status'] = 'PROCESSING'
+            print(f"⚙️ Processing {t_id} for PAN: {pan_number}")
+
+            try:
+                wait = WebDriverWait(driver, 10)
+                
+                if "login" in driver.current_url:
+                    results_db[t_id]['error'] = "Session expired! Naye cookies update karein."
+                else:
+                    # PAN enter karne ka process
+                    pan_input = wait.until(EC.presence_of_element_located((
+                        By.XPATH, "//input[contains(@name, 'pan') or contains(@class, 'pan') or contains(@id, 'pan')]"
+                    )))
+
+                    pan_input.send_keys(Keys.CONTROL + "a")
+                    pan_input.send_keys(Keys.BACKSPACE)
+                    time.sleep(0.2)
+                    pan_input.send_keys(pan_number)
+                    
+                    # API Trigger
+                    driver.execute_script("arguments[0].dispatchEvent(new Event('change', { bubbles: true })); arguments[0].blur();", pan_input)
+
+                    extracted_data = None
+                    start_time = time.time()
+                    
+                    # 6 seconds tak wait
+                    while time.time() - start_time < 6:
+                        logs = driver.get_log("performance")
+                        for entry in logs:
+                            log = json.loads(entry["message"])["message"]
+                            if log["method"] == "Network.responseReceived":
+                                response = log["params"]["response"]
+                                url = response["url"]
+                                req_id = log["params"]["requestId"]
+                                
+                                if "existing-lead-by-pan" in url.lower() and pan_number.lower() in url.lower():
+                                    try:
+                                        body = driver.execute_cdp_cmd('Network.getResponseBody', {'requestId': req_id})
+                                        extracted_data = json.loads(body['body'])
+                                        break
+                                    except:
+                                        pass
+                        if extracted_data:
+                            break
+                        time.sleep(0.3)
+
+                    # Result Save karna
+                    if extracted_data:
+                        results_db[t_id]['data'] = extracted_data
+                        pan_cache[pan_number] = extracted_data # Cache mein daal do future ke liye
+                    else:
+                        results_db[t_id]['error'] = "Data fetch nahi ho paya ya PAN invalid hai."
+
+            except Exception as e:
+                results_db[t_id]['error'] = str(e)
+
+            # Kaam khatam, status DONE karo aur line (queue) se bahar nikal do
+            results_db[t_id]['status'] = 'DONE'
+            queue_list.pop(0)
+            
+        else:
+            # Agar line khali hai toh 1 second aaram karo
+            time.sleep(1)
+
+
+# --- HTML FRONTEND (WITH LIVE POLLING) ---
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
@@ -66,10 +146,10 @@ HTML_TEMPLATE = """
         button { padding: 12px 28px; background: #009F69; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 16px; font-weight: bold; margin-top: 15px; transition: 0.3s; }
         button:hover:not(:disabled) { background: #007D64; }
         button:disabled { background: #cccccc; cursor: not-allowed; }
-        #result { margin-top: 20px; text-align: left; background: #eef9e3; padding: 15px; border-radius: 6px; display: none; font-family: monospace; white-space: pre-wrap; word-break: break-all; }
-        .loader { color: #555; font-style: italic; }
         
-        /* The Creator Signature */
+        #statusBox { margin-top: 20px; font-weight: bold; color: #d9534f; display: none; background: #f9f2f2; padding: 10px; border-radius: 6px; }
+        #result { margin-top: 20px; text-align: left; background: #eef9e3; padding: 15px; border-radius: 6px; display: none; font-family: monospace; white-space: pre-wrap; word-break: break-all; }
+        
         .creator-signature { margin-top: 35px; font-size: 13px; color: #888; font-weight: 600; }
         .creator-signature span { color: #e25555; font-size: 15px; }
     </style>
@@ -80,7 +160,10 @@ HTML_TEMPLATE = """
         <h2>Instant PAN Verification</h2>
         <input type="text" id="panInput" placeholder="ENTER PAN" maxlength="10" autocomplete="off">
         <br>
-        <button id="searchBtn" onclick="searchPan()">Search Details</button>
+        <button id="searchBtn" onclick="requestSearch()">Search Details</button>
+        
+        <!-- Live Queue Status Dikhane ke liye -->
+        <div id="statusBox"></div>
         <div id="result"></div>
         
         <div class="creator-signature">
@@ -89,9 +172,12 @@ HTML_TEMPLATE = """
     </div>
 
     <script>
-        async function searchPan() {
+        let pollInterval = null;
+
+        async function requestSearch() {
             let pan = document.getElementById('panInput').value.trim().toUpperCase();
             let resultDiv = document.getElementById('result');
+            let statusBox = document.getElementById('statusBox');
             let btn = document.getElementById('searchBtn');
             
             if(!pan || pan.length !== 10) {
@@ -99,30 +185,78 @@ HTML_TEMPLATE = """
                 return;
             }
 
-            // LEVEL 1 SECURITY: Button Disabled to prevent double click spam
+            // Button Lock
             btn.disabled = true;
-            btn.innerText = "Searching... ⏳";
-            
-            resultDiv.style.display = "block";
-            resultDiv.innerHTML = "<span class='loader'>Fetching data from server...</span>";
+            btn.innerText = "Requesting... ⏳";
+            resultDiv.style.display = "none";
+            statusBox.style.display = "block";
+            statusBox.innerHTML = "Submitting request...";
 
             let formData = new FormData();
             formData.append('pan', pan);
 
             try {
-                let response = await fetch('/search', {
+                let response = await fetch('/enqueue', {
                     method: 'POST',
                     body: formData
                 });
                 let data = await response.json();
-                resultDiv.innerHTML = JSON.stringify(data, null, 4);
+
+                // Agar Instant Cache Hit hua
+                if(data.status === "DONE") {
+                    showFinalResult(data);
+                } else if(data.ticket_id) {
+                    // Agar Queue mein laga
+                    statusBox.innerHTML = `🎫 Ticket: <b>${data.ticket_id}</b> | 🚶 Line mein lag gaye hain...`;
+                    // Har 2 second mein status check karo
+                    pollInterval = setInterval(() => checkStatus(data.ticket_id), 2000);
+                }
+
             } catch (err) {
-                resultDiv.innerHTML = "Server connection error.";
-            } finally {
-                // Task complete hone ke baad button wapas normal
+                statusBox.innerHTML = "Server error while requesting.";
                 btn.disabled = false;
                 btn.innerText = "Search Details";
             }
+        }
+
+        async function checkStatus(ticketId) {
+            let statusBox = document.getElementById('statusBox');
+            
+            try {
+                let res = await fetch(`/status/${ticketId}`);
+                let data = await res.json();
+
+                if (data.status === "WAITING") {
+                    statusBox.innerHTML = `🎫 Ticket: <b>${ticketId}</b> | 🚶 Waiting Number: <b>${data.position}</b>`;
+                } else if (data.status === "PROCESSING") {
+                    statusBox.style.color = "#009F69";
+                    statusBox.innerHTML = `🎫 Ticket: <b>${ticketId}</b> | ⚙️ Processing your PAN... Please wait!`;
+                } else if (data.status === "DONE") {
+                    clearInterval(pollInterval);
+                    showFinalResult(data);
+                }
+
+            } catch(e) {
+                console.log("Polling error...");
+            }
+        }
+
+        function showFinalResult(data) {
+            let resultDiv = document.getElementById('result');
+            let statusBox = document.getElementById('statusBox');
+            let btn = document.getElementById('searchBtn');
+
+            statusBox.style.display = "none";
+            resultDiv.style.display = "block";
+            
+            if(data.data) {
+                resultDiv.innerHTML = JSON.stringify(data.data, null, 4);
+            } else if (data.error) {
+                resultDiv.innerHTML = `<span style="color:red">Error: ${data.error}</span>`;
+            }
+
+            btn.disabled = false;
+            btn.innerText = "Search Details";
         }
     </script>
 
@@ -134,75 +268,64 @@ HTML_TEMPLATE = """
 def index():
     return render_template_string(HTML_TEMPLATE)
 
-@app.route('/search', methods=['POST'])
-def search_pan():
-    global driver, pan_cache
-    pan_number = request.form.get('pan', '').strip().upper()
+@app.route('/enqueue', methods=['POST'])
+def enqueue_task():
+    """Naya PAN aane par usko Ticket dega ya instant cache se result dega"""
+    global ticket_counter, queue_list, results_db, pan_cache
     
+    pan_number = request.form.get('pan', '').strip().upper()
     if not pan_number:
-        return jsonify({"error": "PAN number zaroori hai!"})
+        return jsonify({"error": "PAN missing"})
 
-    # LEVEL 2 SECURITY (SUPER FAST): Agar PAN pehle se Cache mein hai, toh instant result do (0.1s delay)
+    # 1. CACHE CHECK (Ultra Fast)
     if pan_number in pan_cache:
-        print(f"⚡ INSTANT HIT: Returning cached result for {pan_number}")
-        return jsonify(pan_cache[pan_number])
+        print(f"⚡ CACHE HIT for {pan_number}")
+        return jsonify({"status": "DONE", "data": pan_cache[pan_number]})
 
-    # Agar naya PAN hai, toh systematically Queue mein lagao
-    with driver_lock:
-        if driver is None:
-            start_persistent_browser()
+    # 2. QUEUE MEIN LAGANA
+    ticket_counter += 1
+    t_id = f"TKT-{ticket_counter}"
+    
+    results_db[t_id] = {'status': 'WAITING', 'data': None, 'error': None}
+    queue_list.append({'ticket_id': t_id, 'pan': pan_number})
+    
+    print(f"🎟️ Ticket {t_id} generated for {pan_number}")
+    return jsonify({"ticket_id": t_id, "status": "QUEUED"})
 
-        wait = WebDriverWait(driver, 10)
-
-        try:
-            if "login" in driver.current_url:
-                return jsonify({"error": "Session expired! Naye cookies/storage update karein."})
-
-            pan_input = wait.until(EC.presence_of_element_located((
-                By.XPATH, "//input[contains(@name, 'pan') or contains(@class, 'pan') or contains(@id, 'pan')]"
-            )))
-
-            pan_input.send_keys(Keys.CONTROL + "a")
-            pan_input.send_keys(Keys.BACKSPACE)
-            time.sleep(0.2)
-
-            pan_input.send_keys(pan_number)
-            # Smart API trigger without pressing any Submit button
-            driver.execute_script("arguments[0].dispatchEvent(new Event('change', { bubbles: true })); arguments[0].blur();", pan_input)
-
-            extracted_data = None
-            start_time = time.time()
-            
-            while time.time() - start_time < 6:
-                logs = driver.get_log("performance")
-                for entry in logs:
-                    log = json.loads(entry["message"])["message"]
-                    if log["method"] == "Network.responseReceived":
-                        response = log["params"]["response"]
-                        url = response["url"]
-                        request_id = log["params"]["requestId"]
-                        
-                        if "existing-lead-by-pan" in url.lower() and pan_number.lower() in url.lower():
-                            try:
-                                body = driver.execute_cdp_cmd('Network.getResponseBody', {'requestId': request_id})
-                                extracted_data = json.loads(body['body'])
-                                break
-                            except Exception:
-                                pass
-                if extracted_data:
-                    break
-                time.sleep(0.3)
-
-            if extracted_data:
-                # Result Cache mein save kar lo, taaki agli baar yahi aane par wait na karna pade
-                pan_cache[pan_number] = extracted_data
-                return jsonify(extracted_data)
-            else:
-                return jsonify({"error": "Data fetch nahi ho paya ya PAN invalid hai."})
-
-        except Exception as e:
-            return jsonify({"error": str(e)})
+@app.route('/status/<ticket_id>', methods=['GET'])
+def check_status(ticket_id):
+    """Frontend is URL ko call karega apna live waiting number dekhne ke liye"""
+    global queue_list, results_db
+    
+    if ticket_id not in results_db:
+        return jsonify({"error": "Invalid Ticket ID"})
+        
+    info = results_db[ticket_id]
+    
+    # Agar Wait kar raha hai toh Line ka number calculate karo
+    if info['status'] == 'WAITING':
+        position = 0
+        for index, item in enumerate(queue_list):
+            if item['ticket_id'] == ticket_id:
+                position = index + 1
+                break
+        return jsonify({"status": "WAITING", "position": position})
+        
+    elif info['status'] == 'PROCESSING':
+        return jsonify({"status": "PROCESSING"})
+        
+    elif info['status'] == 'DONE':
+        return jsonify({
+            "status": "DONE",
+            "data": info['data'],
+            "error": info['error']
+        })
 
 if __name__ == '__main__':
+    # Flask server start hone se pehle Browser aur Worker Thread start karo
     start_persistent_browser()
+    
+    worker_thread = threading.Thread(target=background_queue_worker, daemon=True)
+    worker_thread.start()
+    
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
