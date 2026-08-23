@@ -5,7 +5,6 @@ from flask import Flask, render_template_string, request, jsonify
 
 app = Flask(__name__)
 
-# Single file ke andar HTML UI
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
@@ -93,7 +92,6 @@ def search_pan():
         # Token Extract karna
         with open("storage.json", "r") as f:
             storage_data = json.load(f)
-            # JSON format me stored string ko wapas dict banayenge
             token_str = storage_data.get("session", {}).get("accessToken", "{}")
             token_dict = json.loads(token_str)
             bearer_token = token_dict.get("access_token", "")
@@ -108,7 +106,7 @@ def search_pan():
         if not bearer_token:
             return jsonify({"error": "storage.json ke andar access_token nahi mila!"})
 
-        # 2. Direct API Hit (No Browser needed)
+        # 2. Direct API Hit (With Missing Magic Headers)
         api_url = f"https://turtlemintloans.com/api/minterprise/v1/products/personal-loan/leads/existing-lead-by-pan?pan={pan_number}"
         
         headers = {
@@ -116,19 +114,26 @@ def search_pan():
             "Accept": "application/json, text/plain, */*",
             "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36",
             "Referer": "https://turtlemintloans.com/products/personal-loan/customer/MULTI/apply",
-            "Origin": "https://turtlemintloans.com"
+            "Origin": "https://turtlemintloans.com",
+            # THE FIX: Magic Headers jo Turtlemint expect karta hai
+            "broker": "turtlemint",
+            "tenant": "turtlemint",
+            "x-broker": "turtlemint",
+            "x-tenant": "turtlemint",
+            "Sec-Fetch-Site": "same-origin",
+            "Sec-Fetch-Mode": "cors",
+            "Sec-Fetch-Dest": "empty"
         }
 
-        # Matra 1-2 second me result wapas aayega
         response = requests.get(api_url, headers=headers, cookies=cookies_dict, timeout=10)
 
         # 3. Response Handle karna
         if response.status_code == 200:
             return jsonify(response.json())
         elif response.status_code in [401, 403]:
-            return jsonify({"error": "API Token expire ho gaya hai! Kripya GitHub par manually naye cookies.json aur storage.json upload karein aur deploy karein."})
+            return jsonify({"error": "API Token expire ho gaya hai! Kripya naye tokens update karein."})
         elif response.status_code == 400:
-            return jsonify({"error": "API ne 400 Bad Request diya. Ho sakta hai is PAN par lead banani baaki ho ya invalid ho.", "details": response.text})
+            return jsonify({"error": "API ne 400 Bad Request diya. Lead generation context missing hai.", "details": response.text})
         else:
             return jsonify({"error": f"Turtlemint API Error (Code: {response.status_code})", "details": response.text})
 
@@ -136,5 +141,4 @@ def search_pan():
         return jsonify({"error": str(e)})
 
 if __name__ == '__main__':
-    # Render cloud ke default port setup ke liye
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
