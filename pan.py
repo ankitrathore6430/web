@@ -2,7 +2,7 @@ import os
 import time
 import json
 import threading
-from flask import Flask, render_template_string, request, jsonify
+from flask import Flask, render_template_string, request, jsonify, session
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
@@ -11,16 +11,19 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 
 app = Flask(__name__)
+app.secret_key = "ankit_secure_secret_key_here"  # Flask session management ke liye
+
+# --- CONFIGURABLE PASSWORD ---
+CORRECT_PASSWORD = "ankit123"  # 🔐 Aap yahan apna password badal sakte hain!
 
 # --- GLOBAL VARIABLES FOR QUEUE & CACHE ---
 driver = None
-pan_cache = {}          # Instant results ke liye memory
-ticket_counter = 0      # Ticket number generate karne ke liye
-queue_list = []         # Line jisme tickets khadi hongi
-results_db = {}         # Har ticket ka live status
+pan_cache = {}          
+ticket_counter = 0      
+queue_list = []         
+results_db = {}         
 
 def start_persistent_browser():
-    """Browser ko ek hi baar start karega"""
     global driver
     options = Options()
     options.add_argument('--headless=new')
@@ -55,7 +58,6 @@ def start_persistent_browser():
     print("🚀 Browser Ready! Starting Queue Worker...")
 
 def background_queue_worker():
-    """Background Robot for Processing Queue"""
     global driver, queue_list, results_db, pan_cache
     
     while True:
@@ -121,15 +123,14 @@ def background_queue_worker():
             time.sleep(1)
 
 
-# --- PREMIUM HTML FRONTEND ---
+# --- PREMIUM HTML FRONTEND WITH LOCK SCREEN ---
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Enterprise PAN API</title>
-    <!-- Google Fonts for Premium Look -->
+    <title>Enterprise PAN API - Secure</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
         * { box-sizing: border-box; font-family: 'Poppins', sans-serif; }
@@ -156,14 +157,13 @@ HTML_TEMPLATE = """
             font-size: 18px;
             border: 2px solid #e2e8f0;
             border-radius: 12px;
-            text-transform: uppercase;
             font-weight: 600;
             color: #0f172a;
             text-align: center;
-            letter-spacing: 2px;
             transition: all 0.3s ease;
             outline: none;
         }
+        .input-group input.pan-box { text-transform: uppercase; letter-spacing: 2px; }
         .input-group input:focus { border-color: #2563eb; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1); }
         .input-group input::placeholder { color: #94a3b8; font-weight: 400; letter-spacing: 1px; }
 
@@ -183,15 +183,18 @@ HTML_TEMPLATE = """
         button:hover:not(:disabled) { background: #1d4ed8; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3); }
         button:disabled { background: #94a3b8; cursor: not-allowed; transform: none; box-shadow: none; }
 
-        /* Status Banner (Queue) */
-        .status-banner {
-            margin-top: 25px; padding: 15px; border-radius: 10px; font-size: 14px; font-weight: 500;
-            display: none; transition: all 0.3s;
-        }
+        /* Lock Screen Container */
+        #lockScreen { display: block; }
+        #appScreen { display: none; }
+        
+        .error-msg { color: #ef4444; font-size: 13px; font-weight: 500; margin-top: -10px; margin-bottom: 15px; display: none; }
+
+        /* Status Banner */
+        .status-banner { margin-top: 25px; padding: 15px; border-radius: 10px; font-size: 14px; font-weight: 500; display: none; transition: all 0.3s; }
         .status-waiting { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
         .status-processing { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
 
-        /* Premium Result Card */
+        /* Result Card */
         .result-card {
             margin-top: 25px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px;
             padding: 20px; text-align: left; display: none; position: relative;
@@ -201,7 +204,6 @@ HTML_TEMPLATE = """
         
         .badge-valid { display: inline-block; background: #10b981; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 15px; }
         .badge-invalid { display: inline-block; background: #ef4444; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; margin-bottom: 15px; }
-        
         .cache-badge { position: absolute; top: 15px; right: 15px; background: #fef08a; color: #854d0e; font-size: 11px; font-weight: 700; padding: 4px 8px; border-radius: 6px; display: flex; align-items: center; gap: 4px;}
         
         .detail-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #cbd5e1; font-size: 14px; }
@@ -209,7 +211,6 @@ HTML_TEMPLATE = """
         .detail-row span { color: #64748b; }
         .detail-row strong { color: #0f172a; font-weight: 600; }
 
-        /* Signature */
         .signature { margin-top: 40px; font-size: 13px; color: #94a3b8; font-weight: 500; }
         .signature span { color: #1e293b; font-weight: 600; }
         .signature .heart { color: #ef4444; font-size: 14px; display: inline-block; animation: heartbeat 1.5s infinite; }
@@ -221,22 +222,36 @@ HTML_TEMPLATE = """
 <body>
 
     <div class="premium-container">
-        <div class="header">
-            <h2>PAN Verification API</h2>
-            <p>Fast & Secure Enterprise Lookup</p>
+        
+        <!-- 🔐 LOCK SCREEN VIEW -->
+        <div id="lockScreen">
+            <div class="header">
+                <h2>🔒 Restricted Access</h2>
+                <p>Enter screen password to continue</p>
+            </div>
+            <div class="input-group">
+                <input type="password" id="passInput" placeholder="Enter Password" autocomplete="off">
+            </div>
+            <div id="passError" class="error-msg">Incorrect password. Try again!</div>
+            <button onclick="verifyPassword()">Unlock Portal</button>
         </div>
-        
-        <div class="input-group">
-            <input type="text" id="panInput" placeholder="ENTER PAN NUMBER" maxlength="10" autocomplete="off">
+
+        <!-- 🚀 MAIN APP VIEW -->
+        <div id="appScreen">
+            <div class="header">
+                <h2>PAN Verification API</h2>
+                <p>Fast & Secure Enterprise Lookup</p>
+            </div>
+            
+            <div class="input-group">
+                <input type="text" id="panInput" class="pan-box" placeholder="ENTER PAN NUMBER" maxlength="10" autocomplete="off">
+            </div>
+            
+            <button id="searchBtn" onclick="requestSearch()">Verify PAN Details</button>
+            
+            <div id="statusBox" class="status-banner"></div>
+            <div id="resultCard" class="result-card"></div>
         </div>
-        
-        <button id="searchBtn" onclick="requestSearch()">Verify PAN Details</button>
-        
-        <!-- Live Queue Banner -->
-        <div id="statusBox" class="status-banner"></div>
-        
-        <!-- Result Card UI -->
-        <div id="resultCard" class="result-card"></div>
         
         <div class="signature">
             Designed & Engineered by <span>Ankit Rathore</span> <span class="heart">❤️</span>
@@ -244,6 +259,37 @@ HTML_TEMPLATE = """
     </div>
 
     <script>
+        // Page load hone par check karo kya pehle se unlocked hai
+        window.onload = function() {
+            if(sessionStorage.getItem("portal_unlocked") === "true") {
+                document.getElementById('lockScreen').style.display = "none";
+                document.getElementById('appScreen').style.display = "block";
+            }
+        }
+
+        async function verifyPassword() {
+            let pass = document.getElementById('passInput').value.trim();
+            let errDiv = document.getElementById('passError');
+
+            let formData = new FormData();
+            formData.append('password', pass);
+
+            try {
+                let res = await fetch('/login', { method: 'POST', body: formData });
+                let data = await res.json();
+
+                if(data.success) {
+                    sessionStorage.setItem("portal_unlocked", "true");
+                    document.getElementById('lockScreen').style.display = "none";
+                    document.getElementById('appScreen').style.display = "block";
+                } else {
+                    errDiv.style.display = "block";
+                }
+            } catch(e) {
+                alert("Server error during login.");
+            }
+        }
+
         let pollInterval = null;
 
         async function requestSearch() {
@@ -271,6 +317,13 @@ HTML_TEMPLATE = """
             try {
                 let response = await fetch('/enqueue', { method: 'POST', body: formData });
                 let data = await response.json();
+
+                if(data.unauthorized) {
+                    alert("Session timed out. Please unlock again.");
+                    sessionStorage.removeItem("portal_unlocked");
+                    location.reload();
+                    return;
+                }
 
                 if(data.status === "DONE") {
                     showFinalResult(data.data, true);
@@ -317,13 +370,18 @@ HTML_TEMPLATE = """
                 let details = apiData.data;
                 let statusBadgeClass = details.panStatus === 'VALID' ? 'badge-valid' : 'badge-invalid';
                 
+                let middleNameRow = (details.middleName && details.middleName.trim() !== "") 
+                    ? `<div class="detail-row"><span>Middle Name</span> <strong>${details.middleName}</strong></div>` 
+                    : '';
+
                 resultCard.innerHTML = `
                     ${isCached ? '<div class="cache-badge">⚡ Instant Hit</div>' : ''}
                     <div class="${statusBadgeClass}">${details.panStatus || 'UNKNOWN'}</div>
-                    <div class="detail-row"><span>Name</span> <strong>${details.customerName || '-'}</strong></div>
-                    <div class="detail-row"><span>DOB</span> <strong>${details.dob || '-'}</strong></div>
+                    <div class="detail-row"><span>Full Name</span> <strong>${details.customerName || '-'}</strong></div>
                     <div class="detail-row"><span>First Name</span> <strong>${details.firstName || '-'}</strong></div>
+                    ${middleNameRow}
                     <div class="detail-row"><span>Last Name</span> <strong>${details.lastName || '-'}</strong></div>
+                    <div class="detail-row"><span>DOB</span> <strong>${details.dob || '-'}</strong></div>
                 `;
             } else if (errorMsg) {
                 resultCard.innerHTML = `<div style="color:#ef4444; font-weight:500; font-size:14px; text-align:center;">❌ ${errorMsg}</div>`;
@@ -343,9 +401,21 @@ HTML_TEMPLATE = """
 def index():
     return render_template_string(HTML_TEMPLATE)
 
+@app.route('/login', methods=['POST'])
+def login():
+    password = request.form.get('password', '')
+    if password == CORRECT_PASSWORD:
+        session['authenticated'] = True
+        return jsonify({"success": True})
+    return jsonify({"success": False})
+
 @app.route('/enqueue', methods=['POST'])
 def enqueue_task():
     global ticket_counter, queue_list, results_db, pan_cache
+    
+    # Backend Security Check
+    if not session.get('authenticated'):
+        return jsonify({"unauthorized": True})
     
     pan_number = request.form.get('pan', '').strip().upper()
     if not pan_number:
@@ -367,6 +437,9 @@ def enqueue_task():
 def check_status(ticket_id):
     global queue_list, results_db
     
+    if not session.get('authenticated'):
+        return jsonify({"error": "Unauthorized"})
+        
     if ticket_id not in results_db:
         return jsonify({"error": "Invalid Ticket ID"})
         
