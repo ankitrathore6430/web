@@ -20,9 +20,10 @@ def init_driver_with_session():
     global driver
     if driver is None:
         options = Options()
-        options.add_argument('--headless=new')  # Render ke liye headless zaroori hai
+        options.add_argument('--headless=new')
         options.add_argument('--no-sandbox')
         options.add_argument('--disable-dev-shm-usage')
+        options.add_argument('--disable-gpu')  # Docker me stability ke liye
         options.add_argument('--window-size=1920,1080')
         options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/115.0.0.0 Safari/537.36')
         options.set_capability("goog:loggingPrefs", {"performance": "ALL"})
@@ -133,7 +134,7 @@ def search_pan():
 
         # Agar session expire hua ho aur login page khul jaye
         if "login" in drv.current_url:
-            return jsonify({"error": "Session expired! GitHub par rakhi cookies/storage purani ho gayi hain. Naya login karke update karein."})
+            return jsonify({"error": "Session expired! GitHub par rakhi cookies/storage purani ho gayi hain. Naya login karke files update karein."})
 
         # PAN input karna aur TAB dabana
         pan_input = wait.until(EC.presence_of_element_located((By.XPATH, "//input[contains(@name, 'pan') or contains(@class, 'pan') or contains(@id, 'pan')]")))
