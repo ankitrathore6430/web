@@ -2,6 +2,7 @@ import os
 import time
 import json
 import threading
+from datetime import datetime
 from flask import Flask, render_template_string, request, jsonify, session
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -11,17 +12,18 @@ from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.common.keys import Keys
 
 app = Flask(__name__)
-app.secret_key = "ankit_secure_secret_key_here"  # Flask session management ke liye
+app.secret_key = "ankit_secure_secret_key_here"
 
 # --- CONFIGURABLE PASSWORD ---
 CORRECT_PASSWORD = "ankit123"  # 🔐 Aap yahan apna password badal sakte hain!
 
-# --- GLOBAL VARIABLES FOR QUEUE & CACHE ---
+# --- GLOBAL VARIABLES FOR QUEUE, CACHE & RESET ---
 driver = None
 pan_cache = {}          
 ticket_counter = 0      
 queue_list = []         
 results_db = {}         
+last_reset_date = datetime.now().date()  # Daily reset track karne ke liye
 
 def start_persistent_browser():
     global driver
@@ -55,12 +57,24 @@ def start_persistent_browser():
 
     driver.get("https://turtlemintloans.com/products/personal-loan/customer/MULTI/apply")
     time.sleep(3)
-    print("🚀 Browser Ready! Starting Queue Worker...")
+    print("🚀 Browser Ready! Starting Queue & Midnight Reset Worker...")
 
 def background_queue_worker():
-    global driver, queue_list, results_db, pan_cache
+    """Background Robot: Queue process karega aur raat 12 baje data auto-wipe karega"""
+    global driver, queue_list, results_db, pan_cache, ticket_counter, last_reset_date
     
     while True:
+        # --- 🕛 AUTO MIDNIGHT RESET LOGIC ---
+        current_date = datetime.now().date()
+        if current_date != last_reset_date:
+            print(f"🧹 Midnight Reset Triggered! Clearing all data and resetting tickets to TKT-1.")
+            pan_cache.clear()
+            results_db.clear()
+            queue_list.clear()
+            ticket_counter = 0
+            last_reset_date = current_date
+
+        # --- QUEUE PROCESSOR ---
         if len(queue_list) > 0:
             current_task = queue_list[0]
             t_id = current_task['ticket_id']
@@ -123,7 +137,7 @@ def background_queue_worker():
             time.sleep(1)
 
 
-# --- PREMIUM HTML FRONTEND WITH LOCK SCREEN ---
+# --- PREMIUM HTML FRONTEND ---
 HTML_TEMPLATE = """
 <!DOCTYPE html>
 <html lang="en">
@@ -183,18 +197,15 @@ HTML_TEMPLATE = """
         button:hover:not(:disabled) { background: #1d4ed8; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(37, 99, 235, 0.3); }
         button:disabled { background: #94a3b8; cursor: not-allowed; transform: none; box-shadow: none; }
 
-        /* Lock Screen Container */
         #lockScreen { display: block; }
         #appScreen { display: none; }
         
         .error-msg { color: #ef4444; font-size: 13px; font-weight: 500; margin-top: -10px; margin-bottom: 15px; display: none; }
 
-        /* Status Banner */
         .status-banner { margin-top: 25px; padding: 15px; border-radius: 10px; font-size: 14px; font-weight: 500; display: none; transition: all 0.3s; }
         .status-waiting { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
         .status-processing { background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; }
 
-        /* Result Card */
         .result-card {
             margin-top: 25px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 14px;
             padding: 20px; text-align: left; display: none; position: relative;
@@ -259,12 +270,9 @@ HTML_TEMPLATE = """
     </div>
 
     <script>
-        // Page load hone par check karo kya pehle se unlocked hai
-        window.onload = function() {
-            if(sessionStorage.getItem("portal_unlocked") === "true") {
-                document.getElementById('lockScreen').style.display = "none";
-                document.getElementById('appScreen').style.display = "block";
-            }
+        // 🔄 REFRESH SECURITY: Har refresh par server session clear kar do taaki password mange
+        window.onbeforeunload = function() {
+            navigator.sendBeacon('/logout');
         }
 
         async function verifyPassword() {
@@ -279,7 +287,6 @@ HTML_TEMPLATE = """
                 let data = await res.json();
 
                 if(data.success) {
-                    sessionStorage.setItem("portal_unlocked", "true");
                     document.getElementById('lockScreen').style.display = "none";
                     document.getElementById('appScreen').style.display = "block";
                 } else {
@@ -319,8 +326,7 @@ HTML_TEMPLATE = """
                 let data = await response.json();
 
                 if(data.unauthorized) {
-                    alert("Session timed out. Please unlock again.");
-                    sessionStorage.removeItem("portal_unlocked");
+                    alert("Session timed out or page refreshed. Please enter password again.");
                     location.reload();
                     return;
                 }
@@ -344,6 +350,13 @@ HTML_TEMPLATE = """
             try {
                 let res = await fetch(`/status/${ticketId}`);
                 let data = await res.json();
+
+                if (data.unauthorized) {
+                    clearInterval(pollInterval);
+                    alert("Session expired. Please reload.");
+                    location.reload();
+                    return;
+                }
 
                 if (data.status === "WAITING") {
                     statusBox.className = "status-banner status-waiting";
@@ -399,6 +412,7 @@ HTML_TEMPLATE = """
 
 @app.route('/')
 def index():
+    session.pop('authenticated', None)  # Har baar naye connection/refresh par lock lag jayega
     return render_template_string(HTML_TEMPLATE)
 
 @app.route('/login', methods=['POST'])
@@ -409,11 +423,15 @@ def login():
         return jsonify({"success": True})
     return jsonify({"success": False})
 
+@app.route('/logout', methods=['POST'])
+def logout():
+    session.pop('authenticated', None)
+    return '', 204
+
 @app.route('/enqueue', methods=['POST'])
 def enqueue_task():
     global ticket_counter, queue_list, results_db, pan_cache
     
-    # Backend Security Check
     if not session.get('authenticated'):
         return jsonify({"unauthorized": True})
     
@@ -438,7 +456,7 @@ def check_status(ticket_id):
     global queue_list, results_db
     
     if not session.get('authenticated'):
-        return jsonify({"error": "Unauthorized"})
+        return jsonify({"unauthorized": True})
         
     if ticket_id not in results_db:
         return jsonify({"error": "Invalid Ticket ID"})
