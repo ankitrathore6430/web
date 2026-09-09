@@ -340,7 +340,7 @@
       const timeout = setTimeout(() => {
         cleanup();
         reject(new Error("Request timed out. Apps Script response late hai."));
-      }, 20000);
+      }, 80000);
 
       function cleanup() {
         if (script.parentNode) script.parentNode.removeChild(script);
