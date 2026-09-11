@@ -1,0 +1,1769 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Solor Energy - Premium</title>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; -webkit-tap-highlight-color: transparent; }
+        
+        :root {
+            --primary: #6366f1; --primary-dark: #4f46e5; --primary-light: #818cf8;
+            --secondary: #ec4899; --accent: #f59e0b; --success: #10b981; --success-light: #34d399;
+            --danger: #ef4444; --warning: #f59e0b; --dark: #0f172a; --dark-light: #1e293b;
+            --gray: #64748b; --gray-light: #94a3b8; --light: #f1f5f9; --white: #ffffff;
+            --gradient-1: linear-gradient(135deg, #6366f1 0%, #8b5cf6 50%, #ec4899 100%);
+            --gradient-2: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            --gradient-3: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+            --gradient-4: linear-gradient(135deg, #ef4444 0%, #f87171 100%);
+            --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+            --shadow-glow: 0 0 40px rgba(99, 102, 241, 0.3);
+        }
+        
+        body { background: var(--light); min-height: 100vh; padding-bottom: 90px; color: var(--dark); }
+        
+        /* Premium Header */
+        .premium-header { background: var(--gradient-1); padding: 20px; position: sticky; top: 0; z-index: 1000; box-shadow: var(--shadow-lg); }
+        .header-content { max-width: 1200px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; }
+        .brand { display: flex; align-items: center; gap: 12px; color: var(--white); }
+        .brand-icon { width: 45px; height: 45px; background: rgba(255,255,255,0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 24px; backdrop-filter: blur(10px); }
+        .brand-text h1 { font-size: 22px; font-weight: 700; letter-spacing: -0.5px; }
+        .brand-text p { font-size: 12px; opacity: 0.9; font-weight: 500; }
+        
+        .header-balance { background: rgba(255,255,255,0.15); backdrop-filter: blur(10px); padding: 10px 20px; border-radius: 50px; color: var(--white); text-align: center; border: 1px solid rgba(255,255,255,0.2); cursor: pointer;}
+        .header-balance .label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.8; }
+        .header-balance .amount { font-size: 20px; font-weight: 700; }
+        
+        /* Bottom Nav */
+        .premium-nav { position: fixed; bottom: 0; left: 0; right: 0; background: var(--white); padding: 12px 20px 25px; display: flex; justify-content: space-around; box-shadow: 0 -10px 40px rgba(0,0,0,0.1); z-index: 1000; border-radius: 30px 30px 0 0; }
+        .nav-item { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 8px 16px; border-radius: 16px; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: none; background: transparent; color: var(--gray); position: relative; }
+        .nav-item i { font-size: 22px; transition: all 0.3s; }
+        .nav-item span { font-size: 11px; font-weight: 600; }
+        .nav-item.active { color: var(--primary); background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%); transform: translateY(-5px); }
+        .nav-item.active i { transform: scale(1.2); filter: drop-shadow(0 4px 8px rgba(99, 102, 241, 0.3)); }
+        
+        /* Premium Cards */
+        .premium-card { background: var(--white); border-radius: 24px; padding: 25px; margin: 20px; box-shadow: var(--shadow); border: 1px solid rgba(0,0,0,0.05); transition: all 0.3s; position: relative; }
+        
+        /* Hero Section */
+        .hero-section { background: var(--gradient-1); margin: 20px; border-radius: 30px; padding: 35px 25px; color: var(--white); position: relative; overflow: hidden; box-shadow: var(--shadow-glow); }
+        
+        /* Balance Card */
+        .balance-premium { background: var(--gradient-1); margin: 20px; border-radius: 30px; padding: 35px; color: var(--white); position: relative; overflow: hidden; box-shadow: var(--shadow-glow); }
+        .balance-label { font-size: 14px; text-transform: uppercase; letter-spacing: 2px; opacity: 0.9; margin-bottom: 10px; }
+        .balance-amount { font-size: 56px; font-weight: 800; margin-bottom: 25px; text-shadow: 2px 2px 4px rgba(0,0,0,0.2); }
+        .balance-actions { display: flex; gap: 15px; }
+        
+        .btn-premium { flex: 1; padding: 16px; border-radius: 16px; border: none; font-size: 15px; font-weight: 600; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px; }
+        .btn-premium-primary { background: var(--white); color: var(--primary); box-shadow: 0 10px 30px rgba(0,0,0,0.2); }
+        .btn-premium-secondary { background: rgba(255,255,255,0.2); color: var(--white); border: 2px solid rgba(255,255,255,0.3); backdrop-filter: blur(10px); }
+        
+        /* Vertical Plans Layout */
+        .section-title { display: flex; align-items: center; justify-content: space-between; margin: 30px 20px 20px; padding: 0 5px; }
+        .section-title h2 { font-size: 22px; font-weight: 700; color: var(--dark); }
+        
+        .plans-vertical { display: flex; flex-direction: column; gap: 20px; padding: 10px 20px 30px; }
+        .plan-card-premium { width: 100%; background: var(--white); border-radius: 28px; overflow: hidden; box-shadow: var(--shadow); transition: all 0.3s; border: 2px solid transparent; position: relative;}
+        
+        .plan-header-premium { padding: 30px; text-align: center; color: var(--white); position: relative; }
+        .plan-header-premium.free { background: var(--gradient-2); }
+        .plan-header-premium.paid { background: var(--gradient-1); }
+        /* FIX: Ensure popular plan (500) has distinct color and white text */
+        .plan-header-premium.popular { background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%) !important; color: #ffffff !important; }
+        
+        .discount-badge { position: absolute; top: 15px; right: -10px; background: #fde047; color: var(--dark); padding: 5px 20px; font-size: 12px; font-weight: 800; border-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
+        .price-strike { text-decoration: line-through; color: rgba(255,255,255,0.7); font-size: 22px; margin-right: 10px; font-weight: 500;}
+        
+        .plan-icon { font-size: 40px; margin-bottom: 15px; }
+        .plan-name { font-size: 24px; font-weight: 700; margin-bottom: 5px; }
+        .plan-price { font-size: 48px; font-weight: 800; }
+        .plan-price span { font-size: 20px; font-weight: 500; }
+        
+        .plan-body-premium { padding: 25px; }
+        .plan-features { list-style: none; margin-bottom: 25px; }
+        .plan-features li { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--light); font-size: 14px; color: var(--gray); }
+        .plan-features i { color: var(--success); font-size: 18px; }
+        
+        .btn-plan { width: 100%; padding: 16px; border-radius: 16px; border: none; font-size: 15px; font-weight: 700; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; }
+        .btn-plan-primary { background: var(--gradient-1); color: var(--white); box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3); }
+        .btn-plan-success { background: var(--gradient-2); color: var(--white); }
+        
+        /* Auto UPI Apps Grid */
+        .upi-apps-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; margin-bottom: 20px; }
+        .upi-app-btn { display: flex; align-items: center; justify-content: center; gap: 8px; padding: 14px; border-radius: 14px; border: 2px solid #e2e8f0; background: white; font-weight: 600; font-size: 15px; cursor: pointer; transition: all 0.3s; color: var(--dark); }
+        .upi-app-btn:hover { border-color: var(--primary); background: rgba(99, 102, 241, 0.05); transform: translateY(-2px); }
+        .upi-app-btn.gpay { color: #ea4335; }
+        .upi-app-btn.phonepe { color: #5f259f; }
+        .upi-app-btn.paytm { color: #00b9f5; }
+        .upi-app-btn.bhim { color: #ff7a00; }
+        
+        /* Form */
+        .form-premium .form-group { margin-bottom: 25px; }
+        .form-premium label { display: block; margin-bottom: 10px; font-weight: 600; color: var(--dark); font-size: 14px; }
+        .input-premium { width: 100%; padding: 18px 20px; border: 2px solid #e2e8f0; border-radius: 16px; font-size: 16px; transition: all 0.3s; background: var(--white); }
+        .input-premium:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1); }
+        
+        .btn-main { width: 100%; padding: 18px; border-radius: 16px; border: none; font-size: 16px; font-weight: 700; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; gap: 10px; margin-top: 10px; }
+        .btn-main-primary { background: var(--gradient-1); color: var(--white); box-shadow: 0 10px 30px rgba(99, 102, 241, 0.3); }
+        .btn-main-success { background: var(--gradient-2); color: var(--white); box-shadow: 0 10px 30px rgba(16, 185, 129, 0.3); }
+        
+        /* Utils */
+        .page { display: none; animation: fadeIn 0.4s ease; }
+        .page.active { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        .hidden { display: none !important; }
+        ::-webkit-scrollbar { width: 0; height: 0; }
+        
+        /* Loading & Toast */
+        .loading-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--white); z-index: 9999; display: none; flex-direction: column; align-items: center; justify-content: center; }
+        .loading-screen.active { display: flex; }
+        .loader { width: 60px; height: 60px; border: 4px solid #e2e8f0; border-top-color: var(--primary); border-radius: 50%; animation: spin 1s linear infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        
+        .toast { position: fixed; top: 100px; left: 50%; transform: translateX(-50%) translateY(-100px); background: var(--dark); color: var(--white); padding: 16px 24px; border-radius: 12px; font-weight: 500; z-index: 10000; opacity: 0; transition: all 0.3s; box-shadow: var(--shadow-xl); }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+        .toast.success { background: var(--success); }
+        .toast.error { background: var(--danger); }
+        
+        /* Wallet Tabs */
+        .wallet-tabs { display: flex; gap: 10px; margin: 20px; background: var(--white); padding: 8px; border-radius: 16px; box-shadow: var(--shadow-sm); }
+        .wallet-tab { flex: 1; padding: 14px; border-radius: 12px; border: none; background: transparent; font-weight: 600; cursor: pointer; transition: all 0.3s; color: var(--gray); }
+        .wallet-tab.active { background: var(--gradient-1); color: var(--white); box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3); }
+        
+        /* OTP Inputs - FIXED CENTERED LAYOUT */
+        .otp-container { 
+            display: flex; 
+            gap: 8px; 
+            justify-content: center; 
+            margin: 30px 0; 
+            flex-wrap: nowrap;
+            overflow-x: auto;
+            padding: 10px 0;
+            -webkit-overflow-scrolling: touch;
+        }
+        .otp-input-premium { 
+            width: 45px; 
+            height: 55px; 
+            border: 2px solid #e2e8f0; 
+            border-radius: 12px; 
+            text-align: center; 
+            font-size: 20px; 
+            font-weight: 700; 
+            transition: all 0.3s; 
+            flex-shrink: 0;
+        }
+        .otp-input-premium:focus { 
+            border-color: var(--primary); 
+            outline: none; 
+            transform: scale(1.05); 
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+        }
+        
+        /* Daily Claim */
+        .claim-card { background: var(--gradient-2); margin: 20px; border-radius: 30px; padding: 30px; color: var(--white); text-align: center; box-shadow: 0 20px 40px rgba(16, 185, 129, 0.3); }
+        .claim-amount { font-size: 48px; font-weight: 800; margin: 15px 0; }
+        .claim-btn { background: var(--white); color: var(--success); border: none; padding: 18px 40px; border-radius: 16px; font-size: 18px; font-weight: 700; cursor: pointer; margin-top: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.2); transition: all 0.3s; }
+        .claim-btn.claimed { background: var(--gray-light); color: var(--white); }
+        
+        /* Transactions */
+        .tx-item { display: flex; align-items: center; gap: 15px; padding: 18px; background: var(--white); border-radius: 20px; margin-bottom: 12px; box-shadow: var(--shadow-sm); transition: all 0.3s; }
+        .tx-icon { width: 50px; height: 50px; border-radius: 15px; display: flex; align-items: center; justify-content: center; font-size: 20px; }
+        .tx-icon.credit { background: rgba(16, 185, 129, 0.1); color: var(--success); }
+        .tx-icon.debit { background: rgba(239, 68, 68, 0.1); color: var(--danger); }
+        .tx-icon.pending { background: rgba(245, 158, 11, 0.1); color: var(--warning); }
+        .tx-details { flex: 1; }
+        .tx-amount { font-weight: 700; font-size: 16px; }
+        .tx-amount.credit { color: var(--success); }
+        .tx-amount.debit { color: var(--danger); }
+        .tx-amount.pending { color: var(--warning); }
+        
+        .status-badge { font-size: 10px; padding: 3px 8px; border-radius: 10px; font-weight: bold; text-transform: uppercase; margin-left: 5px; }
+        .status-pending { background: #fef3c7; color: #b45309; }
+        .status-approved { background: #dcfce7; color: #166534; }
+        .status-rejected { background: #fee2e2; color: #991b1b; }
+
+        .empty-state { text-align: center; padding: 60px 20px; color: var(--gray); }
+        .empty-state i { font-size: 64px; margin-bottom: 20px; opacity: 0.3; }
+        .empty-state h3 { font-size: 20px; margin-bottom: 10px; }
+
+        /* Referral Program Specific Classes */
+        .step-circle { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; color: white; background: var(--gradient-1); flex-shrink: 0; box-shadow: 0 4px 10px rgba(99,102,241,0.3);}
+        .level-card { display: flex; align-items: center; justify-content: space-between; padding: 15px; border-radius: 16px; margin-bottom: 10px; background: var(--light); border: 1px solid #e2e8f0; }
+        
+        /* WhatsApp Badge */
+        .whatsapp-badge { background: #25D366; color: white; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center; gap: 5px; margin-bottom: 15px; }
+        
+        /* Forgot Password Modal */
+        .modal-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 10001; display: none; align-items: center; justify-content: center; padding: 20px; }
+        .modal-overlay.active { display: flex; }
+        .modal-content { background: white; border-radius: 24px; padding: 30px; width: 100%; max-width: 400px; animation: slideUp 0.3s ease; max-height: 90vh; overflow-y: auto; }
+        @keyframes slideUp { from { transform: translateY(50px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-close { background: none; border: none; font-size: 24px; color: var(--gray); cursor: pointer; }
+        
+        /* Responsive OTP Fix */
+        @media (max-width: 380px) {
+            .otp-input-premium { width: 40px; height: 50px; font-size: 18px; }
+            .otp-container { gap: 6px; }
+        }
+        
+        @media (min-width: 768px) {
+            .otp-input-premium { width: 55px; height: 65px; font-size: 24px; }
+            .otp-container { gap: 12px; }
+        }
+
+        /* Blocked Screen Styles */
+        .blocked-screen { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); 
+            z-index: 99999; 
+            display: none; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 40px 20px; 
+            text-align: center; 
+            color: white;
+        }
+        .blocked-screen.active { display: flex; }
+        .blocked-icon { font-size: 80px; margin-bottom: 30px; color: var(--danger); }
+        .blocked-title { font-size: 28px; font-weight: 800; margin-bottom: 15px; }
+        .blocked-text { font-size: 16px; opacity: 0.8; margin-bottom: 40px; max-width: 300px; }
+        .blocked-btn { 
+            width: 100%; 
+            max-width: 300px; 
+            padding: 16px; 
+            border-radius: 16px; 
+            border: none; 
+            font-size: 16px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        .blocked-btn-support { background: var(--warning); color: white; }
+        .blocked-btn-logout { background: rgba(255,255,255,0.1); color: white; border: 2px solid rgba(255,255,255,0.3); }
+
+        /* Profile Edit Styles */
+        .profile-name-edit { 
+            display: flex; 
+            align-items: center; 
+            gap: 10px; 
+            justify-content: center; 
+            margin-bottom: 5px;
+        }
+        .edit-name-btn { 
+            background: rgba(255,255,255,0.2); 
+            border: none; 
+            width: 32px; 
+            height: 32px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            color: white;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .edit-name-btn:hover { background: rgba(255,255,255,0.3); transform: scale(1.1); }
+        
+        .name-edit-input { 
+            background: rgba(255,255,255,0.2); 
+            border: 2px solid rgba(255,255,255,0.3); 
+            color: white; 
+            padding: 8px 15px; 
+            border-radius: 25px; 
+            font-size: 18px; 
+            font-weight: 700; 
+            text-align: center; 
+            width: 200px;
+            outline: none;
+        }
+        .name-edit-input::placeholder { color: rgba(255,255,255,0.6); }
+        
+        .save-name-btn { 
+            background: var(--success); 
+            border: none; 
+            width: 32px; 
+            height: 32px; 
+            border-radius: 50%; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            cursor: pointer; 
+            color: white;
+            font-size: 14px;
+        }
+
+        /* Landing Page Text Styles */
+        .landing-text-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+        .landing-main-text {
+            font-size: 32px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+        .landing-sub-text {
+            font-size: 18px;
+            opacity: 0.95;
+            font-weight: 600;
+        }
+
+        /* Account Deleted Screen */
+        .deleted-screen { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); 
+            z-index: 99999; 
+            display: none; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: center; 
+            padding: 40px 20px; 
+            text-align: center; 
+            color: white;
+        }
+        .deleted-screen.active { display: flex; }
+        .deleted-icon { font-size: 80px; margin-bottom: 30px; color: var(--danger); }
+        .deleted-title { font-size: 28px; font-weight: 800; margin-bottom: 15px; }
+        .deleted-text { font-size: 16px; opacity: 0.8; margin-bottom: 40px; max-width: 300px; }
+        .deleted-btn { 
+            width: 100%; 
+            max-width: 300px; 
+            padding: 16px; 
+            border-radius: 16px; 
+            border: none; 
+            font-size: 16px; 
+            font-weight: 700; 
+            cursor: pointer; 
+            background: var(--gradient-1); 
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Account Deleted Screen -->
+    <div id="deletedScreen" class="deleted-screen">
+        <div class="deleted-icon">🗑️</div>
+        <h2 class="deleted-title">Account Deleted</h2>
+        <p class="deleted-text">Your account has been permanently deleted by the administrator.</p>
+        <button class="deleted-btn" onclick="forceLogout()">
+            <i class="fas fa-sign-in-alt"></i> Back to Login
+        </button>
+    </div>
+
+    <!-- Blocked Screen -->
+    <div id="blockedScreen" class="blocked-screen">
+        <div class="blocked-icon">🚫</div>
+        <h2 class="blocked-title">Blocked by Admin</h2>
+        <p class="blocked-text">Your account has been blocked by the administrator. Please contact support for assistance.</p>
+        <button class="blocked-btn blocked-btn-support" onclick="showPage('support')">
+            <i class="fas fa-headset"></i> Support Ticket
+        </button>
+        <button class="blocked-btn blocked-btn-logout" onclick="logout()">
+            <i class="fas fa-sign-out-alt"></i> Logout
+        </button>
+    </div>
+
+    <!-- Loading Screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loader"></div>
+        <p style="margin-top: 20px; color: var(--primary); font-weight: 600;">Loading...</p>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast"></div>
+
+    <!-- Forgot Password Modal - UPDATED WITH PHONE.EMAIL -->
+    <div id="forgotPasswordModal" class="modal-overlay">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 style="font-size: 20px; font-weight: 700;">Reset Password</h3>
+                <button class="modal-close" onclick="closeForgotModal()"><i class="fas fa-times"></i></button>
+            </div>
+            <form class="form-premium" id="forgotPasswordForm" onsubmit="return false;">
+                <div class="form-group" id="forgotPhoneGroup">
+                    <label>Verify Phone Number to Reset</label>
+                    <!-- Phone.Email Button for Forgot Password -->
+                    <div class="pe_signin_button" data-client-id="13788067851002633192" style="display: flex; justify-content: center; margin-top: 15px;">
+                        <script src="https://www.phone.email/sign_in_button_v1.js" async></script>
+                    </div>
+                </div>
+                <div class="form-group" id="newPasswordGroup" style="display: none;">
+                    <label>New Password</label>
+                    <input type="password" class="input-premium" id="newPassword" placeholder="Min 6 characters" minlength="6">
+                    <button type="button" class="btn-main btn-main-primary" onclick="resetPasswordSubmit()">Save New Password</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- HEADER -->
+    <header class="premium-header" id="mainHeader" style="display: none;">
+        <div class="header-content">
+            <div class="brand">
+                <div class="brand-icon">☀️</div>
+                <div class="brand-text">
+                    <h1>Solor Energy</h1>
+                    <p>Refer & Earn</p>
+                </div>
+            </div>
+            <div class="header-balance" onclick="showPage('wallet')">
+                <div class="label">Balance</div>
+                <div class="amount">₹<span id="headerBalance">0</span></div>
+            </div>
+        </div>
+    </header>
+
+    <!-- BOTTOM NAV -->
+    <nav class="premium-nav" id="bottomNav" style="display: none;">
+        <button class="nav-item active" onclick="showPage('home')" data-page="home">
+            <i class="fas fa-home"></i><span>Home</span>
+        </button>
+        <button class="nav-item" onclick="showPage('plans')" data-page="plans">
+            <i class="fas fa-gem"></i><span>Plans</span>
+        </button>
+        <button class="nav-item" onclick="showPage('wallet')" data-page="wallet">
+            <i class="fas fa-wallet"></i><span>Wallet</span>
+        </button>
+        <button class="nav-item" onclick="showPage('referral')" data-page="referral">
+            <i class="fas fa-users"></i><span>Refer</span>
+        </button>
+        <button class="nav-item" onclick="showPage('profile')" data-page="profile">
+            <i class="fas fa-user"></i><span>Profile</span>
+        </button>
+    </nav>
+
+    <!-- LANDING PAGE -->
+    <div id="landingPage" class="page active">
+        <div class="hero-section">
+            <div class="hero-content">
+                <div class="hero-badge"><i class="fas fa-fire"></i> India's #1 Earning App</div>
+                <div class="landing-text-container">
+                    <h1 class="landing-main-text">Earn monthly <span style="color:#fde047;">₹50000</span></h1>
+                    <p class="landing-sub-text">Instant withdrawal • Unlimited refer</p>
+                </div>
+            </div>
+        </div>
+        <div style="padding: 20px;">
+            <button class="btn-main btn-main-primary" onclick="showPage('register')"><i class="fas fa-rocket"></i> Start Earning Now - It's FREE!</button>
+            <button class="btn-main" style="background: transparent; color: var(--primary); border: 2px solid var(--primary);" onclick="showPage('login')"><i class="fas fa-sign-in-alt"></i> Already have an account? Login</button>
+        </div>
+    </div>
+
+    <!-- LOGIN PAGE -->
+    <div id="loginPage" class="page">
+        <div style="padding: 40px 20px; text-align: center;">
+            <h2 style="font-size: 28px; font-weight: 700;">Welcome Back!</h2>
+            <p style="color: var(--gray);">Login to continue earning</p>
+        </div>
+        <div class="premium-card">
+            <form class="form-premium" id="loginForm">
+                <div class="form-group">
+                    <label><i class="fas fa-phone-alt" style="margin-right: 8px; color: var(--primary);"></i>Phone Number</label>
+                    <input type="tel" class="input-premium" id="loginPhone" placeholder="9876543210" maxlength="10" inputmode="numeric" pattern="[0-9]*" required>
+                </div>
+                <div class="form-group">
+                    <label><i class="fas fa-lock" style="margin-right: 8px; color: var(--primary);"></i>Password</label>
+                    <input type="password" class="input-premium" id="loginPassword" placeholder="Enter password" required>
+                </div>
+                <div style="text-align: right; margin-bottom: 15px;">
+                    <a href="#" onclick="openForgotModal()" style="color: var(--primary); font-size: 14px; font-weight: 600; text-decoration: none;">Forgot Password?</a>
+                </div>
+                <button type="submit" class="btn-main btn-main-primary"><i class="fas fa-sign-in-alt"></i> Login</button>
+            </form>
+            <div style="text-align: center; margin-top: 20px;">
+                <p style="color: var(--gray);">Don't have an account? <a href="#" onclick="showPage('register')" style="color: var(--primary); font-weight: 700; text-decoration: none;">Register Now</a></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- REGISTER PAGE - UPDATED WITH PHONE.EMAIL -->
+    <div id="registerPage" class="page">
+        <div class="premium-card" style="margin-top:20px;">
+            <div id="regStep1">
+                <h2 style="text-align:center; margin-bottom: 20px;">Create Account</h2>
+                <form class="form-premium" id="registerForm" onsubmit="return false;">
+                    <div class="form-group">
+                        <label>Full Name *</label>
+                        <input type="text" class="input-premium" id="regName" placeholder="Your full name" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Password *</label>
+                        <input type="password" class="input-premium" id="regPassword" placeholder="Min 6 characters" minlength="6" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Confirm Password *</label>
+                        <input type="password" class="input-premium" id="regConfirm" placeholder="Confirm password" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Referral Code (Optional)</label>
+                        <input type="text" class="input-premium" id="regReferral" placeholder="Friend's code">
+                        <p style="font-size: 12px; color: var(--secondary); margin-top: 8px; display:none;" id="refBonusText">
+                            <i class="fas fa-info-circle"></i> You were invited! Get ₹<span class="refer-amount-display">15</span> bonus!
+                        </p>
+                    </div>
+                    
+                    <p style="text-align: center; font-size: 13px; color: var(--gray); margin-bottom: 10px; margin-top: 15px;">Verify Phone & Register</p>
+                    <!-- Phone.Email Button for Registration -->
+                    <div class="pe_signin_button" data-client-id="13788067851002633192" style="display: flex; justify-content: center;">
+                        <script src="https://www.phone.email/sign_in_button_v1.js" async></script>
+                    </div>
+                </form>
+                <div style="text-align: center; margin-top: 20px;">
+                    <p style="color: var(--gray);">Already have an account? <a href="#" onclick="showPage('login')" style="color: var(--primary); font-weight: 700; text-decoration: none;">Login Now</a></p>
+                </div>
+            </div>
+
+            <!-- Success Step -->
+            <div id="regStep3" class="hidden text-center">
+                <div style="font-size: 50px; margin-bottom:15px;">🎉</div>
+                <h2 style="font-size: 28px; margin-bottom: 15px;">Welcome!</h2>
+                <p id="bonusMessage" style="color: var(--success); font-weight: 700; font-size: 18px; margin-bottom: 30px;"></p>
+                <button class="btn-main btn-main-primary" onclick="showPage('home')">Go to Dashboard</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- HOME PAGE -->
+    <div id="homePage" class="page">
+        <div class="balance-premium">
+            <div class="balance-content">
+                <div class="balance-label">Total Balance</div>
+                <div class="balance-amount">₹<span id="homeBalance">0</span></div>
+                <div class="balance-actions">
+                    <button class="btn-premium btn-premium-primary" onclick="showPage('wallet'); showWalletTab('add');"><i class="fas fa-plus"></i> Add Money</button>
+                    <button class="btn-premium btn-premium-secondary" onclick="showPage('wallet'); showWalletTab('withdraw');"><i class="fas fa-minus"></i> Withdraw</button>
+                </div>
+            </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin: 0 20px 25px;">
+            <div class="premium-card" style="margin: 0; padding: 20px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 700; color: var(--primary);" id="homeRefers">0</div>
+                <div style="font-size: 12px; color: var(--gray); margin-top: 5px;">Refers</div>
+            </div>
+            <div class="premium-card" style="margin: 0; padding: 20px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 700; color: var(--success);" id="homeEarnings">₹0</div>
+                <div style="font-size: 12px; color: var(--gray); margin-top: 5px;">Earnings</div>
+            </div>
+            <div class="premium-card" style="margin: 0; padding: 20px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 700; color: var(--secondary);" id="homePlans">0</div>
+                <div style="font-size: 12px; color: var(--gray); margin-top: 5px;">Plans</div>
+            </div>
+        </div>
+
+        <!-- SPECIAL OFFERS SECTION -->
+        <div id="homeOffers" class="hidden"></div>
+
+        <div id="dailyClaimSection" class="hidden">
+            <div class="claim-card">
+                <div class="claim-amount">₹<span id="claimAmount">0</span></div>
+                <p style="opacity: 0.9;">Daily earnings ready to claim!</p>
+                <button class="claim-btn" id="claimBtn" onclick="claimDailyEarnings()"><i class="fas fa-hand-holding-usd"></i> Claim Now</button>
+                <p id="claimTimer" style="margin-top: 15px; font-size: 14px; opacity: 0.8;"></p>
+            </div>
+        </div>
+
+        <div class="section-title"><h2><i class="fas fa-fire" style="color: var(--accent); margin-right: 10px;"></i>My Active Plans</h2></div>
+        <div id="activePlansList" style="margin: 0 20px;"></div>
+
+        <div class="section-title"><h2><i class="fas fa-history" style="color: var(--primary); margin-right: 10px;"></i>Recent Activity</h2></div>
+        <div class="tx-list" id="homeTransactions"></div>
+    </div>
+
+    <!-- PLANS PAGE (VERTICAL POST LAYOUT WITH CLAIM SYSTEM) -->
+    <div id="plansPage" class="page">
+        <div style="padding: 30px 20px;">
+            <h2 style="font-size: 28px; font-weight: 700; margin-bottom: 10px;"><i class="fas fa-gem" style="color: var(--secondary); margin-right: 10px;"></i>Investment Plans</h2>
+        </div>
+
+        <div class="premium-card" id="plan-card-free" style="background: var(--gradient-2); color: white; margin-bottom: 20px;">
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <div style="font-size: 50px;">🎁</div>
+                <div style="flex: 1;">
+                    <h3 style="font-size: 24px; margin-bottom: 5px;">Free Trial Plan</h3>
+                    <p style="opacity: 0.9; margin-bottom: 15px;">Earn ₹10/day for 7 days - No investment!</p>
+                </div>
+            </div>
+            <div id="freePlanAction">
+                <!-- Action Buttons will load dynamically here -->
+            </div>
+        </div>
+
+        <!-- Plans will load vertically here with offers & claim buttons -->
+        <div class="plans-vertical" id="plansContainer"></div>
+    </div>
+
+    <!-- WALLET PAGE WITH AUTO UPI REDIRECT -->
+    <div id="walletPage" class="page">
+        <div class="balance-premium" style="background: var(--gradient-1);">
+            <div class="balance-content">
+                <div class="balance-label">Available Balance</div>
+                <div class="balance-amount">₹<span id="walletBalance">0</span></div>
+            </div>
+        </div>
+
+        <div class="wallet-tabs">
+            <button class="wallet-tab active" onclick="showWalletTab('add')" data-tab="add">Add Money</button>
+            <button class="wallet-tab" onclick="showWalletTab('withdraw')" data-tab="withdraw">Withdraw</button>
+            <button class="wallet-tab" onclick="showWalletTab('history')" data-tab="history">History</button>
+        </div>
+
+        <!-- Add Money Auto UPI -->
+        <div id="walletAddSection" class="wallet-section">
+            <div class="premium-card">
+                <h3 style="margin-bottom: 20px; font-size: 20px;"><i class="fas fa-plus-circle" style="color: var(--success); margin-right: 10px;"></i>Add Money</h3>
+                
+                <form class="form-premium" id="addMoneyForm">
+                    <div class="form-group">
+                        <label>1. Enter Amount (Min ₹100)</label>
+                        <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
+                            <button type="button" onclick="setAmount(100)" style="padding: 10px 20px; border: 2px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer;">₹100</button>
+                            <button type="button" onclick="setAmount(500)" style="padding: 10px 20px; border: 2px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer;">₹500</button>
+                            <button type="button" onclick="setAmount(1000)" style="padding: 10px 20px; border: 2px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer;">₹1000</button>
+                        </div>
+                        <input type="number" class="input-premium" id="addAmount" placeholder="Enter Amount" min="100" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>2. Pay Directly via UPI App</label>
+                        <p style="font-size: 12px; color: var(--gray); margin-bottom: 10px;">Click to open app directly. Amount will be filled automatically.</p>
+                        <div class="upi-apps-grid">
+                            <div class="upi-app-btn gpay" onclick="payViaUPI('gpay')"><i class="fab fa-google-pay" style="font-size: 24px;"></i> GPay</div>
+                            <div class="upi-app-btn phonepe" onclick="payViaUPI('phonepe')"><i class="fas fa-rupee-sign"></i> PhonePe</div>
+                            <div class="upi-app-btn paytm" onclick="payViaUPI('paytm')"><i class="fas fa-wallet"></i> Paytm</div>
+                            <div class="upi-app-btn bhim" onclick="payViaUPI('upi')"><i class="fas fa-qrcode"></i> Any UPI</div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>3. Enter Details After Payment</label>
+                        <input type="text" class="input-premium" id="upiTxnId" placeholder="Enter 12-digit UTR Number" required style="margin-bottom: 10px;">
+                        <select class="input-premium" id="paidVia" required>
+                            <option value="">Select App You Used</option>
+                            <option value="Google Pay">Google Pay</option>
+                            <option value="PhonePe">PhonePe</option>
+                            <option value="Paytm">Paytm</option>
+                            <option value="Other">Other UPI</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn-main btn-main-success">Submit Payment Details</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="walletWithdrawSection" class="wallet-section hidden">
+            <!-- Withdraw form remains same layout -->
+            <div class="premium-card">
+                <h3 style="margin-bottom: 20px; font-size: 20px;"><i class="fas fa-minus-circle" style="color: var(--danger); margin-right: 10px;"></i>Withdraw</h3>
+                <form class="form-premium" id="withdrawForm">
+                    <div class="form-group">
+                        <label>Amount (Min ₹<span id="minWithdrawDisplay">200</span>)</label>
+                        <input type="number" class="input-premium" id="withdrawAmount" placeholder="Amount" min="200" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Select Method</label>
+                        <select class="input-premium" id="withdrawMethod" onchange="toggleWithdrawMethod()" required>
+                            <option value="">Select</option>
+                            <option value="upi">UPI ID</option>
+                            <option value="bank">Bank Account</option>
+                        </select>
+                    </div>
+                    <div id="upiFields" class="hidden">
+                        <div class="form-group"><label>UPI ID</label><input type="text" class="input-premium" id="upiIdInput"></div>
+                    </div>
+                    <div id="bankFields" class="hidden">
+                        <div class="form-group"><label>Account Holder</label><input type="text" class="input-premium" id="bankHolderName"></div>
+                        <div class="form-group"><label>Account No</label><input type="text" class="input-premium" id="bankAccNumber"></div>
+                        <div class="form-group"><label>IFSC Code</label><input type="text" class="input-premium" id="bankIfsc"></div>
+                        <div class="form-group"><label>Bank Name</label><input type="text" class="input-premium" id="bankName"></div>
+                    </div>
+                    <button type="submit" class="btn-main" style="background: var(--gradient-4); color: white;">Request Withdrawal</button>
+                </form>
+            </div>
+        </div>
+
+        <div id="walletHistorySection" class="wallet-section hidden">
+            <div class="tx-list" id="walletTransactions"></div>
+        </div>
+    </div>
+
+    <!-- REFERRAL PAGE (OPTIMIZED UI) -->
+    <div id="referralPage" class="page">
+        <!-- Header Banner -->
+        <div class="premium-card" style="background: var(--gradient-1); color: white; text-align: center; margin-bottom: 20px; padding: 35px 20px;">
+            <h2 style="font-size: 26px; font-weight: 800;">Refer & Earn Lifetime!</h2>
+            <p style="opacity: 0.9; margin-bottom: 15px;">Build your team and get passive income</p>
+            
+            <div style="background: rgba(255,255,255,0.15); border-radius: 20px; padding: 20px; margin: 20px 0; border: 1px solid rgba(255,255,255,0.3); backdrop-filter: blur(10px);">
+                <div style="font-size: 12px; text-transform: uppercase; letter-spacing: 1px; font-weight: 600;">Instant Bonus</div>
+                <div style="font-size: 55px; font-weight: 800; text-shadow: 2px 2px 4px rgba(0,0,0,0.2);">₹<span class="refer-amount-display">15</span></div>
+                <div style="font-size: 14px; opacity: 0.9;">Per Successful Signup</div>
+            </div>
+
+            <p style="font-size: 13px; opacity: 0.9; margin-bottom: 5px; text-transform: uppercase; font-weight: 700;">Your Referral Link</p>
+            <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; font-family: monospace; word-break: break-all; font-weight: 600; margin-bottom: 15px; border: 1px dashed rgba(255,255,255,0.5);" id="refLink">Loading...</div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-main" onclick="copyRefLink()" style="flex: 1; background: white; color: var(--primary);"><i class="fas fa-copy"></i> Copy Link</button>
+                <button class="btn-main" onclick="shareWhatsApp()" style="flex: 1; background: #25D366; color: white; border: none;"><i class="fab fa-whatsapp"></i> Share</button>
+            </div>
+        </div>
+
+        <!-- How it Works Guide -->
+        <div class="section-title"><h2><i class="fas fa-info-circle" style="color: var(--warning); margin-right: 10px;"></i>How It Works?</h2></div>
+        <div class="premium-card" style="padding: 15px;">
+            <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                <div class="step-circle">1</div>
+                <div>
+                    <div style="font-weight: 700; font-size: 15px;">Share Your Link</div>
+                    <div style="font-size: 13px; color: var(--gray);">Send your link to friends via WhatsApp or social media.</div>
+                </div>
+            </div>
+            <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+                <div class="step-circle" style="background: var(--gradient-2);">2</div>
+                <div>
+                    <div style="font-weight: 700; font-size: 15px;">Friend Registers (Earn ₹<span class="refer-amount-display">15</span>)</div>
+                    <div style="font-size: 13px; color: var(--gray);">When your friend signs up, you instantly get ₹<span class="refer-amount-display">15</span> in your wallet.</div>
+                </div>
+            </div>
+            <div style="display: flex; gap: 15px;">
+                <div class="step-circle" style="background: var(--gradient-3);">3</div>
+                <div>
+                    <div style="font-weight: 700; font-size: 15px;">Friend Buys Plan (Earn Comm.)</div>
+                    <div style="font-size: 13px; color: var(--gray);">When they invest, you get up to 5% commission immediately!</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 3 Level Commission Guide -->
+        <div class="section-title"><h2><i class="fas fa-sitemap" style="color: var(--primary); margin-right: 10px;"></i>Team Commission</h2></div>
+        <div class="premium-card" style="padding: 15px;">
+            <div class="level-card">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 45px; height: 45px; background: rgba(99, 102, 241, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--primary); font-weight: 800; font-size: 18px;">L1</div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 15px;">Direct Refers</div>
+                        <div style="font-size: 12px; color: var(--gray);">Your direct friends</div>
+                    </div>
+                </div>
+                <div style="font-size: 22px; font-weight: 800; color: var(--primary);">5%</div>
+            </div>
+            
+            <div class="level-card">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 45px; height: 45px; background: rgba(16, 185, 129, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--success); font-weight: 800; font-size: 18px;">L2</div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 15px;">Indirect Refers</div>
+                        <div style="font-size: 12px; color: var(--gray);">Friends of Level 1</div>
+                    </div>
+                </div>
+                <div style="font-size: 22px; font-weight: 800; color: var(--success);">3%</div>
+            </div>
+
+            <div class="level-card" style="margin-bottom: 0;">
+                <div style="display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 45px; height: 45px; background: rgba(245, 158, 11, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: var(--warning); font-weight: 800; font-size: 18px;">L3</div>
+                    <div>
+                        <div style="font-weight: 700; font-size: 15px;">Deep Refers</div>
+                        <div style="font-size: 12px; color: var(--gray);">Friends of Level 2</div>
+                    </div>
+                </div>
+                <div style="font-size: 22px; font-weight: 800; color: var(--warning);">1%</div>
+            </div>
+        </div>
+
+        <!-- Team Stats -->
+        <div class="section-title"><h2><i class="fas fa-chart-line" style="color: var(--success); margin-right: 10px;"></i>Your Earnings</h2></div>
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 0 20px 20px;">
+            <div class="premium-card" style="margin: 0; padding: 25px; text-align: center;">
+                <div style="font-size: 28px; font-weight: 700; color: var(--dark);" id="refTotal">0</div>
+                <div style="font-size: 12px; color: var(--gray);">Total Team</div>
+            </div>
+            <div class="premium-card" style="margin: 0; padding: 25px; text-align: center;">
+                <div style="font-size: 28px; font-weight: 700; color: var(--success);" id="refEarned">₹0</div>
+                <div style="font-size: 12px; color: var(--gray);">Referral Income</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROFILE PAGE -->
+    <div id="profilePage" class="page">
+        <!-- Profile Header -->
+        <div style="background: var(--gradient-1); padding: 40px 20px; text-align: center; color: white; position: relative;">
+            <div style="width: 100px; height: 100px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 50px; border: 4px solid rgba(255,255,255,0.3);">👤</div>
+            
+            <!-- Editable Name with Pencil Icon -->
+            <div class="profile-name-edit" id="nameDisplayContainer">
+                <h2 id="profileName" style="font-size: 28px; font-weight: 700;">User Name</h2>
+                <button class="edit-name-btn" onclick="enableNameEdit()" title="Edit Name">
+                    <i class="fas fa-pencil-alt"></i>
+                </button>
+            </div>
+            
+            <!-- Name Edit Input (Hidden by default) -->
+            <div class="profile-name-edit hidden" id="nameEditContainer">
+                <input type="text" class="name-edit-input" id="nameEditInput" maxlength="30">
+                <button class="save-name-btn" onclick="saveProfileName()" title="Save">
+                    <i class="fas fa-check"></i>
+                </button>
+            </div>
+            
+            <p id="profilePhone" style="opacity: 0.9; font-size: 16px;">+91 ---</p>
+            <div style="display: inline-flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.2); padding: 8px 20px; border-radius: 50px; margin-top: 15px; font-size: 14px;">
+                <i class="fas fa-check-circle"></i> Verified Account
+            </div>
+        </div>
+
+        <!-- Stats -->
+        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 20px;">
+            <div class="premium-card" style="margin: 0; padding: 25px; text-align: center;">
+                <div style="font-size: 32px; font-weight: 700; color: var(--primary);" id="profTotalEarn">₹0</div>
+                <div style="font-size: 13px; color: var(--gray); margin-top: 5px;">Total Earnings</div>
+            </div>
+            <div class="premium-card" style="margin: 0; padding: 25px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 700; color: var(--success);" id="profJoinDate">--</div>
+                <div style="font-size: 13px; color: var(--gray); margin-top: 5px;">Member Since</div>
+            </div>
+        </div>
+
+        <!-- Menu Items -->
+        <div class="premium-card" style="padding: 10px;">
+            <div style="display: flex; align-items: center; gap: 15px; padding: 20px; cursor: pointer;" onclick="showPage('wallet')">
+                <div style="width: 45px; height: 45px; background: rgba(99, 102, 241, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--primary); font-size: 20px;"><i class="fas fa-wallet"></i></div>
+                <div style="flex: 1;"><div style="font-weight: 600;">Wallet Settings</div><div style="font-size: 13px; color: var(--gray);">Manage payment methods</div></div>
+                <i class="fas fa-chevron-right" style="color: var(--gray-light);"></i>
+            </div>
+            <div style="height: 1px; background: var(--light); margin: 0 20px;"></div>
+            <div style="display: flex; align-items: center; gap: 15px; padding: 20px; cursor: pointer;" onclick="showPage('support')">
+                <div style="width: 45px; height: 45px; background: rgba(245, 158, 11, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--warning); font-size: 20px;"><i class="fas fa-headset"></i></div>
+                <div style="flex: 1;"><div style="font-weight: 600;">Help & Support</div><div style="font-size: 13px; color: var(--gray);">Contact us 24/7</div></div>
+                <i class="fas fa-chevron-right" style="color: var(--gray-light);"></i>
+            </div>
+            <div style="height: 1px; background: var(--light); margin: 0 20px;"></div>
+            <div style="display: flex; align-items: center; gap: 15px; padding: 20px; cursor: pointer;" onclick="logout()">
+                <div style="width: 45px; height: 45px; background: rgba(239, 68, 68, 0.1); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: var(--danger); font-size: 20px;"><i class="fas fa-sign-out-alt"></i></div>
+                <div style="flex: 1;"><div style="font-weight: 600; color: var(--danger);">Logout</div><div style="font-size: 13px; color: var(--gray);">Sign out from app</div></div>
+            </div>
+        </div>
+
+        <div class="premium-card" style="background: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.2);">
+            <div style="display: flex; gap: 15px;">
+                <i class="fas fa-shield-alt" style="color: var(--warning); font-size: 24px;"></i>
+                <div>
+                    <div style="font-weight: 600; color: var(--warning); margin-bottom: 5px;">Security Notice</div>
+                    <div style="font-size: 13px; color: var(--gray);">Never share your password or OTP. Team never asks for it.</div>
+                </div>
+            </div>
+        </div>
+        <div style="text-align: center; padding: 10px 20px 30px; color: var(--gray-light); font-size: 13px;">
+            <p>Version 2.0.0</p>
+        </div>
+    </div>
+
+    <!-- SUPPORT PAGE -->
+    <div id="supportPage" class="page">
+        <div style="padding: 30px 20px;"><h2 style="font-size: 28px; font-weight: 700;"><i class="fas fa-headset" style="color: var(--primary); margin-right: 10px;"></i>Help Center</h2></div>
+        
+        <div class="premium-card">
+            <h3 style="margin-bottom: 20px; font-size: 20px;"><i class="fas fa-ticket-alt" style="color: var(--secondary); margin-right: 10px;"></i>Create Ticket</h3>
+            <form class="form-premium" id="ticketForm">
+                <div class="form-group">
+                    <label>Issue Type</label>
+                    <select class="input-premium" id="ticketType" required>
+                        <option value="deposit">Deposit Issue</option>
+                        <option value="withdrawal">Withdrawal Issue</option>
+                        <option value="account">Account Issue</option>
+                        <option value="other">Other</option>
+                    </select>
+                </div>
+                <div class="form-group"><label>Subject</label><input type="text" class="input-premium" id="ticketSubject" required></div>
+                <div class="form-group"><label>Message</label><textarea class="input-premium" id="ticketMessage" rows="3" required></textarea></div>
+                <button type="submit" class="btn-main btn-main-primary">Submit Ticket</button>
+            </form>
+        </div>
+
+        <div class="section-title" style="margin-top: 30px;"><h2>My Tickets</h2></div>
+        <div id="ticketsList" style="margin: 0 20px;"></div>
+    </div>
+
+    <script>
+        // ==================== FIREBASE CONFIG ====================
+        const firebaseConfig = {
+            apiKey: "AIzaSyA3pH_dnb6_--wRoDSuoj-TAudsmJ7D4R0",
+            authDomain: "solor-energy.firebaseapp.com",
+            databaseURL: "https://solor-energy-default-rtdb.firebaseio.com",
+            projectId: "solor-energy",
+            storageBucket: "solor-energy.firebasestorage.app",
+            messagingSenderId: "772737546715",
+            appId: "1:772737546715:web:3736545b464523bdc04ffe"
+        };
+        firebase.initializeApp(firebaseConfig);
+        const auth = firebase.auth();
+        const database = firebase.database();
+
+        let currentUser = null;
+        let tempUserData = {};
+        let forgotPasswordData = {};
+        let appSettings = {};
+        let ADMIN_UPI_ID = '6395503566@upi'; 
+        let MIN_WITHDRAWAL = 200;
+        let REFER_AMOUNT = 15;
+        
+        let activeOffers = {}; 
+        let userStatusListener = null;
+        let lastSeenInterval = null;
+        let isAccountDeleted = false;
+        
+        // Global state to track which form is using Phone.Email
+        window.authMode = 'register'; 
+
+        // ==================== PLANS DATA ====================
+        let PLANS = [];
+
+        // ==================== UTILITY FUNCTIONS ====================
+        function showLoading(text='Loading...') { document.querySelector('#loadingScreen p').textContent = text; document.getElementById('loadingScreen').classList.add('active'); }
+        function hideLoading() { document.getElementById('loadingScreen').classList.remove('active'); }
+        function showToast(message, type='info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message; toast.className = 'toast ' + type + ' show';
+            setTimeout(() => toast.classList.remove('show'), 3000);
+        }
+        function generateId(prefix) { return prefix + Date.now().toString().slice(-6); }
+        function formatCurrency(amt) { return '₹' + parseInt(amt||0).toLocaleString('en-IN'); }
+
+        // Update all refer amount displays
+        function updateReferDisplays() {
+            document.querySelectorAll('.refer-amount-display').forEach(el => {
+                el.textContent = REFER_AMOUNT;
+            });
+        }
+
+        // ==================== NAVIGATION ====================
+        function showPage(page) {
+            // Check if user is blocked before showing any page
+            if(currentUser && currentUser.status === 'blocked' && page !== 'support') {
+                document.getElementById('blockedScreen').classList.add('active');
+                document.getElementById('mainHeader').style.display = 'none';
+                document.getElementById('bottomNav').style.display = 'none';
+                return;
+            } else {
+                document.getElementById('blockedScreen').classList.remove('active');
+            }
+
+            if(page === 'register') window.authMode = 'register'; // Set authMode for Phone.Email
+
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.getElementById(page + 'Page').classList.add('active');
+            document.querySelectorAll('.nav-item').forEach(i => { i.classList.remove('active'); if(i.dataset.page===page) i.classList.add('active'); });
+            
+            const noHeader = ['landing', 'login', 'register'];
+            document.getElementById('mainHeader').style.display = noHeader.includes(page) ? 'none' : 'block';
+            document.getElementById('bottomNav').style.display = noHeader.includes(page) ? 'none' : 'flex';
+            
+            if(currentUser) document.getElementById('headerBalance').textContent = currentUser.wallet?.mainBalance || 0;
+            
+            if(page === 'home') updateHomeUI();
+            if(page === 'plans') loadPlansPage();
+            if(page === 'wallet') loadWalletData();
+            if(page === 'referral') loadReferralData();
+            if(page === 'profile') loadProfileData();
+            if(page === 'support') loadSupportData();
+            window.scrollTo(0,0);
+        }
+
+        // REDIRECT & HIGHLIGHT SPECIFIC PLAN
+        function goToPlan(planId) {
+            showPage('plans');
+            setTimeout(() => {
+                const planCard = document.getElementById('plan-card-' + planId);
+                if(planCard) {
+                    planCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    planCard.style.transition = 'all 0.5s';
+                    planCard.style.transform = 'scale(1.03)';
+                    planCard.style.boxShadow = '0 0 25px rgba(239, 68, 68, 0.6)';
+                    setTimeout(() => {
+                        planCard.style.transform = 'scale(1)';
+                        planCard.style.boxShadow = 'var(--shadow)';
+                    }, 1200);
+                }
+            }, 300);
+        }
+
+        // ==================== FIXED: CHECK LOGIN STATUS FIRST ====================
+        window.onload = function() {
+            // Load settings first
+            database.ref('settings').on('value', snap => {
+                appSettings = snap.val() || {};
+                ADMIN_UPI_ID = appSettings.upiId || '6395503566@upi';
+                MIN_WITHDRAWAL = appSettings.minWithdrawal || 200;
+                REFER_AMOUNT = appSettings.referAmount || 15;
+                document.getElementById('minWithdrawDisplay').textContent = MIN_WITHDRAWAL;
+                document.getElementById('withdrawAmount').min = MIN_WITHDRAWAL;
+                updateReferDisplays();
+            });
+
+            // Load plans from database
+            database.ref('plans').on('value', snap => {
+                const plansData = snap.val();
+                if(plansData) {
+                    PLANS = Object.values(plansData).sort((a,b) => a.price - b.price);
+                }
+                if(document.getElementById('plansPage').classList.contains('active')) {
+                    loadPlansPage();
+                }
+            });
+
+            // Check for referral code in URL
+            const urlParams = new URLSearchParams(window.location.search);
+            const refCode = urlParams.get('ref');
+            
+            // Store ref code in session if exists
+            if(refCode) {
+                sessionStorage.setItem('pendingRefCode', refCode);
+            }
+
+            const savedUser = localStorage.getItem('currentUser');
+            
+            // If user is already logged in, go to home regardless of URL
+            if(savedUser) {
+                currentUser = JSON.parse(savedUser);
+                setupUserListener(currentUser.id);
+                
+                // Check for ref code but don't go to register if logged in
+                if(refCode) {
+                    showToast('You are already logged in!', 'info');
+                }
+                showPage('home');
+            } else {
+                // User not logged in - check for ref code
+                const pendingRef = sessionStorage.getItem('pendingRefCode');
+                if(pendingRef) {
+                    // Fill referral code in register form
+                    document.getElementById('regReferral').value = pendingRef;
+                    document.getElementById('refBonusText').style.display = 'block';
+                }
+            }
+            
+            database.ref('settings/offers').on('value', snap => {
+                activeOffers = snap.val() || {};
+                if(document.getElementById('plansPage').classList.contains('active')) loadPlansPage();
+                if(document.getElementById('homePage').classList.contains('active')) updateHomeUI();
+            });
+        };
+
+        function setupUserListener(userId) {
+            // Remove existing listener if any
+            if(userStatusListener) {
+                userStatusListener.off();
+            }
+
+            // Setup real-time listener for user data
+            userStatusListener = database.ref('users/' + userId);
+            userStatusListener.on('value', (snap) => {
+                const userData = snap.val();
+                
+                // Check if user has been deleted
+                if(!userData && currentUser && !isAccountDeleted) {
+                    // User data no longer exists - account was deleted
+                    isAccountDeleted = true;
+                    handleAccountDeleted();
+                    return;
+                }
+                
+                if(userData) {
+                    currentUser = userData;
+                    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                    
+                    // Check if user is blocked
+                    if(currentUser.status === 'blocked') {
+                        document.getElementById('blockedScreen').classList.add('active');
+                        document.getElementById('mainHeader').style.display = 'none';
+                        document.getElementById('bottomNav').style.display = 'none';
+                        return;
+                    } else {
+                        document.getElementById('blockedScreen').classList.remove('active');
+                    }
+                    
+                    if(document.getElementById('homePage').classList.contains('active')) updateHomeUI();
+                    if(document.getElementById('plansPage').classList.contains('active')) loadPlansPage();
+                    if(document.getElementById('walletPage').classList.contains('active')) loadWalletData();
+                    if(document.getElementById('profilePage').classList.contains('active')) loadProfileData();
+                }
+            });
+
+            // Update last seen every 30 seconds when app is active
+            if(lastSeenInterval) clearInterval(lastSeenInterval);
+            lastSeenInterval = setInterval(() => {
+                if(currentUser && currentUser.status !== 'blocked' && !isAccountDeleted) {
+                    database.ref(`users/${userId}/lastSeen`).set(Date.now());
+                }
+            }, 30000);
+
+            // Set last seen immediately on login
+            database.ref(`users/${userId}/lastSeen`).set(Date.now());
+        }
+
+        // Handle account deletion
+        function handleAccountDeleted() {
+            // Clear all intervals
+            if(lastSeenInterval) {
+                clearInterval(lastSeenInterval);
+                lastSeenInterval = null;
+            }
+            
+            // Remove listener
+            if(userStatusListener) {
+                userStatusListener.off();
+                userStatusListener = null;
+            }
+            
+            // Clear local storage
+            localStorage.removeItem('currentUser');
+            currentUser = null;
+            
+            // Show deleted screen
+            document.getElementById('deletedScreen').classList.add('active');
+            document.getElementById('mainHeader').style.display = 'none';
+            document.getElementById('bottomNav').style.display = 'none';
+            
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        }
+
+        // Force logout function for deleted screen
+        function forceLogout() {
+            isAccountDeleted = false;
+            document.getElementById('deletedScreen').classList.remove('active');
+            window.location.reload();
+        }
+
+        // ==================== AUTH LOGIN ====================
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault(); showLoading('Logging in...');
+            const phone = document.getElementById('loginPhone').value, pass = document.getElementById('loginPassword').value;
+            const snap = await database.ref('users').orderByChild('phone').equalTo(phone).once('value');
+            if(!snap.val()) { hideLoading(); return showToast('User not found!', 'error'); }
+            const user = Object.values(snap.val())[0];
+            if(user.password !== pass) { hideLoading(); return showToast('Invalid password!', 'error'); }
+            if(user.status === 'blocked') { 
+                hideLoading(); 
+                currentUser = user;
+                localStorage.setItem('currentUser', JSON.stringify(user));
+                setupUserListener(user.id);
+                document.getElementById('blockedScreen').classList.add('active');
+                document.getElementById('mainHeader').style.display = 'none';
+                document.getElementById('bottomNav').style.display = 'none';
+                return; 
+            }
+            currentUser = user; localStorage.setItem('currentUser', JSON.stringify(user));
+            setupUserListener(user.id); hideLoading(); showToast('Login successful!', 'success'); showPage('home');
+        });
+
+        // ==================== PHONE.EMAIL LISTENER ====================
+        async function phoneEmailListener(userObj) {
+            const user_json_url = userObj.user_json_url;
+            
+            // If registering, validate form fields first
+            if(window.authMode === 'register') {
+                const name = document.getElementById('regName').value.trim();
+                const pass = document.getElementById('regPassword').value;
+                const conf = document.getElementById('regConfirm').value;
+                if(!name || !pass || !conf) return showToast('Please fill Name and Password fields first!', 'error');
+                if(pass !== conf) return showToast('Passwords do not match!', 'error');
+            }
+
+            showLoading('Verifying Phone...');
+
+            try {
+                const response = await fetch(user_json_url);
+                const data = await response.json();
+                let phone = data.user_phone_number;
+                if (phone.startsWith("+91")) phone = phone.replace("+91", "");
+
+                if (window.authMode === 'forgot') {
+                    // --- FORGOT PASSWORD FLOW ---
+                    const snap = await database.ref('users').orderByChild('phone').equalTo(phone).once('value');
+                    if(!snap.val()) {
+                        hideLoading();
+                        return showToast('Phone number not registered', 'error');
+                    }
+                    forgotPasswordData.userId = Object.keys(snap.val())[0];
+                    hideLoading();
+                    document.getElementById('forgotPhoneGroup').style.display = 'none';
+                    document.getElementById('newPasswordGroup').style.display = 'block';
+                    showToast('Phone verified! Enter new password', 'success');
+                } else {
+                    // --- REGISTRATION FLOW ---
+                    const name = document.getElementById('regName').value.trim();
+                    const pass = document.getElementById('regPassword').value;
+                    const ref = document.getElementById('regReferral').value.trim();
+                    await createFirebaseAccount(name, phone, pass, ref);
+                }
+            } catch (error) {
+                hideLoading();
+                showToast('Verification Error: ' + error.message, 'error');
+            }
+        }
+
+        // ==================== CREATE ACCOUNT LOGIC ====================
+        async function createFirebaseAccount(name, phone, pass, ref) {
+            try {
+                const snap = await database.ref('users').orderByChild('phone').equalTo(phone).once('value');
+                if(snap.val()) { 
+                    hideLoading(); 
+                    return showToast('Phone already registered', 'error'); 
+                }
+
+                let bonus = 0, refBy = 'ADMIN';
+                if(ref) {
+                    const rSnap = await database.ref('users').orderByChild('referralCode').equalTo(ref).once('value');
+                    if(rSnap.val()) {
+                        const rId = Object.keys(rSnap.val())[0], rData = rSnap.val()[rId];
+                        bonus = REFER_AMOUNT; refBy = ref;
+                        await database.ref(`users/${rId}`).update({ 
+                            'wallet/mainBalance': (rData.wallet?.mainBalance||0)+REFER_AMOUNT, 
+                            'referrals/count': (rData.referrals?.count||0)+1, 
+                            'referrals/earnings': (rData.referrals?.earnings||0)+REFER_AMOUNT 
+                        });
+                        await database.ref(`users/${rId}/transactions`).push({
+                            id: generateId('TXN'), type: 'referral_bonus', amount: REFER_AMOUNT, 
+                            description: `Referral Signup Bonus from ${name}`, date: new Date().toISOString(), status: 'approved'
+                        });
+                    }
+                }
+                
+                const newUser = {
+                    id: generateId('USER'), name: name, phone: phone, password: pass,
+                    referralCode: name.substring(0,4).toUpperCase()+Math.floor(1000+Math.random()*9000), 
+                    referredBy: refBy, joinDate: new Date().toISOString(), status: 'active', 
+                    wallet: {mainBalance: bonus, totalWithdrawn: 0}, referrals: {count:0, earnings:0}, 
+                    activePlans: {}, transactions: {}, lastSeen: Date.now()
+                };
+                
+                if(bonus > 0) {
+                    newUser.transactions[Date.now()] = {
+                        id: generateId('TXN'), type: 'signup', amount: bonus, description: 'Signup Bonus', 
+                        date: new Date().toISOString(), status: 'approved'
+                    };
+                }
+                
+                await database.ref(`users/${newUser.id}`).set(newUser);
+                currentUser = newUser; 
+                localStorage.setItem('currentUser', JSON.stringify(newUser)); 
+                setupUserListener(newUser.id);
+                sessionStorage.removeItem('pendingRefCode');
+                
+                hideLoading(); 
+                document.getElementById('regStep1').classList.add('hidden'); 
+                document.getElementById('regStep3').classList.remove('hidden');
+                document.getElementById('bonusMessage').textContent = bonus > 0 ? `🎉 You received ₹${bonus} signup bonus!` : '';
+            } catch(e) { 
+                hideLoading(); 
+                showToast('Error creating account: ' + e.message, 'error'); 
+            }
+        }
+
+        // ==================== FORGOT PASSWORD ====================
+        function openForgotModal() {
+            window.authMode = 'forgot';
+            document.getElementById('forgotPasswordModal').classList.add('active');
+            forgotPasswordData = {};
+            document.getElementById('forgotPhoneGroup').style.display = 'block';
+            document.getElementById('newPasswordGroup').style.display = 'none';
+            document.getElementById('newPassword').value = '';
+        }
+
+        function closeForgotModal() {
+            window.authMode = 'register';
+            document.getElementById('forgotPasswordModal').classList.remove('active');
+        }
+
+        async function resetPasswordSubmit() {
+            const newPass = document.getElementById('newPassword').value;
+            if(newPass.length < 6) return showToast('Password must be at least 6 characters', 'error');
+            showLoading('Resetting password...');
+            try {
+                await database.ref(`users/${forgotPasswordData.userId}/password`).set(newPass);
+                hideLoading();
+                showToast('Password reset successful!', 'success');
+                closeForgotModal();
+            } catch(e) {
+                hideLoading();
+                showToast('Error resetting password', 'error');
+            }
+        }
+
+        // ==================== HOME ====================
+        function updateHomeUI() {
+            document.getElementById('homeBalance').textContent = currentUser.wallet?.mainBalance || 0;
+            document.getElementById('homeRefers').textContent = currentUser.referrals?.count || 0;
+            document.getElementById('homeEarnings').textContent = '₹'+(currentUser.referrals?.earnings || 0);
+            
+            const plans = Object.values(currentUser.activePlans || {});
+            document.getElementById('homePlans').textContent = plans.length;
+            
+            document.getElementById('activePlansList').innerHTML = plans.length ? plans.map(p => `
+                <div class="premium-card" style="margin: 0 0 15px; border-left: 5px solid var(--success);">
+                    <div style="font-weight:700;">${p.planName}</div><div style="font-size:12px;color:var(--gray);">₹${p.dailyReturn}/day • Total Claimed: ₹${p.totalClaimed||0}</div>
+                </div>`).join('') : '<p style="text-align:center;color:var(--gray);">No Active Plans</p>';
+
+            const offerContainer = document.getElementById('homeOffers');
+            const plansWithOffers = PLANS.filter(p => activeOffers[p.id]);
+            if(plansWithOffers.length > 0) {
+                offerContainer.innerHTML = `<div class="section-title"><h2><i class="fas fa-tags" style="color: var(--danger); margin-right: 10px;"></i>Special Offers</h2></div>` + 
+                plansWithOffers.map(p => {
+                    const disc = activeOffers[p.id];
+                    const newPrice = p.price - (p.price * disc / 100);
+                    return `
+                    <div class="premium-card" style="margin: 0 20px 15px; background: linear-gradient(135deg, #fff0f2 0%, #ffe4e6 100%); border: 1px solid #fda4af;">
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <span style="background: var(--danger); color: white; padding: 3px 8px; border-radius: 12px; font-size: 11px; font-weight: bold;">${disc}% OFF</span>
+                                <h3 style="margin: 5px 0;">${p.name}</h3>
+                                <div style="font-size: 13px; color: var(--gray);">Daily: ₹${p.daily} • ${p.days} Days</div>
+                            </div>
+                            <div style="text-align: right;">
+                                <div style="text-decoration: line-through; color: var(--gray-light); font-size: 14px;">₹${p.price}</div>
+                                <div style="font-size: 22px; font-weight: 800; color: var(--danger);">₹${newPrice}</div>
+                                <button class="btn-main" style="padding: 6px 12px; font-size: 12px; margin-top: 5px; background: var(--danger); color: white;" onclick="goToPlan('${p.id}')">View Offer</button>
+                            </div>
+                        </div>
+                    </div>`;
+                }).join('');
+                offerContainer.classList.remove('hidden');
+            } else {
+                offerContainer.classList.add('hidden');
+            }
+
+            const claimSection = document.getElementById('dailyClaimSection');
+            if(plans.length) {
+                const totalDaily = plans.reduce((s,p)=>s+p.dailyReturn, 0);
+                document.getElementById('claimAmount').textContent = totalDaily;
+                const claimed = currentUser.lastClaimDate === new Date().toDateString();
+                const btn = document.getElementById('claimBtn');
+                btn.disabled = claimed; btn.className = claimed ? 'claim-btn claimed' : 'claim-btn';
+                btn.innerHTML = claimed ? 'Claimed' : 'Claim Now';
+                claimSection.classList.remove('hidden');
+            } else claimSection.classList.add('hidden');
+
+            const txns = Object.values(currentUser.transactions || {}).sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,5);
+            document.getElementById('homeTransactions').innerHTML = txns.length ? txns.map(tx => {
+                let status = tx.status || 'approved'; 
+                if(tx.type.includes('pending')) status = 'pending';
+                if(tx.type.includes('rejected')) status = 'rejected';
+                return `
+                <div class="tx-item">
+                    <div class="tx-icon ${status==='pending'?'pending':(tx.type.includes('withdrawal')||tx.type.includes('purchase')?'debit':'credit')}"><i class="fas fa-rupee-sign"></i></div>
+                    <div class="tx-details">
+                        <div style="font-weight:600; font-size:14px;">${tx.description}</div>
+                        <div style="font-size:11px;color:gray;">${new Date(tx.date).toLocaleDateString()} <span class="status-badge status-${status}">${status}</span></div>
+                        ${tx.adminReason ? `<div style="font-size:11px; color:var(--danger); margin-top:3px;">Reason: ${tx.adminReason}</div>` : ''}
+                    </div>
+                    <div style="font-weight:bold; color: ${status==='pending'?'#b45309':(status==='rejected'||tx.type.includes('withdrawal')||tx.type.includes('purchase')?'#ef4444':'#10b981')}">₹${tx.amount}</div>
+                </div>`;
+            }).join('') : '<p style="text-align:center;">No Activity</p>';
+        }
+
+        async function claimDailyEarnings() {
+            const plans = Object.values(currentUser.activePlans || {});
+            if(plans.length === 0) return;
+            const total = plans.reduce((s,p)=>s+p.dailyReturn, 0);
+            showLoading('Claiming...');
+            await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set((currentUser.wallet?.mainBalance||0) + total);
+            await database.ref(`users/${currentUser.id}/lastClaimDate`).set(new Date().toDateString());
+            await database.ref(`users/${currentUser.id}/transactions`).push({id: generateId('TXN'), type: 'daily_earning', amount: total, description: 'Daily Earning', date: new Date().toISOString(), status: 'approved'});
+            for(let key in currentUser.activePlans) { await database.ref(`users/${currentUser.id}/activePlans/${key}/totalClaimed`).set((currentUser.activePlans[key].totalClaimed||0) + currentUser.activePlans[key].dailyReturn); }
+            hideLoading(); showToast(`₹${total} Claimed!`, 'success'); 
+            
+            updateHomeUI();
+            if(document.getElementById('plansPage').classList.contains('active')) {
+                loadPlansPage(); 
+            }
+        }
+
+        // ==================== PLANS (VERTICAL + OFFERS + CLAIM SYSTEM) ====================
+        function loadPlansPage() {
+            const activeIds = Object.values(currentUser.activePlans || {}).map(p=>p.planId);
+            const bal = currentUser.wallet?.mainBalance||0;
+            const todayClaimed = currentUser.lastClaimDate === new Date().toDateString();
+            
+            // Handle Free Plan
+            const hasFreePlan = activeIds.includes('free');
+            const freePlanDiv = document.getElementById('freePlanAction');
+            if(hasFreePlan) {
+                if(todayClaimed) {
+                    freePlanDiv.innerHTML = `
+                        <div style="display:flex; gap:10px; margin-top: 15px;">
+                            <button class="btn-premium" style="flex:1; cursor:default; background:rgba(255,255,255,0.2); color:white; border:none;" disabled><i class="fas fa-check-circle"></i> Active</button>
+                            <button class="btn-premium" style="flex:1; background:rgba(255,255,255,0.4); color:white; border:none;" onclick="showToast('Claim again tomorrow!', 'info')"><i class="fas fa-check"></i> Claimed</button>
+                        </div>`;
+                } else {
+                    freePlanDiv.innerHTML = `
+                        <div style="display:flex; gap:10px; margin-top: 15px;">
+                            <button class="btn-premium" style="flex:1; cursor:default; background:rgba(255,255,255,0.2); color:white; border:none;" disabled><i class="fas fa-check-circle"></i> Active</button>
+                            <button class="btn-premium" style="flex:1; background:white; color:var(--success); border:none;" onclick="claimDailyEarnings()"><i class="fas fa-hand-holding-usd"></i> Claim Now</button>
+                        </div>`;
+                }
+            } else {
+                freePlanDiv.innerHTML = `<button class="btn-premium btn-premium-primary" onclick="buyPlan('free')" style="margin-top: 20px; width:100%;">Claim Free Plan</button>`;
+            }
+
+            // Handle Other Plans
+            document.getElementById('plansContainer').innerHTML = PLANS.filter(p=>p.id!=='free').map(p => {
+                const disc = activeOffers[p.id] || 0;
+                const finalPrice = disc > 0 ? p.price - (p.price * disc / 100) : p.price;
+                const isActive = activeIds.includes(p.id);
+                
+                let actionButtons = '';
+                if (isActive) {
+                    if (todayClaimed) {
+                        actionButtons = `
+                            <div style="display:flex; gap:10px;">
+                                <button class="btn-plan btn-plan-success" style="flex:1; cursor:default;" disabled><i class="fas fa-check-circle"></i> Active</button>
+                                <button class="btn-plan" style="flex:1; background:var(--gray-light); color:white;" onclick="showToast('Claim again tomorrow!', 'info')"><i class="fas fa-check"></i> Claimed</button>
+                            </div>`;
+                    } else {
+                        actionButtons = `
+                            <div style="display:flex; gap:10px;">
+                                <button class="btn-plan btn-plan-success" style="flex:1; cursor:default;" disabled><i class="fas fa-check-circle"></i> Active</button>
+                                <button class="btn-plan" style="flex:1; background:var(--warning); color:white;" onclick="claimDailyEarnings()"><i class="fas fa-hand-holding-usd"></i> Claim Now</button>
+                            </div>`;
+                    }
+                } else if (bal >= finalPrice) {
+                    actionButtons = `<button class="btn-plan btn-plan-primary" onclick="buyPlan('${p.id}')">Buy Now</button>`;
+                } else {
+                    actionButtons = `<button class="btn-plan" style="background:#cbd5e1;" onclick="showPage('wallet'); showWalletTab('add');">Add Money</button>`;
+                }
+                
+                return `
+                <div class="plan-card-premium ${p.popular?'popular':''}" id="plan-card-${p.id}">
+                    ${disc > 0 ? `<div class="discount-badge">${disc}% OFF</div>` : ''}
+                    <div class="plan-header-premium ${p.color} ${p.popular ? 'popular' : ''}">
+                        ${p.popular && !disc ? '<div class="popular-badge">Popular</div>':''}
+                        <div class="plan-icon">${p.icon}</div>
+                        <div class="plan-name">${p.name}</div>
+                        <div class="plan-price">
+                            ${disc > 0 ? `<span class="price-strike">₹${p.price}</span>` : ''}
+                            <span>₹</span>${finalPrice}
+                        </div>
+                    </div>
+                    <div class="plan-body-premium">
+                        <ul class="plan-features">
+                            <li><i class="fas fa-check-circle"></i> Daily <span class="highlight">₹${p.daily}</span></li>
+                            <li><i class="fas fa-check-circle"></i> <span class="highlight">${p.days}</span> Days</li>
+                            <li><i class="fas fa-check-circle"></i> Total <span class="highlight">₹${p.total}</span></li>
+                        </ul>
+                        ${actionButtons}
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        async function distributeCommission(userCode, amount) {
+            const levels = [5, 3, 1]; 
+            let currentCode = userCode;
+            
+            for(let i=0; i<levels.length; i++) {
+                if(!currentCode || currentCode === 'ADMIN') break;
+                const rSnap = await database.ref('users').orderByChild('referralCode').equalTo(currentCode).once('value');
+                if(!rSnap.val()) break;
+                
+                const rId = Object.keys(rSnap.val())[0], rData = rSnap.val()[rId], comm = Math.floor(amount * levels[i] / 100);
+                if(comm > 0) {
+                    await database.ref(`users/${rId}`).update({ 'wallet/mainBalance': (rData.wallet?.mainBalance||0) + comm, 'referrals/earnings': (rData.referrals?.earnings||0) + comm });
+                    await database.ref(`users/${rId}/transactions`).push({ id: generateId('TXN'), type: 'commission', amount: comm, description: `Level ${i+1} Comm. (${levels[i]}%) from ${currentUser.name}`, date: new Date().toISOString(), status: 'approved' });
+                }
+                currentCode = rData.referredBy; 
+            }
+        }
+
+        // ==================== FIXED: FIRST DAY CLAIM BALANCE ====================
+        async function buyPlan(pid) {
+            const plan = PLANS.find(p=>p.id===pid);
+            const disc = activeOffers[pid] || 0;
+            const finalPrice = disc > 0 ? plan.price - (plan.price * disc / 100) : plan.price;
+            
+            if(pid!=='free' && (currentUser.wallet?.mainBalance||0) < finalPrice) return showToast('Insufficient balance', 'error');
+            
+            showLoading('Processing...');
+            
+            // Calculate expiry date
+            const exp = new Date(); 
+            exp.setDate(exp.getDate() + plan.days);
+            
+            // Deduct balance for paid plans
+            if(pid !== 'free') {
+                await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set(currentUser.wallet.mainBalance - finalPrice);
+            }
+            
+            // Add plan to active plans
+            await database.ref(`users/${currentUser.id}/activePlans`).push({
+                planId: plan.id, 
+                planName: plan.name, 
+                amount: finalPrice, 
+                dailyReturn: plan.daily, 
+                purchasedDate: new Date().toISOString(), 
+                expiryDate: exp.toISOString(), 
+                status: 'active', 
+                totalClaimed: 0
+            });
+            
+            // Add transaction record
+            await database.ref(`users/${currentUser.id}/transactions`).push({
+                id: generateId('TXN'), 
+                type: 'plan_purchase', 
+                amount: finalPrice, 
+                description: `Bought ${plan.name}`, 
+                date: new Date().toISOString(), 
+                status: 'approved'
+            });
+            
+            // ==================== FIX: CREDIT FIRST DAY EARNING IMMEDIATELY ====================
+            // Add first day earning to wallet immediately
+            await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set((currentUser.wallet?.mainBalance||0) + plan.daily);
+            
+            // Add first day earning transaction
+            await database.ref(`users/${currentUser.id}/transactions`).push({
+                id: generateId('TXN'), 
+                type: 'daily_earning', 
+                amount: plan.daily, 
+                description: `First Day Earning - ${plan.name}`, 
+                date: new Date().toISOString(), 
+                status: 'approved'
+            });
+            
+            // Set last claim date to today so they can claim again tomorrow
+            await database.ref(`users/${currentUser.id}/lastClaimDate`).set(new Date().toDateString());
+            
+            // Update total claimed for the plan
+            const plansSnapshot = await database.ref(`users/${currentUser.id}/activePlans`).orderByChild('planId').equalTo(pid).once('value');
+            if(plansSnapshot.val()) {
+                const planKey = Object.keys(plansSnapshot.val()).pop();
+                await database.ref(`users/${currentUser.id}/activePlans/${planKey}/totalClaimed`).set(plan.daily);
+            }
+            
+            // Distribute commission if applicable
+            if(pid !== 'free' && currentUser.referredBy) {
+                await distributeCommission(currentUser.referredBy, finalPrice);
+            }
+            
+            hideLoading(); 
+            showToast(`Plan Activated! ₹${plan.daily} credited to wallet!`, 'success'); 
+            showPage('plans'); 
+        }
+
+        // ==================== WALLET & TRANSACTIONS ====================
+        function showWalletTab(tab) {
+            document.querySelectorAll('.wallet-tab').forEach(t=>t.classList.remove('active'));
+            document.querySelector(`.wallet-tab[data-tab="${tab}"]`).classList.add('active');
+            document.querySelectorAll('.wallet-section').forEach(s=>s.classList.add('hidden'));
+            document.getElementById('wallet'+tab.charAt(0).toUpperCase()+tab.slice(1)+'Section').classList.remove('hidden');
+        }
+
+        function loadWalletData() {
+            document.getElementById('walletBalance').textContent = currentUser.wallet?.mainBalance || 0;
+            const txns = Object.values(currentUser.transactions || {}).sort((a,b)=>new Date(b.date)-new Date(a.date));
+            document.getElementById('walletTransactions').innerHTML = txns.length ? txns.map(tx => {
+                let status = tx.status || 'approved'; 
+                if(tx.type.includes('pending')) status = 'pending';
+                if(tx.type.includes('rejected')) status = 'rejected';
+                return `
+                <div class="tx-item">
+                    <div class="tx-details">
+                        <div style="font-weight:600;">${tx.description}</div>
+                        <div style="font-size:12px;color:gray;">${new Date(tx.date).toLocaleDateString()} <span class="status-badge status-${status}">${status}</span></div>
+                        ${tx.adminReason ? `<div style="font-size:11px; color:var(--danger); margin-top:3px;">Reason: ${tx.adminReason}</div>` : ''}
+                    </div>
+                    <div style="font-weight:bold; color: ${status==='pending'?'#b45309':(status==='rejected'||tx.type.includes('withdrawal')||tx.type.includes('purchase')?'#ef4444':'#10b981')}">₹${tx.amount}</div>
+                </div>`;
+            }).join('') : '<p style="text-align:center;">No History</p>';
+        }
+
+        function setAmount(amt) { document.getElementById('addAmount').value = amt; }
+
+        function payViaUPI(app) {
+            const amount = document.getElementById('addAmount').value;
+            if(!amount || amount < 100) return showToast('❌ Minimum ₹100 required', 'error');
+            const upiString = `pa=${ADMIN_UPI_ID}&pn=Solor%20Energy&am=${amount}&cu=INR`;
+            let intentUrl = '';
+            if(app === 'gpay') intentUrl = `gpay://upi/pay?${upiString}`;
+            else if(app === 'phonepe') intentUrl = `phonepe://pay?${upiString}`;
+            else if(app === 'paytm') intentUrl = `paytmmp://pay?${upiString}`;
+            else intentUrl = `upi://pay?${upiString}`;
+            document.getElementById('paidVia').value = app === 'gpay' ? 'Google Pay' : (app === 'phonepe' ? 'PhonePe' : (app === 'paytm' ? 'Paytm' : 'Other'));
+            showToast('Opening payment app...', 'info');
+            window.location.href = intentUrl;
+        }
+
+        document.getElementById('addMoneyForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const amt = parseInt(document.getElementById('addAmount').value), utr = document.getElementById('upiTxnId').value, via = document.getElementById('paidVia').value;
+            if(amt < 100) return showToast('Minimum ₹100', 'error');
+            showLoading('Submitting...');
+            const depId = generateId('DEP');
+            await database.ref('deposits/'+depId).set({id: depId, userId: currentUser.id, userName: currentUser.name, userPhone: currentUser.phone, amount: amt, transactionId: utr, upiApp: via, status: 'pending', requestedAt: new Date().toISOString()});
+            await database.ref(`users/${currentUser.id}/transactions/${depId}`).set({id: depId, type: 'deposit_pending', amount: amt, description: `Deposit (UTR: ${utr})`, date: new Date().toISOString(), status: 'pending'});
+            hideLoading(); showToast('Request Sent!', 'success'); document.getElementById('addMoneyForm').reset(); showWalletTab('history');
+        });
+
+        function toggleWithdrawMethod() {
+            const m = document.getElementById('withdrawMethod').value;
+            document.getElementById('upiFields').classList.toggle('hidden', m !== 'upi');
+            document.getElementById('bankFields').classList.toggle('hidden', m !== 'bank');
+        }
+
+        document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const amt = parseInt(document.getElementById('withdrawAmount').value), m = document.getElementById('withdrawMethod').value;
+            if(amt < MIN_WITHDRAWAL) return showToast(`Min ₹${MIN_WITHDRAWAL}`, 'error');
+            if(amt > (currentUser.wallet?.mainBalance||0)) return showToast('Insufficient balance', 'error');
+            let details = m === 'upi' ? document.getElementById('upiIdInput').value : `${document.getElementById('bankHolderName').value}, A/c: ${document.getElementById('bankAccNumber').value}, IFSC: ${document.getElementById('bankIfsc').value}`;
+            
+            showLoading('Processing...');
+            await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set((currentUser.wallet.mainBalance) - amt);
+            const wId = generateId('WID');
+            await database.ref('withdrawals/'+wId).set({id: wId, userId: currentUser.id, userName: currentUser.name, amount: amt, method: m, details: details, status: 'pending', requestedAt: new Date().toISOString()});
+            await database.ref(`users/${currentUser.id}/transactions/${wId}`).set({id: wId, type: 'withdrawal_pending', amount: amt, description: `Withdrawal Requested`, date: new Date().toISOString(), status: 'pending'});
+            hideLoading(); showToast('Withdrawal Requested!', 'success'); document.getElementById('withdrawForm').reset(); showWalletTab('history');
+        });
+
+        // ==================== REFERRAL & PROFILE ====================
+        function loadReferralData() {
+            document.getElementById('refLink').textContent = `${window.location.origin}${window.location.pathname}?ref=${currentUser.referralCode}`;
+            document.getElementById('refTotal').textContent = currentUser.referrals?.count || 0;
+            document.getElementById('refEarned').textContent = '₹'+(currentUser.referrals?.earnings || 0);
+        }
+        function copyRefLink() { navigator.clipboard.writeText(document.getElementById('refLink').textContent); showToast('Link Copied!', 'success'); }
+        
+        function shareWhatsApp() {
+            const link = document.getElementById('refLink').textContent;
+            const text = `☀️ Start Earning with Solor Energy!\n\n🎁 Get ₹${REFER_AMOUNT} Instant Bonus per refer!\n💵 Earn up to 5%-3%-1% daily commissions!\n\nJoin now: ${link}`;
+            window.open(`https://wa.me/?text=${encodeURIComponent(text)}`);
+        }
+
+        // Profile Name Edit Functions
+        function loadProfileData() { 
+            if(!currentUser) return;
+            document.getElementById('profileName').textContent = currentUser.name; 
+            document.getElementById('profilePhone').textContent = '+91 '+currentUser.phone; 
+            document.getElementById('profJoinDate').textContent = new Date(currentUser.joinDate).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'});
+            document.getElementById('profTotalEarn').textContent = '₹' + ((currentUser.referrals?.earnings || 0) + (currentUser.wallet?.mainBalance || 0));
+            
+            // Reset edit mode
+            document.getElementById('nameDisplayContainer').classList.remove('hidden');
+            document.getElementById('nameEditContainer').classList.add('hidden');
+        }
+        
+        function enableNameEdit() {
+            document.getElementById('nameDisplayContainer').classList.add('hidden');
+            document.getElementById('nameEditContainer').classList.remove('hidden');
+            document.getElementById('nameEditInput').value = currentUser.name;
+            document.getElementById('nameEditInput').focus();
+        }
+        
+        async function saveProfileName() {
+            const newName = document.getElementById('nameEditInput').value.trim();
+            if(!newName) {
+                showToast('Please enter a valid name', 'error');
+                return;
+            }
+            if(newName === currentUser.name) {
+                document.getElementById('nameDisplayContainer').classList.remove('hidden');
+                document.getElementById('nameEditContainer').classList.add('hidden');
+                return;
+            }
+            
+            showLoading('Updating...');
+            try {
+                await database.ref(`users/${currentUser.id}/name`).set(newName);
+                currentUser.name = newName;
+                localStorage.setItem('currentUser', JSON.stringify(currentUser));
+                
+                document.getElementById('profileName').textContent = newName;
+                document.getElementById('nameDisplayContainer').classList.remove('hidden');
+                document.getElementById('nameEditContainer').classList.add('hidden');
+                
+                hideLoading();
+                showToast('Profile name updated!', 'success');
+            } catch(e) {
+                hideLoading();
+                showToast('Error updating name', 'error');
+            }
+        }
+        
+        function logout() { 
+            if(lastSeenInterval) clearInterval(lastSeenInterval);
+            if(userStatusListener) userStatusListener.off();
+            localStorage.removeItem('currentUser'); 
+            window.location.reload(); 
+        }
+
+        // ==================== SUPPORT TICKETS ====================
+        function loadSupportData() {
+            if (!currentUser) return;
+            database.ref('tickets').orderByChild('userId').equalTo(currentUser.id).once('value', (snapshot) => {
+                const tickets = snapshot.val() || {};
+                const container = document.getElementById('ticketsList');
+                if (Object.keys(tickets).length === 0) {
+                    container.innerHTML = `<div class="empty-state"><i class="fas fa-ticket-alt"></i><h3>No Tickets Yet</h3></div>`;
+                    return;
+                }
+                container.innerHTML = Object.values(tickets).sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt)).map(ticket => `
+                    <div class="premium-card" style="margin: 0 0 15px 0; border-left: 4px solid ${ticket.status === 'open' ? 'var(--warning)' : 'var(--success)'};">
+                        <div style="display: flex; justify-content: space-between; margin-bottom: 10px;">
+                            <span style="background:${ticket.status === 'open' ? 'var(--warning)' : 'var(--success)'}; color:white; padding:3px 10px; border-radius:20px; font-size:12px; font-weight:bold;">${ticket.status.toUpperCase()}</span>
+                            <small style="color: var(--gray);">${new Date(ticket.createdAt).toLocaleDateString()}</small>
+                        </div>
+                        <h4 style="margin-bottom: 8px;">${ticket.subject}</h4>
+                        <p style="color: var(--gray); font-size: 14px;">${ticket.message}</p>
+                        ${ticket.reply ? `<div style="background: rgba(99, 102, 241, 0.1); padding: 10px; border-radius: 8px; margin-top: 10px; font-size: 13px;"><strong style="color:var(--primary);">Admin:</strong> ${ticket.reply}</div>` : ''}
+                    </div>
+                `).join('');
+            });
+        }
+
+        document.getElementById('ticketForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const ticket = { id: generateId('TIC'), userId: currentUser.id, userName: currentUser.name, userPhone: currentUser.phone, type: document.getElementById('ticketType').value, subject: document.getElementById('ticketSubject').value, message: document.getElementById('ticketMessage').value, status: 'open', createdAt: new Date().toISOString() };
+            showLoading('Submitting...');
+            try { await database.ref('tickets').push(ticket); hideLoading(); showToast('Ticket created!', 'success'); document.getElementById('ticketForm').reset(); loadSupportData(); } 
+            catch (error) { hideLoading(); showToast('Failed to create ticket', 'error'); }
+        });
+    </script>
+</body>
+</html>
