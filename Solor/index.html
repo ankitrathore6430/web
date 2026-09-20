@@ -3,7 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Solor Energy - Premium</title>
+    <title>Solor Energy</title>
+    <meta name="description" content="Solor Energy - Refer & Earn platform.">
+    <meta property="og:title" content="Solor Energy">
+    <meta property="og:description" content="Solor Energy - Refer & Earn platform.">
     
     <!-- Firebase SDK -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -396,6 +399,27 @@
         </div>
     </div>
 
+    <!-- Withdrawal Requirement Alert Modal -->
+    <div id="planRequiredModal" class="modal-overlay">
+        <div class="modal-content" style="text-align: center; max-width: 360px; padding: 30px 24px;">
+            <div style="width: 70px; height: 70px; border-radius: 50%; background: linear-gradient(135deg, rgba(239, 68, 68, 0.15) 0%, rgba(245, 158, 11, 0.15) 100%); color: var(--danger); display: flex; align-items: center; justify-content: center; font-size: 32px; margin: 0 auto 16px; border: 2px solid rgba(239, 68, 68, 0.25);">
+                <i class="fas fa-lock"></i>
+            </div>
+            <h3 id="reqModalTitle" style="font-size: 20px; font-weight: 700; color: var(--dark); margin-bottom: 8px;">Plan Required!</h3>
+            <p id="reqModalDesc" style="font-size: 13px; color: var(--gray); line-height: 1.55; margin-bottom: 22px;">
+                To request a withdrawal, you must purchase at least <strong>1 Investment Plan</strong>. Please purchase a plan first.
+            </p>
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+                <button type="button" id="reqModalActionBtn" class="btn-main" onclick="handleReqModalAction()" style="background: var(--gradient-1); color: white; width: 100%; font-weight: 600; padding: 13px; border-radius: 12px;">
+                    <i class="fas fa-gem" style="margin-right: 8px;"></i> Buy Investment Plan
+                </button>
+                <button type="button" class="btn-main" onclick="closePlanRequiredModal()" style="background: var(--light); color: var(--dark); width: 100%; border: 1px solid #e2e8f0; padding: 12px; border-radius: 12px;">
+                    Cancel
+                </button>
+            </div>
+        </div>
+    </div>
+
     <!-- HEADER -->
     <header class="premium-header" id="mainHeader" style="display: none;">
         <div class="header-content">
@@ -608,13 +632,14 @@
                 
                 <form class="form-premium" id="addMoneyForm">
                     <div class="form-group">
-                        <label>1. Enter Amount (Min ₹100)</label>
+                        <label>1. Enter Amount (Min ₹25)</label>
                         <div style="display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 15px;">
-                            <button type="button" onclick="setAmount(100)" style="padding: 10px 20px; border: 2px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer;">₹100</button>
-                            <button type="button" onclick="setAmount(500)" style="padding: 10px 20px; border: 2px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer;">₹500</button>
-                            <button type="button" onclick="setAmount(1000)" style="padding: 10px 20px; border: 2px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer;">₹1000</button>
+                            <button type="button" onclick="setAmount(25)" style="padding: 10px 18px; border: 2px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer; font-weight: 600;">₹25</button>
+                            <button type="button" onclick="setAmount(50)" style="padding: 10px 18px; border: 2px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer; font-weight: 600;">₹50</button>
+                            <button type="button" onclick="setAmount(100)" style="padding: 10px 18px; border: 2px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer; font-weight: 600;">₹100</button>
+                            <button type="button" onclick="setAmount(500)" style="padding: 10px 18px; border: 2px solid #e2e8f0; border-radius: 12px; background: white; cursor: pointer; font-weight: 600;">₹500</button>
                         </div>
-                        <input type="number" class="input-premium" id="addAmount" placeholder="Enter Amount" min="100" required>
+                        <input type="number" class="input-premium" id="addAmount" placeholder="Enter Amount" min="25" required>
                     </div>
 
                     <div class="form-group">
@@ -648,6 +673,7 @@
         <div id="walletWithdrawSection" class="wallet-section hidden">
             <div class="premium-card">
                 <h3 style="margin-bottom: 20px; font-size: 20px;"><i class="fas fa-minus-circle" style="color: var(--danger); margin-right: 10px;"></i>Withdraw</h3>
+
                 <form class="form-premium" id="withdrawForm">
                     <div class="form-group">
                         <label>Amount (Min ₹<span id="minWithdrawDisplay">200</span>)</label>
@@ -670,7 +696,7 @@
                         <div class="form-group"><label>IFSC Code</label><input type="text" class="input-premium" id="bankIfsc"></div>
                         <div class="form-group"><label>Bank Name</label><input type="text" class="input-premium" id="bankName"></div>
                     </div>
-                    <button type="submit" class="btn-main" style="background: var(--gradient-4); color: white;">Request Withdrawal</button>
+                    <button type="submit" id="withdrawSubmitBtn" class="btn-main" style="background: var(--gradient-4); color: white;">Request Withdrawal</button>
                 </form>
             </div>
         </div>
@@ -890,6 +916,7 @@
         let ADMIN_UPI_ID = '6395503566@upi'; 
         let MIN_WITHDRAWAL = 200;
         let REFER_AMOUNT = 15;
+        let WITHDRAWAL_RULE = 'none'; // 'none' | 'plan' | 'deposit' | 'both'
         
         let activeOffers = {}; 
         let userStatusListener = null;
@@ -1084,6 +1111,7 @@
                 ADMIN_UPI_ID = appSettings.upiId || '6395503566@upi';
                 MIN_WITHDRAWAL = appSettings.minWithdrawal || 200;
                 REFER_AMOUNT = appSettings.referAmount || 15;
+                WITHDRAWAL_RULE = appSettings.withdrawalRule || 'none';
                 document.getElementById('minWithdrawDisplay').textContent = MIN_WITHDRAWAL;
                 document.getElementById('withdrawAmount').min = MIN_WITHDRAWAL;
                 updateReferDisplays();
@@ -1600,6 +1628,128 @@
         }
 
         // ==================== WALLET & TRANSACTIONS ====================
+        function hasUserPurchasedPlan() {
+            if(!currentUser) return false;
+            
+            // Check active plans
+            const activePlans = Object.values(currentUser.activePlans || {});
+            const hasActivePaidPlan = activePlans.some(p => {
+                const isPaid = (p.amount && p.amount > 0) || (p.planId && p.planId !== 'free');
+                return isPaid;
+            });
+            if(hasActivePaidPlan) return true;
+
+            // Check transactions history for approved/completed plan purchase
+            const txns = Object.values(currentUser.transactions || {});
+            const hasPurchaseTxn = txns.some(t => t.type === 'plan_purchase' && (t.status === 'approved' || !t.status));
+            if(hasPurchaseTxn) return true;
+
+            return false;
+        }
+
+        function hasUserDeposited() {
+            if(!currentUser) return false;
+            const txns = Object.values(currentUser.transactions || {});
+            const hasApprovedTxn = txns.some(t => 
+                (t.type === 'deposit_approved' || t.type === 'deposit' || t.type === 'admin_credit') && 
+                (t.status === 'approved' || !t.status)
+            );
+            if(hasApprovedTxn) return true;
+            return false;
+        }
+
+        let reqModalActionCallback = null;
+
+        function checkWithdrawalEligibility() {
+            const rule = appSettings?.withdrawalRule || WITHDRAWAL_RULE || 'none';
+            if(rule === 'none') {
+                return { eligible: true };
+            }
+            const hasPlan = hasUserPurchasedPlan();
+            const hasDeposit = hasUserDeposited();
+
+            if(rule === 'plan') {
+                if(!hasPlan) {
+                    return {
+                        eligible: false,
+                        type: 'plan',
+                        title: 'Plan Required!',
+                        message: 'To request a withdrawal, you must purchase at least 1 Investment Plan. Please purchase a plan first.',
+                        btnText: 'Buy Investment Plan',
+                        btnIcon: 'fa-gem',
+                        action: () => { closePlanRequiredModal(); showPage('plans'); }
+                    };
+                }
+            } else if(rule === 'deposit') {
+                if(!hasDeposit) {
+                    return {
+                        eligible: false,
+                        type: 'deposit',
+                        title: 'Deposit Required!',
+                        message: 'To request a withdrawal, you must make at least 1 Deposit to your wallet. Please deposit funds first.',
+                        btnText: 'Add Money (Deposit)',
+                        btnIcon: 'fa-plus-circle',
+                        action: () => { closePlanRequiredModal(); showPage('wallet'); showWalletTab('add'); }
+                    };
+                }
+            } else if(rule === 'both') {
+                if(!hasPlan || !hasDeposit) {
+                    let missing = [];
+                    if(!hasDeposit) missing.push('1 Deposit');
+                    if(!hasPlan) missing.push('1 Investment Plan Purchase');
+                    return {
+                        eligible: false,
+                        type: 'both',
+                        title: 'Requirements Pending!',
+                        message: `To request a withdrawal, completing ${missing.join(' and ')} is required. Please complete them first.`,
+                        btnText: !hasDeposit ? 'Add Money (Deposit)' : 'Buy Investment Plan',
+                        btnIcon: !hasDeposit ? 'fa-plus-circle' : 'fa-gem',
+                        action: () => {
+                            closePlanRequiredModal();
+                            if(!hasDeposit) {
+                                showPage('wallet'); showWalletTab('add');
+                            } else {
+                                showPage('plans');
+                            }
+                        }
+                    };
+                }
+            }
+            return { eligible: true };
+        }
+
+        function showWithdrawRequirementModal(check) {
+            const titleEl = document.getElementById('reqModalTitle');
+            const descEl = document.getElementById('reqModalDesc');
+            const btnEl = document.getElementById('reqModalActionBtn');
+            if(titleEl) titleEl.textContent = check.title;
+            if(descEl) descEl.textContent = check.message;
+            if(btnEl) {
+                btnEl.innerHTML = `<i class="fas ${check.btnIcon}" style="margin-right: 8px;"></i> ${check.btnText}`;
+            }
+            reqModalActionCallback = check.action;
+            openPlanRequiredModal();
+        }
+
+        function handleReqModalAction() {
+            if(typeof reqModalActionCallback === 'function') {
+                reqModalActionCallback();
+            } else {
+                closePlanRequiredModal();
+                showPage('plans');
+            }
+        }
+
+        function openPlanRequiredModal() {
+            const modal = document.getElementById('planRequiredModal');
+            if(modal) modal.classList.add('active');
+        }
+
+        function closePlanRequiredModal() {
+            const modal = document.getElementById('planRequiredModal');
+            if(modal) modal.classList.remove('active');
+        }
+
         function showWalletTab(tab) {
             document.querySelectorAll('.wallet-tab').forEach(t=>t.classList.remove('active'));
             document.querySelector(`.wallet-tab[data-tab="${tab}"]`).classList.add('active');
@@ -1630,7 +1780,7 @@
 
         function payViaUPI(app) {
             const amount = document.getElementById('addAmount').value;
-            if(!amount || amount < 100) return showToast('❌ Minimum ₹100 required', 'error');
+            if(!amount || amount < 25) return showToast('❌ Minimum ₹25 required', 'error');
             const upiString = `pa=${ADMIN_UPI_ID}&pn=Solor%20Energy&am=${amount}&cu=INR`;
             let intentUrl = '';
             if(app === 'gpay') intentUrl = `gpay://upi/pay?${upiString}`;
@@ -1645,7 +1795,7 @@
         document.getElementById('addMoneyForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             const amt = parseInt(document.getElementById('addAmount').value), utr = document.getElementById('upiTxnId').value, via = document.getElementById('paidVia').value;
-            if(amt < 100) return showToast('Minimum ₹100', 'error');
+            if(amt < 25) return showToast('Minimum ₹25 required', 'error');
             showLoading('Submitting...');
             const depId = generateId('DEP');
             await database.ref('deposits/'+depId).set({id: depId, userId: currentUser.id, userName: currentUser.name, userPhone: currentUser.phone, amount: amt, transactionId: utr, upiApp: via, status: 'pending', requestedAt: new Date().toISOString()});
@@ -1661,6 +1811,11 @@
 
         document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            const check = checkWithdrawalEligibility();
+            if(!check.eligible) {
+                showWithdrawRequirementModal(check);
+                return;
+            }
             const amt = parseInt(document.getElementById('withdrawAmount').value), m = document.getElementById('withdrawMethod').value;
             if(amt < MIN_WITHDRAWAL) return showToast(`Min ₹${MIN_WITHDRAWAL}`, 'error');
             if(amt > (currentUser.wallet?.mainBalance||0)) return showToast('Insufficient balance', 'error');
