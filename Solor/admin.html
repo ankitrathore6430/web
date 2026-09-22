@@ -415,10 +415,10 @@
                             <select class="form-select" id="setWithdrawalRule">
                                 <option value="none">No Requirement (None)</option>
                                 <option value="plan">Plan Purchase Required</option>
-                                <option value="deposit">Deposit Required</option>
-                                <option value="both">Both Plan & Deposit Required</option>
+                                <option value="deposit">Deposit Mandatory (Must be Approved by Admin)</option>
+                                <option value="both">Both Plan & Approved Deposit Mandatory</option>
                             </select>
-                            <p style="font-size: 12px; color: var(--gray); margin-top: 5px;">Requirement condition before a user can submit a withdrawal request</p>
+                            <p style="font-size: 12px; color: var(--gray); margin-top: 5px;">If Deposit Mandatory is selected, users cannot withdraw until they deposit and it is approved by admin.</p>
                         </div>
                         <div class="form-group">
                             <label class="form-label">Payment UPI ID</label>
@@ -1299,7 +1299,32 @@
                 return;
             }
             currentUserId = w.userId;
-            document.getElementById('withdrawDetails').innerHTML = `Amount: <b>₹${w.amount}</b><br>Method: <b>${(w.method || '').toUpperCase()}</b><br>Details: ${w.details || '--'}`;
+
+            // Check user deposit status for admin verification
+            const userDeps = Object.values(appData.deposits || {}).filter(d => d.userId === w.userId || (w.userPhone && d.userPhone === w.userPhone));
+            const approvedDeps = userDeps.filter(d => d.status === 'approved');
+            const pendingDeps = userDeps.filter(d => d.status === 'pending');
+            
+            let depStatusHtml = '';
+            if(approvedDeps.length > 0) {
+                const totalDep = approvedDeps.reduce((sum, d) => sum + (d.amount || 0), 0);
+                depStatusHtml = `<div style="color: var(--success); font-weight: 600; margin-top: 4px;"><i class="fas fa-check-circle"></i> Approved Deposit: ${approvedDeps.length} (Total ₹${totalDep})</div>`;
+            } else if(pendingDeps.length > 0) {
+                depStatusHtml = `<div style="color: var(--warning); font-weight: 600; margin-top: 4px;"><i class="fas fa-clock"></i> Deposit Pending: ${pendingDeps.length} (Deposit not approved yet)</div>`;
+            } else {
+                depStatusHtml = `<div style="color: var(--danger); font-weight: 600; margin-top: 4px;"><i class="fas fa-times-circle"></i> No Deposit Found</div>`;
+            }
+
+            document.getElementById('withdrawDetails').innerHTML = `
+                User: <b>${w.userName || '--'}</b> (${w.userPhone || '--'})<br>
+                Amount: <b>₹${w.amount}</b><br>
+                Method: <b>${(w.method || '').toUpperCase()}</b><br>
+                Details: ${w.details || '--'}
+                <div style="margin-top: 10px; padding: 10px; background: var(--light-bg); border-radius: 8px; border-left: 3px solid ${approvedDeps.length ? 'var(--success)' : (pendingDeps.length ? 'var(--warning)' : 'var(--danger)')}; font-size: 13px;">
+                    <span style="font-size: 11px; text-transform: uppercase; color: var(--gray); font-weight: bold; display: block;">Deposit Verification</span>
+                    ${depStatusHtml}
+                </div>
+            `;
             document.getElementById('withReason').value = w.adminReason || '';
             document.getElementById('withAction').value = 'approved';
             openModal('withdrawModal');
@@ -1313,9 +1338,32 @@
                 return;
             }
             currentUserId = w.userId;
+
+            // Check user deposit status for admin verification
+            const userDeps = Object.values(appData.deposits || {}).filter(d => d.userId === w.userId || (w.userPhone && d.userPhone === w.userPhone));
+            const approvedDeps = userDeps.filter(d => d.status === 'approved');
+            const pendingDeps = userDeps.filter(d => d.status === 'pending');
+            
+            let depStatusHtml = '';
+            if(approvedDeps.length > 0) {
+                const totalDep = approvedDeps.reduce((sum, d) => sum + (d.amount || 0), 0);
+                depStatusHtml = `<div style="color: var(--success); font-weight: 600; margin-top: 4px;"><i class="fas fa-check-circle"></i> Approved Deposit: ${approvedDeps.length} (Total ₹${totalDep})</div>`;
+            } else if(pendingDeps.length > 0) {
+                depStatusHtml = `<div style="color: var(--warning); font-weight: 600; margin-top: 4px;"><i class="fas fa-clock"></i> Deposit Pending: ${pendingDeps.length} (Deposit not approved yet)</div>`;
+            } else {
+                depStatusHtml = `<div style="color: var(--danger); font-weight: 600; margin-top: 4px;"><i class="fas fa-times-circle"></i> No Deposit Found</div>`;
+            }
+
             document.getElementById('withdrawDetails').innerHTML = `
                 <div style="color: var(--warning); margin-bottom: 10px;"><i class="fas fa-exclamation-circle"></i> Changing status from <b>${w.status.toUpperCase()}</b></div>
-                Amount: <b>₹${w.amount}</b><br>Method: <b>${(w.method || '').toUpperCase()}</b><br>Details: ${w.details || '--'}
+                User: <b>${w.userName || '--'}</b> (${w.userPhone || '--'})<br>
+                Amount: <b>₹${w.amount}</b><br>
+                Method: <b>${(w.method || '').toUpperCase()}</b><br>
+                Details: ${w.details || '--'}
+                <div style="margin-top: 10px; padding: 10px; background: var(--light-bg); border-radius: 8px; border-left: 3px solid ${approvedDeps.length ? 'var(--success)' : (pendingDeps.length ? 'var(--warning)' : 'var(--danger)')}; font-size: 13px;">
+                    <span style="font-size: 11px; text-transform: uppercase; color: var(--gray); font-weight: bold; display: block;">Deposit Verification</span>
+                    ${depStatusHtml}
+                </div>
             `;
             document.getElementById('withReason').value = w.adminReason || '';
             document.getElementById('withAction').value = w.status === 'approved' ? 'rejected' : 'approved';
@@ -1529,8 +1577,8 @@
             const ruleLabels = {
                 none: 'No Requirement (None)',
                 plan: 'Plan Purchase Required',
-                deposit: 'Deposit Required',
-                both: 'Both Plan & Deposit Required'
+                deposit: 'Deposit Mandatory (Admin Approved)',
+                both: 'Both Plan & Approved Deposit Mandatory'
             };
             document.getElementById('currentWithdrawalRule').textContent = ruleLabels[settings.withdrawalRule || 'none'] || 'No Requirement (None)';
         }
@@ -1567,8 +1615,8 @@
                 const ruleLabels = {
                     none: 'No Requirement (None)',
                     plan: 'Plan Purchase Required',
-                    deposit: 'Deposit Required',
-                    both: 'Both Plan & Deposit Required'
+                    deposit: 'Deposit Mandatory (Admin Approved)',
+                    both: 'Both Plan & Approved Deposit Mandatory'
                 };
                 document.getElementById('currentWithdrawalRule').textContent = ruleLabels[withdrawalRule] || 'No Requirement (None)';
             } catch(e) {

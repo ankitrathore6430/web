@@ -520,9 +520,15 @@
                     </div>
                     <div class="form-group">
                         <label>Referral Code (Optional)</label>
-                        <input type="text" class="input-premium" id="regReferral" placeholder="Friend's code">
-                        <p style="font-size: 12px; color: var(--secondary); margin-top: 8px; display:none;" id="refBonusText">
-                            <i class="fas fa-info-circle"></i> You were invited! Get ₹<span class="refer-amount-display">15</span> bonus!
+                        <div style="position: relative;">
+                            <input type="text" class="input-premium" id="regReferral" placeholder="Enter friend's referral code" style="text-transform: uppercase;">
+                            <div id="refCodeSpinner" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); display: none; color: var(--primary); font-size: 15px;">
+                                <i class="fas fa-spinner fa-spin"></i>
+                            </div>
+                        </div>
+                        <div id="referByContainer" style="display: none; margin-top: 8px;"></div>
+                        <p style="font-size: 12px; color: var(--secondary); margin-top: 6px; display: none;" id="refBonusText">
+                            <i class="fas fa-gift"></i> You were invited! Get ₹<span class="refer-amount-display">15</span> bonus on registration!
                         </p>
                     </div>
                     
@@ -680,21 +686,36 @@
                         <input type="number" class="input-premium" id="withdrawAmount" placeholder="Amount" min="200" required>
                     </div>
                     <div class="form-group">
-                        <label>Select Method</label>
+                        <label>Select Method <span style="color: var(--danger);">*</span></label>
                         <select class="input-premium" id="withdrawMethod" onchange="toggleWithdrawMethod()" required>
-                            <option value="">Select</option>
+                            <option value="">-- Select Method --</option>
                             <option value="upi">UPI ID</option>
                             <option value="bank">Bank Account</option>
                         </select>
                     </div>
                     <div id="upiFields" class="hidden">
-                        <div class="form-group"><label>UPI ID</label><input type="text" class="input-premium" id="upiIdInput"></div>
+                        <div class="form-group">
+                            <label>UPI ID <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="input-premium" id="upiIdInput" placeholder="e.g. mobile@upi or username@oksbi">
+                        </div>
                     </div>
                     <div id="bankFields" class="hidden">
-                        <div class="form-group"><label>Account Holder</label><input type="text" class="input-premium" id="bankHolderName"></div>
-                        <div class="form-group"><label>Account No</label><input type="text" class="input-premium" id="bankAccNumber"></div>
-                        <div class="form-group"><label>IFSC Code</label><input type="text" class="input-premium" id="bankIfsc"></div>
-                        <div class="form-group"><label>Bank Name</label><input type="text" class="input-premium" id="bankName"></div>
+                        <div class="form-group">
+                            <label>Account Holder Name <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="input-premium" id="bankHolderName" placeholder="Name as per bank account">
+                        </div>
+                        <div class="form-group">
+                            <label>Account Number <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="input-premium" id="bankAccNumber" placeholder="Bank Account Number">
+                        </div>
+                        <div class="form-group">
+                            <label>IFSC Code <span style="color: var(--danger);">*</span></label>
+                            <input type="text" class="input-premium" id="bankIfsc" placeholder="e.g. SBIN0001234" style="text-transform: uppercase;">
+                        </div>
+                        <div class="form-group">
+                            <label>Bank Name (Optional)</label>
+                            <input type="text" class="input-premium" id="bankName" placeholder="e.g. State Bank of India">
+                        </div>
                     </div>
                     <button type="submit" id="withdrawSubmitBtn" class="btn-main" style="background: var(--gradient-4); color: white;">Request Withdrawal</button>
                 </form>
@@ -1066,6 +1087,17 @@
                     targetArea.appendChild(wrapper);
                 }
                 updateRegButtonState();
+
+                const refInput = document.getElementById('regReferral');
+                if(refInput) {
+                    const pendingRef = sessionStorage.getItem('pendingRefCode');
+                    if(pendingRef && !refInput.value) {
+                        refInput.value = pendingRef;
+                    }
+                    if(refInput.value.trim()) {
+                        handleReferralInput(true);
+                    }
+                }
             }
 
             document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
@@ -1115,6 +1147,9 @@
                 document.getElementById('minWithdrawDisplay').textContent = MIN_WITHDRAWAL;
                 document.getElementById('withdrawAmount').min = MIN_WITHDRAWAL;
                 updateReferDisplays();
+                if(currentUser && typeof updateWithdrawSectionNotice === 'function') {
+                    updateWithdrawSectionNotice();
+                }
             });
 
             database.ref('plans').on('value', snap => {
@@ -1151,8 +1186,11 @@
             } else {
                 const pendingRef = sessionStorage.getItem('pendingRefCode');
                 if(pendingRef) {
-                    document.getElementById('regReferral').value = pendingRef;
-                    document.getElementById('refBonusText').style.display = 'block';
+                    const refInput = document.getElementById('regReferral');
+                    if(refInput) {
+                        refInput.value = pendingRef;
+                        handleReferralInput(true);
+                    }
                 }
             }
             
@@ -1166,9 +1204,15 @@
             const rName = document.getElementById('regName');
             const rPass = document.getElementById('regPassword');
             const rConf = document.getElementById('regConfirm');
+            const rRef = document.getElementById('regReferral');
             if(rName) ['input', 'change', 'keyup', 'blur'].forEach(ev => rName.addEventListener(ev, updateRegButtonState));
             if(rPass) ['input', 'change', 'keyup', 'blur'].forEach(ev => rPass.addEventListener(ev, updateRegButtonState));
             if(rConf) ['input', 'change', 'keyup', 'blur'].forEach(ev => rConf.addEventListener(ev, updateRegButtonState));
+            if(rRef) {
+                ['input', 'change', 'keyup', 'paste'].forEach(ev => {
+                    rRef.addEventListener(ev, () => handleReferralInput(false));
+                });
+            }
             updateRegButtonState();
         };
 
@@ -1294,6 +1338,108 @@
             }
         }
 
+        // ==================== REFERRAL VERIFICATION LOGIC ====================
+        function escapeHtml(str) {
+            if(!str) return '';
+            return String(str).replace(/[&<>"']/g, function(m) {
+                return ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[m];
+            });
+        }
+
+        async function lookupReferralCode(rawCode) {
+            if(!rawCode) return null;
+            const code = rawCode.trim();
+            if(!code) return null;
+
+            try {
+                const upperCode = code.toUpperCase();
+                let snap = await database.ref('users').orderByChild('referralCode').equalTo(upperCode).once('value');
+                if(snap.exists() && snap.val()) {
+                    const userId = Object.keys(snap.val())[0];
+                    return { code: upperCode, user: snap.val()[userId], id: userId };
+                }
+
+                if(upperCode !== code) {
+                    snap = await database.ref('users').orderByChild('referralCode').equalTo(code).once('value');
+                    if(snap.exists() && snap.val()) {
+                        const userId = Object.keys(snap.val())[0];
+                        return { code: code, user: snap.val()[userId], id: userId };
+                    }
+                }
+            } catch(err) {
+                console.error('Error looking up referral code:', err);
+            }
+            return null;
+        }
+
+        let refLookupTimer = null;
+        let lastCheckedRefCode = '';
+
+        async function handleReferralInput(immediate = false) {
+            const inputEl = document.getElementById('regReferral');
+            const spinnerEl = document.getElementById('refCodeSpinner');
+            const referByContainer = document.getElementById('referByContainer');
+            const bonusText = document.getElementById('refBonusText');
+
+            if(!inputEl || !referByContainer) return;
+
+            const code = inputEl.value.trim();
+
+            if(!code) {
+                if(refLookupTimer) clearTimeout(refLookupTimer);
+                lastCheckedRefCode = '';
+                if(spinnerEl) spinnerEl.style.display = 'none';
+                referByContainer.style.display = 'none';
+                referByContainer.innerHTML = '';
+                if(bonusText) bonusText.style.display = 'none';
+                inputEl.style.borderColor = '';
+                return;
+            }
+
+            const executeLookup = async () => {
+                lastCheckedRefCode = code;
+                if(spinnerEl) spinnerEl.style.display = 'block';
+
+                const result = await lookupReferralCode(code);
+
+                if(inputEl.value.trim() !== code) return;
+
+                if(spinnerEl) spinnerEl.style.display = 'none';
+
+                if(result && result.user) {
+                    const referrerName = result.user.name || 'User';
+                    referByContainer.style.display = 'block';
+                    referByContainer.innerHTML = `
+                        <div style="color: #065f46; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 8px 12px; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-check-circle" style="color: #10b981; font-size: 16px;"></i>
+                            <span style="font-size: 13px;">Refer by: <strong style="color: #047857; font-size: 14px;">${escapeHtml(referrerName)}</strong></span>
+                        </div>
+                    `;
+                    if(bonusText) bonusText.style.display = 'block';
+                    inputEl.style.borderColor = '#10b981';
+                } else {
+                    referByContainer.style.display = 'block';
+                    referByContainer.innerHTML = `
+                        <div style="color: #991b1b; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.25); padding: 8px 12px; border-radius: 8px; display: flex; align-items: center; gap: 8px;">
+                            <i class="fas fa-times-circle" style="color: #ef4444; font-size: 16px;"></i>
+                            <span style="font-size: 13px;">Invalid referral code. Please check and try again.</span>
+                        </div>
+                    `;
+                    if(bonusText) bonusText.style.display = 'none';
+                    inputEl.style.borderColor = '#ef4444';
+                }
+            };
+
+            if(immediate) {
+                if(refLookupTimer) clearTimeout(refLookupTimer);
+                executeLookup();
+            } else {
+                if(refLookupTimer) clearTimeout(refLookupTimer);
+                if(spinnerEl) spinnerEl.style.display = 'block';
+                refLookupTimer = setTimeout(executeLookup, 350);
+            }
+        }
+
         // ==================== CREATE ACCOUNT LOGIC ====================
         async function createFirebaseAccount(name, phone, pass, ref) {
             try {
@@ -1305,10 +1451,11 @@
 
                 let bonus = 0, refBy = 'ADMIN';
                 if(ref) {
-                    const rSnap = await database.ref('users').orderByChild('referralCode').equalTo(ref).once('value');
-                    if(rSnap.val()) {
-                        const rId = Object.keys(rSnap.val())[0], rData = rSnap.val()[rId];
-                        bonus = REFER_AMOUNT; refBy = ref;
+                    const referrer = await lookupReferralCode(ref);
+                    if(referrer && referrer.user) {
+                        const rId = referrer.id, rData = referrer.user;
+                        bonus = REFER_AMOUNT; 
+                        refBy = referrer.code;
                         await database.ref(`users/${rId}`).update({ 
                             'wallet/mainBalance': (rData.wallet?.mainBalance||0)+REFER_AMOUNT, 
                             'referrals/count': (rData.referrals?.count||0)+1, 
@@ -1650,12 +1797,65 @@
         function hasUserDeposited() {
             if(!currentUser) return false;
             const txns = Object.values(currentUser.transactions || {});
-            const hasApprovedTxn = txns.some(t => 
-                (t.type === 'deposit_approved' || t.type === 'deposit' || t.type === 'admin_credit') && 
-                (t.status === 'approved' || !t.status)
+            return txns.some(t => 
+                (t.type === 'deposit_approved' || (t.type === 'deposit' && t.status === 'approved')) && 
+                t.status === 'approved'
             );
-            if(hasApprovedTxn) return true;
-            return false;
+        }
+
+        async function getUserDepositStatus() {
+            if(!currentUser) return { hasApproved: false, hasPending: false, hasRejected: false, pendingDeposit: null };
+
+            let hasApproved = false;
+            let hasPending = false;
+            let hasRejected = false;
+            let pendingDeposit = null;
+
+            // 1. Check transactions in currentUser
+            const txns = Object.values(currentUser.transactions || {});
+            for(const t of txns) {
+                const isDep = t.type === 'deposit_approved' || t.type === 'deposit_pending' || t.type === 'deposit_rejected' || t.type === 'deposit';
+                if(!isDep) continue;
+
+                if(t.status === 'approved' || t.type === 'deposit_approved') {
+                    hasApproved = true;
+                } else if(t.status === 'pending' || t.type === 'deposit_pending') {
+                    hasPending = true;
+                    if(!pendingDeposit) pendingDeposit = t;
+                } else if(t.status === 'rejected' || t.type === 'deposit_rejected') {
+                    hasRejected = true;
+                }
+            }
+
+            // 2. Direct query on Firebase 'deposits' node for real-time verification
+            try {
+                const snap = await database.ref('deposits').once('value');
+                if(snap.exists()) {
+                    const allDeps = snap.val() || {};
+                    for(const key in allDeps) {
+                        const d = allDeps[key];
+                        if(d && (d.userId === currentUser.id || (currentUser.phone && d.userPhone === currentUser.phone))) {
+                            if(d.status === 'approved') {
+                                hasApproved = true;
+                            } else if(d.status === 'pending') {
+                                hasPending = true;
+                                if(!pendingDeposit) pendingDeposit = d;
+                            } else if(d.status === 'rejected') {
+                                hasRejected = true;
+                            }
+                        }
+                    }
+                }
+            } catch(e) {
+                console.warn('Deposits verification check:', e);
+            }
+
+            return {
+                hasApproved,
+                hasPending,
+                hasRejected,
+                pendingDeposit
+            };
         }
 
         let reqModalActionCallback = null;
@@ -1668,12 +1868,16 @@
             const hasPlan = hasUserPurchasedPlan();
             const hasDeposit = hasUserDeposited();
 
+            const txns = Object.values(currentUser?.transactions || {});
+            const hasPendingDep = txns.some(t => (t.type === 'deposit_pending' || t.type === 'deposit') && t.status === 'pending');
+            const hasRejectedDep = txns.some(t => (t.type === 'deposit_rejected' || t.type === 'deposit') && t.status === 'rejected');
+
             if(rule === 'plan') {
                 if(!hasPlan) {
                     return {
                         eligible: false,
                         type: 'plan',
-                        title: 'Plan Required!',
+                        title: 'Investment Plan Required!',
                         message: 'To request a withdrawal, you must purchase at least 1 Investment Plan. Please purchase a plan first.',
                         btnText: 'Buy Investment Plan',
                         btnIcon: 'fa-gem',
@@ -1682,26 +1886,56 @@
                 }
             } else if(rule === 'deposit') {
                 if(!hasDeposit) {
-                    return {
-                        eligible: false,
-                        type: 'deposit',
-                        title: 'Deposit Required!',
-                        message: 'To request a withdrawal, you must make at least 1 Deposit to your wallet. Please deposit funds first.',
-                        btnText: 'Add Money (Deposit)',
-                        btnIcon: 'fa-plus-circle',
-                        action: () => { closePlanRequiredModal(); showPage('wallet'); showWalletTab('add'); }
-                    };
+                    if(hasPendingDep) {
+                        return {
+                            eligible: false,
+                            type: 'deposit_pending',
+                            title: 'Deposit Approval Pending!',
+                            message: 'Your deposit request has been submitted and is waiting for admin approval. Withdrawals can only be processed after your deposit is approved by the admin.',
+                            btnText: 'View Deposit Status',
+                            btnIcon: 'fa-clock',
+                            action: () => { closePlanRequiredModal(); showPage('wallet'); showWalletTab('history'); }
+                        };
+                    } else if(hasRejectedDep) {
+                        return {
+                            eligible: false,
+                            type: 'deposit_rejected',
+                            title: 'Deposit Not Approved!',
+                            message: 'Your previous deposit request was rejected by the admin. Please make a valid deposit and get it approved by the admin before withdrawing.',
+                            btnText: 'Make New Deposit',
+                            btnIcon: 'fa-plus-circle',
+                            action: () => { closePlanRequiredModal(); showPage('wallet'); showWalletTab('add'); }
+                        };
+                    } else {
+                        return {
+                            eligible: false,
+                            type: 'deposit',
+                            title: 'Deposit Required!',
+                            message: 'A deposit is mandatory before withdrawing. You cannot request a withdrawal until you make a deposit and it is approved by the admin.',
+                            btnText: 'Add Money (Deposit)',
+                            btnIcon: 'fa-plus-circle',
+                            action: () => { closePlanRequiredModal(); showPage('wallet'); showWalletTab('add'); }
+                        };
+                    }
                 }
             } else if(rule === 'both') {
                 if(!hasPlan || !hasDeposit) {
-                    let missing = [];
-                    if(!hasDeposit) missing.push('1 Deposit');
-                    if(!hasPlan) missing.push('1 Investment Plan Purchase');
+                    if(!hasDeposit && hasPendingDep) {
+                        return {
+                            eligible: false,
+                            type: 'both',
+                            title: 'Deposit Approval Pending!',
+                            message: 'Your deposit is pending admin approval. Both an Investment Plan and an admin-approved deposit are mandatory before withdrawing.',
+                            btnText: !hasPlan ? 'Buy Investment Plan' : 'View Deposit Status',
+                            btnIcon: !hasPlan ? 'fa-gem' : 'fa-clock',
+                            action: () => { closePlanRequiredModal(); !hasPlan ? showPage('plans') : (showPage('wallet'), showWalletTab('history')); }
+                        };
+                    }
                     return {
                         eligible: false,
                         type: 'both',
-                        title: 'Requirements Pending!',
-                        message: `To request a withdrawal, completing ${missing.join(' and ')} is required. Please complete them first.`,
+                        title: 'Requirements Incomplete!',
+                        message: 'Both an Investment Plan purchase and an admin-approved deposit are mandatory before you can request a withdrawal.',
                         btnText: !hasDeposit ? 'Add Money (Deposit)' : 'Buy Investment Plan',
                         btnIcon: !hasDeposit ? 'fa-plus-circle' : 'fa-gem',
                         action: () => {
@@ -1716,6 +1950,141 @@
                 }
             }
             return { eligible: true };
+        }
+
+        async function checkWithdrawalEligibilityAsync() {
+            let rule = WITHDRAWAL_RULE || 'none';
+            try {
+                const sSnap = await database.ref('settings').once('value');
+                if(sSnap.exists() && sSnap.val()?.withdrawalRule) {
+                    rule = sSnap.val().withdrawalRule;
+                    WITHDRAWAL_RULE = rule;
+                }
+            } catch(e) {}
+
+            if(rule === 'none') {
+                return { eligible: true };
+            }
+
+            const hasPlan = hasUserPurchasedPlan();
+            const depStatus = await getUserDepositStatus();
+
+            if(rule === 'plan') {
+                if(!hasPlan) {
+                    return {
+                        eligible: false,
+                        type: 'plan',
+                        title: 'Investment Plan Required!',
+                        message: 'To request a withdrawal, you must purchase at least 1 Investment Plan. Please purchase a plan first.',
+                        btnText: 'Buy Investment Plan',
+                        btnIcon: 'fa-gem',
+                        action: () => { closePlanRequiredModal(); showPage('plans'); }
+                    };
+                }
+            } else if(rule === 'deposit') {
+                if(!depStatus.hasApproved) {
+                    if(depStatus.hasPending) {
+                        return {
+                            eligible: false,
+                            type: 'deposit_pending',
+                            title: 'Deposit Approval Pending!',
+                            message: 'Your deposit request has been submitted and is currently waiting for admin approval. Withdrawals can only be processed after your deposit is approved by the admin.',
+                            btnText: 'View Deposit Status',
+                            btnIcon: 'fa-clock',
+                            action: () => { closePlanRequiredModal(); showPage('wallet'); showWalletTab('history'); }
+                        };
+                    } else if(depStatus.hasRejected) {
+                        return {
+                            eligible: false,
+                            type: 'deposit_rejected',
+                            title: 'Deposit Not Approved!',
+                            message: 'Your previous deposit request was rejected by the admin. Please submit a valid deposit and wait for admin approval before requesting a withdrawal.',
+                            btnText: 'Make New Deposit',
+                            btnIcon: 'fa-plus-circle',
+                            action: () => { closePlanRequiredModal(); showPage('wallet'); showWalletTab('add'); }
+                        };
+                    } else {
+                        return {
+                            eligible: false,
+                            type: 'deposit',
+                            title: 'Deposit Required!',
+                            message: 'A deposit is mandatory before withdrawing. You cannot request a withdrawal until you make a deposit and it is approved by the admin.',
+                            btnText: 'Add Money (Deposit)',
+                            btnIcon: 'fa-plus-circle',
+                            action: () => { closePlanRequiredModal(); showPage('wallet'); showWalletTab('add'); }
+                        };
+                    }
+                }
+            } else if(rule === 'both') {
+                if(!hasPlan || !depStatus.hasApproved) {
+                    if(!hasPlan && !depStatus.hasApproved) {
+                        if(depStatus.hasPending) {
+                            return {
+                                eligible: false,
+                                type: 'both',
+                                title: 'Plan & Deposit Required!',
+                                message: 'Both an Investment Plan and an admin-approved deposit are required to withdraw. Your deposit is currently pending approval, and you also need to purchase an Investment Plan.',
+                                btnText: 'Buy Investment Plan',
+                                btnIcon: 'fa-gem',
+                                action: () => { closePlanRequiredModal(); showPage('plans'); }
+                            };
+                        } else {
+                            return {
+                                eligible: false,
+                                type: 'both',
+                                title: 'Plan & Deposit Required!',
+                                message: 'Both an Investment Plan purchase and an admin-approved deposit are mandatory before you can request a withdrawal. Please complete both requirements.',
+                                btnText: 'Add Money (Deposit)',
+                                btnIcon: 'fa-plus-circle',
+                                action: () => { closePlanRequiredModal(); showPage('wallet'); showWalletTab('add'); }
+                            };
+                        }
+                    } else if(!hasPlan) {
+                        return {
+                            eligible: false,
+                            type: 'plan',
+                            title: 'Investment Plan Required!',
+                            message: 'Your deposit has been approved, but you must also purchase at least 1 Investment Plan before you can withdraw your funds.',
+                            btnText: 'Buy Investment Plan',
+                            btnIcon: 'fa-gem',
+                            action: () => { closePlanRequiredModal(); showPage('plans'); }
+                        };
+                    } else if(!depStatus.hasApproved) {
+                        if(depStatus.hasPending) {
+                            return {
+                                eligible: false,
+                                type: 'deposit_pending',
+                                title: 'Deposit Approval Pending!',
+                                message: 'You have purchased an Investment Plan, but your deposit request is still pending admin approval. Withdrawals will be enabled once your deposit is approved.',
+                                btnText: 'View Deposit Status',
+                                btnIcon: 'fa-clock',
+                                action: () => { closePlanRequiredModal(); showPage('wallet'); showWalletTab('history'); }
+                            };
+                        } else {
+                            return {
+                                eligible: false,
+                                type: 'deposit',
+                                title: 'Deposit Required!',
+                                message: 'You have purchased an Investment Plan, but an admin-approved deposit is also required to process withdrawals. Please make a deposit to continue.',
+                                btnText: 'Add Money (Deposit)',
+                                btnIcon: 'fa-plus-circle',
+                                action: () => { closePlanRequiredModal(); showPage('wallet'); showWalletTab('add'); }
+                            };
+                        }
+                    }
+                }
+            }
+
+            return { eligible: true };
+        }
+
+        async function updateWithdrawSectionNotice() {
+            // User requested: No inline banner in app, only popup in English
+            const noticeEl = document.getElementById('withdrawRuleNotice');
+            if(noticeEl) {
+                noticeEl.style.display = 'none';
+                noticeEl.innerHTML = '';
+            }
         }
 
         function showWithdrawRequirementModal(check) {
@@ -1755,10 +2124,14 @@
             document.querySelector(`.wallet-tab[data-tab="${tab}"]`).classList.add('active');
             document.querySelectorAll('.wallet-section').forEach(s=>s.classList.add('hidden'));
             document.getElementById('wallet'+tab.charAt(0).toUpperCase()+tab.slice(1)+'Section').classList.remove('hidden');
+            if(tab === 'withdraw') {
+                updateWithdrawSectionNotice();
+            }
         }
 
         function loadWalletData() {
             document.getElementById('walletBalance').textContent = currentUser.wallet?.mainBalance || 0;
+            updateWithdrawSectionNotice();
             const txns = Object.values(currentUser.transactions || {}).sort((a,b)=>new Date(b.date)-new Date(a.date));
             document.getElementById('walletTransactions').innerHTML = txns.length ? txns.map(tx => {
                 let status = tx.status || 'approved'; 
@@ -1800,33 +2173,139 @@
             const depId = generateId('DEP');
             await database.ref('deposits/'+depId).set({id: depId, userId: currentUser.id, userName: currentUser.name, userPhone: currentUser.phone, amount: amt, transactionId: utr, upiApp: via, status: 'pending', requestedAt: new Date().toISOString()});
             await database.ref(`users/${currentUser.id}/transactions/${depId}`).set({id: depId, type: 'deposit_pending', amount: amt, description: `Deposit (UTR: ${utr})`, date: new Date().toISOString(), status: 'pending'});
-            hideLoading(); showToast('Request Sent!', 'success'); document.getElementById('addMoneyForm').reset(); showWalletTab('history');
+            hideLoading(); 
+            showToast('Request Sent! Awaiting admin approval.', 'success'); 
+            document.getElementById('addMoneyForm').reset(); 
+            showWalletTab('history');
+            updateWithdrawSectionNotice();
         });
 
         function toggleWithdrawMethod() {
             const m = document.getElementById('withdrawMethod').value;
-            document.getElementById('upiFields').classList.toggle('hidden', m !== 'upi');
-            document.getElementById('bankFields').classList.toggle('hidden', m !== 'bank');
+            const upiFields = document.getElementById('upiFields');
+            const bankFields = document.getElementById('bankFields');
+            const upiInput = document.getElementById('upiIdInput');
+            const bankHolder = document.getElementById('bankHolderName');
+            const bankAcc = document.getElementById('bankAccNumber');
+            const bankIfsc = document.getElementById('bankIfsc');
+
+            upiFields.classList.toggle('hidden', m !== 'upi');
+            bankFields.classList.toggle('hidden', m !== 'bank');
+
+            if (m === 'upi') {
+                upiInput.setAttribute('required', 'required');
+                bankHolder.removeAttribute('required');
+                bankAcc.removeAttribute('required');
+                bankIfsc.removeAttribute('required');
+            } else if (m === 'bank') {
+                upiInput.removeAttribute('required');
+                bankHolder.setAttribute('required', 'required');
+                bankAcc.setAttribute('required', 'required');
+                bankIfsc.setAttribute('required', 'required');
+            } else {
+                upiInput.removeAttribute('required');
+                bankHolder.removeAttribute('required');
+                bankAcc.removeAttribute('required');
+                bankIfsc.removeAttribute('required');
+            }
         }
 
         document.getElementById('withdrawForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const check = checkWithdrawalEligibility();
+
+            const amt = parseInt(document.getElementById('withdrawAmount').value);
+            const m = document.getElementById('withdrawMethod').value;
+
+            if(!m) {
+                showToast('Please select a payment method (UPI or Bank Account)', 'error');
+                document.getElementById('withdrawMethod').focus();
+                return;
+            }
+
+            if(isNaN(amt) || amt < MIN_WITHDRAWAL) {
+                return showToast(`Min withdrawal amount is ₹${MIN_WITHDRAWAL}`, 'error');
+            }
+            if(amt > (currentUser.wallet?.mainBalance || 0)) {
+                return showToast('Insufficient balance in wallet', 'error');
+            }
+
+            let details = '';
+            if (m === 'upi') {
+                const upi = document.getElementById('upiIdInput').value.trim();
+                if(!upi) {
+                    showToast('Please enter your UPI ID', 'error');
+                    document.getElementById('upiIdInput').focus();
+                    return;
+                }
+                if(!upi.includes('@') || upi.length < 5) {
+                    showToast('Please enter a valid UPI ID (e.g. mobile@upi or name@oksbi)', 'error');
+                    document.getElementById('upiIdInput').focus();
+                    return;
+                }
+                details = upi;
+            } else if (m === 'bank') {
+                const holder = document.getElementById('bankHolderName').value.trim();
+                const accNo = document.getElementById('bankAccNumber').value.trim();
+                const ifsc = document.getElementById('bankIfsc').value.trim().toUpperCase();
+                const bName = document.getElementById('bankName').value.trim();
+
+                if(!holder) {
+                    showToast('Please enter Account Holder Name', 'error');
+                    document.getElementById('bankHolderName').focus();
+                    return;
+                }
+                if(!accNo || accNo.length < 6) {
+                    showToast('Please enter valid Account Number (min 6 digits)', 'error');
+                    document.getElementById('bankAccNumber').focus();
+                    return;
+                }
+                if(!ifsc || ifsc.length < 5) {
+                    showToast('Please enter valid Bank IFSC Code (e.g. SBIN0001234)', 'error');
+                    document.getElementById('bankIfsc').focus();
+                    return;
+                }
+                details = `${holder}, A/c: ${accNo}, IFSC: ${ifsc}${bName ? ' (' + bName + ')' : ''}`;
+            } else {
+                showToast('Invalid withdrawal method selected', 'error');
+                return;
+            }
+
+            showLoading('Checking eligibility...');
+            const check = await checkWithdrawalEligibilityAsync();
+            hideLoading();
             if(!check.eligible) {
                 showWithdrawRequirementModal(check);
                 return;
             }
-            const amt = parseInt(document.getElementById('withdrawAmount').value), m = document.getElementById('withdrawMethod').value;
-            if(amt < MIN_WITHDRAWAL) return showToast(`Min ₹${MIN_WITHDRAWAL}`, 'error');
-            if(amt > (currentUser.wallet?.mainBalance||0)) return showToast('Insufficient balance', 'error');
-            let details = m === 'upi' ? document.getElementById('upiIdInput').value : `${document.getElementById('bankHolderName').value}, A/c: ${document.getElementById('bankAccNumber').value}, IFSC: ${document.getElementById('bankIfsc').value}`;
             
             showLoading('Processing...');
             await database.ref(`users/${currentUser.id}/wallet/mainBalance`).set((currentUser.wallet.mainBalance) - amt);
             const wId = generateId('WID');
-            await database.ref('withdrawals/'+wId).set({id: wId, userId: currentUser.id, userName: currentUser.name, amount: amt, method: m, details: details, status: 'pending', requestedAt: new Date().toISOString()});
-            await database.ref(`users/${currentUser.id}/transactions/${wId}`).set({id: wId, type: 'withdrawal_pending', amount: amt, description: `Withdrawal Requested`, date: new Date().toISOString(), status: 'pending'});
-            hideLoading(); showToast('Withdrawal Requested!', 'success'); document.getElementById('withdrawForm').reset(); showWalletTab('history');
+            await database.ref('withdrawals/'+wId).set({
+                id: wId, 
+                userId: currentUser.id, 
+                userName: currentUser.name, 
+                userPhone: currentUser.phone || '',
+                amount: amt, 
+                method: m, 
+                details: details, 
+                status: 'pending', 
+                requestedAt: new Date().toISOString()
+            });
+            await database.ref(`users/${currentUser.id}/transactions/${wId}`).set({
+                id: wId, 
+                type: 'withdrawal_pending', 
+                amount: amt, 
+                description: `Withdrawal Requested`, 
+                date: new Date().toISOString(), 
+                status: 'pending'
+            });
+            hideLoading(); 
+            showToast('Withdrawal Requested!', 'success'); 
+            document.getElementById('withdrawForm').reset(); 
+            toggleWithdrawMethod();
+            showWalletTab('history');
+            updateWithdrawSectionNotice();
         });
 
         // ==================== REFERRAL & PROFILE ====================
